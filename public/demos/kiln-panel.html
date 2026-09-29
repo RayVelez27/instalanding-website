@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kiln — inference that never leaves the building</title>
+<meta name="description" content="The landing page is the front panel: throw the power, spin the turbine, push it into turbo and watch the thermals. Every screw, dial and LED is CSS and inline SVG." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   KILN · front panel
+   The page is the machine. Every section is a rusted plate held
+   down by four screws; the fan, the dial, the arc gauge and the
+   heat window all read from one machine state.
+   One file, no images, no libraries.
+   ============================================================ */
+
+:root {
+  --void: #0a0a0c;
+  --iron: #17181c;
+  --iron-2: #1f2126;
+  --iron-3: #292c32;
+  --seam: #0c0d10;
+
+  --steel: #5f646c;
+  --steel-hi: #b9c0c8;
+
+  --text: #cdd2d9;
+  --mute: #767c86;
+  --dim: #4b515a;
+
+  --amber: #ff9426;
+  --ember: #ff4f14;
+  --green: #3fd96e;
+  --red: #ff3b3b;
+  --cyan: #35e6de;
+
+  --rpm: 2.4s;      /* fan period, driven by the machine state */
+  --heat: 0;        /* 0..1 */
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --display: "Archivo", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(90% 60% at 50% -10%, #16171b, transparent 60%),
+    var(--void);
+  color: var(--text);
+  font-family: var(--display);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button, input { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.wrap { width: min(1160px, 100% - 36px); margin: 0 auto; }
+
+/* ============================================================
+   PLATE — the one surface everything is bolted to
+   ============================================================ */
+.plate {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid var(--seam);
+  background:
+    radial-gradient(70% 50% at 18% 8%, rgba(255, 255, 255, 0.045), transparent 60%),
+    linear-gradient(162deg, var(--iron-2) 0%, var(--iron) 52%, #131418 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -3px 9px rgba(0, 0, 0, 0.72),
+    0 24px 46px -20px #000;
+}
+/* rust and wear, three soft patches and a diagonal weave */
+.plate::before {
+  content: "";
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background:
+    radial-gradient(38% 30% at 12% 84%, rgba(120, 72, 32, 0.16), transparent 70%),
+    radial-gradient(30% 26% at 88% 16%, rgba(110, 66, 30, 0.13), transparent 72%),
+    radial-gradient(24% 40% at 62% 96%, rgba(90, 54, 26, 0.1), transparent 70%),
+    repeating-linear-gradient(118deg, transparent 0 7px, rgba(0, 0, 0, 0.12) 8px);
+  opacity: 0.85;
+}
+/* The grain belongs on the metal, not on the viewport. A fixed full-screen
+   layer with mix-blend-mode forces the whole page through an extra
+   compositing pass on every animated frame; scoped to the plates it costs
+   almost nothing and is more accurate anyway. */
+.plate::after {
+  content: "";
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.5'/></svg>");
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+.plate > * { position: relative; z-index: 2; }
+
+/* screws, one per corner */
+.screw {
+  position: absolute; z-index: 5;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #949aa3, #565b63 44%, #2b2e34 72%, #1a1c21);
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.85), 0 1px 1px rgba(255, 255, 255, 0.07);
+}
+.screw::after {
+  content: ""; position: absolute; inset: 3px; border-radius: 50%;
+  background: linear-gradient(var(--a, 40deg), transparent 43%, #121418 43% 57%, transparent 57%);
+}
+.screw.tl { left: 11px; top: 11px; --a: 34deg; }
+.screw.tr { right: 11px; top: 11px; --a: 118deg; }
+.screw.bl { left: 11px; bottom: 11px; --a: 72deg; }
+.screw.br { right: 11px; bottom: 11px; --a: 12deg; }
+
+/* recessed inner wells and grilles */
+.well {
+  border-radius: 12px;
+  background: linear-gradient(180deg, #0c0d10, #131418);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+.grille { display: grid; gap: 3px; }
+.grille i {
+  height: 3px; border-radius: 2px;
+  background: linear-gradient(180deg, #0a0b0d, #202329);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+   TYPE
+   ============================================================ */
+.stencil {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.34em; text-transform: uppercase; color: var(--mute);
+  text-indent: 0.34em;
+}
+.caption { font-family: var(--mono); font-size: 10px; line-height: 1.6; color: var(--dim); text-align: center; }
+h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-transform: uppercase; }
+
+/* ============================================================
+   CHROME
+   ============================================================ */
+.topbar {
+  position: sticky; top: 0; z-index: 70;
+  background: rgba(10, 10, 12, 0.86);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+  border-bottom: 1px solid #16171b;
+}
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; }
+.brand-mark { width: 22px; height: 22px; flex-shrink: 0; }
+.topnav { display: flex; gap: 22px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+.topnav a:hover { color: var(--amber); }
+.unit { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em; color: var(--dim); }
+
+/* ============================================================
+   NAMEPLATE — the headline is etched into the chassis, so the
+   machine itself starts inside the first screen instead of
+   underneath half a page of copy.
+   ============================================================ */
+.nameplate {
+  grid-column: 1 / -1;
+  display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 26px;
+  padding: 2px 6px 15px;
+  border-bottom: 1px solid var(--seam);
+  margin-bottom: 13px;
+}
+/* no top margin now that the stencil line above it is gone */
+.nameplate h1 { font-size: clamp(27px, 3.6vw, 46px); margin: 0 0 9px; max-width: 24ch; }
+.nameplate h1 em {
+  font-style: normal; color: var(--amber);
+  text-shadow: 0 0 30px rgba(255, 148, 38, 0.45);
+  transition: color 1s var(--ease), text-shadow 1s var(--ease);
+}
+.machine.off .nameplate h1 em { color: #4a4038; text-shadow: none; }
+.nameplate p { max-width: 62ch; font-size: 13.5px; line-height: 1.55; color: var(--mute); }
+.plate-badge {
+  display: grid; gap: 7px; padding: 11px 14px; border-radius: 10px;
+  background: linear-gradient(180deg, #0c0d10, #131418);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.9);
+}
+.plate-badge div { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+.plate-badge b { width: 7px; height: 7px; border-radius: 50%; background: #26292f; flex-shrink: 0; transition: 0.45s var(--ease); }
+.machine:not(.off) .plate-badge .g { background: var(--green); box-shadow: 0 0 9px var(--green); }
+.machine:not(.off) .plate-badge .a { background: var(--amber); box-shadow: 0 0 9px var(--amber); }
+
+/* the power-on flash, one shot */
+.machine::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 6;
+  background: radial-gradient(70% 60% at 50% 40%, rgba(255, 170, 70, 0.28), transparent 70%);
+  opacity: 0;
+}
+.machine.flash::after { animation: flash 0.75s var(--ease); }
+@keyframes flash { 12% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ============================================================
+   THE FACE — the machine itself
+   ============================================================ */
+/* Generous top and bottom: the nameplate spans both columns at the head of
+   this grid and the readout strip spans both at the foot, so the block
+   padding is what gives the headline air above it and the readings room to
+   breathe before the panel edge. */
+.face {
+  padding: clamp(34px, 4.4vw, 62px) 20px clamp(30px, 3.6vw, 50px);
+  display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px;
+}
+.bay { padding: 14px; border-radius: 12px; }
+
+/* ---------- turbine ---------- */
+.turbine { display: grid; place-items: center; gap: 11px; align-content: center; }
+.fan-well { position: relative; width: min(202px, 48vw); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; }
+.fan-well::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  box-shadow: inset 0 6px 16px rgba(0, 0, 0, 0.95), inset 0 -2px 0 rgba(255, 255, 255, 0.05);
+}
+.fan { width: 88%; height: 88%; animation: spin var(--rpm) linear infinite; transform-origin: 50% 50%; }
+.machine.off .fan { animation-play-state: paused; }
+@keyframes spin { to { rotate: 360deg; } }
+.fan .blade { fill: url(#bladeg); stroke: #2c3038; stroke-width: 0.45; }
+.fan .hub { fill: url(#hubg); }
+.fan-cap {
+  position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #4a4e55, #24272c 60%, #15171a);
+  box-shadow: inset 0 -2px 5px rgba(0, 0, 0, 0.9), 0 3px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* ---------- rocker switches ---------- */
+.rockers { display: flex; gap: 26px; justify-content: center; }
+.rocker { display: grid; justify-items: center; gap: 7px; }
+.rocker .led {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #4a4f57, #24272c);
+  transition: 0.3s var(--ease);
+}
+.rocker[aria-pressed="true"] .led { background: radial-gradient(circle at 34% 30%, #d9ffe6, var(--green) 45%, #128c3a); box-shadow: 0 0 10px var(--green), 0 0 20px rgba(63, 217, 110, 0.5); }
+.rocker[aria-pressed="true"][data-hot="1"] .led { background: radial-gradient(circle at 34% 30%, #ffdede, var(--red) 45%, #8c1212); box-shadow: 0 0 10px var(--red), 0 0 20px rgba(255, 59, 59, 0.5); }
+.rocker .body {
+  position: relative; width: 27px; height: 40px; border-radius: 8px;
+  background: linear-gradient(180deg, #3b3f46, #23262b);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -2px 5px rgba(0, 0, 0, 0.8), 0 2px 5px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+.rocker .body::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 50%;
+  top: 0; background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), transparent);
+  transition: top 0.22s var(--ease);
+}
+.rocker[aria-pressed="true"] .body::after { top: 50%; }
+.rocker:hover .body { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -2px 5px rgba(0, 0, 0, 0.8), 0 0 14px rgba(255, 148, 38, 0.35); }
+.rocker:focus-visible { outline: 2px solid var(--amber); outline-offset: 5px; border-radius: 6px; }
+.rocker .grille { width: 22px; }
+
+/* ---------- the right stack ---------- */
+.stack { display: grid; gap: 14px; align-content: start; }
+
+/* arc gauge */
+.gauge { display: grid; justify-items: center; gap: 8px; }
+.gauge svg { width: 100%; max-width: 252px; height: auto; display: block; }
+.gauge .tick { stroke: #2b2e34; stroke-width: 3.2; stroke-linecap: round; transition: stroke 0.25s linear, filter 0.25s linear; }
+.gauge .tick.on { stroke: var(--cyan); filter: drop-shadow(0 0 4px var(--cyan)); }
+.gauge .tick.hot { stroke: var(--ember); filter: drop-shadow(0 0 5px var(--ember)); }
+.gauge-read { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--text); text-indent: 0.3em; }
+.gauge-read b { color: var(--cyan); font-weight: 500; }
+
+/* slot */
+.slot-row { display: grid; justify-items: center; gap: 8px; }
+.slot { width: 190px; height: 9px; border-radius: 5px; background: linear-gradient(180deg, #08090b, #1b1e23); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 0 rgba(255, 255, 255, 0.05); }
+
+/* heat window */
+.thermal { display: grid; gap: 8px; justify-items: center; padding: 12px; }
+.window {
+  position: relative; width: 100%; height: 96px; border-radius: 9px; overflow: hidden;
+  background: #070809;
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.95), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+.coil { position: absolute; left: 14%; right: 14%; top: 50%; translate: 0 -50%; display: grid; gap: 7px; }
+.coil i {
+  height: 6px; border-radius: 4px;
+  background: linear-gradient(90deg, #2a1206, #7a2a08 18%, #ff6a18 50%, #7a2a08 82%, #2a1206);
+  opacity: calc(0.12 + var(--heat) * 0.88);
+  box-shadow: 0 0 calc(var(--heat) * 22px) rgba(255, 106, 24, calc(var(--heat) * 0.9));
+  transition: opacity 0.5s linear, box-shadow 0.5s linear;
+}
+.window::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 70% at 50% 50%, rgba(255, 130, 30, calc(var(--heat) * 0.34)), transparent 72%);
+  transition: background 0.5s linear;
+}
+.window .bars { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 5px, rgba(0, 0, 0, 0.42) 6px); }
+
+/* the machine going dark */
+.machine.off .coil i { opacity: 0.08; box-shadow: none; }
+.machine.off .gauge .tick.on, .machine.off .gauge .tick.hot { stroke: #2b2e34; filter: none; }
+
+/* ---------- readout strip ---------- */
+.readout { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 14px; background: var(--seam); border: 1px solid var(--seam); border-radius: 10px; overflow: hidden; }
+.readout div { background: linear-gradient(180deg, #16171b, #101115); padding: 10px 14px; }
+.readout dt { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); }
+.readout dd { margin-top: 5px; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.readout dd small { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--mute); margin-left: 3px; }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.section { padding: 92px 0 0; scroll-margin-top: 66px; }
+.section-head { max-width: 50ch; margin-bottom: 40px; }
+.section-head h2 { margin: 15px 0 13px; font-size: clamp(26px, 4vw, 42px); }
+.section-head p { font-size: 15px; line-height: 1.66; color: var(--mute); }
+
+.specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.spec { padding: 26px 24px 30px; }
+.spec .dialsm { width: 54px; height: 54px; margin-bottom: 18px; }
+.spec h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.01em; }
+.spec p { font-size: 13.5px; line-height: 1.62; color: var(--mute); }
+
+.cta { margin-top: 88px; padding: 60px 30px; text-align: center; }
+.cta h2 { font-size: clamp(26px, 4.4vw, 42px); margin-bottom: 14px; }
+.cta p { max-width: 44ch; margin: 0 auto 26px; font-size: 15px; line-height: 1.6; color: var(--mute); }
+.btn {
+  display: inline-block; padding: 13px 26px; border-radius: 8px;
+  border: 1px solid #3a3d44;
+  background: linear-gradient(180deg, #2c2f35, #1c1e22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 8px rgba(0, 0, 0, 0.7);
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  transition: 0.32s var(--ease);
+}
+.btn:hover { border-color: var(--amber); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 6px var(--amber), 0 0 22px rgba(255, 148, 38, 0.6); }
+
+.footer {
+  display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  margin-top: 40px; padding: 26px 0 42px; border-top: 1px solid #16171b;
+  font-family: var(--mono); font-size: 10px; line-height: 1.85; color: var(--dim);
+}
+
+/* ============================================================
+   FRACTURE
+   Every module reads as a plate that has been broken out of its
+   frame: a handful of shards floating just clear of the edges,
+   dark and dead at rest. Put a pointer on one and the torn edges
+   light up along the break. Press it and the pieces fly home and
+   the module seals — rim lit, face warmed from the top.
+
+   Amber throughout, because the panel already has exactly one
+   colour and this is not the place to introduce a second.
+   ============================================================ */
+/* Clipped to the module, not floating outside it. The reference has empty
+   canvas all round its button; a panel does not — pieces thrown outward
+   landed on the headline and on the bay next door. Breaking the plate at
+   its OWN corners keeps every shard inside the thing that broke, and the
+   corner cutting half of each one off is what sells it as a piece snapped
+   from the edge rather than a pebble dropped on top. */
+.frac {
+  position: absolute; inset: 0;
+  z-index: 4; pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.frac svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.frac path {
+  fill: #1b1d22;
+  stroke: #2b2e34;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  /* the drift is its own animation on a wrapper so the hover transition
+     below never has to fight a keyframe for the transform channel */
+  transition: stroke 0.34s var(--ease), fill 0.34s var(--ease), filter 0.34s var(--ease);
+}
+.frac g {
+  transform-box: view-box;
+  transition: transform 0.55s var(--ease), opacity 0.55s var(--ease);
+}
+
+/* HOVER — the break lights up */
+.bay:hover .frac path,
+.spec:hover .frac path,
+.bay:focus-within .frac path,
+.spec:focus-within .frac path {
+  stroke: var(--amber);
+  fill: #23211f;
+  filter: drop-shadow(0 0 6px rgba(255, 148, 38, 0.7));
+}
+.bay:hover, .spec:hover,
+.bay:focus-within, .spec:focus-within {
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(255, 148, 38, 0.5);
+}
+
+/* PRESS — the pieces come home and the module seals */
+.bay:active .frac g,
+.spec:active .frac g {
+  transform: translate(var(--hx, 0), var(--hy, 0)) scale(0.2);
+  opacity: 0;
+}
+.bay:active, .spec:active {
+  box-shadow:
+    inset 0 30px 44px -34px rgba(255, 148, 38, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1.5px var(--amber),
+    0 0 34px -8px rgba(255, 148, 38, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frac g, .frac path { transition: none; }
+}
+
+/* ============================================================
+   TYPE-ON
+   Headings and copy type themselves in when they reach the
+   viewport, with a run of glitch characters on the headings
+   before each letter settles. It suits a machine that is
+   printing its own labels.
+
+   Characters are revealed with opacity, never display, so the
+   block occupies its final size from the first frame and
+   nothing below it moves while the line runs.
+   ============================================================ */
+.type-char { opacity: 0; transition: opacity 0.18s ease-in; }
+.type-char.visible { opacity: 1; }
+.typing-caret {
+  display: inline-block; width: 0; height: 1em;
+  vertical-align: bottom;
+  border-right: 0.12em solid currentColor; margin-right: -0.12em;
+  animation: blink-caret 0.75s step-end infinite;
+}
+@keyframes blink-caret { from, to { opacity: 1; } 50% { opacity: 0; } }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 940px) {
+  .face { grid-template-columns: 1fr; }
+  .specs { grid-template-columns: 1fr; }
+  .readout { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .topnav, .unit { display: none; }
+  .face { padding: 30px 14px 26px; gap: 12px; }
+  .bay { padding: 14px; }
+  .readout { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* the turbine is the page's one continuous motion: stop it outright */
+  .fan { animation: none !important; }
+  /* the rig bails out in this mode, so nothing is ever split — this is
+     only here in case a preference flips mid-session */
+  .type-char { opacity: 1 !important; }
+  .typing-caret { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="#5f646c" stroke-width="1.4" />
+        <circle cx="12" cy="12" r="4.4" fill="none" stroke="#ff9426" stroke-width="1.6" />
+        <circle cx="12" cy="12" r="1.3" fill="#ff9426" />
+      </svg>
+      Kiln
+    </span>
+    <nav class="topnav" aria-label="Sections">
+      <a href="#panel">Panel</a><a href="#why">Why</a><a href="#order">Order</a>
+    </nav>
+    <span class="unit">UNIT K-04 · BENCH</span>
+  </div>
+</header>
+
+<main>
+  <!-- ============ THE MACHINE ============ -->
+  <section id="panel" style="scroll-margin-top: 70px; padding-top: 26px">
+    <div class="wrap">
+      <div class="plate face machine off" id="machine">
+        <span class="screw tl" aria-hidden="true"></span>
+        <span class="screw tr" aria-hidden="true"></span>
+        <span class="screw bl" aria-hidden="true"></span>
+        <span class="screw br" aria-hidden="true"></span>
+
+        <!-- turbine bay -->
+        <div class="nameplate">
+          <div>
+            <h1>Inference that never <em>leaves the building.</em></h1>
+            <p>
+              A rack unit that runs your models on your own metal. No egress, no per-token meter,
+              and a front panel you can read from across the room. This one is live.
+            </p>
+          </div>
+          <div class="plate-badge" aria-hidden="true">
+            <div><b class="g"></b>Power</div>
+            <div><b class="g"></b>Link</div>
+            <div><b class="a"></b>Thermal</div>
+            <div><b></b>Fault</div>
+          </div>
+        </div>
+
+        <div class="bay well turbine">
+          <p class="stencil">Turbine · primary</p>
+          <div class="fan-well well">
+            <svg class="fan" viewBox="0 0 100 100" aria-hidden="true">
+              <defs>
+                <radialGradient id="hubg" cx="38%" cy="30%">
+                  <stop offset="0" stop-color="#4c5059" /><stop offset="0.6" stop-color="#26292f" /><stop offset="1" stop-color="#15171a" />
+                </radialGradient>
+                <linearGradient id="bladeg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#2b2f36" /><stop offset="0.55" stop-color="#1b1e23" /><stop offset="1" stop-color="#101216" />
+                </linearGradient>
+              </defs>
+              <g id="blades"></g>
+              <circle class="hub" cx="50" cy="50" r="16" />
+            </svg>
+            <span class="fan-cap" aria-hidden="true"></span>
+          </div>
+          <div class="rockers">
+            <button class="rocker" type="button" id="pwr" aria-pressed="false">
+              <span class="led" aria-hidden="true"></span>
+              <span class="body" aria-hidden="true"></span>
+              <span class="grille" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="stencil" style="font-size: 8px; letter-spacing: 0.2em">Power</span>
+            </button>
+            <button class="rocker" type="button" id="turbo" aria-pressed="false" data-hot="1">
+              <span class="led" aria-hidden="true"></span>
+              <span class="body" aria-hidden="true"></span>
+              <span class="grille" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="stencil" style="font-size: 8px; letter-spacing: 0.2em">Turbo</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- instrument stack -->
+        <div class="stack">
+          <div class="bay well gauge">
+            <p class="stencil">Thermal load</p>
+            <svg viewBox="0 0 220 128" aria-hidden="true" id="arc"></svg>
+            <p class="gauge-read">LOAD <b id="loadv">000</b>%</p>
+            <div class="slot-row">
+              <span class="slot" aria-hidden="true"></span>
+              <span class="stencil" style="font-size: 8px">Insert key</span>
+            </div>
+          </div>
+
+          <div class="bay well thermal">
+            <p class="stencil">Warming rays</p>
+            <div class="window">
+              <div class="coil" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="bars" aria-hidden="true"></div>
+            </div>
+            <p class="caption" id="thermMsg">Standby. Element cold.</p>
+          </div>
+        </div>
+
+        <!-- readout -->
+        <dl class="readout" style="grid-column: 1 / -1">
+          <div><dt>Tokens / sec</dt><dd><span id="r-tps">0</span></dd></div>
+          <div><dt>Core temp</dt><dd><span id="r-temp">21</span><small>°C</small></dd></div>
+          <div><dt>Draw</dt><dd><span id="r-draw">4</span><small>W</small></dd></div>
+          <div><dt>Queue</dt><dd><span id="r-q">0</span><small>jobs</small></dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY ============ -->
+  <section class="section" id="why">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="stencil">Why a box</p>
+        <h2>Some data cannot leave.</h2>
+        <p>Three reasons a rack unit beats an endpoint, and none of them is that it is cheaper on day one.</p>
+      </div>
+      <div class="specs">
+        <article class="plate spec">
+          <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+          <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <svg class="dialsm" viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="20" fill="none" stroke="#2b2e34" stroke-width="2" />
+            <path d="M24 4a20 20 0 0 1 14 34" fill="none" stroke="#ff9426" stroke-width="2.4" stroke-linecap="round" />
+            <circle cx="24" cy="24" r="4" fill="#ff9426" />
+          </svg>
+          <h3>Nothing egresses</h3>
+          <p>The prompt, the documents and the output stay inside your network. There is no request to review, because there is no request.</p>
+        </article>
+        <article class="plate spec">
+          <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+          <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <svg class="dialsm" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="6" y="14" width="36" height="20" rx="5" fill="none" stroke="#2b2e34" stroke-width="2" />
+            <path d="M12 24h7l3-6 4 12 3-6h7" fill="none" stroke="#35e6de" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <h3>Flat cost</h3>
+          <p>A unit costs what a unit costs. The bill does not move because somebody shipped a chatty retry loop on a Friday afternoon.</p>
+        </article>
+        <article class="plate spec">
+          <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+          <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <svg class="dialsm" viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 5l16 6v12c0 10-7 16-16 19-9-3-16-9-16-19V11z" fill="none" stroke="#2b2e34" stroke-width="2" />
+            <path d="M17 24l5 5 10-11" fill="none" stroke="#3fd96e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <h3>It keeps working</h3>
+          <p>No deprecation notice, no silent model swap, no provider incident. The weights on the drive are the weights you evaluated.</p>
+        </article>
+      </div>
+
+      <div class="plate cta" id="order">
+        <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+        <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+        <p class="stencil">Nothing here is real</p>
+        <h2>It is a concept machine.</h2>
+        <p>Kiln is an invented product. There is no unit, no firmware and no telemetry — every reading on this page is simulated in the browser.</p>
+        <a class="btn" href="#panel">Back to the panel</a>
+      </div>
+
+      <footer class="footer">
+        <span>
+          Kiln is a fictional product and this page is a design demo — the machine, the readings<br />
+          and every number are invented. Nothing here is real.
+        </span>
+        <span>One file · no images · no libraries</span>
+      </footer>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============================================================
+   TURBINE — nine blades, drawn once
+   ============================================================ */
+(() => {
+  /* Narrow swept blades rather than petals: each one runs from the hub to the
+     rim with a twist, so the disc reads as a turbine instead of a flower. */
+  const N = 11, R_IN = 17.5, R_OUT = 46, W_IN = 9, W_OUT = 15, TWIST = 24;
+  const P = (r, deg) => {
+    const t = ((deg - 90) * Math.PI) / 180;
+    return (50 + r * Math.cos(t)).toFixed(2) + " " + (50 + r * Math.sin(t)).toFixed(2);
+  };
+  let d = "";
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * 360;
+    const lead = `M${P(R_IN, a - W_IN)} C${P(R_IN + 12, a - W_IN + 6)} ${P(R_OUT - 10, a + TWIST - W_OUT - 3)} ${P(R_OUT, a + TWIST - W_OUT)}`;
+    const rim = ` A${R_OUT} ${R_OUT} 0 0 1 ${P(R_OUT, a + TWIST + W_OUT)}`;
+    const trail = ` C${P(R_OUT - 10, a + TWIST + W_OUT + 3)} ${P(R_IN + 12, a + W_IN - 6)} ${P(R_IN, a + W_IN)}`;
+    d += `<path class="blade" d="${lead}${rim}${trail} Z"/>`;
+  }
+  $("#blades").innerHTML = d;
+})();
+
+/* ============================================================
+   ARC GAUGE — 34 radial ticks over a half circle
+   ============================================================ */
+const TICKS = 34;
+(() => {
+  const cx = 110, cy = 116, r0 = 66, r1 = 96;
+  let d = "";
+  for (let i = 0; i < TICKS; i++) {
+    const a = Math.PI - (i / (TICKS - 1)) * Math.PI;
+    const x0 = cx + Math.cos(a) * r0, y0 = cy - Math.sin(a) * r0;
+    const x1 = cx + Math.cos(a) * r1, y1 = cy - Math.sin(a) * r1;
+    d += `<line class="tick" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
+  }
+  $("#arc").innerHTML = d;
+})();
+const tickEls = $$("#arc .tick");
+
+/* ============================================================
+   MACHINE STATE
+   ============================================================ */
+const machine = $("#machine");
+const state = { power: false, turbo: false, load: 0, tps: 0, temp: 21, draw: 4, queue: 0 };
+const shown = {};
+function write(el, v) {
+  const s = String(v);
+  if (shown[el.id] === s) return;
+  shown[el.id] = s;
+  el.textContent = s;
+}
+
+function setRocker(btn, on) {
+  btn.setAttribute("aria-pressed", String(on));
+}
+$("#pwr").addEventListener("click", () => {
+  state.power = !state.power;
+  setRocker($("#pwr"), state.power);
+  if (!state.power) { state.turbo = false; setRocker($("#turbo"), false); }
+  machine.classList.toggle("off", !state.power);
+});
+$("#turbo").addEventListener("click", () => {
+  if (!state.power) {
+    /* turbo without power does nothing but blink the power light */
+    const l = $("#pwr");
+    l.animate([{ opacity: 1 }, { opacity: 0.25 }, { opacity: 1 }], { duration: 320, iterations: 2 });
+    return;
+  }
+  state.turbo = !state.turbo;
+  setRocker($("#turbo"), state.turbo);
+});
+
+/* ============================================================
+   SIMULATION — one number drives the fan, gauge, coil and readout
+   ============================================================ */
+let last = performance.now() / 1000, running = false, visible = false, t = 0;
+/* Written on the machine element rather than :root, and only when the value
+   actually moves. Setting a custom property on the document every frame
+   invalidates style for the whole page, and re-timing the fan's animation
+   sixty times a second is worse than not animating it at all. */
+const lastProp = {};
+function prop(name, value) {
+  if (lastProp[name] === value) return;
+  lastProp[name] = value;
+  machine.style.setProperty(name, value);
+}
+function step(dt) {
+  t += dt;
+  const target = !state.power ? 0 : state.turbo ? 0.86 + Math.sin(t * 0.9) * 0.08 : 0.34 + Math.sin(t * 0.55) * 0.07;
+  state.load += (target - state.load) * (1 - Math.exp(-dt / 1.1));
+
+  const L = Math.max(0, Math.min(1, state.load));
+  prop("--heat", (state.power ? L : 0).toFixed(2));
+  /* the faster it spins the shorter the period; 2.4s idle down to 0.35s.
+     Quantised to 0.1s so the animation is retimed a handful of times per
+     spin-up instead of every frame. */
+  prop("--rpm", (Math.round((2.4 - L * 2.05) * 10) / 10).toFixed(1) + "s");
+
+  /* During the self-test the gauge answers to the sweep rather than to load,
+     which is what makes a cold machine feel like it is checking itself. */
+  const sweep = bootSweep(dt);
+  const lit = sweep === null ? Math.round(L * TICKS) : sweep;
+  tickEls.forEach((el, i) => {
+    const on = i < lit;
+    const hot = on && i > TICKS * 0.78;
+    if (el.dataset.s !== (on ? (hot ? "h" : "o") : "")) {
+      el.dataset.s = on ? (hot ? "h" : "o") : "";
+      el.classList.toggle("on", on && !hot);
+      el.classList.toggle("hot", hot);
+    }
+  });
+
+  state.tps = Math.round(L * (state.turbo ? 1840 : 900));
+  state.temp = Math.round(21 + L * (state.turbo ? 62 : 34));
+  state.draw = Math.round(4 + L * (state.turbo ? 690 : 280));
+  state.queue = state.power ? Math.max(0, Math.round(6 - L * 6 + Math.sin(t * 0.7) * 1.6)) : 0;
+
+  write($("#loadv"), String(Math.round(L * 100)).padStart(3, "0"));
+  write($("#r-tps"), state.tps.toLocaleString());
+  write($("#r-temp"), state.temp);
+  write($("#r-draw"), state.draw);
+  write($("#r-q"), state.queue);
+
+  const msg = !state.power ? "Standby. Element cold."
+    : state.turbo ? "Turbo. Element at working temperature — watch the draw."
+    : "Running. Element warm, fans nominal.";
+  if ($("#thermMsg").textContent !== msg) $("#thermMsg").textContent = msg;
+}
+
+/* ============================================================
+   BOOT — the instrument self-test every machine does when it wakes:
+   lamps latch, the needle runs to the stop and back, then the gauge
+   hands over to the real load.
+   ============================================================ */
+let bootT = -1;
+const SWEEP_UP = 0.75, SWEEP_HOLD = 0.16, SWEEP_DOWN = 0.4;
+const SWEEP_END = SWEEP_UP + SWEEP_HOLD + SWEEP_DOWN;
+function bootSweep(dt) {
+  if (bootT < 0) return null;
+  bootT += dt;
+  if (bootT >= SWEEP_END) { bootT = -1; return null; }
+  let f;
+  if (bootT < SWEEP_UP) f = bootT / SWEEP_UP;
+  else if (bootT < SWEEP_UP + SWEEP_HOLD) f = 1;
+  else f = 1 - (bootT - SWEEP_UP - SWEEP_HOLD) / SWEEP_DOWN;
+  return Math.round(f * TICKS);
+}
+
+function powerOn(theatrical) {
+  state.power = true;
+  setRocker($("#pwr"), true);
+  machine.classList.remove("off");
+  if (!theatrical) return;
+  bootT = 0;
+  machine.classList.remove("flash");
+  void machine.offsetWidth;
+  machine.classList.add("flash");
+  /* the lamp catches before it latches, the way a real one does */
+  $("#pwr .led").animate(
+    [{ opacity: 0.2 }, { opacity: 1 }, { opacity: 0.25 }, { opacity: 1 }, { opacity: 0.5 }, { opacity: 1 }],
+    { duration: 480, easing: "steps(6, end)" }
+  );
+}
+
+/* Wake on load so the first thing anyone sees is the machine coming up,
+   not a dead panel waiting to be clicked. Reduced motion skips straight to
+   running: no flash, no flicker, no needle sweep. */
+if (REDUCED) powerOn(false);
+else setTimeout(() => { if (!state.power) powerOn(true); }, 560);
+
+/* only run while the panel is on screen, and stop once it settles cold */
+new IntersectionObserver((es) => {
+  for (const e of es) visible = e.isIntersecting;
+  if (visible && !running) { running = true; last = performance.now() / 1000; requestAnimationFrame(frame); }
+}, { rootMargin: "140px 0px" }).observe(machine);
+
+function frame() {
+  const now = performance.now() / 1000;
+  const dt = Math.min(0.05, now - last);
+  last = now;
+  step(dt);
+  if (!visible && !state.power && state.load < 0.005) { running = false; return; }
+  requestAnimationFrame(frame);
+}
+step(0.016);
+if (REDUCED) machine.style.setProperty("--rpm", "0s");
+})();
+/* ============================================================
+   FRACTURE — the shards around every module
+   ============================================================
+   One SVG per module, the size of the module, holding two or
+   three jagged chunks broken out of its corners. Each chunk is a
+   closed polygon of seven to nine vertices at jittered radii,
+   which is enough to read as something snapped off a plate
+   rather than a decorative blob.
+
+   Generated rather than authored so no two modules break the
+   same way, and so the page keeps six plain plates if the script
+   never runs — a module that is merely uncracked still looks
+   like a module.
+
+   Each shard carries --hx/--hy: the vector back to the middle of
+   its module. The CSS uses it on :active to fly the piece home.
+   ============================================================ */
+(function () {
+  "use strict";
+  var mods = document.querySelectorAll(".bay, .spec");
+  if (!mods.length) return;
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function shard(cx, cy, r) {
+    /* Seven to nine vertices at 0.66-1 of the radius. More points and a
+       wider jitter than this and the polygon comes out a spiky star that
+       reads as a leaf; this stays a chunk. */
+    var n = Math.floor(rand(7, 10)), d = "";
+    for (var i = 0; i < n; i++) {
+      var a = (i / n) * Math.PI * 2 + rand(-0.12, 0.12);
+      var rr = r * rand(0.66, 1);
+      d += (i ? " L" : "M") + (cx + Math.cos(a) * rr).toFixed(1) +
+           "," + (cy + Math.sin(a) * rr).toFixed(1);
+    }
+    return d + " Z";
+  }
+
+  Array.prototype.forEach.call(mods, function (mod) {
+    var r = mod.getBoundingClientRect();
+    if (!r.width) return;
+    var W = Math.round(r.width), H = Math.round(r.height);
+
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("preserveAspectRatio", "none");
+
+    /* The corners are the only part of these modules reliably free of
+       content — the bays centre their instrument and the spec cards run
+       their copy down the middle. */
+    var corners = [[0, 0], [W, 0], [0, H], [W, H]];
+    for (var k = corners.length - 1; k > 0; k--) {
+      var j2 = Math.floor(Math.random() * (k + 1));
+      var t = corners[k]; corners[k] = corners[j2]; corners[j2] = t;
+    }
+    var count = mod.classList.contains("spec") ? 2 : 3;
+
+    for (var i = 0; i < count; i++) {
+      var c = corners[i];
+      var size = Math.max(20, Math.min(46, Math.min(W, H) * 0.115)) * rand(0.8, 1.2);
+      /* pulled in off the corner by about a third of the piece, so the
+         module's own edge crops it */
+      var cx = c[0] + (c[0] === 0 ? 1 : -1) * size * rand(0.3, 0.62);
+      var cy = c[1] + (c[1] === 0 ? 1 : -1) * size * rand(0.3, 0.62);
+
+      var g = document.createElementNS(NS, "g");
+      g.style.setProperty("--hx", ((W / 2 - cx) * 0.55).toFixed(0) + "px");
+      g.style.setProperty("--hy", ((H / 2 - cy) * 0.55).toFixed(0) + "px");
+      g.style.transitionDelay = (Math.random() * 0.09).toFixed(3) + "s";
+
+      var p = document.createElementNS(NS, "path");
+      p.setAttribute("d", shard(cx, cy, size));
+      p.setAttribute("transform", "rotate(" + rand(-16, 16).toFixed(1) + " " + cx.toFixed(1) + " " + cy.toFixed(1) + ")");
+      g.appendChild(p);
+      svg.appendChild(g);
+    }
+
+    var box = document.createElement("span");
+    box.className = "frac";
+    box.setAttribute("aria-hidden", "true");
+    box.appendChild(svg);
+    mod.appendChild(box);
+  });
+})();
+
+/* ============================================================
+   TYPE-ON — headings and copy print themselves when they arrive
+   ============================================================
+   Two departures from the usual version of this effect.
+
+   1. It splits IN PLACE instead of reading textContent and
+      rebuilding. The headline is "Inference that never <em>leaves
+      the building.</em>" and the em carries the amber glow, so
+      flattening to text would throw the only colour on the panel
+      away. Walking the text nodes and wrapping each character
+      leaves every element in the tree exactly where it was.
+   2. There is no aria-hidden clone. The characters are hidden
+      with opacity, which assistive tech ignores, so the full
+      sentence is in the accessibility tree from the first frame
+      and there is nothing to duplicate.
+
+   Live readouts (#r-tps, #loadv, #thermMsg and friends) are
+   rewritten every frame by the rig; splitting one would have its
+   spans blown away on the next tick, so nothing in .readout or
+   .caption is in the selector.
+   ============================================================ */
+(function () {
+  "use strict";
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!("IntersectionObserver" in window)) return;
+
+  var GLITCH = "!<>-_\/[]{}\u2014=+*^?#_@";
+
+  /* Headings glitch and type at a readable pace; body copy runs about four
+     times faster, because 140 characters at a heading's speed is five
+     seconds of somebody waiting to read a paragraph. */
+  var GROUPS = [
+    { sel: ".nameplate h1, .section-head h2, .cta h2, .spec h3", speed: 26, glitch: 0.42 },
+    { sel: ".section-head .stencil, .cta .stencil", speed: 30, glitch: 0.55 },
+    { sel: ".nameplate p, .section-head p, .spec p, .cta > p", speed: 7, glitch: 0 }
+  ];
+
+  function splitChars(el) {
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    var nodes = [], n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    if (!nodes.length) return [];
+
+    var spans = [];
+    nodes.forEach(function (node, idx) {
+      /* The source is indented, so every text node carries the newlines and
+         leading spaces of the markup. They collapse to one space when
+         rendered but they would each take a typing tick, which reads as the
+         line stalling. Normalise first, and trim only the outer edges. */
+      var text = node.nodeValue.replace(/\s+/g, " ");
+      if (idx === 0) text = text.replace(/^ /, "");
+      if (idx === nodes.length - 1) text = text.replace(/ $/, "");
+      if (!text) { node.parentNode.removeChild(node); return; }
+
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < text.length; i++) {
+        var sp = document.createElement("span");
+        sp.className = "type-char";
+        sp.textContent = text[i];
+        frag.appendChild(sp);
+        spans.push(sp);
+      }
+      node.parentNode.replaceChild(frag, node);
+    });
+    return spans;
+  }
+
+  function type(el, speed, glitchChance) {
+    var spans = splitChars(el);
+    if (!spans.length) return;
+
+    var caret = document.createElement("span");
+    caret.className = "typing-caret";
+    caret.setAttribute("aria-hidden", "true");
+    spans[0].parentNode.insertBefore(caret, spans[0]);
+
+    var i = 0;
+    (function next() {
+      if (i >= spans.length) { caret.remove(); return; }
+      var span = spans[i];
+      span.parentNode.insertBefore(caret, span.nextSibling);
+      span.classList.add("visible");
+
+      if (glitchChance && span.textContent !== " " && Math.random() < glitchChance) {
+        var settled = span.textContent;
+        var cycles = 0, max = Math.floor(Math.random() * 3) + 2;
+        var id = setInterval(function () {
+          span.textContent = GLITCH[Math.floor(Math.random() * GLITCH.length)];
+          if (++cycles >= max) { clearInterval(id); span.textContent = settled; }
+        }, 35);
+      }
+      i++;
+      setTimeout(next, speed);
+    })();
+  }
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      type(e.target, +e.target.dataset.typeSpeed, +e.target.dataset.typeGlitch);
+    });
+  }, { rootMargin: "0px 0px -12% 0px", threshold: 0.1 });
+
+  GROUPS.forEach(function (g) {
+    Array.prototype.forEach.call(document.querySelectorAll(g.sel), function (el) {
+      el.dataset.typeSpeed = g.speed;
+      el.dataset.typeGlitch = g.glitch;
+      io.observe(el);
+    });
+  });
+})();
+
+</script>
+</body>
+</html>

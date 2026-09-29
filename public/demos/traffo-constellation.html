@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Traffo — Convert traffic, get better conversions</title>
+<meta name="description" content="Single-file analytics landing page: a constellation of floating clay tiles wired with drawn SVG lines, a 3D-tilting cluster, GSAP entrance and scroll reveals, on warm paper." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+:root {
+  /* Warm grey ground, cream cards, near-black ink and ONE yellow. The
+     yellow used to be an acid #e5ff00, which is a signal colour: it reads
+     as a highlighter wherever it lands and it turns any shadow tinted with
+     it into a glow. #fde351 is the same idea at a temperature that behaves
+     like a material — it can fill a button, back a word or sit in a band
+     without shouting over the type. */
+  --bg: #ebe9e1;
+  --bg-warm: #efece4;
+  --ink: #0a0a0a;
+  --ink-soft: #6a6a64;
+  --cream: #f6f3eb;
+  --cream-2: #f1ede2;
+  --cream-line: #e8e4d6;
+  --mint: #c8ecc8;
+  --mint-light: #dcf5dc;
+  --mint-deep: #95c598;
+  --yellow: #fde351;
+  --yellow-light: #ffe760;
+  --yellow-deep: #f7d130;
+  --yellow-line: #d8b020;
+
+  /* The measuring frame: dashed guides, corner dots, squish radii. These
+     are the design system — anything that wants to belong pulls from them. */
+  --dot-size: 6px;
+  --line-weight: 1px;
+  --line-distance: 0.9rem 1.1rem;
+  --animation-speed: 0.35s;
+  --dot-color: #666;
+  --line-color: #999;
+  --squish: 30% / 200%;
+  --squish-hover: 10% / 200%;
+  --squish-active: 20% / 200%;
+  --purple: #dcd0ee;
+  --purple-light: #ece2f8;
+  --purple-deep: #ab9bd0;
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  font-family: "Funnel Display", system-ui, sans-serif;
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* Paper grain. One turbulence, no request. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 200;
+  mix-blend-mode: multiply;
+}
+
+.ambient-1, .ambient-2 {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.ambient-1 {
+  top: 10%; right: -10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(229, 255, 0, 0.1) 0%, transparent 60%);
+  filter: blur(80px);
+}
+.ambient-2 {
+  bottom: -10%; left: -5%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(220, 208, 238, 0.18) 0%, transparent 60%);
+  filter: blur(60px);
+}
+
+a { text-decoration: none; color: inherit; }
+svg { display: block; }
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+.skip {
+  position: absolute;
+  left: 16px; top: -60px;
+  z-index: 300;
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  transition: top 0.25s ease;
+}
+.skip:focus { top: 16px; }
+
+/* ════════════════════════════════════════════════
+   HEADER
+   ════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════
+   THE BAR
+   A black pill floating on the paper, fixed to the top, with a
+   yellow rule running the full width above it. Fixed rather than
+   in flow, so it survives the scroll; the page takes the padding
+   back so nothing starts underneath it.
+   ════════════════════════════════════════════════ */
+.top-rule {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+  height: 14px;
+  background: linear-gradient(180deg, var(--yellow) 0%, #fbd640 100%);
+}
+.site-header {
+  position: fixed; top: 14px; left: 0; right: 0; z-index: 55;
+  display: flex; justify-content: center;
+  padding: 18px clamp(14px, 3vw, 40px);
+  pointer-events: none;
+}
+.nav-pill {
+  pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px;
+  border-radius: 100px;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  /* the pill's own relief: a lit top edge, a dark inner foot, a hard
+     bottom lip and two spreads of cast — not a glow, a moulding */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5),
+    0 2px 0 #000,
+    0 6px 14px -2px rgba(0, 0, 0, 0.25),
+    0 16px 30px -10px rgba(0, 0, 0, 0.2);
+  max-width: 100%;
+}
+.logo {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  color: #fff;
+  padding: 10px 16px 11px;
+  display: flex; align-items: center; gap: 9px;
+  white-space: nowrap;
+}
+.logo-cube { width: 20px; height: 20px; display: grid; place-items: center; }
+.logo-cube svg { width: 20px; height: 20px; }
+.header-nav {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 14.5px; font-weight: 500;
+}
+.header-nav a {
+  color: #ccc;
+  padding: 10px 15px 11px;
+  border-radius: 100px;
+  display: flex; align-items: center; gap: 4px;
+  letter-spacing: -0.005em;
+  transition: color 0.2s, background 0.2s;
+}
+.header-nav a:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+/* the bar's own call to action: a yellow pill inside the black one. The
+   measuring frame that wraps the hero's button belongs on paper, not on
+   black — dashed guides and corner dots simply vanish there. */
+.book-cta {
+  margin-left: 6px;
+  padding: 10px 20px 11px;
+  border-radius: 100px;
+  border: 1px solid var(--yellow-line);
+  background: linear-gradient(180deg, var(--yellow-light) 0%, var(--yellow) 55%, var(--yellow-deep) 100%);
+  color: var(--ink);
+  font-size: 14.5px; font-weight: 600; letter-spacing: -0.005em;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 2px rgba(180, 140, 30, 0.3),
+    0 2px 4px rgba(200, 160, 30, 0.3);
+  transition: transform 0.15s ease;
+}
+.book-cta:hover { transform: translateY(-1px); }
+
+/* header-btn retired: the header now uses the same framed button, small. */
+
+/* ════════════════════════════════════════════════
+   HERO
+   ════════════════════════════════════════════════ */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 40px;
+  padding: 40px clamp(20px, 4vw, 56px);
+  align-items: center;
+  position: relative;
+  z-index: 5;
+  min-height: 720px;
+}
+/* Funnel Display at 800 with -0.045em: the face is a humanist sans whose
+   black weight is chunky enough to carry a headline this size, and it wants
+   the tracking pulled harder than a neutral grotesk would. */
+.hero-title {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(48px, 5.8vw, 84px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  margin-bottom: 32px;
+}
+.title-line { display: block; overflow: hidden; padding-bottom: 0.08em; }
+.title-inner { display: inline-block; will-change: transform; }
+.hero-desc {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 380px;
+  margin-bottom: 40px;
+}
+
+/* ════════════════════════════════════════════════
+   THE PLATE — claymorphism carrying glassmorphism
+   The hero sits on one slab of white clay: a soft body, a
+   coloured cast underneath it instead of a grey one, an inset
+   lip along the bottom edge so the surface looks thick, and a
+   single acid band cut diagonally across one corner.
+
+   Two frosted chips then straddle its edges. That straddle is
+   the whole point of pairing the two — a backdrop-filter has
+   nothing to say sitting on flat colour, and everything to say
+   when half of it is over the slab and half over the paper, so
+   one piece of glass shows two different blurs at once.
+
+   Light throughout: the clay is white on warm paper and the
+   accents are the page's own acid and lilac. No dark mode here,
+   and no second colour family introduced to get the effect.
+   ════════════════════════════════════════════════ */
+.hero {
+  /* 128, not 14: the bar is fixed and out of flow now, so the slab has to
+     leave room for the rule, the pill AND the glass tab that hangs 34px off
+     its own top-left corner — clear the pill alone and the tab lands on it. */
+  margin: 128px clamp(12px, 2.2vw, 30px) 0;
+  border-radius: 38px;
+  /* The reference bands its card between 85% and 91% of the gradient axis.
+     That card is 400x250; this slab is nearer 1450x860, and the same stops
+     on a gradient line three times as long put a 60px band 700px into the
+     face — a wedge straight through the constellation. Percentages of an
+     axis do not survive a change of scale: pushed to 93-97% the band clips
+     the corner the way it does on the small card. */
+  background: linear-gradient(
+    35deg,
+    #ffffff 0%,
+    #ffffff 92.8%,
+    var(--yellow) 93%,
+    var(--yellow) 96.6%,
+    #ffffff 96.9%
+  );
+  /* The clay recipe says a coloured cast rather than a grey one, and with
+     this accent that came out as an acid halo ringing the whole slab —
+     legible as a glow rather than as a shadow, which is not what a shadow
+     is for. Warm neutral for the cast and the lip; the accent stays where
+     it is doing work, in the band, the underline and the button. */
+  box-shadow:
+    0 18px 70px -14px rgba(92, 82, 24, 0.22),
+    0 40px 90px -40px rgba(15, 15, 15, 0.35),
+    inset 0 -14px 26px -6px rgba(92, 82, 30, 0.16),
+    inset 0 3px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* the two pieces of glass */
+.glass {
+  position: absolute;
+  z-index: 6;
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  background: rgba(255, 255, 255, 0.42);
+  /* a hairline of transparent border keeps the backdrop from bleeding a
+     hard edge on the rounded corners in Chromium */
+  border: 0.5px solid rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+/* top left, a labelled tab half off the slab */
+.glass--tab {
+  top: -34px;
+  left: clamp(18px, 4vw, 64px);
+  display: grid;
+  place-items: center;
+  padding: 0 22px;
+  height: 92px;
+  border-radius: 22px;
+  box-shadow:
+    0 10px 30px -8px rgba(62, 54, 30, 0.28),
+    inset 0 -12px 22px 0 rgba(171, 155, 208, 0.42);
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  text-align: center;
+  color: #3b3a2a;
+}
+/* bottom right, a plain disc over the acid band */
+.glass--disc {
+  right: -26px;
+  bottom: -26px;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  /* it sits on white paper rather than on the acid band, so the fill and
+     the lip have to carry it — a pure #ffffff42 disc is invisible here */
+  background: rgba(255, 255, 255, 0.34);
+  /* lilac lip, same as the tab: the two chips are one material and only
+     one of them was glowing */
+  box-shadow:
+    0 14px 28px -6px rgba(62, 54, 30, 0.32),
+    inset 0 -16px 26px -6px rgba(171, 155, 208, 0.55),
+    inset 0 6px 14px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* The sticker line. The reference holds white letters together with nothing
+   but a coloured drop shadow, which works at 34pt on a 400px card and turns
+   into a ghost at 84px — the outline is too thin a fraction of the letter to
+   read. A stroke does the holding and the acid does the depth. */
+.title-line.sticker .title-inner {
+  color: #ffffff;
+  -webkit-text-stroke: 2px var(--ink);
+  text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 5px 6px 0 var(--yellow);
+  /* the title runs at -0.035em; a stroke that wide closes the gaps between
+     letters at that tracking, so this line breathes a little more */
+  letter-spacing: -0.012em;
+}
+/* and a solid acid block behind the last word, sitting on the baseline */
+.title-mark { position: relative; }
+.title-mark::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -0.06em;
+  right: -0.06em;
+  bottom: 0.1em;
+  height: 0.26em;
+  background: var(--yellow);
+  border-radius: 2px;
+}
+
+@media (max-width: 900px) {
+  .glass--tab {
+    height: 62px; font-size: 9.5px; letter-spacing: 0.13em;
+    padding: 0 14px; top: -22px; border-radius: 16px;
+  }
+  .glass--disc { width: 76px; height: 76px; right: -18px; bottom: -18px; }
+  .hero { border-radius: 28px; }
+  /* the tab hangs into the slab, so the headline needs somewhere to start
+     that is not underneath it */
+  .hero { padding-top: 62px; }
+}
+
+/* ════════════════════════════════════════════════
+   THE BUTTON — a pill inside a measuring frame
+   Four dashed rules and four corner dots draw themselves in around the
+   button on hover, like a dimension being marked on a drawing. Armed with
+   :has() so only hovering the BUTTON starts it, and :focus-within so a
+   keyboard gets the same thing.
+   ════════════════════════════════════════════════ */
+.btn-wrapper {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--line-distance);
+  background-color: transparent;
+  transition: background-color 0.3s ease-in-out;
+  user-select: none;
+}
+.btn-wrapper:has(.btn:hover),
+.btn-wrapper:focus-within {
+  animation: frame-wash calc(var(--animation-speed) * 4) ease-in-out forwards;
+}
+@keyframes frame-wash {
+  80% { background-color: transparent; }
+  100% { background-color: #e5ff0055; }
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.8rem 1.25rem;
+  background-color: var(--yellow);
+  /* The source shaded this with a flat 25% black, which reads as a soft
+     shade on an acid yellow and as mud on a warm one. The theme's own
+     three-stop ramp does the same job in the right temperature. */
+  background-image: linear-gradient(180deg, var(--yellow-light) 0%, var(--yellow) 55%, var(--yellow-deep) 100%);
+  border: none;
+  /* The source used #0008 here — about 4.2:1 on acid yellow, under AA for
+     16px semibold. Darkened until it passes. */
+  color: rgba(0, 0, 0, 0.82);
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  border-radius: var(--squish);
+  cursor: pointer;
+  box-shadow:
+    0 0 0 1px #0003,
+    0 1px 1px rgba(3, 7, 18, 0.02),
+    0 5px 4px rgba(3, 7, 18, 0.04),
+    0 12px 9px rgba(3, 7, 18, 0.06),
+    0 20px 15px rgba(3, 7, 18, 0.08),
+    0 32px 24px rgba(3, 7, 18, 0.1);
+  transition:
+    background-color 0.2s ease-in-out,
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out,
+    border-radius 0.3s ease-in-out,
+    color 0.2s ease-in-out;
+}
+.btn:hover { background-color: #fff; transform: scale(1.05); border-radius: var(--squish-hover); }
+.btn:active { background-color: var(--yellow); transform: scale(0.98); border-radius: var(--squish-active); }
+.btn.btn-sm { padding: 0.55rem 0.95rem; font-size: 0.85rem; }
+.btn.btn-sm .btn-svg { height: 17px; }
+
+.btn-svg {
+  margin-left: 0.5rem;
+  height: 22px;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke: #0007;
+  fill: #fffa;
+  transition: all 0.3s ease-in-out;
+}
+.btn:hover .btn-svg { stroke: #0008; fill: var(--yellow); }
+.btn:active .btn-svg { stroke: #0009; fill: var(--yellow-light); }
+
+/* Corner dots: parked behind the button, flung out in sequence. */
+.dot {
+  position: absolute;
+  width: var(--dot-size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: var(--dot-color);
+  transition: all 0.3s ease-in-out;
+  opacity: 0;
+}
+.btn-wrapper:has(.btn:hover) .dot.top.left,
+.btn-wrapper:focus-within .dot.top.left {
+  top: 50%; left: 20%;
+  animation: move-top-left var(--animation-speed) ease-in-out forwards;
+}
+@keyframes move-top-left {
+  90% { opacity: 0.6; }
+  100% { top: calc(var(--dot-size) * -0.5); left: calc(var(--dot-size) * -0.5); opacity: 1; }
+}
+.btn-wrapper:has(.btn:hover) .dot.top.right,
+.btn-wrapper:focus-within .dot.top.right {
+  top: 50%; right: 20%;
+  animation: move-top-right var(--animation-speed) ease-in-out forwards;
+  animation-delay: calc(var(--animation-speed) * 0.6);
+}
+@keyframes move-top-right {
+  80% { opacity: 0.6; }
+  100% { top: calc(var(--dot-size) * -0.5); right: calc(var(--dot-size) * -0.5); opacity: 1; }
+}
+.btn-wrapper:has(.btn:hover) .dot.bottom.right,
+.btn-wrapper:focus-within .dot.bottom.right {
+  bottom: 50%; right: 20%;
+  animation: move-bottom-right var(--animation-speed) ease-in-out forwards;
+  animation-delay: calc(var(--animation-speed) * 1.2);
+}
+@keyframes move-bottom-right {
+  80% { opacity: 0.6; }
+  100% { bottom: calc(var(--dot-size) * -0.5); right: calc(var(--dot-size) * -0.5); opacity: 1; }
+}
+.btn-wrapper:has(.btn:hover) .dot.bottom.left,
+.btn-wrapper:focus-within .dot.bottom.left {
+  bottom: 50%; left: 20%;
+  animation: move-bottom-left var(--animation-speed) ease-in-out forwards;
+  animation-delay: calc(var(--animation-speed) * 1.8);
+}
+@keyframes move-bottom-left {
+  80% { opacity: 0.6; }
+  100% { bottom: calc(var(--dot-size) * -0.5); left: calc(var(--dot-size) * -0.5); opacity: 1; }
+}
+
+/* Dashed guides drawn with a repeating gradient rather than border-style:
+   dashed, so the dash rhythm is set by --line-weight and stays even. */
+.line { position: absolute; transition: all 0.3s ease-in-out; }
+.line.horizontal {
+  height: var(--line-weight);
+  width: 100%;
+  background-image: repeating-linear-gradient(90deg,
+    #0000 0 calc(var(--line-weight) * 2),
+    var(--line-color) calc(var(--line-weight) * 2) calc(var(--line-weight) * 4));
+}
+.line.vertical {
+  width: var(--line-weight);
+  height: 100%;
+  background-image: repeating-linear-gradient(0deg,
+    #0000 0 calc(var(--line-weight) * 2),
+    var(--line-color) calc(var(--line-weight) * 2) calc(var(--line-weight) * 4));
+}
+.line.top { top: calc(var(--line-weight) * -0.5); transform-origin: top left; transform: rotate(5deg) scaleX(0); }
+.line.bottom { bottom: calc(var(--line-weight) * -0.5); transform-origin: bottom right; transform: rotate(5deg) scaleX(0); }
+.line.left { left: calc(var(--line-weight) * -0.5); transform-origin: bottom left; transform: rotate(0deg) scaleY(0); }
+.line.right { right: calc(var(--line-weight) * -0.5); transform-origin: top right; transform: rotate(5deg) scaleY(0); }
+
+.btn-wrapper:has(.btn:hover) .line.top,
+.btn-wrapper:focus-within .line.top {
+  animation: draw-x var(--animation-speed) ease-in-out forwards;
+  animation-delay: calc(var(--animation-speed) * 0.8);
+}
+.btn-wrapper:has(.btn:hover) .line.right,
+.btn-wrapper:focus-within .line.right {
+  animation: draw-y var(--animation-speed) ease-in-out forwards;
+  animation-delay: calc(var(--animation-speed) * 1.4);
+}
+.btn-wrapper:has(.btn:hover) .line.bottom,
+.btn-wrapper:focus-within .line.bottom {
+  animation: draw-x var(--animation-speed) ease-in-out forwards;
+  animation-delay: calc(var(--animation-speed) * 2);
+}
+.btn-wrapper:has(.btn:hover) .line.left,
+.btn-wrapper:focus-within .line.left {
+  animation: draw-y var(--animation-speed) ease-in-out forwards;
+  animation-delay: calc(var(--animation-speed) * 2.4);
+}
+@keyframes draw-x { 100% { transform: rotate(0deg) scaleX(1); } }
+@keyframes draw-y { 100% { transform: rotate(0deg) scaleY(1); } }
+
+/* The same frame, static, as a card treatment: dashed guides live on the
+   card and the dots sit at its corners, appearing on hover. */
+.framed { position: relative; }
+.framed::before,
+.framed::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.framed::before {
+  inset: -10px -14px;
+  background:
+    repeating-linear-gradient(90deg, #0000 0 2px, var(--line-color) 2px 4px) top left / 100% var(--line-weight) no-repeat,
+    repeating-linear-gradient(90deg, #0000 0 2px, var(--line-color) 2px 4px) bottom left / 100% var(--line-weight) no-repeat,
+    repeating-linear-gradient(0deg, #0000 0 2px, var(--line-color) 2px 4px) top left / var(--line-weight) 100% no-repeat,
+    repeating-linear-gradient(0deg, #0000 0 2px, var(--line-color) 2px 4px) top right / var(--line-weight) 100% no-repeat;
+}
+.framed::after {
+  inset: calc(-10px - var(--dot-size) / 2) calc(-14px - var(--dot-size) / 2);
+  background:
+    radial-gradient(circle at 0 0, var(--dot-color) calc(var(--dot-size) / 2), #0000 calc(var(--dot-size) / 2)),
+    radial-gradient(circle at 100% 0, var(--dot-color) calc(var(--dot-size) / 2), #0000 calc(var(--dot-size) / 2)),
+    radial-gradient(circle at 0 100%, var(--dot-color) calc(var(--dot-size) / 2), #0000 calc(var(--dot-size) / 2)),
+    radial-gradient(circle at 100% 100%, var(--dot-color) calc(var(--dot-size) / 2), #0000 calc(var(--dot-size) / 2));
+}
+.framed:hover::before { opacity: 1; transition-delay: 0.05s; }
+.framed:hover::after { opacity: 1; transition-delay: calc(var(--animation-speed) * 0.8); }
+
+/* ════════════════════════════════════════════════
+   THE CONSTELLATION
+   Tiles are absolutely placed in a 600x660 field. Below that width the
+   whole field SCALES rather than the tiles resizing — px positions and
+   smaller tiles drift apart and the drawn lines stop meeting them.
+   ════════════════════════════════════════════════ */
+.hero-right { display: grid; place-items: center; position: relative; }
+
+/* A transform scales pixels, not the layout box: the field still reserves
+   600x660 and the page overflows. The negative margins reclaim exactly what
+   the scale gives back — 600*(1-s)/2 each side, 660*(1-s) at the bottom. */
+.constellation-scale { width: 600px; height: 660px; transform-origin: center top; }
+
+.constellation {
+  position: relative;
+  width: 600px;
+  height: 660px;
+  perspective: 1500px;
+  transform-style: preserve-3d;
+}
+.constellation-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+  z-index: 1;
+}
+.constellation-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.constellation-lines path {
+  fill: none;
+  stroke: rgba(15, 15, 15, 0.85);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.tile { position: absolute; z-index: 2; transform-style: preserve-3d; }
+
+/* Three layers, one job each: GSAP owns .tile (entrance), the CSS
+   keyframe owns .tile-float, and hover owns .tile-inner. Put the float
+   on .tile and the entrance tween fights the keyframe for `transform`
+   — the elastic pop is what loses. */
+.tile-float {
+  width: 100%; height: 100%;
+  animation: tile-float var(--dur, 5s) ease-in-out infinite var(--delay, 0s);
+}
+@keyframes tile-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(var(--float, -8px)); }
+}
+
+.tile-inner {
+  width: 100%; height: 100%;
+  border-radius: 36px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  transition: transform 0.4s var(--spring);
+  will-change: transform;
+}
+.tile:hover .tile-inner { transform: translateY(-10px) scale(1.06); }
+
+.tile-icon {
+  width: 50%; height: 50%;
+  display: grid;
+  place-items: center;
+  transition: transform 0.5s var(--spring);
+}
+.tile:hover .tile-icon { transform: scale(1.12) rotate(-4deg); }
+.tile-icon svg { width: 100%; height: 100%; }
+
+.tile.mint .tile-inner {
+  background: linear-gradient(165deg, var(--mint-light) 0%, var(--mint) 50%, var(--mint-deep) 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 0 rgba(0, 0, 0, 0.08),
+    inset 0 0 30px rgba(255, 255, 255, 0.4), 0 12px 24px rgba(149, 197, 152, 0.4),
+    0 24px 48px rgba(0, 0, 0, 0.08);
+}
+.tile.yellow .tile-inner {
+  background: linear-gradient(165deg, var(--yellow-light) 0%, var(--yellow) 50%, var(--yellow-deep) 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.6), inset 0 -4px 0 rgba(0, 0, 0, 0.12),
+    inset 0 0 30px rgba(255, 255, 255, 0.3), 0 12px 24px rgba(185, 204, 0, 0.35),
+    0 24px 48px rgba(0, 0, 0, 0.1);
+}
+.tile.purple .tile-inner {
+  background: linear-gradient(165deg, var(--purple-light) 0%, var(--purple) 50%, var(--purple-deep) 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 0 rgba(0, 0, 0, 0.08),
+    inset 0 0 30px rgba(255, 255, 255, 0.4), 0 12px 24px rgba(171, 155, 208, 0.4),
+    0 24px 48px rgba(0, 0, 0, 0.08);
+}
+.tile.black .tile-inner {
+  background: linear-gradient(165deg, #3a3a3a 0%, #1a1a1a 50%, #050505 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2), inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 30px rgba(255, 255, 255, 0.05), 0 12px 24px rgba(0, 0, 0, 0.3),
+    0 24px 48px rgba(0, 0, 0, 0.18);
+  color: #fff;
+}
+
+.tile.size-main { width: 142px; height: 118px; }
+.tile.size-big { width: 156px; height: 132px; }
+.tile.size-pill { width: 64px; height: 64px; }
+.tile.size-pill .tile-inner { border-radius: 50%; }
+
+.tile-lock      { top: 0;    left: calc(50% - 32px); --dur: 4s;   --delay: 0s;   --float: -6px; }
+.tile-expand    { top: 95px; left: 95px;             --dur: 5.5s; --delay: .4s;  --float: -10px; }
+.tile-chart     { top: 95px; left: 365px;            --dur: 5s;   --delay: .8s;  --float: -8px; }
+.tile-cloud     { top: 245px; left: 5px;             --dur: 6s;   --delay: 1.2s; --float: -12px; }
+.tile-db        { top: 240px; left: 222px;           --dur: 4.5s; --delay: .2s;  --float: -7px; }
+.tile-thumb     { top: 245px; left: 455px;           --dur: 5.5s; --delay: .6s;  --float: -10px; }
+.tile-cursor    { top: 405px; left: 45px;            --dur: 4s;   --delay: 1s;   --float: -8px; }
+.tile-person    { top: 395px; left: 145px;           --dur: 5s;   --delay: .3s;  --float: -9px; }
+.tile-globe     { top: 395px; left: 315px;           --dur: 5.5s; --delay: .7s;  --float: -11px; }
+.tile-thumbpill { top: 405px; left: 495px;           --dur: 4.5s; --delay: .5s;  --float: -7px; }
+.tile-hex       { top: 545px; left: 230px;           --dur: 6s;   --delay: .9s;  --float: -10px; }
+
+.sparkle {
+  position: absolute;
+  width: 32px; height: 32px;
+  bottom: 30px; right: 30px;
+  color: var(--ink);
+  animation: spin 8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ════════════════════════════════════════════════
+   WORKSPACE BAR
+   ════════════════════════════════════════════════ */
+.workspace {
+  padding: 20px clamp(20px, 4vw, 56px) 80px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 5;
+}
+.workspace-label {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
+.feature-pills { display: flex; gap: 14px; }
+.fpill {
+  display: grid;
+  place-items: center;
+  border-radius: 100px;
+  transition: transform 0.4s var(--spring);
+}
+.fpill:hover { transform: translateY(-4px) rotate(-3deg); }
+.fpill.round {
+  width: 64px; height: 64px;
+  background: linear-gradient(165deg, var(--mint-light) 0%, var(--mint) 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), inset 0 -3px 0 rgba(0, 0, 0, 0.08),
+    0 10px 20px rgba(149, 197, 152, 0.4);
+}
+.fpill.wide-yellow {
+  width: 130px; height: 64px;
+  background: linear-gradient(165deg, var(--yellow-light) 0%, var(--yellow) 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -3px 0 rgba(0, 0, 0, 0.12),
+    0 10px 20px rgba(185, 204, 0, 0.35);
+}
+.fpill.wide-purple {
+  width: 130px; height: 64px;
+  background: linear-gradient(165deg, var(--purple-light) 0%, var(--purple) 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), inset 0 -3px 0 rgba(0, 0, 0, 0.08),
+    0 10px 20px rgba(171, 155, 208, 0.4);
+}
+.learn-more {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ════════════════════════════════════════════════
+   STATS
+   ════════════════════════════════════════════════ */
+.stats-bar {
+  padding: 80px clamp(20px, 4vw, 56px);
+  background: var(--bg-warm);
+  border-radius: 48px 48px 0 0;
+  margin-top: 40px;
+  position: relative;
+  z-index: 5;
+}
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+.stat { padding: 32px 0; border-right: 1px solid rgba(0, 0, 0, 0.08); }
+.stat:last-child { border-right: none; }
+.stat-num {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(40px, 4.5vw, 72px);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.stat-num .accent { color: var(--yellow-deep); }
+.stat-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+/* ════════════════════════════════════════════════
+   FEATURES
+   ════════════════════════════════════════════════ */
+.features { padding: 120px clamp(20px, 4vw, 56px); background: var(--bg-warm); position: relative; }
+.features-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 80px;
+  gap: 60px;
+}
+.section-eyebrow {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-eyebrow::before { content: ""; width: 32px; height: 1.5px; background: var(--ink); }
+.features-title {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  max-width: 720px;
+}
+.features-meta {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  text-align: right;
+}
+.feature-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.feature-card {
+  padding: 32px;
+  border-radius: 36px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  will-change: transform;
+}
+.feature-card.fc-mint {
+  background: linear-gradient(165deg, var(--mint-light) 0%, var(--mint) 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.6), inset 0 -4px 0 rgba(0, 0, 0, 0.08),
+    0 20px 40px rgba(149, 197, 152, 0.3), 0 40px 80px rgba(0, 0, 0, 0.06);
+}
+.feature-card.fc-yellow {
+  background: linear-gradient(165deg, var(--yellow-light) 0%, var(--yellow) 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.5), inset 0 -4px 0 rgba(0, 0, 0, 0.12),
+    0 20px 40px rgba(185, 204, 0, 0.3), 0 40px 80px rgba(0, 0, 0, 0.08);
+}
+.feature-card.fc-purple {
+  background: linear-gradient(165deg, var(--purple-light) 0%, var(--purple) 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.6), inset 0 -4px 0 rgba(0, 0, 0, 0.08),
+    0 20px 40px rgba(171, 155, 208, 0.3), 0 40px 80px rgba(0, 0, 0, 0.06);
+}
+.fc-num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  margin-bottom: 24px;
+  opacity: 0.6;
+}
+.feature-card h3 {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-bottom: 16px;
+}
+.feature-card p { font-size: 14px; line-height: 1.55; opacity: 0.75; flex: 1; }
+.fc-icon {
+  width: 56px; height: 56px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.08);
+  display: grid;
+  place-items: center;
+  margin-top: 24px;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* ════════════════════════════════════════════════
+   QUOTE · CTA · FOOTER
+   ════════════════════════════════════════════════ */
+.quote-section { padding: 140px clamp(20px, 4vw, 56px); text-align: center; }
+.quote-mark {
+  display: inline-block;
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-size: 120px;
+  line-height: 0.4;
+  color: var(--yellow-deep);
+  margin-bottom: 24px;
+}
+.quote-text {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(32px, 4.5vw, 64px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  max-width: 1000px;
+  margin: 0 auto 32px;
+}
+.quote-author {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+}
+
+.final-cta { padding: 100px clamp(20px, 4vw, 56px) 120px; text-align: center; }
+.final-cta-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 80px) clamp(24px, 5vw, 60px);
+  border-radius: 48px;
+  background: linear-gradient(165deg, #2a2a2a 0%, #0a0a0a 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.15), inset 0 -5px 0 rgba(0, 0, 0, 0.5),
+    0 30px 60px rgba(0, 0, 0, 0.3), 0 60px 120px rgba(0, 0, 0, 0.2);
+}
+.final-cta-h2 {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(40px, 5.5vw, 80px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  margin-bottom: 32px;
+  position: relative;
+}
+.final-cta-h2 .accent { color: var(--yellow); }
+.final-cta p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 540px;
+  margin: 0 auto 40px;
+  position: relative;
+}
+/* On the black slab the frame's greys vanish, so the two guide tokens are
+   re-pointed rather than the rules being rewritten. */
+.final-cta .btn-wrapper { --line-color: rgba(255, 255, 255, 0.45); --dot-color: rgba(255, 255, 255, 0.75); }
+.final-cta .btn { box-shadow: 0 0 0 1px #0006, 0 10px 24px rgba(0, 0, 0, 0.45); }
+.orb { position: absolute; border-radius: 50%; pointer-events: none; }
+.orb-1 {
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(229, 255, 0, 0.28) 0%, transparent 70%);
+  top: -50px; left: -50px;
+  filter: blur(40px);
+}
+.orb-2 {
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, rgba(220, 208, 238, 0.2) 0%, transparent 70%);
+  bottom: -80px; right: -80px;
+  filter: blur(50px);
+}
+
+.site-footer {
+  padding: 60px clamp(20px, 4vw, 56px) 40px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+.footer-top { display: flex; justify-content: space-between; margin-bottom: 60px; gap: 60px; flex-wrap: wrap; }
+.footer-brand h3 {
+  font-family: "Funnel Display", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.footer-brand p { color: var(--ink-soft); font-size: 14px; max-width: 280px; }
+.footer-cols { display: flex; gap: clamp(28px, 5vw, 60px); flex-wrap: wrap; }
+.footer-col h4 {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin-bottom: 18px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.footer-col a { display: block; font-size: 14px; margin-bottom: 10px; }
+.footer-col a:hover { text-decoration: underline; }
+.footer-bottom {
+  padding-top: 32px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+
+/* ════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .hero { grid-template-columns: 1fr; gap: 60px; min-height: 0; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat:nth-child(2) { border-right: none; }
+  .feature-cards { grid-template-columns: 1fr; }
+  .features, .stats-bar { padding-block: 60px; }
+  .final-cta, .quote-section { padding-block: 60px; }
+  .features-head { flex-direction: column; align-items: flex-start; }
+  .features-meta { text-align: left; }
+  .footer-top { flex-direction: column; gap: 40px; }
+}
+
+/* Scale the whole field instead of resizing tiles: the positions are in
+   px and the drawn lines are in the same coordinate space, so shrinking
+   the parts pulls them away from the wires. */
+@media (max-width: 700px) {
+  .header-nav { display: none; }
+  /* Scale the WRAPPER. GSAP animates .constellation's transform on scroll,
+     and an inline transform beats a media query every time — put the
+     responsive scale anywhere GSAP is not writing. */
+  .constellation-scale { transform: scale(0.62); margin: 0 -114px -251px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat { border-right: none; border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+  .stat:last-child { border-bottom: none; }
+  .quote-section { padding-block: 80px; }
+}
+@media (max-width: 480px) {
+  .constellation-scale { transform: scale(0.46); margin: 0 -162px -356px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .tile-float, .sparkle { animation: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="ambient-1" aria-hidden="true"></div>
+<div class="ambient-2" aria-hidden="true"></div>
+
+<div class="top-rule" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="nav-pill">
+  <div class="logo">
+    <span class="logo-cube" aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <defs>
+          <linearGradient id="cubeGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3a3a3a" />
+            <stop offset="100%" stop-color="#0a0a0a" />
+          </linearGradient>
+        </defs>
+        <path d="M17 3 L29 9 L29 21 L17 27 L17 15 L5 9 Z" fill="url(#cubeGrad)" stroke="#000" stroke-width="0.5" />
+        <path d="M5 9 L17 15 L17 27 L5 21 Z" fill="#2a2a2a" stroke="#000" stroke-width="0.5" />
+        <path d="M17 3 L29 9 L17 15 L5 9 Z" fill="#444" stroke="#000" stroke-width="0.5" />
+      </svg>
+    </span>
+    <span>TRAFFO</span>
+  </div>
+  <nav class="header-nav" aria-label="Primary">
+    <a href="#features">Analytics</a>
+    <a href="#features">Features
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+    </a>
+    <a href="#quote">Customers</a>
+    <a href="#start">Get in touch</a>
+  </nav>
+  <a class="book-cta" href="#start">Start for free</a>
+  </div>
+</header>
+
+<main class="hero" id="main">
+  <span class="glass glass--tab" aria-hidden="true">Claymorphism<br />+ glassmorphism</span>
+  <span class="glass glass--disc" aria-hidden="true"></span>
+  <div class="hero-left">
+    <h1 class="hero-title">
+      <span class="title-line"><span class="title-inner">Convert traffic</span></span>
+      <span class="title-line sticker"><span class="title-inner">and get better</span></span>
+      <span class="title-line"><span class="title-inner"><span class="title-mark">conversions</span></span></span>
+    </h1>
+    <p class="hero-desc">No more lost data. From now you can get the best output of your traffic and maximize every conversion rate.</p>
+    <span class="btn-wrapper">
+      <div class="line horizontal top" aria-hidden="true"></div>
+      <div class="line vertical right" aria-hidden="true"></div>
+      <div class="line horizontal bottom" aria-hidden="true"></div>
+      <div class="line vertical left" aria-hidden="true"></div>
+      <div class="dot top left" aria-hidden="true"></div>
+      <div class="dot top right" aria-hidden="true"></div>
+      <div class="dot bottom right" aria-hidden="true"></div>
+      <div class="dot bottom left" aria-hidden="true"></div>
+      <a class="btn" href="#start"><span class="btn-text">start for free</span><svg class="btn-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+    </span>
+  </div>
+
+  <div class="hero-right">
+    <div class="constellation-scale">
+    <div class="constellation" id="constellation" role="img" aria-label="A cluster of connected product capabilities: security, expansion, reporting, cloud, database, engagement, targeting, audience, global reach, approval and network.">
+      <svg class="constellation-lines" viewBox="0 0 600 660" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <path d="M 295 64 C 270 90, 220 110, 166 152" />
+        <path d="M 305 64 C 330 90, 380 110, 434 152" />
+        <path d="M 166 200 C 175 230, 230 260, 280 285" />
+        <path d="M 434 200 C 425 230, 370 260, 320 285" />
+        <path d="M 76 305 C 130 305, 200 305, 248 302" />
+        <path d="M 524 305 C 470 305, 400 305, 352 302" />
+        <path d="M 285 372 C 270 405, 240 440, 214 452" />
+        <path d="M 315 372 C 330 405, 360 440, 386 452" />
+        <path d="M 110 437 C 145 442, 175 448, 214 452" />
+        <path d="M 490 437 C 455 442, 425 448, 386 452" />
+        <path d="M 214 502 C 235 540, 270 575, 300 603" />
+        <path d="M 386 502 C 365 540, 330 575, 300 603" />
+      </svg>
+
+      <div class="constellation-inner" id="constellationInner" aria-hidden="true">
+        <div class="tile size-pill black tile-lock"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-main mint tile-expand"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="28" r="22" stroke-opacity="0.15" />
+            <path d="M14 14 L24 24 M14 14 L14 21 M14 14 L21 14" />
+            <path d="M42 14 L32 24 M42 14 L42 21 M42 14 L35 14" />
+            <path d="M14 42 L24 32 M14 42 L14 35 M14 42 L21 42" />
+            <path d="M42 42 L32 32 M42 42 L42 35 M42 42 L35 42" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-main yellow tile-chart"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="12" width="40" height="28" rx="2" />
+            <line x1="28" y1="40" x2="28" y2="48" /><line x1="22" y1="48" x2="34" y2="48" />
+            <line x1="16" y1="32" x2="16" y2="36" /><line x1="22" y1="26" x2="22" y2="36" />
+            <line x1="28" y1="22" x2="28" y2="36" /><line x1="34" y1="28" x2="34" y2="36" />
+            <line x1="40" y1="18" x2="40" y2="36" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-main purple tile-cloud"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 30 a8 8 0 0 1 4-15 a10 10 0 0 1 19 4 a6 6 0 0 1 0 11 Z" />
+            <circle cx="18" cy="42" r="1.4" fill="currentColor" /><circle cx="26" cy="44" r="1.4" fill="currentColor" />
+            <circle cx="34" cy="42" r="1.4" fill="currentColor" /><circle cx="22" cy="48" r="1.2" fill="currentColor" />
+            <circle cx="30" cy="48" r="1.2" fill="currentColor" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-big black tile-db"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="28" cy="14" rx="14" ry="5" />
+            <path d="M14 14 v14 a14 5 0 0 0 28 0 v-14" />
+            <path d="M14 28 v14 a14 5 0 0 0 28 0 v-14" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-main mint tile-thumb"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 28 L14 46 L20 46 L20 28 Z" />
+            <path d="M20 30 L26 18 a3 3 0 0 1 5.5 2.5 L29 28 L40 28 a4 4 0 0 1 4 4.5 L42 42 a4 4 0 0 1 -4 4 L24 46" />
+            <path d="M30 12 L32 16 M36 14 L36 18 M40 18 L37 20" stroke-width="1.6" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-pill black tile-cursor"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round">
+            <path d="M7 4 L7 18 L11 14 L14 20 L17 19 L14 13 L18 13 Z" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-main yellow tile-person"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="28" r="20" stroke-dasharray="6 4" />
+            <circle cx="28" cy="22" r="6" /><path d="M16 40 a12 10 0 0 1 24 0" />
+            <path d="M44 18 L48 18 L48 14" /><path d="M12 38 L8 38 L8 42" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-main purple tile-globe"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="28" cy="28" r="18" /><ellipse cx="28" cy="28" rx="18" ry="7" />
+            <ellipse cx="28" cy="28" rx="7" ry="18" /><path d="M10 28 L46 28" /><path d="M28 10 L28 46" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-pill black tile-thumbpill"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 11v9a1 1 0 0 0 1 1h2v-10z" />
+            <path d="M10 11l3-7a2 2 0 0 1 3.5 1.5L15.5 10H19a2 2 0 0 1 2 2.3l-1 6a2 2 0 0 1-2 1.7H10" />
+          </svg></div></div></div></div>
+
+        <div class="tile size-main mint tile-hex"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M28 6 L46 16 L46 38 L28 48 L10 38 L10 16 Z" />
+            <circle cx="28" cy="6" r="2.5" fill="currentColor" /><circle cx="46" cy="16" r="2.5" fill="currentColor" />
+            <circle cx="46" cy="38" r="2.5" fill="currentColor" /><circle cx="28" cy="48" r="2.5" fill="currentColor" />
+            <circle cx="10" cy="38" r="2.5" fill="currentColor" /><circle cx="10" cy="16" r="2.5" fill="currentColor" />
+            <circle cx="28" cy="27" r="3.5" fill="currentColor" />
+            <path d="M28 27 L28 6 M28 27 L46 16 M28 27 L46 38 M28 27 L28 48 M28 27 L10 38 M28 27 L10 16" stroke-width="1.3" />
+          </svg></div></div></div></div>
+      </div>
+
+      <div class="sparkle" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" />
+        </svg>
+      </div>
+    </div>
+    </div>
+  </div>
+</main>
+
+<section class="workspace">
+  <h2 class="workspace-label">Workspace features</h2>
+  <div class="feature-pills" aria-hidden="true">
+    <div class="fpill round">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 17L17 7M17 7H7M17 7V17" />
+      </svg>
+    </div>
+    <div class="fpill wide-yellow">
+      <svg width="64" height="40" viewBox="0 0 64 40" fill="none" stroke="#0f0f0f" stroke-width="2" stroke-linejoin="round">
+        <circle cx="22" cy="20" r="10" fill="rgba(0,0,0,0.6)" stroke="none" />
+        <path d="M38 30 L48 12 L58 30 Z" fill="#0f0f0f" />
+      </svg>
+    </div>
+    <div class="fpill wide-purple">
+      <svg width="64" height="40" viewBox="0 0 64 40" fill="none" stroke="#0f0f0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="10" width="22" height="22" />
+        <line x1="6" y1="17" x2="28" y2="17" /><line x1="6" y1="24" x2="28" y2="24" />
+        <line x1="13" y1="10" x2="13" y2="32" /><line x1="20" y1="10" x2="20" y2="32" />
+        <g transform="translate(42 21)">
+          <path d="M0 -8 L1.5 -1.5 L8 0 L1.5 1.5 L0 8 L-1.5 1.5 L-8 0 L-1.5 -1.5 Z" fill="#0f0f0f" stroke="none" />
+        </g>
+      </svg>
+    </div>
+  </div>
+  <a href="#features" class="learn-more">Learn more</a>
+</section>
+
+<section class="stats-bar">
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-num" data-num="546" data-prefix="+" data-suffix="k">+546<span class="accent">k</span></div>
+      <div class="stat-label">Active customers</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-num="99.9" data-decimals="1" data-suffix="%">99.9<span class="accent">%</span></div>
+      <div class="stat-label">Uptime guarantee</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-num="2.4" data-decimals="1" data-suffix="B">2.4<span class="accent">B</span></div>
+      <div class="stat-label">Events tracked daily</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" data-num="42" data-suffix="×">42<span class="accent">×</span></div>
+      <div class="stat-label">Faster than the rest</div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="features-head">
+    <div>
+      <div class="section-eyebrow">02 / Built for teams</div>
+      <h2 class="features-title">Three pillars. One platform. Zero busywork.</h2>
+    </div>
+    <div class="features-meta">
+      VERSION 4.2<br />
+      SHIPPED MAY 2026<br />
+      24 INTEGRATIONS
+    </div>
+  </div>
+
+  <div class="feature-cards">
+    <article class="feature-card framed fc-mint">
+      <div class="fc-num">01 — Capture</div>
+      <h3>Every click. Every scroll. Every form.</h3>
+      <p>Drop the snippet, walk away. We capture every meaningful event automatically — no manual tagging, no missed data.</p>
+      <div class="fc-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M3 12a9 9 0 0 1 9-9M12 21a9 9 0 0 1-9-9M21 12a9 9 0 0 1-9 9M21 12a9 9 0 0 0-9-9" />
+        </svg>
+      </div>
+    </article>
+
+    <article class="feature-card framed fc-yellow">
+      <div class="fc-num">02 — Understand</div>
+      <h3>Funnels, cohorts, attribution — visual.</h3>
+      <p>Drag-and-drop reports that don't require a PhD in SQL. See where users drop off, why, and what to fix first.</p>
+      <div class="fc-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18" /><path d="M7 14l4-4 4 4 6-6" />
+        </svg>
+      </div>
+    </article>
+
+    <article class="feature-card framed fc-purple">
+      <div class="fc-num">03 — Convert</div>
+      <h3>Ship experiments. Watch numbers move.</h3>
+      <p>Native A/B testing with statistical confidence baked in. Stop guessing, start shipping changes that actually compound.</p>
+      <div class="fc-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="quote-section" id="quote">
+  <span class="quote-mark" aria-hidden="true">"</span>
+  <blockquote class="quote-text">We replaced four tools with Traffo and our conversion rate went up 38% in a quarter. The data finally tells a story we can act on.</blockquote>
+  <div class="quote-author">— Trinette Eckard, Head of Growth at Makebelief</div>
+</section>
+
+<section class="final-cta" id="start">
+  <div class="final-cta-card">
+    <span class="orb orb-1" aria-hidden="true"></span>
+    <span class="orb orb-2" aria-hidden="true"></span>
+    <h2 class="final-cta-h2">Stop losing the <span class="accent">good ones.</span></h2>
+    <p>Free for the first 10,000 events a month. No credit card. No sales call. Just better data, today.</p>
+    <span class="btn-wrapper">
+      <div class="line horizontal top" aria-hidden="true"></div>
+      <div class="line vertical right" aria-hidden="true"></div>
+      <div class="line horizontal bottom" aria-hidden="true"></div>
+      <div class="line vertical left" aria-hidden="true"></div>
+      <div class="dot top left" aria-hidden="true"></div>
+      <div class="dot top right" aria-hidden="true"></div>
+      <div class="dot bottom right" aria-hidden="true"></div>
+      <div class="dot bottom left" aria-hidden="true"></div>
+      <a class="btn" href="#start"><span class="btn-text">start for free</span><svg class="btn-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+    </span>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <h3>Traffo</h3>
+      <p>The analytics platform for teams who'd rather ship than spreadsheet.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#features">Analytics</a><a href="#features">Experiments</a>
+        <a href="#features">Sessions</a><a href="#features">Integrations</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#quote">About</a><a href="#quote">Blog</a>
+        <a href="#quote">Careers</a><a href="#start">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy</a><a href="#">Terms</a>
+        <a href="#">Security</a><a href="#">GDPR</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Traffo — a fictional product, for a template</span>
+    <span>Made with attention</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  if (!window.gsap) return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var body = document.body;
+
+  /* ════════ SET-UP ════════
+     Initial states live in JS, not CSS: if the script fails to load the
+     page still renders complete instead of an invisible hero. */
+  var lines = [].slice.call(document.querySelectorAll(".constellation-lines path"));
+  lines.forEach(function (path) {
+    var len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = REDUCED ? 0 : len;
+  });
+
+  if (!REDUCED) {
+    gsap.set(".title-inner", { yPercent: 110 });
+    gsap.set([".hero-desc", ".hero .btn-wrapper", ".site-header", ".workspace"], { opacity: 0 });
+    gsap.set(".tile", { opacity: 0, scale: 0.4 });
+
+    var tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    tl.to(".site-header", { opacity: 1, duration: 0.8 }, 0)
+      .to(".title-inner", { yPercent: 0, duration: 1.1, stagger: 0.08, ease: "power4.out" }, 0.2)
+      .to(".hero-desc", { opacity: 1, y: 0, duration: 0.8 }, 0.9)
+      .from(".hero-desc", { y: 20, duration: 0.8 }, 0.9)
+      .to(".hero .btn-wrapper", { opacity: 1, duration: 0.7 }, 1)
+      .from(".hero .btn-wrapper", { y: 20, duration: 0.7 }, 1)
+      /* One tween, not a .to and a .from fighting over the same props. */
+      .to(".tile", {
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        stagger: { each: 0.07, from: "center" },
+        ease: "elastic.out(1, 0.6)",
+        /* Hand `transform` back to CSS afterwards, or the inline matrix
+           GSAP leaves behind pins the tile and the float never runs. */
+        clearProps: "transform"
+      }, 0.5)
+      .to(".constellation-lines path", { strokeDashoffset: 0, duration: 1.4, stagger: 0.06, ease: "power2.inOut" }, 0.8)
+      .to(".workspace", { opacity: 1, duration: 0.8 }, 1.6)
+      .from(".fpill", { y: 30, scale: 0.5, opacity: 0, duration: 0.8, stagger: 0.1, ease: "back.out(1.6)" }, 1.6)
+      .from(".workspace-label, .learn-more", { y: 20, opacity: 0, duration: 0.6, stagger: 0.1 }, 1.6);
+  }
+
+  /* ════════ CONSTELLATION TILT ════════ */
+  var field = document.getElementById("constellation");
+  var inner = document.getElementById("constellationInner");
+  if (!REDUCED && !window.matchMedia("(pointer: coarse)").matches) {
+    field.addEventListener("pointermove", function (e) {
+      var r = field.getBoundingClientRect();
+      gsap.to(inner, {
+        rotationY: ((e.clientX - r.left) / r.width - 0.5) * 12,
+        rotationX: -((e.clientY - r.top) / r.height - 0.5) * 8,
+        duration: 0.8,
+        transformPerspective: 1500,
+        ease: "power2.out"
+      });
+    });
+    field.addEventListener("pointerleave", function () {
+      gsap.to(inner, { rotationY: 0, rotationX: 0, duration: 1, ease: "elastic.out(1, 0.5)" });
+    });
+  }
+
+  /* ════════ SCROLL ════════ */
+  if (!REDUCED) {
+    gsap.to(".constellation", {
+      y: 100, scale: 0.92,
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1 }
+    });
+    gsap.to(".hero-left", {
+      y: 60, opacity: 0.4,
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1 }
+    });
+  }
+
+  /* ════════ COUNTERS ════════
+     Formatted from data attributes, so the markup already shows the final
+     number and the suffix keeps its own element. The original derived the
+     format from the magnitude and printed "2.4k" beside an "M". */
+  document.querySelectorAll(".stat-num").forEach(function (el) {
+    var target = parseFloat(el.dataset.num);
+    var decimals = parseInt(el.dataset.decimals || "0", 10);
+    var prefix = el.dataset.prefix || "";
+    var suffix = el.dataset.suffix || "";
+    var render = function (value) {
+      el.innerHTML = prefix + value.toFixed(decimals) +
+        (suffix ? '<span class="accent">' + suffix + "</span>" : "");
+    };
+    if (REDUCED) { render(target); return; }
+    ScrollTrigger.create({
+      trigger: el,
+      start: "top 85%",
+      once: true,
+      onEnter: function () {
+        var counter = { val: 0 };
+        render(0);
+        gsap.to(counter, {
+          val: target,
+          duration: 2,
+          ease: "power2.out",
+          onUpdate: function () { render(counter.val); }
+        });
+      }
+    });
+  });
+
+  /* ════════ WORD REVEALS ════════
+     Split by walking text nodes, so an element like <span class="accent">
+     inside the heading survives. innerText.split(" ") would flatten it and
+     the accent colour would have to be guessed back afterwards. */
+  var splitWords = function (selector) {
+    document.querySelectorAll(selector).forEach(function (root) {
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      var nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function (node) {
+        if (!node.nodeValue.trim()) return;
+        var frag = document.createDocumentFragment();
+        node.nodeValue.split(/(\s+)/).forEach(function (chunk) {
+          if (!chunk.trim()) return frag.appendChild(document.createTextNode(chunk));
+          var mask = document.createElement("span");
+          mask.className = "sword";
+          mask.style.cssText = "display:inline-block;overflow:hidden;padding-bottom:0.12em;vertical-align:top;";
+          var word = document.createElement("span");
+          word.className = "sword-inner";
+          word.style.cssText = "display:inline-block;will-change:transform;";
+          word.textContent = chunk;
+          mask.appendChild(word);
+          frag.appendChild(mask);
+        });
+        node.parentNode.replaceChild(frag, node);
+      });
+    });
+  };
+
+  if (!REDUCED) {
+    [".features-title", ".quote-text", ".final-cta-h2"].forEach(function (selector) {
+      splitWords(selector);
+      gsap.fromTo(selector + " .sword-inner",
+        { yPercent: 110 },
+        {
+          yPercent: 0,
+          duration: 1,
+          stagger: 0.04,
+          ease: "power4.out",
+          scrollTrigger: { trigger: selector, start: "top 80%", toggleActions: "play none none reverse" }
+        });
+    });
+
+    gsap.from(".feature-card", {
+      y: 80, opacity: 0, duration: 1, stagger: 0.15, ease: "power3.out",
+      scrollTrigger: { trigger: ".feature-cards", start: "top 75%", toggleActions: "play none none reverse" }
+    });
+    gsap.from(".quote-mark", {
+      scale: 0, rotation: -45, duration: 1.2, ease: "elastic.out(1, 0.6)",
+      scrollTrigger: { trigger: ".quote-mark", start: "top 80%", toggleActions: "play none none reverse" }
+    });
+    gsap.from(".final-cta-card", {
+      scale: 0.92, opacity: 0, duration: 1.2, ease: "power3.out",
+      scrollTrigger: { trigger: ".final-cta-card", start: "top 80%", toggleActions: "play none none reverse" }
+    });
+  }
+
+  /* ════════ CARD TILT ════════
+     GSAP owns the card transform here, so the CSS hover lift was removed —
+     two owners for one property is how a card ends up stuck mid-air. */
+  if (!REDUCED && !window.matchMedia("(pointer: coarse)").matches) {
+    document.querySelectorAll(".feature-card").forEach(function (card) {
+      card.addEventListener("pointermove", function (e) {
+        var r = card.getBoundingClientRect();
+        gsap.to(card, {
+          rotationY: ((e.clientX - r.left) / r.width - 0.5) * 8,
+          rotationX: -((e.clientY - r.top) / r.height - 0.5) * 8,
+          y: -12,
+          duration: 0.5,
+          transformPerspective: 1200,
+          ease: "power2.out"
+        });
+      });
+      card.addEventListener("pointerleave", function () {
+        gsap.to(card, { rotationY: 0, rotationX: 0, y: 0, duration: 0.8, ease: "elastic.out(1, 0.5)" });
+      });
+    });
+  }
+
+  window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+})();
+</script>
+</body>
+</html>

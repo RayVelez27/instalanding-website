@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mise — dinner, from whatever you already have</title>
+<meta name="description" content="Mise is a fictional consumer AI cooking app. Scan the shelf, ask what to make, plan the week and cook it, with every screen live in the page." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ==========================================================
+   MISE — a consumer AI cooking app, shown the only honest way:
+   the actual screens, running, inside a phone frame. Six
+   features, six working demos, no screenshots anywhere.
+
+   The system is the reference's: near-black ink, one
+   periwinkle accent, Space Grotesk for anything a person
+   reads and JetBrains Mono for anything a machine would
+   print. Numbered sections, a ghost numeral behind the notes,
+   pill tags, and a sticky rail that tracks where you are.
+   ========================================================== */
+:root{
+  --ink:        #0d0f13;
+  --ink-soft:   #15181e;
+  --ink-lift:   #1b1f27;
+  --line:       #24272e;
+  --line-soft:  #1d2026;
+  --text-hi:    #e7e8ec;
+  --text-lo:    #83879a;
+  --accent:     #7c93ff;
+  --accent-dim: #5b6dc7;
+  --warm:       #e4634f;
+  --good:       #59c9a5;
+  --radius-lg:  24px;
+  --radius-md:  14px;
+  --radius-sm:  10px;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+body{
+  background:var(--ink);
+  color:var(--text-hi);
+  font-family:"Space Grotesk", system-ui, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{ background:var(--accent); color:var(--ink); }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:6px; }
+button{ font-family:inherit; cursor:pointer; border:none; }
+svg{ display:block; }
+
+.mono{
+  font-family:"JetBrains Mono", ui-monospace, monospace;
+  letter-spacing:.08em; text-transform:uppercase; font-size:11px;
+}
+
+/* ---------- sticky rail ---------- */
+.topbar{
+  position:sticky; top:0; z-index:100;
+  background:rgba(13,15,19,.86);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{
+  max-width:1120px; margin:0 auto;
+  display:flex; align-items:center; gap:28px; padding:14px 32px;
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  font-weight:600; font-size:15px; white-space:nowrap; flex-shrink:0;
+  color:var(--text-hi); text-decoration:none; letter-spacing:-.01em;
+}
+.brand .mark{
+  width:24px; height:24px; border-radius:8px; flex:0 0 auto;
+  background:linear-gradient(140deg, var(--accent), var(--accent-dim));
+  display:grid; place-items:center; color:var(--ink);
+}
+.brand em{ font-style:normal; color:var(--accent); }
+.pattern-nav{
+  display:flex; gap:2px; overflow-x:auto;
+  scrollbar-width:none; -ms-overflow-style:none;
+}
+.pattern-nav::-webkit-scrollbar{ display:none; }
+.pattern-nav a{
+  display:flex; align-items:center; gap:8px; white-space:nowrap;
+  text-decoration:none; color:var(--text-lo); font-size:11px;
+  padding:9px 12px; border-radius:8px;
+  transition:color .2s ease, background .2s ease;
+}
+.pattern-nav a:hover{ color:var(--text-hi); background:var(--ink-soft); }
+.pattern-nav a.active{ color:var(--accent); background:var(--ink-soft); }
+.pattern-nav .num{ color:var(--text-lo); font-size:10px; }
+.pattern-nav a.active .num{ color:var(--accent); }
+.topbar .cta-mini{
+  margin-left:auto; flex-shrink:0;
+  font-family:"Space Grotesk",sans-serif; font-size:12.5px; font-weight:600;
+  color:var(--ink); background:var(--accent);
+  padding:9px 16px; border-radius:999px; text-decoration:none; white-space:nowrap;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.topbar .cta-mini:hover{ transform:translateY(-1px); box-shadow:0 10px 22px -10px rgba(124,147,255,.6); }
+@media (max-width:900px){ .pattern-nav{ display:none; } }
+@media (max-width:640px){ .topbar-inner{ padding:12px 20px; gap:14px; } }
+
+main{ max-width:1120px; margin:0 auto; }
+
+/* ---------- hero ---------- */
+.hero{ padding:96px 64px 72px; border-bottom:1px solid var(--line); position:relative; }
+@media (max-width:640px){ .hero{ padding:52px 22px 40px; } }
+.hero-eyebrow{
+  color:var(--text-lo); margin-bottom:20px;
+  display:flex; align-items:center; gap:10px;
+}
+.hero-eyebrow::before{
+  content:""; width:6px; height:6px; border-radius:50%;
+  background:var(--accent); display:inline-block;
+}
+h1.hero-title{
+  font-weight:700; font-size:clamp(36px,6vw,68px);
+  line-height:1.08; letter-spacing:-.02em; max-width:15ch;
+}
+h1.hero-title em{ font-style:normal; font-weight:700; color:var(--accent); }
+.hero-sub{ margin-top:24px; max-width:52ch; font-size:16px; line-height:1.65; color:var(--text-lo); }
+.hero-meta{ display:flex; gap:32px; margin-top:44px; flex-wrap:wrap; }
+.hero-meta div{ display:flex; flex-direction:column; gap:6px; }
+.hero-meta .val{ font-weight:700; font-size:24px; color:var(--text-hi); }
+.hero-meta .lab{ color:var(--text-lo); }
+.hero-cta{ margin-top:36px; }
+.cta-line{ color:var(--text-lo); font-size:14px; margin:0; }
+.hero-cta .cta-line{ margin-bottom:14px; }
+.cta-btn{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:13px 24px; background:var(--accent); color:var(--ink);
+  font-weight:600; font-size:14px; border-radius:999px; text-decoration:none;
+  box-shadow:0 10px 24px -10px rgba(124,147,255,.55);
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.cta-btn:hover{ transform:translateY(-2px); box-shadow:0 14px 30px -8px rgba(124,147,255,.65); }
+.cta-btn svg{ transition:transform .18s ease; }
+.cta-btn:hover svg{ transform:translateX(3px); }
+.cta-btn.ghost{
+  background:transparent; color:var(--text-hi);
+  border:1px solid var(--line); box-shadow:none;
+}
+.cta-btn.ghost:hover{ border-color:var(--accent); color:var(--accent); box-shadow:none; }
+.cta-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+
+/* ---------- section ---------- */
+.section{ padding:72px 64px; border-bottom:1px solid var(--line); scroll-margin-top:76px; }
+@media (max-width:640px){ .section{ padding:48px 22px; } }
+.section-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:40px; flex-wrap:wrap; }
+.section-num{ font-family:"JetBrains Mono",monospace; color:var(--text-lo); font-size:12px; letter-spacing:.1em; }
+.section-title{ font-weight:600; font-size:clamp(22px,3vw,30px); letter-spacing:-.01em; }
+
+.demo-row{ display:grid; grid-template-columns:340px 1fr; gap:56px; align-items:center; }
+@media (max-width:800px){ .demo-row{ grid-template-columns:1fr; gap:38px; } }
+
+/* ---------- phone ---------- */
+.phone{
+  width:300px; height:610px; background:var(--ink-soft);
+  border-radius:38px; border:1px solid var(--line); padding:10px;
+  position:relative; flex-shrink:0;
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.phone-screen{
+  width:100%; height:100%; background:var(--ink); border-radius:28px;
+  overflow:hidden; position:relative; display:flex; flex-direction:column;
+}
+.phone-notch{
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  width:80px; height:18px; background:var(--ink-soft); border-radius:10px; z-index:50;
+}
+.status-bar{
+  height:34px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; font-family:"JetBrains Mono",monospace; font-size:10px; color:var(--text-lo);
+}
+.app-body{
+  flex:1; position:relative; overflow:hidden;
+  background:linear-gradient(var(--ink-soft) 1px, transparent 1px) 0 0/100% 44px, var(--ink);
+}
+.app-head{
+  height:50px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+  padding:0 16px; border-bottom:1px solid var(--line);
+  font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--text-lo);
+}
+.app-head .icon-btn{ color:var(--text-hi); }
+.icon-btn{
+  width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+  background:transparent; color:var(--text-hi); border-radius:10px;
+  transition:background .2s ease, color .2s ease;
+}
+.icon-btn:hover{ background:var(--ink-lift); color:var(--accent); }
+.icon-btn:active{ background:var(--line); }
+.tap-hint{
+  position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+  font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.06em;
+  color:var(--accent); background:rgba(13,15,19,.9);
+  padding:5px 10px; border-radius:20px; white-space:nowrap;
+  z-index:40; pointer-events:none;
+  transition:opacity .3s ease;
+}
+.tap-hint.gone{ opacity:0; }
+
+/* ---------- notes column ---------- */
+.notes{ position:relative; padding-top:8px; }
+.notes-index{
+  position:absolute; top:-34px; right:4px;
+  font-weight:700; font-size:104px; line-height:1;
+  color:var(--line); z-index:0; pointer-events:none; user-select:none;
+}
+.notes h3{
+  position:relative; z-index:1; font-weight:600; font-size:36px;
+  line-height:1.18; letter-spacing:-.01em; max-width:13ch; margin-bottom:18px;
+}
+.notes p{
+  position:relative; z-index:1; color:var(--text-lo);
+  font-size:15px; line-height:1.7; max-width:44ch; margin-bottom:28px;
+}
+.tag-row{ position:relative; z-index:1; display:flex; gap:10px; flex-wrap:wrap; }
+.tag{
+  font-family:"JetBrains Mono",monospace; font-size:11.5px; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--accent); font-weight:500;
+  border:1px solid rgba(124,147,255,.28); background:rgba(124,147,255,.08);
+  padding:10px 16px; border-radius:24px;
+  transition:background .2s ease, border-color .2s ease;
+}
+.tag:hover{ background:rgba(124,147,255,.16); border-color:rgba(124,147,255,.5); }
+@media (max-width:640px){ .notes h3{ font-size:28px; } .notes-index{ font-size:74px; top:-24px; } }
+
+/* ==========================================================
+   THE SIX SCREENS. Each one is the real interface, wired up:
+   nothing in a phone on this page is a picture of a screen.
+   ========================================================== */
+
+/* ── 01 SCAN ─────────────────────────────────────────────── */
+.s1-cam{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(124,147,255,.10), transparent 60%),
+    repeating-linear-gradient(115deg, #171a21 0 22px, #14171d 22px 44px);
+}
+.s1-frame{
+  position:absolute; inset:52px 26px auto; height:190px;
+  border-radius:18px; border:1px dashed rgba(231,232,236,.22);
+}
+.s1-frame span{
+  position:absolute; width:16px; height:16px; border:2px solid var(--accent);
+}
+.s1-frame span:nth-child(1){ top:-1px; left:-1px; border-right:0; border-bottom:0; border-radius:6px 0 0 0; }
+.s1-frame span:nth-child(2){ top:-1px; right:-1px; border-left:0; border-bottom:0; border-radius:0 6px 0 0; }
+.s1-frame span:nth-child(3){ bottom:-1px; left:-1px; border-right:0; border-top:0; border-radius:0 0 0 6px; }
+.s1-frame span:nth-child(4){ bottom:-1px; right:-1px; border-left:0; border-top:0; border-radius:0 0 6px 0; }
+.s1-scan{
+  position:absolute; left:0; right:0; top:0; height:2px;
+  background:linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow:0 0 14px rgba(124,147,255,.8);
+  opacity:0;
+}
+.s1-scanning .s1-scan{ animation:s1sweep 1.5s cubic-bezier(.65,0,.35,1) 2; opacity:1; }
+@keyframes s1sweep{ 0%{ top:0 } 100%{ top:188px } }
+.s1-chips{
+  position:absolute; left:20px; right:20px; top:260px;
+  display:flex; flex-wrap:wrap; gap:7px;
+}
+.s1-chip{
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:"JetBrains Mono",monospace; font-size:10.5px;
+  background:var(--ink-lift); border:1px solid var(--line);
+  color:var(--text-hi); padding:6px 10px; border-radius:20px;
+  opacity:0; transform:translateY(6px) scale(.94);
+  transition:opacity .26s ease, transform .26s cubic-bezier(.34,1.56,.64,1);
+}
+.s1-chip.in{ opacity:1; transform:none; }
+.s1-chip b{ color:var(--accent); font-weight:500; }
+.s1-result{
+  position:absolute; left:20px; right:20px; bottom:86px;
+  border:1px solid var(--line); background:var(--ink-soft);
+  border-radius:14px; padding:14px;
+  opacity:0; transform:translateY(10px); transition:opacity .3s ease, transform .3s ease;
+}
+.s1-result.in{ opacity:1; transform:none; }
+.s1-result .k{ font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-lo); }
+.s1-result .v{ font-size:17px; font-weight:600; margin-top:6px; }
+.s1-result .v em{ font-style:normal; color:var(--accent); }
+.s1-shutter{
+  position:absolute; left:50%; bottom:20px; transform:translateX(-50%);
+  width:56px; height:56px; border-radius:50%; background:var(--accent); color:var(--ink);
+  display:grid; place-items:center; z-index:5;
+  box-shadow:0 10px 24px -6px rgba(124,147,255,.5);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.s1-shutter:active{ transform:translateX(-50%) scale(.92); }
+.s1-shutter.busy{ background:var(--line); color:var(--text-lo); }
+
+/* ── 02 ASK ──────────────────────────────────────────────── */
+.s2-log{ position:absolute; inset:0 0 86px; overflow-y:auto; padding:16px 14px 6px; display:flex; flex-direction:column; gap:10px; }
+.s2-log::-webkit-scrollbar{ width:0; }
+.s2-msg{ max-width:82%; padding:10px 13px; border-radius:14px; font-size:13px; line-height:1.55; }
+.s2-msg.me{ align-self:flex-end; background:var(--accent); color:var(--ink); border-bottom-right-radius:5px; font-weight:500; }
+.s2-msg.ai{ align-self:flex-start; background:var(--ink-soft); border:1px solid var(--line); color:var(--text-hi); border-bottom-left-radius:5px; }
+.s2-msg .caret{ display:inline-block; width:7px; height:14px; background:var(--accent); vertical-align:-2px; animation:blink 1s steps(1) infinite; }
+@keyframes blink{ 50%{ opacity:0 } }
+.s2-card{
+  align-self:flex-start; width:82%; border:1px solid var(--line); background:var(--ink-soft);
+  border-radius:14px; padding:12px; display:flex; gap:11px; align-items:center;
+  opacity:0; transform:translateY(8px); transition:opacity .3s ease, transform .3s ease;
+}
+.s2-card.in{ opacity:1; transform:none; }
+.s2-card .thumb{
+  width:44px; height:44px; border-radius:11px; flex:0 0 auto;
+  background:linear-gradient(140deg, var(--accent), var(--warm));
+}
+/* both of these are inline spans inside one wrapper, so they need to be
+   told to stack — otherwise the title and the meta run together into
+   "Leek & spinach rice18 min" */
+.s2-card .t{ display:block; font-size:13.5px; font-weight:600; line-height:1.3; }
+.s2-card .m{ display:block; font-family:"JetBrains Mono",monospace; font-size:10px; color:var(--text-lo); margin-top:4px; letter-spacing:.05em; }
+.s2-bar{
+  position:absolute; left:0; right:0; bottom:0; padding:10px 12px 14px;
+  border-top:1px solid var(--line); background:var(--ink);
+  display:flex; gap:7px; overflow-x:auto; scrollbar-width:none;
+}
+.s2-bar::-webkit-scrollbar{ display:none; }
+.s2-q{
+  flex:0 0 auto; font-family:"JetBrains Mono",monospace; font-size:10.5px;
+  background:var(--ink-soft); border:1px solid var(--line); color:var(--text-hi);
+  padding:9px 12px; border-radius:20px; white-space:nowrap;
+  transition:border-color .2s ease, color .2s ease;
+}
+.s2-q:hover{ border-color:var(--accent); color:var(--accent); }
+.s2-q:disabled{ opacity:.4; }
+
+/* ── 03 PLAN ─────────────────────────────────────────────── */
+.s3-wrap{ padding:14px; }
+.s3-seg{ display:flex; background:var(--ink-soft); border:1px solid var(--line); border-radius:12px; padding:4px; position:relative; }
+.s3-seg button{
+  flex:1; background:transparent; color:var(--text-lo); padding:8px 0;
+  font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.06em;
+  border-radius:9px; position:relative; z-index:2; transition:color .25s;
+}
+.s3-seg button.active{ color:var(--ink); }
+.s3-thumb{
+  position:absolute; top:4px; bottom:4px; left:4px; width:calc(50% - 4px);
+  background:var(--accent); border-radius:9px; z-index:1;
+  transition:transform .3s cubic-bezier(.65,0,.35,1);
+}
+.s3-days{ padding:0 14px; display:flex; flex-direction:column; gap:9px; }
+.s3-day{
+  border:1px solid var(--line); background:var(--ink-soft); border-radius:13px;
+  padding:11px 12px; display:flex; align-items:center; gap:11px;
+}
+.s3-day .d{
+  font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.08em;
+  color:var(--text-lo); width:28px; flex:0 0 auto;
+}
+.s3-day .meal{ flex:1; min-width:0; }
+.s3-day .t{ display:block; font-size:13.5px; font-weight:500; line-height:1.3; }
+.s3-day .m{ display:block; font-family:"JetBrains Mono",monospace; font-size:9.5px; color:var(--text-lo); margin-top:3px; letter-spacing:.05em; }
+.s3-day .swap{
+  width:30px; height:30px; border-radius:9px; flex:0 0 auto;
+  background:var(--ink); border:1px solid var(--line); color:var(--text-lo);
+  display:grid; place-items:center; transition:color .2s ease, transform .3s ease, border-color .2s ease;
+}
+.s3-day .swap:hover{ color:var(--accent); border-color:var(--accent); }
+.s3-day .swap.spin{ transform:rotate(180deg); }
+.s3-day.flash{ animation:s3flash .5s ease; }
+@keyframes s3flash{ 0%{ border-color:var(--accent) } 100%{ border-color:var(--line) } }
+.s3-foot{
+  position:absolute; left:14px; right:14px; bottom:14px;
+  border:1px solid var(--line); background:var(--ink-soft); border-radius:13px;
+  padding:11px 13px; display:flex; align-items:center; justify-content:space-between;
+}
+.s3-foot .k{ font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-lo); }
+.s3-foot .v{ font-size:15px; font-weight:600; }
+.s3-foot .v em{ font-style:normal; color:var(--accent); }
+
+/* ── 04 COOK ─────────────────────────────────────────────── */
+.s4-top{ padding:16px 16px 0; }
+.s4-dots{ display:flex; gap:5px; margin-bottom:14px; }
+.s4-dots i{ height:3px; flex:1; border-radius:2px; background:var(--line); transition:background .25s ease; }
+.s4-dots i.done{ background:var(--accent); }
+.s4-step{ font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-lo); }
+.s4-text{ font-size:17px; line-height:1.45; font-weight:500; margin-top:10px; min-height:98px; }
+.s4-text em{ font-style:normal; color:var(--accent); }
+.s4-timer{ display:grid; place-items:center; margin-top:4px; position:relative; }
+.s4-timer svg{ transform:rotate(-90deg); }
+.s4-timer .ring-bg{ stroke:var(--line); }
+.s4-timer .ring{ stroke:var(--accent); transition:stroke-dashoffset .3s linear; }
+.s4-clock{
+  position:absolute; inset:0; display:grid; place-items:center;
+  font-family:"JetBrains Mono",monospace; font-size:21px; color:var(--text-hi); letter-spacing:.02em;
+}
+.s4-clock.done{ color:var(--good); }
+.s4-ctrl{ position:absolute; left:16px; right:16px; bottom:16px; display:flex; gap:9px; }
+.s4-ctrl button{
+  flex:1; padding:12px 0; border-radius:12px; font-size:13px; font-weight:600;
+  background:var(--ink-soft); border:1px solid var(--line); color:var(--text-hi);
+  transition:background .2s ease, color .2s ease, border-color .2s ease;
+}
+.s4-ctrl button:hover:not(:disabled){ border-color:var(--accent); color:var(--accent); }
+.s4-ctrl button.primary{ background:var(--accent); border-color:var(--accent); color:var(--ink); }
+.s4-ctrl button.primary:hover{ color:var(--ink); }
+.s4-ctrl button:disabled{ opacity:.35; cursor:not-allowed; }
+
+/* ── 05 LIST ─────────────────────────────────────────────── */
+.s5-scroll{ position:absolute; inset:0 0 66px; overflow-y:auto; padding:14px 14px 8px; }
+.s5-scroll::-webkit-scrollbar{ width:0; }
+.s5-aisle{ font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-lo); margin:14px 2px 8px; }
+.s5-aisle:first-child{ margin-top:0; }
+.s5-item{
+  width:100%; display:flex; align-items:center; gap:11px; text-align:left;
+  background:var(--ink-soft); border:1px solid var(--line); border-radius:12px;
+  padding:10px 12px; margin-bottom:7px; color:var(--text-hi);
+  transition:border-color .2s ease, opacity .2s ease;
+}
+.s5-box{
+  width:19px; height:19px; border-radius:6px; flex:0 0 auto;
+  border:1.5px solid var(--line); display:grid; place-items:center;
+  transition:background .2s ease, border-color .2s ease;
+}
+.s5-box svg{ opacity:0; transform:scale(.5); transition:opacity .18s ease, transform .2s cubic-bezier(.34,1.56,.64,1); }
+.s5-item.on .s5-box{ background:var(--accent); border-color:var(--accent); }
+.s5-item.on .s5-box svg{ opacity:1; transform:none; }
+.s5-item .n{ flex:1; font-size:13px; transition:color .2s ease; }
+.s5-item.on .n{ color:var(--text-lo); text-decoration:line-through; }
+.s5-item .q{ font-family:"JetBrains Mono",monospace; font-size:10px; color:var(--text-lo); }
+.s5-bar{
+  position:absolute; left:0; right:0; bottom:0; height:66px;
+  border-top:1px solid var(--line); background:var(--ink-soft);
+  display:flex; align-items:center; justify-content:space-between; padding:0 16px;
+}
+.s5-bar .k{ font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-lo); }
+.s5-bar .v{ font-size:16px; font-weight:600; margin-top:3px; }
+.s5-bar .v em{ font-style:normal; color:var(--accent); }
+.s5-send{
+  background:var(--accent); color:var(--ink); font-weight:600; font-size:12.5px;
+  padding:10px 15px; border-radius:999px;
+}
+
+/* ── 06 TASTE ────────────────────────────────────────────── */
+.s6-wrap{ padding:16px 16px 0; display:flex; flex-direction:column; gap:14px; }
+.s6-block{ border:1px solid var(--line); background:var(--ink-soft); border-radius:14px; padding:13px; }
+.s6-k{ font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-lo); margin-bottom:10px; }
+.s6-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.s6-chip{
+  font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.04em;
+  padding:7px 11px; border-radius:20px; color:var(--text-lo);
+  background:var(--ink); border:1px solid var(--line);
+  transition:color .2s ease, border-color .2s ease, background .2s ease;
+}
+.s6-chip.on{ color:var(--ink); background:var(--accent); border-color:var(--accent); font-weight:500; }
+.s6-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 0; }
+.s6-row + .s6-row{ border-top:1px solid var(--line-soft); }
+.s6-row .lbl{ font-size:13px; }
+.s6-sw{ width:40px; height:23px; border-radius:12px; background:var(--line); position:relative; flex:0 0 auto; transition:background .25s ease; }
+.s6-sw i{
+  position:absolute; top:3px; left:3px; width:17px; height:17px; border-radius:50%;
+  background:var(--text-hi); transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.s6-sw.on{ background:var(--accent); }
+.s6-sw.on i{ transform:translateX(17px); background:var(--ink); }
+.s6-heat{ display:flex; gap:5px; }
+.s6-heat button{
+  flex:1; height:30px; border-radius:9px; background:var(--ink); border:1px solid var(--line);
+  color:var(--text-lo); font-family:"JetBrains Mono",monospace; font-size:10px;
+  transition:background .2s ease, color .2s ease, border-color .2s ease;
+}
+.s6-heat button.on{ background:var(--warm); border-color:var(--warm); color:var(--ink); font-weight:600; }
+.s6-out{
+  position:absolute; left:16px; right:16px; bottom:16px;
+  border:1px solid var(--line); background:var(--ink); border-radius:13px; padding:12px 13px;
+}
+.s6-out .k{ font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-lo); }
+.s6-out .v{ font-size:13px; line-height:1.5; margin-top:6px; }
+.s6-out .v em{ font-style:normal; color:var(--accent); }
+
+/* ==========================================================
+   THE REST OF THE PAGE — reviews, pricing, questions, footer.
+   Same two surfaces and the one accent, nothing new.
+   ========================================================== */
+.band{ padding:72px 64px; border-bottom:1px solid var(--line); scroll-margin-top:76px; }
+@media (max-width:640px){ .band{ padding:48px 22px; } }
+.band-head{ margin-bottom:38px; }
+.band-head h2{ font-weight:700; font-size:clamp(26px,3.6vw,40px); letter-spacing:-.02em; line-height:1.12; max-width:18ch; }
+.band-head h2 em{ font-style:normal; color:var(--accent); }
+.band-head p{ margin-top:16px; color:var(--text-lo); font-size:15.5px; line-height:1.7; max-width:56ch; }
+
+/* reviews */
+.reviews{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+@media (max-width:860px){ .reviews{ grid-template-columns:1fr; } }
+.review{
+  border:1px solid var(--line); background:var(--ink-soft); border-radius:18px; padding:22px;
+  display:flex; flex-direction:column; gap:14px;
+  transition:border-color .2s ease, transform .2s ease;
+}
+.review:hover{ border-color:var(--accent-dim); transform:translateY(-3px); }
+.stars{ display:flex; gap:3px; color:var(--accent); }
+.review p{ font-size:14.5px; line-height:1.6; }
+.review .who{ margin-top:auto; font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-lo); line-height:1.8; }
+.review .who b{ display:block; color:var(--text-hi); font-weight:500; }
+
+/* pricing */
+.plans{ display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:760px; }
+@media (max-width:760px){ .plans{ grid-template-columns:1fr; } }
+.plan{
+  position:relative; border:1px solid var(--line); background:var(--ink-soft);
+  border-radius:20px; padding:26px 24px 28px; display:flex; flex-direction:column; gap:16px;
+}
+.plan--hot{ border-color:var(--accent); box-shadow:0 30px 60px -40px rgba(124,147,255,.7); }
+.plan .p-name{ font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-lo); }
+.plan .p-price{ font-size:38px; font-weight:700; letter-spacing:-.03em; line-height:1; }
+.plan .p-price small{ font-family:"JetBrains Mono",monospace; font-size:11px; font-weight:400; letter-spacing:.06em; color:var(--text-lo); margin-left:8px; }
+.plan ul{ list-style:none; display:flex; flex-direction:column; gap:9px; }
+.plan li{ display:flex; gap:10px; font-size:13.5px; color:var(--text-lo); line-height:1.5; }
+.plan li svg{ flex:0 0 auto; margin-top:3px; color:var(--accent); }
+.plan .cta-btn{ margin-top:auto; justify-content:center; }
+
+/* questions */
+.faq details{ border-bottom:1px solid var(--line); }
+.faq details:first-child{ border-top:1px solid var(--line); }
+.faq summary{
+  list-style:none; cursor:pointer; padding:20px 2px;
+  display:flex; align-items:baseline; gap:14px;
+  font-size:17px; font-weight:500; letter-spacing:-.01em;
+}
+.faq summary::-webkit-details-marker{ display:none; }
+.faq summary::after{ content:"+"; margin-left:auto; color:var(--accent); font-size:18px; }
+.faq details[open] summary::after{ content:"\2212"; }
+.faq .qn{ font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.1em; color:var(--text-lo); }
+.faq p{ padding:0 0 22px 34px; max-width:72ch; color:var(--text-lo); font-size:14.5px; line-height:1.7; }
+@media (max-width:560px){ .faq p{ padding-left:0; } .faq summary{ font-size:15px; } }
+
+/* footer */
+.footer{
+  padding:64px 64px 80px; display:flex; justify-content:space-between;
+  align-items:flex-end; flex-wrap:wrap; gap:28px;
+}
+@media (max-width:640px){ .footer{ padding:48px 22px 64px; } }
+.footer-cta{ display:flex; flex-direction:column; align-items:flex-start; gap:18px; }
+.footer-title{ font-size:20px; font-weight:600; max-width:24ch; line-height:1.4; }
+.footer-title em{ color:var(--accent); font-style:normal; font-weight:600; }
+.footer-links{ display:flex; gap:24px; }
+.footer-links a{ color:var(--text-lo); text-decoration:none; font-size:12px; }
+.footer-links a:hover{ color:var(--accent); }
+.legal{
+  max-width:1120px; margin:0 auto; padding:0 64px 64px;
+  font-family:"JetBrains Mono",monospace; font-size:10.5px; line-height:1.9;
+  color:var(--text-lo); letter-spacing:.03em;
+}
+.legal b{ color:var(--text-hi); font-weight:500; }
+@media (max-width:640px){ .legal{ padding:0 22px 48px; } }
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#top">
+      <span class="mark" aria-hidden="true">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 4v7a3 3 0 006 0V4M8 11v9M17 4c-1.8 1.6-2.4 4-2.4 6.2 0 1.6.9 2.4 2.4 2.4V20"/></svg>
+      </span>
+      <span>Mise<em>.</em></span>
+    </a>
+    <nav class="pattern-nav" id="patternNav">
+      <a href="#f1" class="mono"><span class="num">01</span>Scan</a>
+      <a href="#f2" class="mono"><span class="num">02</span>Ask</a>
+      <a href="#f3" class="mono"><span class="num">03</span>Plan</a>
+      <a href="#f4" class="mono"><span class="num">04</span>Cook</a>
+      <a href="#f5" class="mono"><span class="num">05</span>List</a>
+      <a href="#f6" class="mono"><span class="num">06</span>Taste</a>
+    </nav>
+    <a class="cta-mini" href="#pricing">Get the app</a>
+  </div>
+</header>
+
+<main>
+  <!-- ══ HERO ══ -->
+  <header class="hero" id="top">
+    <div class="hero-eyebrow mono">A working demo, not screenshots</div>
+    <h1 class="hero-title">Dinner, from <em>whatever you already have</em>.</h1>
+    <p class="hero-sub">Point your phone at the shelf. Mise reads what is in there, asks what you feel like, and puts a week on the table — then writes the shopping list for the gaps. Every screen below is the real app. Tap them.</p>
+    <div class="hero-meta">
+      <div><span class="val">2.4M</span><span class="mono lab">Dinners planned</span></div>
+      <div><span class="val">4.8</span><span class="mono lab">App Store rating</span></div>
+      <div><span class="val">9s</span><span class="mono lab">Shelf to suggestion</span></div>
+    </div>
+    <div class="hero-cta">
+      <p class="cta-line">Free to start. No card, no meal-kit upsell.</p>
+      <div class="cta-row">
+        <a href="#pricing" class="cta-btn">
+          Get Mise — free on iOS
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#f1" class="cta-btn ghost">See it work</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ 01 SCAN ══ -->
+  <section class="section" id="f1">
+    <div class="section-head"><span class="section-num mono">01</span><h2 class="section-title">Scan the shelf</h2></div>
+    <div class="demo-row">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-body" id="s1Body">
+            <div class="s1-cam"></div>
+            <div class="s1-frame"><span></span><span></span><span></span><span></span><div class="s1-scan"></div></div>
+            <div class="s1-chips" id="s1Chips"></div>
+            <div class="s1-result" id="s1Result">
+              <div class="k">Tonight</div>
+              <div class="v"><em>3 dinners</em> from this shelf</div>
+            </div>
+            <button class="s1-shutter" id="s1Shutter" aria-label="Scan the shelf">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V7a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            </button>
+            <div class="tap-hint" id="s1Hint" style="bottom:170px">tap the shutter</div>
+          </div>
+        </div>
+      </div>
+      <div class="notes">
+        <span class="notes-index">01</span>
+        <h3>It reads the shelf, not a barcode</h3>
+        <p>One photo, on-device. Mise names what it sees, tells you how sure it is, and only asks when it genuinely cannot tell a shallot from a red onion.</p>
+        <div class="tag-row"><span class="tag">On-device</span><span class="tag">No barcodes</span><span class="tag">9s median</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02 ASK ══ -->
+  <section class="section" id="f2">
+    <div class="section-head"><span class="section-num mono">02</span><h2 class="section-title">Ask like a person</h2></div>
+    <div class="demo-row">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-head"><span>Ask Mise</span><span class="mono" style="color:var(--accent)">online</span></div>
+          <div class="app-body">
+            <div class="s2-log" id="s2Log">
+              <div class="s2-msg ai">Shelf scanned. You have chicken thighs, half a lemon, rice, spinach and a tired-looking leek. What are we doing?</div>
+            </div>
+            <div class="s2-bar" id="s2Bar">
+              <button class="s2-q" data-q="0">Something in 20 min</button>
+              <button class="s2-q" data-q="1">Use the leek first</button>
+              <button class="s2-q" data-q="2">Kid will actually eat</button>
+            </div>
+            <div class="tap-hint" id="s2Hint" style="bottom:74px">pick a question</div>
+          </div>
+        </div>
+      </div>
+      <div class="notes">
+        <span class="notes-index">02</span>
+        <h3>It already knows what you have</h3>
+        <p>No re-typing your ingredients into a chat box. The scan is the context, so "something in 20 minutes" is a complete question and the answer is a recipe you can start now.</p>
+        <div class="tag-row"><span class="tag">Context carried</span><span class="tag">Answers, not lists</span><span class="tag">One tap to cook</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03 PLAN ══ -->
+  <section class="section" id="f3">
+    <div class="section-head"><span class="section-num mono">03</span><h2 class="section-title">A week, in one tap</h2></div>
+    <div class="demo-row">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-head"><span>This week</span><span class="mono">4 people</span></div>
+          <div class="app-body">
+            <div class="s3-wrap">
+              <div class="s3-seg" id="s3Seg">
+                <div class="s3-thumb" id="s3Thumb"></div>
+                <button class="active mono" data-s3="week">WEEK</button>
+                <button class="mono" data-s3="weekend">WEEKEND</button>
+              </div>
+            </div>
+            <div class="s3-days" id="s3Days"></div>
+            <div class="s3-foot">
+              <div><div class="k">Shop for</div><div class="v"><em id="s3Missing">6</em> missing items</div></div>
+              <div style="text-align:right"><div class="k">Est. spend</div><div class="v" id="s3Spend">$41</div></div>
+            </div>
+            <div class="tap-hint" id="s3Hint" style="bottom:92px">tap ⟳ to swap a night</div>
+          </div>
+        </div>
+      </div>
+      <div class="notes">
+        <span class="notes-index">03</span>
+        <h3>Swap one night, not the whole plan</h3>
+        <p>Every meal is built around what the scan found and what the last shop left over. Do not fancy Thursday? Swap it, and the list and the spend re-count themselves.</p>
+        <div class="tag-row"><span class="tag">Leftover-aware</span><span class="tag">Per-night swap</span><span class="tag">Live cost</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04 COOK ══ -->
+  <section class="section" id="f4">
+    <div class="section-head"><span class="section-num mono">04</span><h2 class="section-title">Cook, hands free</h2></div>
+    <div class="demo-row">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-head"><span>Lemon chicken &amp; rice</span><span class="mono">32 min</span></div>
+          <div class="app-body">
+            <div class="s4-top">
+              <div class="s4-dots" id="s4Dots"></div>
+              <div class="s4-step" id="s4Step">Step 1 of 5</div>
+              <div class="s4-text" id="s4Text"></div>
+              <div class="s4-timer">
+                <svg width="128" height="128" viewBox="0 0 128 128">
+                  <circle class="ring-bg" cx="64" cy="64" r="56" fill="none" stroke-width="7"/>
+                  <circle class="ring" id="s4Ring" cx="64" cy="64" r="56" fill="none" stroke-width="7"
+                          stroke-linecap="round" stroke-dasharray="351.86" stroke-dashoffset="0"/>
+                </svg>
+                <div class="s4-clock" id="s4Clock">04:00</div>
+              </div>
+            </div>
+            <div class="s4-ctrl">
+              <button id="s4Prev" disabled>Back</button>
+              <button id="s4Timer" class="primary">Start timer</button>
+              <button id="s4Next">Next</button>
+            </div>
+            <div class="tap-hint" id="s4Hint" style="bottom:70px">start the timer</div>
+          </div>
+        </div>
+      </div>
+      <div class="notes">
+        <span class="notes-index">04</span>
+        <h3>Big type, real timers, wet hands</h3>
+        <p>One step at a time at a size you can read from across the counter, with the timer for that step already set. The screen stays awake so you never touch it with a chicken hand.</p>
+        <div class="tag-row"><span class="tag">Step at a time</span><span class="tag">Timer per step</span><span class="tag">Voice: "next"</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 05 LIST ══ -->
+  <section class="section" id="f5">
+    <div class="section-head"><span class="section-num mono">05</span><h2 class="section-title">The list writes itself</h2></div>
+    <div class="demo-row">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-head"><span>Shopping</span><span class="mono">Sorted by aisle</span></div>
+          <div class="app-body">
+            <div class="s5-scroll" id="s5List"></div>
+            <div class="s5-bar">
+              <div><div class="k">In the basket</div><div class="v"><em id="s5Count">0</em> of 9 · <span id="s5Total">$41.20</span></div></div>
+              <button class="s5-send" id="s5Send">Send to store</button>
+            </div>
+            <div class="tap-hint" id="s5Hint" style="bottom:74px">check something off</div>
+          </div>
+        </div>
+      </div>
+      <div class="notes">
+        <span class="notes-index">05</span>
+        <h3>Only the things you actually lack</h3>
+        <p>The plan minus the shelf equals the list, grouped the way the shop is laid out so you walk it once. Tick as you go and the running total keeps up.</p>
+        <div class="tag-row"><span class="tag">Scan-aware</span><span class="tag">Aisle order</span><span class="tag">Running total</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 06 TASTE ══ -->
+  <section class="section" id="f6">
+    <div class="section-head"><span class="section-num mono">06</span><h2 class="section-title">It learns your taste</h2></div>
+    <div class="demo-row">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-head"><span>Your taste</span><span class="mono">Updated tonight</span></div>
+          <div class="app-body">
+            <div class="s6-wrap">
+              <div class="s6-block">
+                <div class="s6-k">Off the table</div>
+                <div class="s6-chips" id="s6Chips">
+                  <button class="s6-chip on" data-c="Dairy">Dairy</button>
+                  <button class="s6-chip" data-c="Pork">Pork</button>
+                  <button class="s6-chip" data-c="Shellfish">Shellfish</button>
+                  <button class="s6-chip" data-c="Coriander">Coriander</button>
+                  <button class="s6-chip" data-c="Peanuts">Peanuts</button>
+                </div>
+              </div>
+              <div class="s6-block">
+                <div class="s6-k">Heat</div>
+                <div class="s6-heat" id="s6Heat">
+                  <button data-h="Mild">MILD</button>
+                  <button class="on" data-h="Medium">MEDIUM</button>
+                  <button data-h="Hot">HOT</button>
+                </div>
+              </div>
+              <div class="s6-block" style="padding-top:6px;padding-bottom:6px">
+                <div class="s6-row"><span class="lbl">Batch-cook Sundays</span><button class="s6-sw on" data-sw="Batch cooks Sundays" aria-pressed="true"><i></i></button></div>
+                <div class="s6-row"><span class="lbl">Hide 60-min recipes</span><button class="s6-sw" data-sw="Nothing over 60 minutes" aria-pressed="false"><i></i></button></div>
+              </div>
+            </div>
+            <div class="s6-out">
+              <div class="k">What Mise will suggest</div>
+              <div class="v" id="s6Out"></div>
+            </div>
+            <div class="tap-hint" id="s6Hint" style="bottom:100px">change anything</div>
+          </div>
+        </div>
+      </div>
+      <div class="notes">
+        <span class="notes-index">06</span>
+        <h3>Say it once, never again</h3>
+        <p>Tell it what is off the table and how hot you like things, and it holds that across every plan, every list and every answer. Change your mind at any point and the next suggestion already knows.</p>
+        <div class="tag-row"><span class="tag">Held across the app</span><span class="tag">No re-prompting</span><span class="tag">Editable forever</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ REVIEWS ══ -->
+  <section class="band" id="reviews">
+    <div class="band-head">
+      <h2>People mostly say the <em>same three things</em></h2>
+      <p>It saved a shop, it stopped an argument about dinner, and it used the thing that was about to go off.</p>
+    </div>
+    <div class="reviews">
+      <div class="review">
+        <div class="stars" aria-label="5 out of 5">★★★★★</div>
+        <p>"Scanned the fridge on a Tuesday expecting nothing and got three dinners out of half a cabbage and some eggs. I have not thrown out a vegetable since."</p>
+        <div class="who"><b>Priya M.</b>App Store · 4 months in</div>
+      </div>
+      <div class="review">
+        <div class="stars" aria-label="5 out of 5">★★★★★</div>
+        <p>"The week plan is the bit. Twenty minutes on a Sunday and the arguing about what's for dinner is just gone. My shop dropped about £30 a week."</p>
+        <div class="who"><b>Tom R.</b>App Store · 1 year in</div>
+      </div>
+      <div class="review">
+        <div class="stars" aria-label="4 out of 5">★★★★☆</div>
+        <p>"Cook mode is the only recipe screen I can read from the other side of the kitchen. Docking a star because it still thinks my shallots are red onions."</p>
+        <div class="who"><b>Dana K.</b>App Store · 7 months in</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PRICING ══ -->
+  <section class="band" id="pricing">
+    <div class="band-head">
+      <h2>Free does the <em>whole job</em></h2>
+      <p>Scanning, asking, cooking and the list are free forever. Plus is for households running a week at a time.</p>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="p-name">Mise</div>
+        <div class="p-price">Free</div>
+        <ul>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>Unlimited shelf scans</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>Ask anything, any time</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>Cook mode and timers</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>One shopping list</li>
+        </ul>
+        <a href="#top" class="cta-btn ghost">Start free</a>
+      </div>
+      <div class="plan plan--hot">
+        <div class="p-name">Mise Plus</div>
+        <div class="p-price">$4<small>/ MONTH</small></div>
+        <ul>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>Week and weekend plans</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>Shared household, one plan</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>Send the list to your store</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>Spend tracking across weeks</li>
+        </ul>
+        <a href="#top" class="cta-btn">Try Plus free for 14 days
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FAQ ══ -->
+  <section class="band faq" id="faq">
+    <div class="band-head"><h2>Four things people ask <em>before they point a camera at their fridge</em></h2></div>
+    <details open>
+      <summary><span class="qn">01</span> Does the photo leave my phone?</summary>
+      <p>No. Recognition runs on the device and the picture is discarded the moment the ingredient list comes back — what syncs is the list of names, not the image. You can turn even that off and keep everything local, which costs you the shared household plan and nothing else.</p>
+    </details>
+    <details>
+      <summary><span class="qn">02</span> What happens when it gets an ingredient wrong?</summary>
+      <p>It shows you how sure it is and asks about anything under 80%. Correct it once and it remembers the shape of your kitchen — a fortnight in, most people's scans come back clean.</p>
+    </details>
+    <details>
+      <summary><span class="qn">03</span> Do I have to plan a whole week?</summary>
+      <p>No. Plenty of people only ever use the scan and the question box, which is the whole free tier working as intended. The week plan exists for households that would rather decide once.</p>
+    </details>
+    <details>
+      <summary><span class="qn">04</span> Is any of this real?</summary>
+      <p>No. Mise is a fictional product built as a design demo: the app, the company, the ratings, the reviews, the prices and every number on this page were invented for it. Nothing installs, no photo is taken, and no request leaves this page.</p>
+    </details>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-cta">
+      <div class="footer-title">Six screens. One rule: <em>the app should already know what you have.</em></div>
+      <p class="cta-line">Free to start, and it stays useful if you never pay.</p>
+      <a href="#pricing" class="cta-btn">
+        Get Mise — free on iOS
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <div class="footer-links mono"><a href="#top">Back to top ↑</a></div>
+  </footer>
+
+  <div class="legal">
+    <b>MISE is a fictional product and nothing on this page is real.</b><br />
+    The app, the company, the App Store rating, the reviews and the people who wrote them, the prices, the
+    recipes and every figure shown were invented for a design demo. No camera is accessed, no data is
+    collected, and nothing leaves this page.
+  </div>
+</main>
+
+<script>
+/* ==========================================================
+   MISE — six phone demos and a scroll-spy. Everything here is
+   a class toggle or a bit of text: no framework, no state
+   library, and every screen works with the others turned off.
+   ========================================================== */
+(function () {
+  "use strict";
+
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var hide = function (el) { if (el) el.classList.add("gone"); };
+
+  /* ── 01 SCAN ───────────────────────────────────────────────
+     A scan is a sequence, so it is written as one: sweep, then
+     the chips land one at a time, then the verdict. The delays
+     collapse to zero under reduced motion rather than being
+     removed, so the end state is identical either way. */
+  var SHELF = [
+    ["Chicken thighs", "98%"], ["Lemon", "96%"], ["Rice", "99%"],
+    ["Spinach", "91%"], ["Leek", "84%"], ["Garlic", "97%"], ["Shallot?", "62%"]
+  ];
+  var s1 = { body: $("#s1Body"), chips: $("#s1Chips"), result: $("#s1Result"), btn: $("#s1Shutter"), busy: false };
+  if (s1.btn) {
+    s1.btn.addEventListener("click", function () {
+      if (s1.busy) return;
+      hide($("#s1Hint"));
+      // second press resets, so the demo can be watched twice
+      if (s1.chips.children.length) {
+        s1.chips.innerHTML = "";
+        s1.result.classList.remove("in");
+        return;
+      }
+      s1.busy = true;
+      s1.btn.classList.add("busy");
+      s1.body.classList.add("s1-scanning");
+      var step = REDUCED ? 0 : 1;
+      setTimeout(function () {
+        SHELF.forEach(function (row, i) {
+          var chip = document.createElement("span");
+          chip.className = "s1-chip";
+          chip.innerHTML = row[0] + " <b>" + row[1] + "</b>";
+          s1.chips.appendChild(chip);
+          setTimeout(function () { chip.classList.add("in"); }, step * i * 90);
+        });
+        setTimeout(function () {
+          s1.result.classList.add("in");
+          s1.body.classList.remove("s1-scanning");
+          s1.btn.classList.remove("busy");
+          s1.busy = false;
+        }, step * (SHELF.length * 90 + 200));
+      }, step * 3000);
+    });
+  }
+
+  /* ── 02 ASK ──────────────────────────────────────────────── */
+  var ANSWERS = [
+    { a: "Chicken thighs, lemon and rice. Sear skin-side down while the rice goes on — one pan, 22 minutes, and the spinach wilts in at the end.",
+      c: ["Lemon chicken & rice", "22 min · uses 5 of 7"] },
+    { a: "The leek is the one on the clock. Sweat it soft in butter, fold it through the rice with the spinach, and the chicken becomes tomorrow's problem.",
+      c: ["Leek & spinach rice", "18 min · uses the leek"] },
+    { a: "Skip the leek and keep it plain: chicken, rice, a squeeze of lemon, nothing green in sight. It is boring and it gets eaten.",
+      c: ["Plain lemon chicken", "20 min · zero negotiation"] }
+  ];
+  var s2 = { log: $("#s2Log"), bar: $("#s2Bar"), busy: false };
+  function s2Ask(i) {
+    if (!s2.log || s2.busy) return;
+    s2.busy = true;
+    hide($("#s2Hint"));
+    $$(".s2-q", s2.bar).forEach(function (b) { b.disabled = true; });
+
+    var me = document.createElement("div");
+    me.className = "s2-msg me";
+    me.textContent = $$(".s2-q", s2.bar)[i].textContent;
+    s2.log.appendChild(me);
+    s2.log.scrollTop = s2.log.scrollHeight;
+
+    var ai = document.createElement("div");
+    ai.className = "s2-msg ai";
+    s2.log.appendChild(ai);
+
+    var text = ANSWERS[i].a, n = 0;
+    function finish() {
+      ai.textContent = text;
+      var card = document.createElement("div");
+      card.className = "s2-card";
+      card.innerHTML = '<span class="thumb"></span><span><span class="t">' + ANSWERS[i].c[0] +
+        '</span><span class="m">' + ANSWERS[i].c[1] + "</span></span>";
+      s2.log.appendChild(card);
+      requestAnimationFrame(function () { card.classList.add("in"); });
+      s2.log.scrollTop = s2.log.scrollHeight;
+      $$(".s2-q", s2.bar).forEach(function (b) { b.disabled = false; });
+      s2.busy = false;
+    }
+    if (REDUCED) { finish(); return; }
+    var tick = setInterval(function () {
+      n += 2;
+      ai.innerHTML = text.slice(0, n) + '<span class="caret"></span>';
+      s2.log.scrollTop = s2.log.scrollHeight;
+      if (n >= text.length) { clearInterval(tick); finish(); }
+    }, 18);
+  }
+  $$(".s2-q").forEach(function (b) { b.addEventListener("click", function () { s2Ask(+b.dataset.q); }); });
+
+  /* ── 03 PLAN ─────────────────────────────────────────────── */
+  var POOL = [
+    ["Lemon chicken & rice", "22 min · 5 of 7 in"], ["Leek & spinach orzo", "18 min · 4 of 6 in"],
+    ["Black bean tacos", "25 min · 3 of 7 in"], ["Roast squash salad", "35 min · 4 of 5 in"],
+    ["Miso salmon bowls", "20 min · 2 of 6 in"], ["Sausage & bean stew", "40 min · 5 of 6 in"],
+    ["Mushroom risotto", "30 min · 4 of 6 in"], ["Fridge fried rice", "12 min · 6 of 6 in"]
+  ];
+  var WEEK = ["MON", "TUE", "WED", "THU", "FRI"], WKND = ["SAT", "SUN"];
+  var s3 = { days: $("#s3Days"), mode: "week", seed: 0 };
+  function s3Render() {
+    if (!s3.days) return;
+    var labels = s3.mode === "week" ? WEEK : WKND;
+    s3.days.innerHTML = "";
+    labels.forEach(function (d, i) {
+      var meal = POOL[(i + s3.seed) % POOL.length];
+      var row = document.createElement("div");
+      row.className = "s3-day";
+      row.innerHTML = '<span class="d">' + d + '</span>' +
+        '<span class="meal"><span class="t">' + meal[0] + '</span><span class="m">' + meal[1] + "</span></span>";
+      var swap = document.createElement("button");
+      swap.className = "swap";
+      swap.setAttribute("aria-label", "Swap " + d);
+      swap.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>';
+      swap.addEventListener("click", function () {
+        hide($("#s3Hint"));
+        var next = POOL[Math.floor(Math.random() * POOL.length)];
+        row.querySelector(".t").textContent = next[0];
+        row.querySelector(".m").textContent = next[1];
+        row.classList.remove("flash");
+        void row.offsetWidth;
+        row.classList.add("flash");
+        swap.classList.toggle("spin");
+        s3Totals();
+      });
+      row.appendChild(swap);
+      s3.days.appendChild(row);
+    });
+    s3Totals();
+  }
+  function s3Totals() {
+    var rows = $$(".s3-day", s3.days).length;
+    var missing = Math.max(2, Math.round(rows * 1.3 + (Math.random() * 2 | 0)));
+    $("#s3Missing").textContent = missing;
+    $("#s3Spend").textContent = "$" + (missing * 6 + 5);
+  }
+  $$("#s3Seg [data-s3]").forEach(function (b, i) {
+    b.addEventListener("click", function () {
+      hide($("#s3Hint"));
+      $$("#s3Seg [data-s3]").forEach(function (o) { o.classList.remove("active"); });
+      b.classList.add("active");
+      $("#s3Thumb").style.transform = "translateX(" + i * 100 + "%)";
+      s3.mode = b.dataset.s3;
+      s3Render();
+    });
+  });
+  s3Render();
+
+  /* ── 04 COOK ─────────────────────────────────────────────── */
+  var STEPS = [
+    { t: 'Pat the thighs dry and salt them <em>hard</em>. Dry skin is the whole trick.', s: 120 },
+    { t: 'Skin-side down in a cold pan, medium heat. Leave it alone for <em>12 minutes</em>.', s: 720 },
+    { t: 'Rice on: 1 cup to 1.5 cups water, lid on, lowest heat.', s: 660 },
+    { t: 'Flip the chicken, squeeze in the lemon, and let it go another <em>6 minutes</em>.', s: 360 },
+    { t: 'Spinach into the rice off the heat. Lid back on for two minutes and serve.', s: 120 }
+  ];
+  var C = 351.86;
+  var s4 = { i: 0, left: STEPS[0].s, running: false, tick: null };
+  function s4Fmt(s) { return String((s / 60) | 0).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
+  function s4Paint() {
+    var dots = $("#s4Dots");
+    if (dots && !dots.children.length) STEPS.forEach(function () { dots.appendChild(document.createElement("i")); });
+    $$("#s4Dots i").forEach(function (d, i) { d.classList.toggle("done", i <= s4.i); });
+    $("#s4Step").textContent = "Step " + (s4.i + 1) + " of " + STEPS.length;
+    $("#s4Text").innerHTML = STEPS[s4.i].t;
+    $("#s4Clock").textContent = s4Fmt(s4.left);
+    $("#s4Clock").classList.toggle("done", s4.left === 0);
+    $("#s4Ring").style.strokeDashoffset = C * (1 - s4.left / STEPS[s4.i].s);
+    $("#s4Prev").disabled = s4.i === 0;
+    $("#s4Next").disabled = s4.i === STEPS.length - 1;
+    $("#s4Timer").textContent = s4.running ? "Pause" : (s4.left === 0 ? "Reset" : "Start timer");
+  }
+  function s4Stop() { clearInterval(s4.tick); s4.tick = null; s4.running = false; }
+  function s4Go(i) {
+    s4Stop();
+    s4.i = Math.max(0, Math.min(STEPS.length - 1, i));
+    s4.left = STEPS[s4.i].s;
+    s4Paint();
+  }
+  if ($("#s4Text")) {
+    s4Paint();
+    $("#s4Prev").addEventListener("click", function () { s4Go(s4.i - 1); });
+    $("#s4Next").addEventListener("click", function () { s4Go(s4.i + 1); });
+    $("#s4Timer").addEventListener("click", function () {
+      hide($("#s4Hint"));
+      if (s4.left === 0) { s4.left = STEPS[s4.i].s; s4Paint(); return; }
+      if (s4.running) { s4Stop(); s4Paint(); return; }
+      s4.running = true;
+      s4Paint();
+      s4.tick = setInterval(function () {
+        s4.left = Math.max(0, s4.left - 1);
+        if (s4.left === 0) s4Stop();
+        s4Paint();
+      }, 1000);
+    });
+  }
+
+  /* ── 05 LIST ─────────────────────────────────────────────── */
+  var LIST = [
+    ["Produce", [["Leeks", "2", 1.8], ["Lemons", "4", 1.2], ["Spinach", "200g", 2.1]]],
+    ["Meat & fish", [["Chicken thighs", "1kg", 7.4], ["Salmon fillets", "2", 9.8]]],
+    ["Cupboard", [["Basmati rice", "1kg", 3.2], ["Black beans", "2 tins", 1.9], ["Miso paste", "1 tub", 4.6], ["Olive oil", "500ml", 9.2]]]
+  ];
+  var s5 = { done: 0, total: 0, sum: 0 };
+  (function s5Build() {
+    var host = $("#s5List");
+    if (!host) return;
+    LIST.forEach(function (group) {
+      var h = document.createElement("div");
+      h.className = "s5-aisle";
+      h.textContent = group[0];
+      host.appendChild(h);
+      group[1].forEach(function (item) {
+        s5.total++; s5.sum += item[2];
+        var b = document.createElement("button");
+        b.className = "s5-item";
+        b.setAttribute("aria-pressed", "false");
+        b.innerHTML = '<span class="s5-box"><svg width="11" height="9" viewBox="0 0 11 9" fill="none" stroke="#0d0f13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4.5L4 7.5 10 1.5"/></svg></span>' +
+          '<span class="n">' + item[0] + '</span><span class="q">' + item[1] + "</span>";
+        b.addEventListener("click", function () {
+          hide($("#s5Hint"));
+          var on = b.classList.toggle("on");
+          b.setAttribute("aria-pressed", String(on));
+          s5.done += on ? 1 : -1;
+          s5.sum += on ? -item[2] : item[2];
+          $("#s5Count").textContent = s5.done;
+          $("#s5Total").textContent = "$" + s5.sum.toFixed(2);
+        });
+        host.appendChild(b);
+      });
+    });
+    $("#s5Count").textContent = "0";
+    $("#s5Total").textContent = "$" + s5.sum.toFixed(2);
+    $("#s5Send").addEventListener("click", function () {
+      $("#s5Send").textContent = s5.done ? "Sent ✓" : "Nothing ticked";
+      setTimeout(function () { $("#s5Send").textContent = "Send to store"; }, 1600);
+    });
+  })();
+
+  /* ── 06 TASTE ────────────────────────────────────────────── */
+  var s6 = { out: $("#s6Out") };
+  function s6Paint() {
+    if (!s6.out) return;
+    var off = $$("#s6Chips .s6-chip.on").map(function (c) { return c.dataset.c.toLowerCase(); });
+    var heat = ($("#s6Heat .on") || {}).dataset ? $("#s6Heat .on").dataset.h.toLowerCase() : "medium";
+    var sws = $$(".s6-sw.on").map(function (s) { return s.dataset.sw.toLowerCase(); });
+    var bits = ["<em>" + heat + "</em> heat"];
+    if (off.length) bits.push("no " + off.join(", "));
+    sws.forEach(function (s) { bits.push(s); });
+    s6.out.innerHTML = bits.join(" · ") + ".";
+  }
+  $$("#s6Chips .s6-chip").forEach(function (c) {
+    c.addEventListener("click", function () { hide($("#s6Hint")); c.classList.toggle("on"); s6Paint(); });
+  });
+  $$("#s6Heat button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      hide($("#s6Hint"));
+      $$("#s6Heat button").forEach(function (o) { o.classList.remove("on"); });
+      b.classList.add("on");
+      s6Paint();
+    });
+  });
+  $$(".s6-sw").forEach(function (s) {
+    s.addEventListener("click", function () {
+      hide($("#s6Hint"));
+      var on = s.classList.toggle("on");
+      s.setAttribute("aria-pressed", String(on));
+      s6Paint();
+    });
+  });
+  s6Paint();
+
+  /* ── scroll-spy for the rail ──────────────────────────────── */
+  var links = $$(".pattern-nav a");
+  if ("IntersectionObserver" in window && links.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var id = e.target.getAttribute("id");
+        links.forEach(function (l) { l.classList.toggle("active", l.getAttribute("href") === "#" + id); });
+      });
+    }, { rootMargin: "-20% 0px -70% 0px", threshold: 0 });
+    $$("section.section").forEach(function (s) { spy.observe(s); });
+  }
+})();
+
+</script>
+</body>
+</html>

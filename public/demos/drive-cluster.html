@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Meridian — the instrument layer for autonomous drive</title>
+<meta name="description" content="A working instrument cluster: hold to accelerate, switch drive modes, watch the autonomy stack think. Every dial is CSS and inline SVG — no images, no libraries." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   MERIDIAN · instrument cluster
+   One file, no images, no libraries. Every dial is the same
+   object: a ticked bezel made from one repeating-conic-gradient
+   masked to a ring, four cardinal dashes, and a line-art glyph.
+   The speedometer is that dial scaled up with a needle on it.
+   ============================================================ */
+
+:root {
+  --bar: 61px; /* topbar row plus its 1px border */
+  --sb: 30px;  /* status bar at the foot of the app */
+  --void: #06080c;
+  --panel: #0a0e15;
+  --panel-2: #0d1219;
+  --raised: #111823;
+  --line: rgba(34, 224, 240, 0.14);
+  --line-2: rgba(34, 224, 240, 0.28);
+
+  --cyan: #22e0f0;
+  --cyan-dim: #12a4b6;
+  --cyan-deep: #0d5c68;
+  --text: #dff7fa;
+  --mute: #6c8994;
+
+  /* the accent is the drive mode; everything chromatic reads from it */
+  --accent: var(--cyan);
+  --accent-dim: var(--cyan-dim);
+
+  --eco: #5ef08a;
+  --eco-dim: #2a9155;
+  --sport: #ff4d5e;
+  --sport-dim: #a32734;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Neon bloom, adapted from the Uiverse button by zjssun: four box-shadow
+     stops out to 100px and three white text-shadow stops. Ours reads
+     --accent rather than a fixed blue, so the glow changes colour with the
+     drive mode. The outermost stop is tempered because at full strength a
+     100px bloom on a 280px card washes out its neighbours. */
+  --bloom: 0 0 5px var(--accent), 0 0 20px var(--accent), 0 0 50px var(--accent),
+    0 0 100px color-mix(in srgb, var(--accent) 42%, transparent);
+  --bloom-soft: 0 0 4px var(--accent), 0 0 14px var(--accent),
+    0 0 34px color-mix(in srgb, var(--accent) 55%, transparent);
+  --neon-text: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff;
+  /* On 10px mono at 0.34em tracking a white glow just fills the gaps between
+     the letters and reads as a white box. Small labels go white in the face
+     and bloom purely in the accent, which is what actually looks like neon. */
+  --neon-text-sm: 0 0 6px var(--accent), 0 0 15px var(--accent), 0 0 30px var(--accent);
+  --display: "Chakra Petch", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--display);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* faint scanline + vignette, the only page-level atmosphere */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(34, 224, 240, 0.028) 0 1px, transparent 1px 3px);
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 79;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 42%, rgba(0, 0, 0, 0.72) 100%);
+}
+
+.wrap { width: min(1220px, 100% - 40px); margin: 0 auto; }
+
+/* ============================================================
+   CHROME
+   ============================================================ */
+.topbar {
+  position: sticky; top: 0; z-index: 70;
+  background: rgba(6, 8, 12, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 18px; }
+/* The left slot of a dashboard's bar is the view you are in, not a mark.
+   These live behind a sign-up: whoever is looking already knows whose
+   product it is, and a wordmark up here is the one thing that would make
+   it read as a landing page again. */
+.view {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.topnav { display: flex; gap: 24px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+.topnav a { transition: 0.5s ease; }
+.topnav a:hover { color: #fff; text-shadow: var(--neon-text-sm); }
+.vin { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--cyan-deep); }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--cyan-dim);
+}
+.eyebrow::before { content: ""; width: 16px; height: 1px; background: currentColor; }
+
+h1, h2 { font-weight: 700; letter-spacing: -0.015em; line-height: 1.02; }
+
+/* ============================================================
+   THE DIAL — one object, used eight times
+   ============================================================ */
+.dial { position: relative; width: 100%; aspect-ratio: 1; }
+/* 72 ticks from a single gradient, masked to a thin ring */
+.dial-bezel {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-conic-gradient(from -0.4deg, var(--accent) 0 0.8deg, transparent 0.8deg 5deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 85%, #000 85.5%, #000 93%, transparent 93.5%);
+  mask: radial-gradient(closest-side, transparent 85%, #000 85.5%, #000 93%, transparent 93.5%);
+  opacity: 0.55;
+}
+/* an inner dotted ring, finer and dimmer */
+.dial-bezel::after {
+  content: "";
+  position: absolute; inset: 9%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, var(--accent) 0 0.5deg, transparent 0.5deg 7.5deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 92%, #000 92.5%, #000 97%, transparent 97.5%);
+  mask: radial-gradient(closest-side, transparent 92%, #000 92.5%, #000 97%, transparent 97.5%);
+  opacity: 0.5;
+}
+/* The four cardinal marks that break the ring.
+   Each spoke spans the full diameter and rotates about the middle, and the
+   mark itself is a pseudo-element pinned near the top. A percentage translate
+   would resolve against each element's own size, which puts a 6px dot at a
+   different radius than a 47px dash — this way the radius is the spoke's. */
+.dial-cards i {
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 2px; margin-left: -1px;
+  transform: rotate(var(--a, 0deg));
+}
+.dial-cards i::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 4.5%;
+  width: 2px; height: 8%;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+.dial-cards i:nth-child(1) { --a: 0deg; }
+.dial-cards i:nth-child(2) { --a: 180deg; }
+.dial-cards i:nth-child(3) { --a: 90deg; }
+.dial-cards i:nth-child(4) { --a: -90deg; }
+/* east and west are dots rather than dashes, as in the reference */
+.dial-cards i:nth-child(3)::before,
+.dial-cards i:nth-child(4)::before {
+  width: 6px; height: 6px; margin-left: -3px; top: 5.5%; border-radius: 50%;
+}
+
+.dial-glyph {
+  position: absolute; inset: 22%;
+  display: grid; place-items: center;
+}
+.dial-glyph svg { width: 100%; height: 100%; overflow: visible; }
+.dial-glyph .st { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.dial-glyph .fl { fill: var(--accent); }
+
+.dial-label {
+  margin-top: 14px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-indent: 0.34em;
+}
+.dial-read {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--mute);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   CLUSTER
+   ============================================================ */
+/* The cluster is the product, so it gets the screen: topbar, cluster, status
+   bar, and nothing that scrolls. */
+.stage {
+  position: relative;
+  height: calc(100vh - var(--bar) - var(--sb));
+  height: calc(100dvh - var(--bar) - var(--sb));
+  min-height: 560px;
+  padding: 16px 0;
+  display: flex; flex-direction: column;
+}
+.stage > .wrap { flex: 1; display: flex; min-height: 0; }
+.cluster { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* the two columns of the dashboard: instruments, and the route beside them */
+.cluster-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 0.82fr; gap: 24px; align-items: stretch; }
+/* a column, so the dial can give up height to the readouts under it rather
+   than pushing them off the bottom of the shell */
+.cluster-main { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.cluster-main .strip { margin-top: auto; }
+.cluster-map { min-width: 0; min-height: 0; display: flex; }
+.cluster-map .map-panel { aspect-ratio: auto; flex: 1; min-height: 260px; }
+/* Stacked, the two columns are taller than any phone, and .cluster clips its
+   overflow — so below this the shell stops being one screen and the page
+   scrolls instead of hiding the readouts. */
+@media (max-width: 1100px) {
+  .cluster-body { grid-template-columns: 1fr; }
+  .cluster-map .map-panel { aspect-ratio: 16 / 7; flex: none; height: auto; }
+  .stage { height: auto; min-height: 0; }
+  .stage > .wrap { display: block; }
+  .cluster { display: block; }
+  .speedo { width: min(430px, 88vw); }
+}
+
+/* ---------- STATUS BAR ---------- */
+.statusbar {
+  position: relative; z-index: 60;
+  height: var(--sb);
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 0 18px;
+  background: rgba(6, 8, 12, 0.92);
+  border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em;
+  color: var(--mute); white-space: nowrap; overflow: hidden;
+}
+.statusbar b { color: var(--cyan); font-weight: 700; letter-spacing: 0.16em; }
+.sb-left { display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.sb-right { flex: none; }
+.sb-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+.tn-live { display: inline-flex; align-items: center; gap: 6px; color: var(--cyan); }
+.tn-live i { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+@media (max-width: 900px) { .sb-right { display: none; } }
+@media (max-height: 720px) {
+  .stage { height: auto; min-height: 0; }
+  .stage > .wrap { display: block; }
+  .cluster { display: block; }
+}
+.cluster {
+  position: relative;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(70% 90% at 50% 8%, rgba(34, 224, 240, 0.07), transparent 62%),
+    linear-gradient(180deg, var(--panel), var(--void));
+  padding: 30px 26px 26px;
+  overflow: hidden;
+}
+/* corner ticks on the cluster frame */
+.cluster::before, .cluster::after {
+  content: "";
+  position: absolute;
+  width: 18px; height: 18px;
+  border: 1px solid var(--line-2);
+  pointer-events: none;
+}
+.cluster::before { left: 10px; top: 10px; border-right: 0; border-bottom: 0; }
+.cluster::after { right: 10px; bottom: 10px; border-left: 0; border-top: 0; }
+
+.cluster-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 20px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute);
+}
+.status { display: flex; align-items: center; gap: 8px; color: var(--accent); }
+.status i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: blip 1.9s ease-in-out infinite;
+}
+@keyframes blip { 50% { opacity: 0.25; } }
+
+/* --- speedometer: the dial, scaled up, with a needle --- */
+.speedo-wrap { display: grid; place-items: center; padding: 10px 0 4px; min-height: 0; }
+.speedo { position: relative; width: min(430px, 88vw, 42vh); aspect-ratio: 1; }
+.speedo .dial-bezel { opacity: 0.4; }
+
+/* the sweep arc */
+.speedo svg.arc { position: absolute; inset: 7%; overflow: visible; }
+.speedo .arc-track { fill: none; stroke: rgba(34, 224, 240, 0.12); stroke-width: 2; }
+.speedo .arc-live {
+  fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round;
+  filter: drop-shadow(0 0 7px var(--accent));
+  transition: stroke 0.4s var(--ease);
+}
+/* major ticks + numbers, positioned from JS */
+.speedo .tk { position: absolute; left: 50%; top: 50%; width: 2px; height: 7%; margin-left: -1px; background: var(--accent); transform-origin: 50% 0; opacity: 0.5; }
+.speedo .nm {
+  position: absolute;
+  font-family: var(--mono); font-size: 11px; color: var(--accent);
+  opacity: 0.72; transform: translate(-50%, -50%);
+  font-variant-numeric: tabular-nums;
+}
+/* the wedge needle */
+.needle {
+  position: absolute; left: 50%; top: 50%;
+  width: 26px; height: 40%;
+  margin-left: -13px;
+  transform-origin: 50% 100%;
+  translate: 0 -100%;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 65%, transparent));
+  pointer-events: none;
+}
+.speedo-core { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.speed-num {
+  font-family: var(--display);
+  font-size: clamp(52px, 11vw, 78px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  text-shadow: 0 0 22px rgba(34, 224, 240, 0.4);
+}
+.speed-unit { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--mute); margin-top: 6px; text-indent: 0.3em; }
+.gear {
+  position: absolute; left: 50%; bottom: 13%;
+  translate: -50% 0;
+  font-family: var(--display); font-size: 21px; font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+
+/* --- accelerator --- */
+.accel-row { display: grid; place-items: center; padding: 6px 0 4px; }
+.accel {
+  position: relative;
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--raised), #080c12);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 16px 34px -18px #000;
+  transition: box-shadow 0.25s var(--ease);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.accel:hover:not(.on) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--bloom-soft); }
+.accel:hover:not(.on) .accel-core b { text-shadow: var(--neon-text-sm); }
+.accel:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+.accel.on .accel-core b { text-shadow: var(--neon-text-sm); }
+.accel-core {
+  position: relative;
+  padding: 11px 30px;
+  border-radius: 999px;
+  border: 1.5px solid var(--accent);
+  background: radial-gradient(120% 160% at 50% 120%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 70%);
+  text-align: center;
+  transition: background 0.2s ease, box-shadow 0.25s var(--ease);
+}
+.accel-core b { display: block; font-size: 15px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+.accel-core span { display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.2em; color: var(--accent); opacity: 0.75; margin-top: 3px; }
+.accel.on .accel-core { background: radial-gradient(120% 160% at 50% 120%, color-mix(in srgb, var(--accent) 55%, transparent), transparent 74%); box-shadow: 0 0 26px -4px var(--accent); }
+.accel.on { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 34px -12px var(--accent); }
+.chev { display: grid; gap: 3px; opacity: 0.55; }
+.chev svg { width: 15px; height: 9px; fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.accel.on .chev svg { animation: chev 0.7s linear infinite; }
+.chev svg:nth-child(2) { animation-delay: 0.14s !important; }
+.chev svg:nth-child(3) { animation-delay: 0.28s !important; }
+@keyframes chev { 50% { opacity: 0.25; } }
+
+/* --- drive modes --- */
+.modes { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 14px 0 6px; }
+.mode {
+  position: relative;
+  width: 120px;
+  padding: 14px 8px 12px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(17, 24, 35, 0.7), rgba(8, 12, 18, 0.7));
+  transition: border-color 0.5s ease, background 0.5s ease, box-shadow 0.5s ease, translate 0.3s var(--ease);
+}
+.mode:hover, .mode:focus-visible {
+  outline: none;
+  translate: 0 -3px;
+  border-color: var(--m);
+  box-shadow: 0 0 4px var(--m), 0 0 14px var(--m), 0 0 34px color-mix(in srgb, var(--m) 55%, transparent);
+}
+.mode:hover .dial-label, .mode:focus-visible .dial-label { opacity: 1; color: #fff; text-shadow: var(--neon-text-sm); }
+.mode:hover .dial-glyph svg, .mode:focus-visible .dial-glyph svg { filter: drop-shadow(0 0 6px var(--m)); }
+.mode .dial-glyph svg { transition: filter 0.5s ease; }
+.mode .dial { width: 54px; margin: 0 auto; --accent: var(--m); }
+.mode .dial-label { margin-top: 10px; font-size: 9.5px; letter-spacing: 0.28em; color: var(--m); opacity: 0.6; transition: opacity 0.25s ease; }
+.mode[aria-checked="true"] {
+  border-color: var(--m);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--m) 12%, transparent), transparent);
+}
+.mode[aria-checked="true"] .dial-label { opacity: 1; }
+.mode[aria-checked="true"]::after {
+  content: "";
+  position: absolute; left: 50%; bottom: -1px;
+  width: 34px; height: 2px; margin-left: -17px;
+  background: var(--m);
+  box-shadow: 0 0 12px var(--m);
+}
+
+/* --- readouts strip --- */
+.strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin-top: 24px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.cell { background: var(--panel-2); padding: 14px 16px; }
+.cell dt { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); }
+.cell dd { margin-top: 6px; font-size: 19px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.cell dd small { font-size: 11px; font-family: var(--mono); color: var(--mute); margin-left: 3px; }
+.bar { height: 3px; margin-top: 9px; background: rgba(34, 224, 240, 0.12); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 8px var(--accent); transition: width 0.25s linear; }
+
+/* ============================================================
+   HERO COPY
+   ============================================================ */
+.hero-copy { text-align: center; padding: 64px 0 6px; }
+.hero-copy h1 { font-size: clamp(34px, 5.4vw, 60px); margin: 18px auto 18px; max-width: 18ch; }
+.hero-copy h1 em { font-style: normal; color: var(--cyan); }
+.hero-copy > p { max-width: 54ch; margin: 0 auto; font-size: 16.5px; line-height: 1.6; color: var(--mute); }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.section { padding: 104px 0 0; scroll-margin-top: 66px; }
+.section-head { max-width: 50ch; margin-bottom: 48px; }
+.section-head h2 { margin: 16px 0 14px; font-size: clamp(28px, 4vw, 42px); }
+.section-head p { font-size: 15.5px; line-height: 1.65; color: var(--mute); }
+
+.instruments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 24px; }
+.inst {
+  position: relative;
+  padding: 26px 18px 20px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--panel-2), transparent);
+  transition: border-color 0.5s ease, background 0.5s ease, box-shadow 0.5s ease,
+    translate 0.3s var(--ease);
+}
+/* focus-within as well as hover, so a keyboard user gets the same card */
+.inst:hover, .inst:focus-within {
+  z-index: 3;
+  translate: 0 -4px;
+  border-color: var(--accent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent);
+  box-shadow: var(--bloom);
+}
+.inst:hover .dial-label, .inst:focus-within .dial-label { color: #fff; text-shadow: var(--neon-text-sm); }
+.inst:hover .dial-read, .inst:focus-within .dial-read { color: var(--text); }
+.inst:hover .dial-bezel, .inst:focus-within .dial-bezel { opacity: 1; }
+.inst:hover .dial-glyph svg, .inst:focus-within .dial-glyph svg { filter: drop-shadow(0 0 7px var(--accent)); }
+.inst .dial-label, .inst .dial-read, .inst .dial-bezel, .inst .dial-glyph svg { transition: all 0.5s ease; }
+.inst .dial { width: 96px; margin: 0 auto; }
+
+/* --- map panel --- */
+.map-panel {
+  position: relative;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  overflow: hidden;
+  aspect-ratio: 16 / 7;
+}
+.map-panel svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.road { fill: none; stroke: var(--cyan); stroke-width: 0.9; opacity: 0.16; }
+.road.major { stroke-width: 1.7; opacity: 0.3; }
+.route { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linecap: round; filter: drop-shadow(0 0 6px var(--accent)); }
+.route-dash { fill: none; stroke: #fff; stroke-width: 1.2; stroke-dasharray: 5 13; opacity: 0.85; animation: flow 1.4s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -18; } }
+.poi rect { fill: rgba(6, 8, 12, 0.85); stroke: var(--cyan); stroke-width: 1; }
+.poi path, .poi circle { fill: none; stroke: var(--cyan); stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+/* the sweep */
+.sweep {
+  position: absolute; inset: -40% -10%;
+  background: conic-gradient(from 0deg, transparent 0 84%, rgba(34, 224, 240, 0.17) 92%, transparent 96%);
+  animation: sweep 5.5s linear infinite;
+  pointer-events: none;
+}
+@keyframes sweep { to { rotate: 360deg; } }
+.map-hud {
+  position: absolute; left: 16px; top: 14px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cyan-dim);
+  line-height: 1.9;
+}
+.map-hud b { color: var(--text); font-weight: 500; }
+.ego {
+  position: absolute; left: 50%; top: 56%;
+  width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent), 0 0 22px var(--accent);
+}
+.ego::after {
+  content: "";
+  position: absolute; inset: -14px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  opacity: 0;
+  animation: ping 2.6s ease-out infinite;
+}
+@keyframes ping { 0% { scale: 0.5; opacity: 0.8; } 100% { scale: 1.9; opacity: 0; } }
+
+/* --- anatomy --- */
+.anatomy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.anat { padding: 26px; border: 1px solid var(--line); background: var(--panel-2); }
+.anat-n { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; color: var(--cyan-deep); margin-bottom: 20px; }
+.anat h3 { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+.anat p { font-size: 14px; line-height: 1.66; color: var(--mute); }
+.anat code {
+  padding: 1px 5px;
+  background: rgba(34, 224, 240, 0.08);
+  border: 1px solid var(--line);
+  font-family: var(--mono); font-size: 0.85em; color: var(--cyan);
+}
+
+.cta { margin-top: 104px; padding: 74px 26px; border: 1px solid var(--line); text-align: center; background: radial-gradient(70% 120% at 50% 100%, rgba(34, 224, 240, 0.09), transparent 66%); }
+.cta h2 { font-size: clamp(28px, 4.6vw, 46px); margin-bottom: 15px; }
+.cta p { max-width: 46ch; margin: 0 auto 30px; font-size: 15.5px; line-height: 1.6; color: var(--mute); }
+.btn {
+  display: inline-block;
+  padding: 13px 26px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: color-mix(in srgb, var(--accent) 80%, #fff);
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+  transition: 0.5s ease;
+}
+/* the full effect, background fill and all — it is a small control, which is
+   the shape the original was drawn for */
+.btn:hover, .btn:focus-visible {
+  outline: none;
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+  text-shadow: var(--neon-text);
+  box-shadow: var(--bloom);
+}
+
+.footer {
+  display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  margin-top: 46px; padding: 30px 0 46px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 10.5px; line-height: 1.8; color: var(--cyan-deep);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 960px) {
+  .instruments { grid-template-columns: repeat(2, 1fr); }
+  .anatomy { grid-template-columns: 1fr; }
+  .strip { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  .topnav, .vin { display: none; }
+  .cluster { padding: 22px 14px 18px; }
+  .modes { gap: 8px; }
+  .mode { width: calc(50% - 6px); }
+  .map-panel { aspect-ratio: 4 / 5; }
+  .instruments { gap: 20px 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="view">Driving cluster</span>
+    <nav class="topnav" aria-label="Cluster">
+      <span class="tn-live"><i aria-hidden="true"></i>LIVE</span>
+      <span id="tn-mode">MODE —</span>
+      <span id="tn-range">RANGE —</span>
+    </nav>
+    <span class="vin" id="odo">UNIT 07 · SIM</span>
+  </div>
+</header>
+
+<main>
+  <!-- ============ CLUSTER ============ -->
+  <section class="stage" id="cluster">
+    <div class="wrap">
+      <div class="cluster">
+        <div class="cluster-top">
+          <span class="status"><i></i><span id="sys-state">Initialising</span></span>
+          <span id="clock">--:--:-- UTC</span>
+        </div>
+        <div class="cluster-body">
+        <div class="cluster-main">
+
+        <div class="speedo-wrap">
+          <div class="speedo" id="speedo">
+            <div class="dial-bezel" aria-hidden="true"></div>
+            <div class="dial-cards" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <svg class="arc" viewBox="0 0 200 200" aria-hidden="true">
+              <path class="arc-track" id="arc-track" />
+              <path class="arc-live" id="arc-live" />
+            </svg>
+            <div class="needle" id="needle" aria-hidden="true"></div>
+            <div class="speedo-core">
+              <div style="text-align: center">
+                <div class="speed-num" id="speed">000</div>
+                <div class="speed-unit">km/h</div>
+              </div>
+            </div>
+            <div class="gear" id="gear" aria-hidden="true">N</div>
+          </div>
+        </div>
+
+        <div class="accel-row">
+          <button class="accel" id="accel" type="button" aria-pressed="false">
+            <span class="chev" aria-hidden="true">
+              <svg viewBox="0 0 16 10"><path d="M2 8l6-6 6 6" /></svg>
+              <svg viewBox="0 0 16 10"><path d="M2 8l6-6 6 6" /></svg>
+            </span>
+            <span class="accel-core"><b>Accelerator</b><span>press &amp; hold</span></span>
+            <span class="chev" aria-hidden="true">
+              <svg viewBox="0 0 16 10"><path d="M2 8l6-6 6 6" /></svg>
+              <svg viewBox="0 0 16 10"><path d="M2 8l6-6 6 6" /></svg>
+            </span>
+            <span class="sr">Hold to accelerate. Release to coast.</span>
+          </button>
+        </div>
+
+        <div class="modes" role="radiogroup" aria-label="Drive mode" id="modes"></div>
+
+        <dl class="strip">
+          <div class="cell">
+            <dt>Battery</dt>
+            <dd><span id="v-batt">82</span><small>%</small></dd>
+            <div class="bar"><i id="b-batt"></i></div>
+          </div>
+          <div class="cell">
+            <dt>Power draw</dt>
+            <dd><span id="v-pow">0</span><small>kW</small></dd>
+            <div class="bar"><i id="b-pow"></i></div>
+          </div>
+          <div class="cell">
+            <dt>Range</dt>
+            <dd><span id="v-range">412</span><small>km</small></dd>
+            <div class="bar"><i id="b-range"></i></div>
+          </div>
+          <div class="cell">
+            <dt>Autonomy confidence</dt>
+            <dd><span id="v-conf">96</span><small>%</small></dd>
+            <div class="bar"><i id="b-conf"></i></div>
+          </div>
+        </dl>
+        </div>
+
+        <aside class="cluster-map">
+          <div class="map-panel">
+            <svg id="map" aria-hidden="true"></svg>
+            <div class="ego" aria-hidden="true"></div>
+            <div class="map-hud">
+              <div><b id="r-name">—</b></div>
+              <div><b id="r-km">—</b> km · <b id="r-eta">—</b></div>
+              <div id="r-next">—</div>
+            </div>
+          </div>
+        </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTRUMENTS ============ -->
+</main>
+
+<!-- A dashboard has no page footer; the legal line lives in the status bar. -->
+<footer class="statusbar">
+  <span class="sb-left">
+    <i class="sb-dot" aria-hidden="true"></i>
+    <b>SIM</b> · Meridian is a fictional product — the vehicle, the route and every
+    reading are invented. Nothing here is real.
+  </span>
+  <span class="sb-right">One file · no images · no libraries</span>
+</footer>
+
+<script>
+(() => {
+"use strict";
+
+const $ = (s, r = document) => r.querySelector(s);
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* deterministic-per-load hash, so the generated city is stable while you scroll */
+const SEED = Math.floor(Math.random() * 1e6);
+function rnd(n) {
+  const s = Math.sin(n * 127.1 + SEED * 0.017 + 17.3) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+/* ============================================================
+   GLYPHS — every dial's inner line art
+   ============================================================ */
+const G = {
+  battery: '<rect class="st" x="8" y="22" width="52" height="30" rx="7"/><path class="st" d="M64 32v10"/><rect class="fl" x="15" y="29" width="6" height="16" rx="2"/><rect class="fl" x="25" y="29" width="6" height="16" rx="2" opacity=".82"/><rect class="fl" x="35" y="29" width="6" height="16" rx="2" opacity=".62"/><rect class="fl" x="45" y="29" width="6" height="16" rx="2" opacity=".4"/>',
+  sensor: '<circle class="st" cx="36" cy="36" r="6"/><path class="st" d="M22 22a20 20 0 0 0 0 28M50 22a20 20 0 0 1 0 28M15 15a30 30 0 0 0 0 42M57 15a30 30 0 0 1 0 42"/>',
+  power:  '<path class="st" d="M40 8 18 40h16l-4 24 22-32H36z"/>',
+  terrain:'<path class="st" d="M6 52l16-22 12 14 10-13 18 21z"/><circle class="st" cx="52" cy="17" r="6"/>',
+  weather:'<path class="st" d="M20 46a11 11 0 0 1 2-21 15 15 0 0 1 28 4 9 9 0 0 1-2 17z"/><path class="st" d="M24 56l-3 6M36 56l-3 6M48 56l-3 6"/>',
+  ambient:'<circle class="st" cx="36" cy="32" r="11"/><path class="st" d="M36 8v6M36 50v6M12 32h6M54 32h6M19 15l4 4M49 45l4 4M53 15l-4 4M23 45l-4 4"/>',
+  range:  '<circle class="st" cx="36" cy="36" r="24" stroke-dasharray="6 7"/><path class="st" d="M36 20v16l11 7"/>',
+  map:    '<path class="st" d="M8 18l18-8 20 8 18-8v42l-18 8-20-8-18 8z"/><path class="st" d="M26 10v42M46 18v42"/>',
+  eco:    '<path class="st" d="M52 16C34 16 20 26 20 42c0 6 3 11 3 11s16-2 24-12c6-7 5-25 5-25z"/><path class="st" d="M18 56c8-12 16-20 26-26"/>',
+  sport:  '<path class="st" d="M14 42a22 22 0 1 1 44 0"/><path class="st" d="M36 42l12-12"/><circle class="fl" cx="36" cy="42" r="3.4"/><path class="st" d="M22 52h28M27 59h18"/>',
+  auto:   '<rect class="st" x="12" y="26" width="48" height="26" rx="8"/><path class="st" d="M20 26l5-12h22l5 12"/><circle class="fl" cx="24" cy="39" r="3"/><circle class="fl" cx="48" cy="39" r="3"/><path class="st" d="M36 8v6"/><circle class="st" cx="36" cy="5" r="3"/>',
+};
+function dial(glyph, label, read) {
+  return (
+    '<div class="dial"><div class="dial-bezel"></div>' +
+    '<div class="dial-cards"><i></i><i></i><i></i><i></i></div>' +
+    '<div class="dial-glyph"><svg viewBox="0 0 72 72">' + G[glyph] + "</svg></div></div>" +
+    '<p class="dial-label">' + label + "</p>" +
+    (read ? '<p class="dial-read">' + read + "</p>" : "")
+  );
+}
+
+/* ============================================================
+   DRIVE MODES
+   ============================================================ */
+const MODES = {
+  eco:  { label: "Eco",        glyph: "eco",   accent: "var(--eco)",   redline: 130, pull: 0.55, drag: 0.9,  regen: 1.5, conf: 98, draw: 0.62 },
+  auto: { label: "Autonomous", glyph: "auto",  accent: "var(--cyan)",  redline: 110, pull: 0.8,  drag: 1.0,  regen: 1.1, conf: 99, draw: 0.7 },
+  sport:{ label: "Sport",      glyph: "sport", accent: "var(--sport)", redline: 240, pull: 1.75, drag: 0.62, regen: 0.7, conf: 88, draw: 1.35 },
+};
+let mode = "auto";
+
+$("#modes").innerHTML = Object.entries(MODES).map(([k, m]) =>
+  '<button class="mode" role="radio" type="button" data-mode="' + k + '" style="--m: ' + m.accent + '" aria-checked="' + (k === mode) + '" tabindex="' + (k === mode ? 0 : -1) + '">' +
+  dial(m.glyph, m.label) + "</button>").join("");
+
+const cluster = $(".cluster");
+function setMode(k, focus) {
+  mode = k;
+  [...$("#modes").children].forEach((b) => {
+    const on = b.dataset.mode === k;
+    b.setAttribute("aria-checked", String(on));
+    b.tabIndex = on ? 0 : -1;
+    if (on && focus) b.focus();
+  });
+  cluster.style.setProperty("--accent", MODES[k].accent);
+  document.documentElement.style.setProperty("--accent", MODES[k].accent);
+  auto = k === "auto";
+}
+$("#modes").addEventListener("click", (e) => {
+  const b = e.target.closest(".mode");
+  if (b) setMode(b.dataset.mode, false);
+});
+$("#modes").addEventListener("keydown", (e) => {
+  const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
+  if (!keys.includes(e.key)) return;
+  e.preventDefault();
+  const ks = Object.keys(MODES);
+  const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
+  setMode(ks[(ks.indexOf(mode) + d + ks.length) % ks.length], true);
+});
+
+/* ============================================================
+   SPEEDOMETER GEOMETRY
+   0 sits at -126 degrees and the scale sweeps 252 degrees.
+   ============================================================ */
+const MAX = 240, START = -126, SPAN = 252;
+const ang = (v) => START + (clamp(v, 0, MAX) / MAX) * SPAN;
+const R = 92;
+function pt(a) {
+  const r = ((a - 90) * Math.PI) / 180;
+  return [100 + R * Math.cos(r), 100 + R * Math.sin(r)];
+}
+function arcPath(from, to) {
+  const [x1, y1] = pt(from), [x2, y2] = pt(to);
+  return "M" + x1.toFixed(2) + " " + y1.toFixed(2) + "A" + R + " " + R + " 0 " +
+    (Math.abs(to - from) > 180 ? 1 : 0) + " 1 " + x2.toFixed(2) + " " + y2.toFixed(2);
+}
+$("#arc-track").setAttribute("d", arcPath(START, START + SPAN));
+
+const speedo = $("#speedo");
+for (let v = 0; v <= MAX; v += 20) {
+  const a = ang(v);
+  const tk = document.createElement("i");
+  tk.className = "tk";
+  tk.style.transform = "rotate(" + (a + 180) + "deg) translateY(310%)";
+  speedo.appendChild(tk);
+  const nm = document.createElement("span");
+  nm.className = "nm";
+  nm.textContent = v;
+  const rad = ((a - 90) * Math.PI) / 180;
+  nm.style.left = (50 + 37 * Math.cos(rad)) + "%";
+  nm.style.top = (50 + 37 * Math.sin(rad)) + "%";
+  speedo.appendChild(nm);
+}
+
+/* ============================================================
+   SIMULATION
+   ============================================================ */
+const el = {
+  speed: $("#speed"), arc: $("#arc-live"), needle: $("#needle"), gear: $("#gear"),
+  batt: $("#v-batt"), pow: $("#v-pow"), range: $("#v-range"), conf: $("#v-conf"),
+  bBatt: $("#b-batt"), bPow: $("#b-pow"), bRange: $("#b-range"), bConf: $("#b-conf"),
+  state: $("#sys-state"), clock: $("#clock"), accel: $("#accel"),
+};
+/* the topbar readouts, driven from the same simulation */
+const tnMode = $("#tn-mode"), tnRange = $("#tn-range");
+let speed = 0, held = false, auto = true, battery = 82, autoTarget = 64, autoAt = 0;
+const shown = {};
+
+function write(node, val) {
+  const s = String(val);
+  if (shown[node.id] === s) return;
+  shown[node.id] = s;
+  node.textContent = s;
+}
+
+function step(dt, t) {
+  const m = MODES[mode];
+
+  /* autonomous drives itself toward a target that changes every few seconds */
+  if (auto && !held) {
+    if (t > autoAt) { autoAt = t + 4 + rnd(Math.floor(t)) * 5; autoTarget = 35 + rnd(Math.floor(t) + 7) * 70; }
+    speed += (autoTarget - speed) * (1 - Math.exp(-dt / 2.6));
+  } else if (held) {
+    speed += (m.redline - speed) * (1 - Math.exp(-dt / (2.4 / m.pull)));
+  } else {
+    speed -= speed * (1 - Math.exp(-dt / (5.5 * m.drag))) + m.regen * dt * 2.2;
+  }
+  speed = clamp(speed, 0, m.redline);
+
+  const frac = speed / MAX;
+  el.arc.setAttribute("d", arcPath(START, ang(speed)));
+  el.needle.style.rotate = ang(speed) + "deg";
+  write(el.speed, String(Math.round(speed)).padStart(3, "0"));
+  write(el.gear, speed < 1 ? "N" : auto && !held ? "A" : speed > 150 ? "D4" : speed > 80 ? "D3" : "D2");
+
+  /* battery drains with draw, recovers a little while coasting */
+  const draw = (held ? 78 * m.draw : 0) + frac * 120 * m.draw;
+  battery = clamp(battery - draw * dt * 0.0016 + (!held && speed > 2 ? dt * 0.004 : 0), 4, 100);
+  const range = Math.round(battery * 5.1 * (mode === "sport" ? 0.72 : mode === "eco" ? 1.18 : 1));
+  const conf = Math.round(clamp(m.conf - frac * (mode === "sport" ? 26 : 9), 40, 100));
+
+  write(el.batt, Math.round(battery));
+  write(el.pow, Math.round(draw));
+  write(el.range, range);
+  /* the topbar is part of the instrument now, so it reads the same state */
+  if (tnMode) tnMode.textContent = "MODE " + m.label.toUpperCase();
+  if (tnRange) tnRange.textContent = "RANGE " + range + " KM";
+  write(el.conf, conf);
+  el.bBatt.style.width = battery.toFixed(1) + "%";
+  el.bPow.style.width = clamp(draw / 2.4, 0, 100).toFixed(1) + "%";
+  el.bRange.style.width = clamp(range / 6.2, 0, 100).toFixed(1) + "%";
+  el.bConf.style.width = conf + "%";
+
+  write(el.state, held ? "Under power" : auto ? "Autonomous · nominal" : speed > 1 ? "Coasting" : "Standby");
+}
+
+/* accelerator: pointer and keyboard, both with a real hold */
+function down() {
+  if (held) return;
+  held = true;
+  el.accel.classList.add("on");
+  el.accel.setAttribute("aria-pressed", "true");
+}
+function up() {
+  if (!held) return;
+  held = false;
+  el.accel.classList.remove("on");
+  el.accel.setAttribute("aria-pressed", "false");
+}
+el.accel.addEventListener("pointerdown", (e) => { if (e.button === 0) { el.accel.setPointerCapture(e.pointerId); down(); } });
+el.accel.addEventListener("pointerup", up);
+el.accel.addEventListener("pointercancel", up);
+el.accel.addEventListener("lostpointercapture", up);
+el.accel.addEventListener("blur", up);
+el.accel.addEventListener("keydown", (e) => {
+  if (e.key !== " " && e.key !== "Enter") return;
+  e.preventDefault();
+  if (!e.repeat) down();
+});
+el.accel.addEventListener("keyup", (e) => {
+  if (e.key !== " " && e.key !== "Enter") return;
+  e.preventDefault();
+  up();
+});
+
+const pad = (n) => String(n).padStart(2, "0");
+let lastClock = "";
+function clockTick(d) {
+  const s = pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds()) + " UTC";
+  if (s !== lastClock) { lastClock = s; el.clock.textContent = s; }
+}
+
+/* ============================================================
+   GENERATED CITY
+   ============================================================ */
+(() => {
+  const W = 1200, H = 525, out = [];
+  /* Dense enough to read as a city rather than graph paper: minor streets
+     every ~50px, an arterial every fourth, and a little drift on each so the
+     blocks are not perfectly rectangular. */
+  const gx = 24, gy = 11;
+  for (let i = 0; i <= gx; i++) {
+    const x = (i / gx) * W + (rnd(i) - 0.5) * 26;
+    out.push('<path class="road' + (i % 4 === 0 ? " major" : "") + '" d="M' + x.toFixed(1) + ' 0L' + (x + (rnd(i + 40) - 0.5) * 46).toFixed(1) + " " + H + '"/>');
+  }
+  for (let j = 0; j <= gy; j++) {
+    const y = (j / gy) * H + (rnd(j + 90) - 0.5) * 20;
+    out.push('<path class="road' + (j % 3 === 0 ? " major" : "") + '" d="M0 ' + y.toFixed(1) + "L" + W + " " + (y + (rnd(j + 130) - 0.5) * 34).toFixed(1) + '"/>');
+  }
+  /* a handful of short block-interior stubs, which is what stops a grid
+     looking like a grid */
+  for (let k = 0; k < 26; k++) {
+    const x = rnd(k + 500) * W, y = rnd(k + 600) * H;
+    const horiz = rnd(k + 700) > 0.5, len = 26 + rnd(k + 800) * 62;
+    out.push('<path class="road" d="M' + x.toFixed(0) + " " + y.toFixed(0) + "L" +
+      (x + (horiz ? len : 0)).toFixed(0) + " " + (y + (horiz ? 0 : len)).toFixed(0) + '"/>');
+  }
+  /* two diagonals so it does not read as graph paper */
+  out.push('<path class="road major" d="M-40 ' + (H * 0.8).toFixed(0) + "L" + (W * 0.62).toFixed(0) + " -30\"/>");
+  out.push('<path class="road" d="M' + (W * 0.2).toFixed(0) + " " + (H + 30) + "L" + (W + 40).toFixed(0) + " " + (H * 0.18).toFixed(0) + '"/>');
+
+  /* the route: a polyline through the middle, with a flowing overlay */
+  const pts = [];
+  for (let i = 0; i <= 6; i++) pts.push([(i / 6) * W, H * 0.56 + (rnd(i + 200) - 0.5) * 150]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(0) + " " + p[1].toFixed(0)).join("");
+  out.push('<path class="route" d="' + d + '"/>', '<path class="route-dash" d="' + d + '"/>');
+  /* put the vehicle marker on the route instead of near it */
+  const mid = pts[3];
+  const ego = document.querySelector(".ego");
+  ego.style.left = ((mid[0] / W) * 100).toFixed(2) + "%";
+  ego.style.top = ((mid[1] / H) * 100).toFixed(2) + "%";
+
+  /* points of interest, in the boxed style of the source */
+  const ICONS = ['<path d="M-3-3h6M-3 0h6M-3 3h4"/>', '<circle cx="0" cy="0" r="3"/>', '<path d="M-3 3V-2l3-2 3 2v5z"/>', '<path d="M0-4v8M-4 0h8"/>'];
+  for (let i = 0; i < 7; i++) {
+    const x = 90 + rnd(i + 300) * (W - 180), y = 50 + rnd(i + 400) * (H - 110);
+    out.push('<g class="poi" transform="translate(' + x.toFixed(0) + "," + y.toFixed(0) + ')">' +
+      '<rect x="-11" y="-11" width="22" height="22" rx="4"/>' + ICONS[i % ICONS.length] + "</g>");
+  }
+  $("#map").innerHTML = out.join("");
+
+  const NAMES = ["Harbour Loop", "Ridgeway North", "Vale Crossing", "Old Quarry Road", "Kestrel Bypass"];
+  const NEXT = ["Left in 400 m", "Keep right, 1.2 km", "Exit 14 in 2 km", "Roundabout, 2nd exit"];
+  $("#r-name").textContent = NAMES[Math.floor(rnd(11) * NAMES.length)];
+  $("#r-km").textContent = (8 + rnd(12) * 40).toFixed(1);
+  $("#r-eta").textContent = (12 + Math.floor(rnd(13) * 40)) + " min";
+  $("#r-next").textContent = NEXT[Math.floor(rnd(14) * NEXT.length)];
+})();
+
+/* ============================================================
+   FRAME LOOP — only runs while the cluster is on screen
+   ============================================================ */
+let visible = false, last = performance.now() / 1000, running = false;
+new IntersectionObserver((es) => {
+  for (const e of es) visible = e.isIntersecting;
+  if (visible && !running) { running = true; last = performance.now() / 1000; requestAnimationFrame(frame); }
+}, { rootMargin: "120px 0px" }).observe($(".cluster"));
+
+function frame() {
+  const t = performance.now() / 1000;
+  const dt = Math.min(0.05, t - last);
+  last = t;
+  step(dt, t);
+  clockTick(new Date());
+  if (!visible && !held && speed < 0.5) { running = false; return; }
+  requestAnimationFrame(frame);
+}
+
+setMode("auto", false);
+step(0.016, 0);
+if (REDUCED) {
+  /* no idle wandering under reduced motion: it holds a steady reading until
+     the visitor presses something themselves */
+  auto = false;
+  speed = 0;
+}
+})();
+</script>
+</body>
+</html>

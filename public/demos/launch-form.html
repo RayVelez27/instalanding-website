@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Orbit — Sign up</title>
+<meta name="description" content="&lt;launch-form&gt;: a full-viewport sign-up and onboarding flow web component that ends with a rocket publishing your new publication." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  html, body { margin: 0; background: #0b0724; }
+</style>
+</head>
+<body>
+
+<launch-form simulate="normal" domain="orbit.pub"></launch-form>
+
+<script>
+/* ==================================================================
+   <launch-form> — full-viewport sign-up + onboarding flow.
+   Sign up / log in slide behind a starfield overlay; after sign-up the
+   overlay becomes a live preview while the user names, styles and
+   finally publishes their publication with a rocket publish button.
+   The button is inline SVG and keyframes — no animation runtime, no
+   binary payload, so the component really is one self-contained file.
+   ================================================================== */
+(() => {
+  // Publish button timings: the rocket clears the pill, then the button waits
+  // for the request before it is allowed to report success.
+  const LAUNCH_MS = 520, DONE_MS = 900;
+  const SIMULATED_MS = { normal: 900, slow: 4000, fail: 1400 };
+  const STEPS = ["Account", "Publication", "Style", "Launch"];
+  const THEMES = {
+    nebula: { name: "Nebula", color: "#1c86fa", hi: "#3dacff" },
+    aurora: { name: "Aurora", color: "#12b5a5", hi: "#4fe0cf" },
+    supernova: { name: "Supernova", color: "#ff7a45", hi: "#ffa37c" },
+    eclipse: { name: "Eclipse", color: "#8b6cff", hi: "#b19dff" }
+  };
+  const TOPICS = ["Tech", "Design", "Startups", "Science", "Culture", "Finance", "Travel", "Food", "Climate", "Writing"];
+
+
+  /* ==================================================================
+     PublishButton — the four phases the artboard used to own.
+
+     idle  -> launch : the rocket leaves, label drops, sparks scatter
+     launch-> wait   : held here, spinner up, for as long as the request takes
+     wait  -> done   : settled and successful; the check lands
+     any   -> idle   : reset, after success or on failure
+
+     The component drives it with launch()/settle()/reset() and listens
+     through onPhase, which is the same shape the state-machine callback
+     had — so the publish flow below did not have to change.
+     ================================================================== */
+  class PublishButton {
+    constructor(el, onPhase) {
+      this.el = el;
+      this.onPhase = onPhase;
+      this.phase = "idle";
+      this.timer = null;
+    }
+    to(phase) {
+      if (phase === this.phase) return;
+      clearTimeout(this.timer);
+      this.phase = phase;
+      this.el.dataset.phase = phase;
+      this.onPhase(phase);
+    }
+    launch() {
+      this.to("launch");
+      // the rocket has to clear the pill before the button can report anything
+      this.timer = setTimeout(() => this.to("wait"), LAUNCH_MS);
+    }
+    settle() {
+      if (this.phase === "idle") return;
+      this.to("done");
+      this.timer = setTimeout(() => this.to("idle"), DONE_MS);
+    }
+    reset() {
+      clearTimeout(this.timer);
+      this.phase = "idle";
+      this.el.dataset.phase = "idle";
+    }
+  }
+
+  const slugify = (s) =>
+    s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const passwordScore = (p) =>
+    (p.length >= 8) + (p.length >= 12) + (/[a-z]/.test(p) && /[A-Z]/.test(p)) + (/[\d\W_]/.test(p));
+
+  const ICON = {
+    logo: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 2.5c3.5.4 6.6 3.5 7 7-.9 3.6-3.5 6.8-7.2 8.9l-3.2-3.2-3.3-3.3C9.9 8.2 12.9 3.4 14.5 2.5zM16 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM7 13.6l3.4 3.4-1.8 1.8c-.8.8-3.8 1.9-5.6 2.2.3-1.8 1.4-4.8 2.2-5.6L7 13.6z"/></svg>`,
+    rocket: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.7 2.6c3.3-1 6.7-.3 7.8.8 1.1 1.1 1.8 4.5.8 7.8-.8 2.6-2.5 5-4.8 6.9l-.2 3.1a1 1 0 0 1-.6.9l-2.6 1.1a1 1 0 0 1-1.4-1.1l.5-3-3.3-3.3-3 .5A1 1 0 0 1 5.8 15l1.1-2.6a1 1 0 0 1 .9-.6l3.1-.2c1.9-2.3 4.2-4 6.8-4.8zM15.8 6.9a1.9 1.9 0 1 0 2.7 2.7 1.9 1.9 0 0 0-2.7-2.7z"/><path d="M7.4 16.6c.6.6.3 2-.6 2.9-.7.7-2.6 1.3-3.8 1.5.2-1.2.8-3.1 1.5-3.8.9-.9 2.3-1.2 2.9-.6z"/></svg>`,
+    check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="5 12.5 10 17 19 7.5"/></svg>`,
+    alert: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>`,
+    eye: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    arrow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>`,
+    back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/></svg>`
+  };
+
+  const field = ({ name, label, type = "text", attrs = "", extra = "", cls = "" }) => `
+    <label class="field ${cls}">
+      <input name="${name}" type="${type}" placeholder=" " ${attrs} aria-describedby="err-${name}" />
+      <span class="label">${label}</span>${extra}
+      <span class="error" id="err-${name}">${ICON.alert}<span></span></span>
+    </label>`;
+
+  const TEMPLATE = document.createElement("template");
+  TEMPLATE.innerHTML = `
+<style>
+  :host {
+    --lf-bg: #0b0724;
+    --lf-surface: #120c33;
+    --lf-field: #0d0829;
+    --lf-line: rgba(255, 255, 255, 0.09);
+    --lf-line-strong: rgba(255, 255, 255, 0.18);
+    --lf-text: #eef0ff;
+    --lf-mute: #9b95c9;
+    --lf-blue: #1c86fa;
+    --lf-blue-hi: #3dacff;
+    --lf-danger: #ff6b8b;
+    --lf-btn-h: 52px;
+    --lf-btn-radius: calc(var(--lf-btn-h) * 0.2);
+    --lf-ease: cubic-bezier(0.7, 0, 0.2, 1);
+    --lf-dur: 0.7s;
+
+    display: block;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 560px;
+    color: var(--lf-text);
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ================= Shell: two panes + sliding overlay (inspo mechanics) ================= */
+  .container { position: relative; height: 100%; overflow: hidden; background: var(--lf-surface); }
+  .pane {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: var(--lf-surface);
+    transition: transform var(--lf-dur) var(--lf-ease);
+  }
+  .pane--signup { z-index: 2; }
+  .pane--login { z-index: 1; opacity: 0; }
+  .container[data-mode="login"] .pane--signup { transform: translateX(100%); }
+  .container[data-mode="login"] .pane--login { z-index: 5; opacity: 1; transform: translateX(100%); animation: show var(--lf-dur); }
+  @keyframes show {
+    0%, 49.99% { opacity: 0; z-index: 1; }
+    50%, 100% { opacity: 1; z-index: 5; }
+  }
+  .pane-scroll { height: 100%; overflow-y: auto; scrollbar-color: #2a2466 transparent; }
+  .pane-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
+    width: min(440px, 100% - 64px);
+    margin: 0 auto;
+    padding: 36px 0 40px;
+  }
+
+  .overlay-wrap {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 100;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: transform var(--lf-dur) var(--lf-ease);
+  }
+  .container[data-mode="login"] .overlay-wrap { transform: translateX(-100%); }
+  .overlay {
+    position: relative;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    color: #fff;
+    background:
+      radial-gradient(120% 90% at 50% 125%, rgba(61, 172, 255, 0.5), transparent 55%),
+      linear-gradient(160deg, #1c86fa 0%, #1459d6 34%, #1a1260 70%, var(--lf-bg) 100%);
+    transition: transform var(--lf-dur) var(--lf-ease);
+  }
+  .container[data-mode="login"] .overlay { transform: translateX(50%); }
+  .stars, .stars::after {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1.4px 1.4px at 30px 40px, #fff, transparent 50%),
+      radial-gradient(1px 1px at 120px 90px, rgba(255, 255, 255, 0.8), transparent 50%),
+      radial-gradient(1.8px 1.8px at 200px 30px, #fff, transparent 50%),
+      radial-gradient(1px 1px at 70px 170px, rgba(255, 255, 255, 0.7), transparent 50%),
+      radial-gradient(1.2px 1.2px at 170px 200px, #fff, transparent 50%);
+    background-size: 240px 240px;
+    pointer-events: none;
+  }
+  .stars { opacity: 0.75; }
+  .stars::after { content: ""; background-position: 120px 80px; animation: twinkle 3.6s ease-in-out infinite; }
+  @keyframes twinkle { 50% { opacity: 0.15; } }
+  .planet {
+    position: absolute;
+    left: 75%;
+    bottom: -38vh;
+    width: 70vh;
+    height: 70vh;
+    margin-left: -35vh;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #7fc4ff 0%, var(--lf-blue) 30%, #1a1a8a 70%, var(--lf-bg) 100%);
+    box-shadow: 0 0 90px 12px rgba(61, 172, 255, 0.35), inset -40px -50px 90px rgba(11, 7, 36, 0.8);
+    opacity: 0.8;
+    transition: left var(--lf-dur) var(--lf-ease);
+  }
+  .container[data-mode="login"] .planet { left: 25%; }
+  .orbit {
+    position: absolute;
+    left: 75%;
+    bottom: -60vh;
+    width: 110vh;
+    height: 110vh;
+    margin-left: -55vh;
+    border-radius: 50%;
+    border: 1px dashed rgba(255, 255, 255, 0.18);
+    animation: orbit 90s linear infinite;
+    transition: left var(--lf-dur) var(--lf-ease);
+  }
+  .container[data-mode="login"] .orbit { left: 25%; }
+  @keyframes orbit { to { rotate: 360deg; } }
+
+  .ov-panel {
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 48px 18vh;
+    text-align: center;
+    transition: transform var(--lf-dur) var(--lf-ease);
+  }
+  .ov-left { transform: translateX(-20%); }
+  .container[data-mode="login"] .ov-left { transform: translateX(0); }
+  .ov-right { right: 0; }
+  .container[data-mode="login"] .ov-right { transform: translateX(20%); }
+  .ov-auth { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .ov-auth h3 { font-size: clamp(28px, 3vw, 38px); font-weight: 800; letter-spacing: -0.035em; }
+  .ov-auth p { max-width: 320px; font-size: 16px; line-height: 1.55; color: rgba(255, 255, 255, 0.78); }
+  .ghost {
+    margin-top: 8px;
+    padding: 13px 26px;
+    border-radius: var(--lf-btn-radius);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: background 0.25s, border-color 0.25s, scale 0.15s;
+  }
+  .ghost:hover { background: rgba(255, 255, 255, 0.16); border-color: #fff; }
+  .ghost:active { scale: 0.96; }
+  .ghost:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .ov-quote { margin-top: 28px; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+  .ov-quote b { color: #fff; font-weight: 600; }
+
+  /* ---- Live preview (replaces the auth copy once onboarding starts) ---- */
+  .ov-preview { display: none; flex-direction: column; align-items: center; gap: 22px; width: min(420px, 100%); }
+  .container:not([data-step="0"]) .ov-auth { display: none; }
+  .container:not([data-step="0"]) .ov-preview { display: flex; }
+  .pv-caption { text-align: center; }
+  .pv-caption span { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.65); }
+  .pv-caption h3 { margin-top: 8px; font-size: clamp(24px, 2.4vw, 32px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+  .card {
+    --accent: var(--lf-blue);
+    --accent-hi: var(--lf-blue-hi);
+    width: 100%;
+    border-radius: 20px;
+    background: rgba(13, 8, 41, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    overflow: hidden;
+    text-align: left;
+    transition: box-shadow 0.6s;
+    animation: floaty 6s ease-in-out infinite;
+  }
+  @keyframes floaty { 50% { translate: 0 -8px; } }
+  .card-bar { display: flex; align-items: center; gap: 6px; padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  .card-bar i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
+  .card-url {
+    flex: 1;
+    min-width: 0;
+    margin-left: 8px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.06);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, 0.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-badge {
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.75);
+  }
+  .card[data-live] .card-badge { background: var(--accent); color: #fff; box-shadow: 0 0 14px var(--accent); animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 2px var(--accent); } }
+  .card-cover { height: 76px; background: radial-gradient(120% 140% at 0% 0%, var(--accent-hi), var(--accent) 45%, rgba(11, 7, 36, 0.9)); }
+  .card-body { padding: 0 20px 22px; }
+  .card-avatar {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    margin-top: -27px;
+    border-radius: 16px;
+    background: var(--accent);
+    border: 3px solid #120c33;
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    transition: background 0.6s;
+  }
+  .card-title { margin-top: 12px; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; overflow-wrap: anywhere; }
+  .card-title.is-placeholder, .card-tagline.is-placeholder { color: rgba(255, 255, 255, 0.35); }
+  .card-tagline { margin-top: 4px; font-size: 14px; line-height: 1.45; color: rgba(255, 255, 255, 0.72); overflow-wrap: anywhere; }
+  .card-topics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; min-height: 24px; }
+  .card-topics span {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+    color: var(--accent-hi);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .card-posts { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
+  .card-post { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; }
+  .card-post i { height: 44px; border-radius: 10px; background: rgba(255, 255, 255, 0.07); }
+  .card-post div { display: flex; flex-direction: column; gap: 7px; }
+  .card-post b, .card-post em { display: block; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.14); }
+  .card-post em { width: 60%; background: rgba(255, 255, 255, 0.07); }
+  .card[data-live] { box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 0 60px -10px var(--accent), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+
+  /* star burst when the publication goes live */
+  .burst-stars { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+  .burst-stars i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.8); }
+
+  /* ================= Pane content ================= */
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: var(--lf-blue);
+    box-shadow: inset 0 0 0 1px var(--lf-blue-hi), 0 8px 20px -8px rgba(28, 134, 250, 0.8);
+  }
+  .brand-mark svg { width: 16px; height: 16px; color: #fff; }
+  .pane-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 28px; }
+  .step-count { font-size: 13px; font-weight: 500; color: var(--lf-mute); font-variant-numeric: tabular-nums; }
+
+  .stepper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 30px; list-style: none; padding: 0; }
+  .stepper li { display: flex; flex-direction: column; gap: 9px; font-size: 12px; font-weight: 600; color: var(--lf-mute); }
+  .stepper li::before { content: ""; height: 4px; border-radius: 4px; background: var(--lf-line-strong); transition: background 0.5s, box-shadow 0.5s; }
+  .stepper li[data-state="done"]::before { background: var(--lf-blue); }
+  .stepper li[data-state="current"]::before { background: linear-gradient(90deg, var(--lf-blue), var(--lf-blue-hi)); box-shadow: 0 0 12px rgba(61, 172, 255, 0.6); }
+  .stepper li[data-state="current"] { color: var(--lf-text); }
+  .stepper li[data-state="done"] { color: var(--lf-blue-hi); }
+
+  .step { display: flex; flex-direction: column; }
+  .login-form { flex: 0 0 auto; }
+  .step.enter { animation: enter 0.55s var(--lf-ease); }
+  @keyframes enter { from { opacity: 0; translate: 18px 0; } }
+  .step.enter-back { animation: enter-back 0.55s var(--lf-ease); }
+  @keyframes enter-back { from { opacity: 0; translate: -18px 0; } }
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--lf-blue-hi);
+  }
+  .kicker::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--lf-blue-hi); box-shadow: 0 0 10px var(--lf-blue); }
+  .step h2 { margin: 10px 0 8px; font-size: clamp(28px, 2.6vw, 34px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.08; }
+  .step .lead { margin-bottom: 26px; font-size: 15px; line-height: 1.55; color: var(--lf-mute); }
+  .fields { display: flex; flex-direction: column; gap: 14px; }
+
+  .field { position: relative; display: block; }
+  .field input, .field textarea {
+    width: 100%;
+    padding: 22px 14px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--lf-line);
+    background: var(--lf-field);
+    outline: none;
+    font-size: 15px;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field textarea { height: 78px; resize: none; line-height: 1.45; }
+  .field input:hover, .field textarea:hover { border-color: var(--lf-line-strong); }
+  .field input:focus, .field textarea:focus {
+    border-color: var(--lf-blue-hi);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 0 4px rgba(28, 134, 250, 0.2);
+  }
+  .field .label {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 15px;
+    color: var(--lf-mute);
+    pointer-events: none;
+    transform-origin: left top;
+    transition: translate 0.2s, scale 0.2s, color 0.2s;
+  }
+  .field :is(input, textarea):focus ~ .label,
+  .field :is(input, textarea):not(:placeholder-shown) ~ .label { translate: 0 -8px; scale: 0.78; }
+  .field :focus ~ .label { color: var(--lf-blue-hi); }
+  .field--suffix input { padding-right: calc(22px + var(--suffix-w, 0px)); }
+  .suffix { position: absolute; right: 14px; bottom: 9px; font-size: 15px; color: var(--lf-mute); pointer-events: none; }
+  .field--pw input { padding-right: 48px; }
+  .peek {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--lf-mute);
+    cursor: pointer;
+  }
+  .peek svg { width: 18px; height: 18px; }
+  .peek[aria-pressed="true"] { color: var(--lf-blue-hi); }
+  .peek:focus-visible { outline: 2px solid var(--lf-blue-hi); }
+  .counter { position: absolute; right: 12px; bottom: 8px; font-size: 11px; color: var(--lf-mute); font-variant-numeric: tabular-nums; }
+  .error { display: none; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px; color: var(--lf-danger); }
+  .error svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .field.is-invalid :is(input, textarea) { border-color: var(--lf-danger); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 0 4px rgba(255, 107, 139, 0.14); }
+  .field.is-invalid .error, .group.is-invalid .error { display: flex; }
+
+  .strength { display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 6px; align-items: center; margin-top: -4px; }
+  .strength i { height: 4px; border-radius: 4px; background: var(--lf-line-strong); transition: background 0.3s; }
+  .strength[data-score="1"] i:nth-child(-n + 1) { background: var(--lf-danger); }
+  .strength[data-score="2"] i:nth-child(-n + 2) { background: #ffb454; }
+  .strength[data-score="3"] i:nth-child(-n + 3) { background: var(--lf-blue); }
+  .strength[data-score="4"] i:nth-child(-n + 4) { background: var(--lf-blue-hi); }
+  .strength span { min-width: 72px; text-align: right; font-size: 12px; color: var(--lf-mute); }
+
+  .fine { margin-top: 14px; font-size: 12.5px; line-height: 1.5; color: var(--lf-mute); }
+  .fine a { color: var(--lf-text); }
+
+  .alert {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255, 107, 139, 0.1);
+    border: 1px solid rgba(255, 107, 139, 0.3);
+    font-size: 13.5px;
+    color: #ffc2cf;
+  }
+  .alert svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--lf-danger); }
+  .alert.is-shown { display: flex; }
+  .notice { margin-top: 10px; font-size: 13px; line-height: 1.5; color: var(--lf-blue-hi); }
+  .notice:empty { display: none; }
+
+  /* Theme cards */
+  .group { border: 0; padding: 0; min-width: 0; }
+  .group legend { margin-bottom: 10px; font-size: 13px; font-weight: 600; color: var(--lf-text); }
+  .group legend span { margin-left: 6px; font-weight: 500; color: var(--lf-mute); }
+  .themes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .theme { position: relative; cursor: pointer; }
+  .theme input { position: absolute; opacity: 0; }
+  .theme-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 8px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--lf-line);
+    background: var(--lf-field);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--lf-mute);
+    transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  }
+  .theme-card i { height: 46px; border-radius: 9px; background: radial-gradient(120% 140% at 0% 0%, var(--hi), var(--c) 50%, #0b0724); }
+  .theme:hover .theme-card { border-color: var(--lf-line-strong); }
+  .theme input:checked + .theme-card { border-color: var(--c); color: var(--lf-text); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); }
+  .theme input:focus-visible + .theme-card { outline: 2px solid var(--lf-blue-hi); outline-offset: 2px; }
+
+  /* Topic chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; }
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--lf-line);
+    background: var(--lf-field);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--lf-mute);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+  }
+  .chip span svg { width: 13px; height: 13px; display: none; }
+  .chip input:checked + span { background: var(--lf-blue); border-color: var(--lf-blue-hi); color: #fff; }
+  .chip input:checked + span svg { display: block; }
+  .chip input:disabled + span { opacity: 0.4; cursor: not-allowed; }
+  .chip input:focus-visible + span { outline: 2px solid var(--lf-blue-hi); outline-offset: 2px; }
+
+  /* Review */
+  .review { border-radius: 16px; border: 1px solid var(--lf-line); background: var(--lf-field); }
+  .review-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 13px 16px; font-size: 14px; }
+  .review-row + .review-row { border-top: 1px solid var(--lf-line); }
+  .review-row dt { color: var(--lf-mute); }
+  .review-row dd { margin: 0; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+  .review-row dd.mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; font-weight: 500; color: var(--lf-blue-hi); }
+  .swatch { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 50%; }
+
+  /* Actions */
+  .actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 30px; }
+  .actions--end { justify-content: flex-end; }
+  .text-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 2px;
+    border: 0;
+    background: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--lf-mute);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .text-btn svg { width: 16px; height: 16px; }
+  .text-btn:hover { color: var(--lf-text); }
+  .text-btn:focus-visible { outline: 2px solid var(--lf-blue-hi); outline-offset: 3px; border-radius: 4px; }
+  .switch-line { display: none; margin-top: 22px; font-size: 14px; color: var(--lf-mute); text-align: center; }
+  .switch-line button { padding: 0; border: 0; background: none; font-weight: 600; color: var(--lf-blue-hi); cursor: pointer; }
+
+  .cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: var(--lf-btn-h);
+    padding: 0 26px;
+    border: 0;
+    border-radius: var(--lf-btn-radius);
+    background: var(--lf-blue);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px var(--lf-blue-hi), 0 12px 30px -12px rgba(28, 134, 250, 0.85);
+    transition: box-shadow 0.3s, scale 0.15s;
+  }
+  .cta--wide { width: 100%; }
+  .cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(1.4px 1.4px at 14% 30%, #fff, transparent 60%),
+      radial-gradient(1px 1px at 86% 70%, #fff, transparent 60%),
+      radial-gradient(1.2px 1.2px at 70% 20%, rgba(255, 255, 255, 0.8), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .cta:hover { box-shadow: inset 0 0 0 1px var(--lf-blue-hi), 0 16px 40px -10px rgba(61, 172, 255, 0.9); }
+  .cta:hover::before { opacity: 1; }
+  .cta:active { scale: 0.97; }
+  .cta:focus-visible { outline: 2px solid var(--lf-blue-hi); outline-offset: 3px; }
+  .cta svg { width: 18px; height: 18px; transition: translate 0.25s; }
+  .cta:hover .cta-icon svg { translate: 3px 0; }
+  .cta-icon { display: inline-flex; }
+  .cta-spinner { display: none; width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid #fff; border-right-color: transparent; animation: spin 0.75s linear infinite; }
+  .cta.is-busy .cta-spinner { display: block; }
+  .cta.is-busy .cta-icon, .cta.is-busy .cta-text { display: none; }
+  .cta[aria-disabled="true"] { cursor: progress; }
+  @keyframes spin { to { rotate: 360deg; } }
+
+  /* ---- Publish button ----------------------------------------------
+     Four phases, set as data-phase on the button: idle, launch, wait,
+     done. The rocket leaves, the button holds on a spinner for as long
+     as the request takes, then reports back. Every frame of it is a
+     keyframe on an inline SVG — the component has no animation runtime.
+     ------------------------------------------------------------------ */
+  .pub-btn {
+    position: relative;
+    flex-shrink: 0;
+    height: var(--lf-btn-h);
+    aspect-ratio: 107.04 / 36.24;
+    padding: 0;
+    border: 0;
+    border-radius: var(--lf-btn-radius);
+    overflow: hidden;
+    background: var(--lf-blue);
+    box-shadow: inset 0 0 0 1px var(--lf-blue-hi), 0 12px 30px -12px rgba(28, 134, 250, 0.85);
+    cursor: pointer;
+    transition: box-shadow 0.3s, scale 0.15s;
+  }
+  .pub-btn:hover { box-shadow: inset 0 0 0 1px var(--lf-blue-hi), 0 16px 40px -10px rgba(61, 172, 255, 0.9); }
+  .pub-btn:active { scale: 0.97; }
+  .pub-btn:focus-visible { outline: 2px solid var(--lf-blue-hi); outline-offset: 3px; }
+  .pub-btn[aria-disabled="true"] { cursor: progress; }
+
+  .pb-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    transition: opacity 0.18s ease;
+  }
+  .pb-face svg { width: 19px; height: 19px; display: block; }
+  /* the nudge that the hover input used to drive */
+  .pb-rocket { display: block; transition: translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .pub-btn:hover .pb-rocket, .pub-btn:focus-visible .pb-rocket { translate: 2px -2px; }
+
+  .pub-btn[data-phase="launch"] .pb-rocket,
+  .pub-btn[data-phase="wait"] .pb-rocket,
+  .pub-btn[data-phase="done"] .pb-rocket { animation: pb-fly 0.52s cubic-bezier(0.5, 0, 0.75, 0) forwards; }
+  .pub-btn[data-phase="launch"] .pb-label,
+  .pub-btn[data-phase="wait"] .pb-label,
+  .pub-btn[data-phase="done"] .pb-label { animation: pb-drop 0.3s ease forwards; }
+  @keyframes pb-fly {
+    30% { translate: 3px -3px; scale: 1.08; }
+    100% { translate: 62px -58px; scale: 0.7; opacity: 0; }
+  }
+  @keyframes pb-drop { to { opacity: 0; translate: 0 6px; } }
+
+  /* exhaust streak, left behind along the rocket's path */
+  .pb-trail {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 26px;
+    margin: -13px 0 0 -1.5px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+    opacity: 0;
+    rotate: 42deg;
+    pointer-events: none;
+  }
+  .pub-btn[data-phase="launch"] .pb-trail { animation: pb-trail 0.5s ease-out forwards; }
+  @keyframes pb-trail {
+    20% { opacity: 0.8; }
+    100% { opacity: 0; translate: 46px -42px; scale: 0.4; }
+  }
+
+  /* the sparks the artboard used to draw as three dots */
+  .pb-spark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    margin: -2px 0 0 -2px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pub-btn[data-phase="launch"] .pb-spark { animation: pb-spark 0.62s ease-out forwards; }
+  .pb-spark:nth-of-type(1) { --sx: -34px; --sy: -13px; animation-delay: 0.04s; }
+  .pb-spark:nth-of-type(2) { --sx: 30px; --sy: 15px; animation-delay: 0.1s; }
+  .pb-spark:nth-of-type(3) { --sx: -10px; --sy: 17px; animation-delay: 0.16s; }
+  @keyframes pb-spark {
+    30% { opacity: 1; scale: 1.4; }
+    100% { opacity: 0; scale: 0.2; translate: var(--sx) var(--sy); }
+  }
+
+  /* success beat, in place of the artboard's published state */
+  .pb-check {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    opacity: 0;
+    scale: 0.5;
+    pointer-events: none;
+  }
+  .pb-check svg { width: 22px; height: 22px; }
+  .pub-btn[data-phase="done"] .pb-check { animation: pb-check 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+  @keyframes pb-check { to { opacity: 1; scale: 1; } }
+
+  .pb-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--lf-btn-h) * 0.36);
+    height: calc(var(--lf-btn-h) * 0.36);
+    margin: calc(var(--lf-btn-h) * -0.18) 0 0 calc(var(--lf-btn-h) * -0.18);
+    border-radius: 50%;
+    border: 2.5px solid #fff;
+    border-right-color: transparent;
+    background: var(--lf-blue);
+    box-shadow: 0 0 0 6px var(--lf-blue);
+    opacity: 0;
+    animation: spin 0.75s linear infinite;
+    pointer-events: none;
+  }
+  .pub-btn[data-phase="wait"] .pb-spinner { opacity: 1; }
+
+  /* ---- Done / welcome ---- */
+  .done { align-items: center; justify-content: center; text-align: center; gap: 14px; padding: 24px 0; }
+  .done-orb {
+    display: grid;
+    place-items: center;
+    width: 88px;
+    height: 88px;
+    margin-bottom: 10px;
+    border-radius: 50%;
+    background: var(--lf-blue);
+    box-shadow: inset 0 0 0 1px var(--lf-blue-hi), 0 0 0 12px rgba(28, 134, 250, 0.14), 0 0 60px rgba(61, 172, 255, 0.55);
+    color: #fff;
+    animation: pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .done-orb svg { width: 40px; height: 40px; }
+  @keyframes pop { from { scale: 0.4; } }
+  .done h2 { margin: 0; }
+  .done p { max-width: 340px; font-size: 15px; line-height: 1.55; color: var(--lf-mute); }
+  .done .url {
+    padding: 9px 14px;
+    border-radius: 10px;
+    background: var(--lf-field);
+    border: 1px solid var(--lf-line);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--lf-blue-hi);
+    overflow-wrap: anywhere;
+  }
+  .done .cta { margin-top: 10px; }
+
+  .shake { animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+  @keyframes shake {
+    20%, 60% { translate: -6px 0; }
+    40%, 80% { translate: 6px 0; }
+  }
+
+  /* ================= Narrow screens: one column + starfield band ================= */
+  .band { display: none; }
+  @media (max-width: 860px) {
+    .container { display: flex; flex-direction: column; }
+    .band {
+      position: relative;
+      display: block;
+      flex-shrink: 0;
+      padding: 20px 20px 22px;
+      overflow: hidden;
+      color: #fff;
+      background: linear-gradient(160deg, #1c86fa 0%, #1459d6 45%, #1a1260 100%);
+    }
+    .band .brand { position: relative; }
+    .band p { position: relative; margin-top: 12px; font-size: 20px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
+    .pane { position: relative; flex: 1; width: 100%; min-height: 0; display: none; opacity: 1; transform: none !important; animation: none !important; }
+    .pane.is-active { display: block; }
+    .overlay-wrap { display: none; }
+    .pane-inner { width: calc(100% - 40px); padding: 24px 0 28px; }
+    .pane-top .brand { display: none; }
+    .pane-top { margin-bottom: 18px; }
+    .switch-line { display: block; }
+    .themes { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :host { --lf-dur: 0.01s; }
+    .stars::after, .orbit, .card { animation: none; }
+    .step.enter, .step.enter-back { animation: none; }
+    /* The publish button keeps its four phases, it just stops flying:
+       the face goes, the spinner holds, the check lands. */
+    .pb-rocket, .pb-label, .pb-trail, .pb-spark, .pb-check { animation: none !important; }
+    .pub-btn:hover .pb-rocket, .pub-btn:focus-visible .pb-rocket { translate: none; }
+    .pub-btn[data-phase="launch"] .pb-face,
+    .pub-btn[data-phase="wait"] .pb-face,
+    .pub-btn[data-phase="done"] .pb-face { opacity: 0; }
+    .pub-btn[data-phase="done"] .pb-check { opacity: 1; scale: 1; }
+  }
+</style>
+
+<div class="container" data-mode="signup" data-step="0" part="container">
+  <div class="band" aria-hidden="true">
+    <div class="stars"></div>
+    <div class="brand"><span class="brand-mark">${ICON.logo}</span>Orbit</div>
+    <p data-band></p>
+  </div>
+
+  <!-- ======== SIGN UP + ONBOARDING ======== -->
+  <section class="pane pane--signup is-active" aria-label="Create your Orbit account">
+    <div class="pane-scroll">
+      <div class="pane-inner">
+        <div class="pane-top">
+          <div class="brand"><span class="brand-mark">${ICON.logo}</span>Orbit</div>
+          <span class="step-count" data-count>Step 1 of 4</span>
+        </div>
+        <ol class="stepper" aria-label="Progress">
+          ${STEPS.map((s, i) => `<li data-i="${i}">${s}</li>`).join("")}
+        </ol>
+
+        <!-- Step 0: account -->
+        <form class="step" data-step="0" novalidate>
+          <span class="kicker">Get started</span>
+          <h2>Create your account</h2>
+          <p class="lead">Start a publication in about two minutes. No credit card needed.</p>
+          <div class="fields">
+            ${field({ name: "name", label: "Full name", attrs: 'autocomplete="name" maxlength="60"' })}
+            ${field({ name: "email", label: "Work email", type: "email", attrs: 'autocomplete="email"' })}
+            <label class="field field--pw">
+              <input name="password" type="password" placeholder=" " autocomplete="new-password" aria-describedby="err-password pw-hint" />
+              <span class="label">Password</span>
+              <button type="button" class="peek" aria-label="Show password" aria-pressed="false">${ICON.eye}</button>
+              <span class="error" id="err-password">${ICON.alert}<span></span></span>
+            </label>
+            <div class="strength" data-score="0" aria-hidden="true"><i></i><i></i><i></i><i></i><span id="pw-hint">8+ characters</span></div>
+          </div>
+          <p class="fine">By creating an account you agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+          <div class="alert" role="alert">${ICON.alert}<span></span></div>
+          <div class="actions actions--end">
+            <button type="submit" class="cta cta--wide">
+              <span class="cta-text">Create account</span><span class="cta-icon">${ICON.arrow}</span><span class="cta-spinner"></span>
+            </button>
+          </div>
+          <p class="switch-line">Already have an account? <button type="button" data-go="login">Log in</button></p>
+        </form>
+
+        <!-- Step 1: publication -->
+        <form class="step" data-step="1" novalidate hidden>
+          <span class="kicker">Your publication</span>
+          <h2>Name your corner of the internet</h2>
+          <p class="lead">You can change any of this later from settings.</p>
+          <div class="fields">
+            ${field({ name: "publication", label: "Publication name", attrs: 'maxlength="48" autocomplete="off"' })}
+            ${field({ name: "subdomain", label: "Address", cls: "field--suffix", attrs: 'maxlength="32" autocomplete="off" spellcheck="false"', extra: '<span class="suffix" data-suffix></span>' })}
+            <label class="field">
+              <textarea name="tagline" placeholder=" " maxlength="90"></textarea>
+              <span class="label">Tagline <span aria-hidden="true">(optional)</span></span>
+              <span class="counter" aria-hidden="true">0/90</span>
+            </label>
+          </div>
+          <div class="actions">
+            <button type="button" class="text-btn" data-back>${ICON.back}Back</button>
+            <button type="submit" class="cta"><span class="cta-text">Continue</span><span class="cta-icon">${ICON.arrow}</span></button>
+          </div>
+        </form>
+
+        <!-- Step 2: style -->
+        <form class="step" data-step="2" novalidate hidden>
+          <span class="kicker">Make it yours</span>
+          <h2>Pick a look and your beats</h2>
+          <p class="lead">Your theme colors the whole publication. Topics help readers find you.</p>
+          <div class="fields" style="gap: 22px">
+            <fieldset class="group">
+              <legend>Theme</legend>
+              <div class="themes">
+                ${Object.entries(THEMES).map(([key, t], i) => `
+                  <label class="theme" style="--c: ${t.color}; --hi: ${t.hi}">
+                    <input type="radio" name="theme" value="${key}" ${i === 0 ? "checked" : ""} />
+                    <span class="theme-card"><i></i>${t.name}</span>
+                  </label>`).join("")}
+              </div>
+            </fieldset>
+            <fieldset class="group" aria-describedby="err-topics">
+              <legend>Topics <span data-topic-count>0 of 3</span></legend>
+              <div class="chips">
+                ${TOPICS.map((t) => `<label class="chip"><input type="checkbox" name="topics" value="${t}" /><span>${ICON.check}${t}</span></label>`).join("")}
+              </div>
+              <span class="error" id="err-topics">${ICON.alert}<span></span></span>
+            </fieldset>
+          </div>
+          <div class="actions">
+            <button type="button" class="text-btn" data-back>${ICON.back}Back</button>
+            <button type="submit" class="cta"><span class="cta-text">Continue</span><span class="cta-icon">${ICON.arrow}</span></button>
+          </div>
+        </form>
+
+        <!-- Step 3: launch -->
+        <form class="step" data-step="3" novalidate hidden>
+          <span class="kicker">Final check</span>
+          <h2>Ready for liftoff?</h2>
+          <p class="lead">Here's what goes live. Hit publish and your publication is out in the world.</p>
+          <dl class="review">
+            <div class="review-row"><dt>Publication</dt><dd data-review="publication"></dd></div>
+            <div class="review-row"><dt>Address</dt><dd class="mono" data-review="url"></dd></div>
+            <div class="review-row"><dt>Theme</dt><dd data-review="theme"></dd></div>
+            <div class="review-row"><dt>Topics</dt><dd data-review="topics"></dd></div>
+          </dl>
+          <div class="alert" role="alert">${ICON.alert}<span></span></div>
+          <div class="actions">
+            <button type="button" class="text-btn" data-back>${ICON.back}Back</button>
+            <button type="submit" class="pub-btn" data-phase="idle">
+              <span class="pb-face" aria-hidden="true">
+                <span class="pb-rocket">${ICON.rocket}</span>
+                <span class="pb-label">Publish</span>
+              </span>
+              <span class="pb-trail" aria-hidden="true"></span>
+              <i class="pb-spark" aria-hidden="true"></i>
+              <i class="pb-spark" aria-hidden="true"></i>
+              <i class="pb-spark" aria-hidden="true"></i>
+              <span class="pb-check" aria-hidden="true">${ICON.check}</span>
+              <span class="pb-spinner" aria-hidden="true"></span>
+              <span class="sr">Publish</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Step 4: done -->
+        <div class="step done" data-step="4" hidden>
+          <div class="done-orb">${ICON.check}</div>
+          <h2>You're live</h2>
+          <p>Your publication just launched. Write your first post while the rocket's still warm.</p>
+          <span class="url" data-done-url></span>
+          <button type="button" class="cta" data-action="finish"><span class="cta-text">Open your dashboard</span><span class="cta-icon">${ICON.arrow}</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== LOG IN ======== -->
+  <section class="pane pane--login" aria-label="Log in to Orbit">
+    <div class="pane-scroll">
+      <div class="pane-inner">
+        <form class="step login-form" data-login novalidate>
+          <div class="pane-top"><div class="brand"><span class="brand-mark">${ICON.logo}</span>Orbit</div></div>
+          <span class="kicker">Welcome back</span>
+          <h2>Log in to Orbit</h2>
+          <p class="lead">Pick up right where your last draft left off.</p>
+          <div class="fields">
+            ${field({ name: "login-email", label: "Email", type: "email", attrs: 'autocomplete="username"' })}
+            <label class="field field--pw">
+              <input name="login-password" type="password" placeholder=" " autocomplete="current-password" aria-describedby="err-login-password" />
+              <span class="label">Password</span>
+              <button type="button" class="peek" aria-label="Show password" aria-pressed="false">${ICON.eye}</button>
+              <span class="error" id="err-login-password">${ICON.alert}<span></span></span>
+            </label>
+          </div>
+          <div class="actions" style="padding-top: 12px">
+            <button type="button" class="text-btn" data-action="forgot">Forgot password?</button>
+          </div>
+          <p class="notice" data-notice aria-live="polite"></p>
+          <div class="alert" role="alert">${ICON.alert}<span></span></div>
+          <div class="actions" style="padding-top: 18px">
+            <button type="submit" class="cta cta--wide"><span class="cta-text">Log in</span><span class="cta-icon">${ICON.arrow}</span><span class="cta-spinner"></span></button>
+          </div>
+          <p class="switch-line">New to Orbit? <button type="button" data-go="signup">Create an account</button></p>
+        </form>
+        <div class="step done" data-welcome hidden>
+          <div class="done-orb">${ICON.check}</div>
+          <h2>Welcome back</h2>
+          <p data-welcome-text></p>
+          <button type="button" class="cta" data-action="finish"><span class="cta-text">Open your dashboard</span><span class="cta-icon">${ICON.arrow}</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== SLIDING OVERLAY ======== -->
+  <div class="overlay-wrap">
+    <div class="overlay">
+      <div class="stars"></div>
+      <div class="orbit"></div>
+      <div class="planet"></div>
+      <div class="burst-stars" data-burst></div>
+      <div class="ov-panel ov-left">
+        <div class="ov-auth">
+          <h3>New to Orbit?</h3>
+          <p>Start a publication in about two minutes and publish it before your coffee cools.</p>
+          <button type="button" class="ghost" data-go="signup">Create an account</button>
+        </div>
+      </div>
+      <div class="ov-panel ov-right">
+        <div class="ov-auth">
+          <h3>Already launched?</h3>
+          <p>Log in to get back to your drafts, your readers and your stats.</p>
+          <button type="button" class="ghost" data-go="login">Log in</button>
+          <p class="ov-quote">Join <b>12,000+</b> writers publishing on Orbit</p>
+        </div>
+        <div class="ov-preview" aria-hidden="true">
+          <div class="pv-caption"><span data-pv-kicker></span><h3 data-pv-title></h3></div>
+          <article class="card" data-card>
+            <div class="card-bar"><i></i><i></i><i></i><span class="card-url" data-card-url></span><span class="card-badge" data-card-badge>DRAFT</span></div>
+            <div class="card-cover"></div>
+            <div class="card-body">
+              <div class="card-avatar" data-card-avatar>?</div>
+              <div class="card-title" data-card-title></div>
+              <div class="card-tagline" data-card-tagline></div>
+              <div class="card-topics" data-card-topics></div>
+              <div class="card-posts">
+                <div class="card-post"><i></i><div><b></b><em></em></div></div>
+                <div class="card-post"><i></i><div><b></b><em></em></div></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="sr" data-status role="status" aria-live="polite"></p>`;
+
+  const CAPTIONS = {
+    login: ["Welcome back", "Your drafts missed you."],
+    0: ["Get started", "Your publication starts here."],
+    1: ["Step 2 of 4", "Claim your corner of the internet."],
+    2: ["Step 3 of 4", "Make it unmistakably yours."],
+    3: ["Step 4 of 4", "Ten seconds to liftoff."],
+    4: ["You're live", "Welcome to orbit."]
+  };
+
+  class LaunchForm extends HTMLElement {
+    static observedAttributes = ["mode", "domain"];
+
+    constructor() {
+      super();
+      this.attachShadow({ mode: "open" }).append(TEMPLATE.content.cloneNode(true));
+      const root = this.shadowRoot;
+      this.$ = (sel) => root.querySelector(sel);
+      this.$$ = (sel) => [...root.querySelectorAll(sel)];
+      this.container = this.$(".container");
+      this.steps = this.$$(".pane--signup .step");
+      this.panes = { signup: this.$(".pane--signup"), login: this.$(".pane--login") };
+      this.pubBtn = this.$(".pub-btn");
+      this.card = this.$("[data-card]");
+      this.step = 0;
+      this.busy = false;
+      this.subdomainTouched = false;
+      this.account = {};
+    }
+
+    connectedCallback() {
+      if (this.wired) return;
+      this.wired = true;
+      this.setDomain(this.getAttribute("domain") || "orbit.pub");
+      this.bindUi();
+      this.applyMode(this.getAttribute("mode") === "login" ? "login" : "signup", { initial: true });
+      this.renderStep({ initial: true });
+      this.renderPreview();
+      this.publishBtn = new PublishButton(this.pubBtn, (phase) => this.onPublishPhase(phase));
+    }
+
+    attributeChangedCallback(name, _old, value) {
+      if (!this.wired) return;
+      if (name === "mode") this.applyMode(value === "login" ? "login" : "signup");
+      if (name === "domain") { this.setDomain(value || "orbit.pub"); this.renderPreview(); }
+    }
+
+    get mode() { return this.container.dataset.mode; }
+    set mode(value) { this.setAttribute("mode", value); }
+
+    /* ---------------- wiring ---------------- */
+    setDomain(domain) {
+      this.domain = domain.replace(/^\.+/, "");
+      const suffix = this.$("[data-suffix]");
+      suffix.textContent = `.${this.domain}`;
+      // measured, since the webfont changes its width after load
+      this.suffixObserver ||= new ResizeObserver(() =>
+        suffix.closest(".field").style.setProperty("--suffix-w", `${suffix.getBoundingClientRect().width}px`)
+      );
+      this.suffixObserver.observe(suffix);
+    }
+
+    bindUi() {
+      const root = this.shadowRoot;
+      root.addEventListener("click", (e) => {
+        const go = e.target.closest("[data-go]");
+        if (go) this.switchTo(go.dataset.go);
+        if (e.target.closest("[data-back]")) this.goStep(this.step - 1, { back: true });
+        const action = e.target.closest("[data-action]")?.dataset.action;
+        if (action === "finish") this.emit("complete", { mode: this.mode, ...this.collect() });
+        if (action === "forgot") this.forgot();
+        const peek = e.target.closest(".peek");
+        if (peek) {
+          const input = peek.parentElement.querySelector("input");
+          const show = input.type === "password";
+          input.type = show ? "text" : "password";
+          peek.setAttribute("aria-pressed", String(show));
+          peek.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        }
+      });
+
+      this.steps.forEach((form) => {
+        if (form.tagName !== "FORM") return;
+        form.addEventListener("submit", (e) => { e.preventDefault(); this.submitStep(Number(form.dataset.step)); });
+      });
+      this.$("[data-login]").addEventListener("submit", (e) => { e.preventDefault(); this.submitLogin(); });
+
+      // clear errors as people fix them
+      const clearOnEdit = (e) => {
+        const box = e.target.closest?.(".field, .group");
+        if (box?.classList.contains("is-invalid")) this.clearError(box);
+      };
+      root.addEventListener("input", clearOnEdit);
+      root.addEventListener("change", clearOnEdit);
+
+      const pw = this.$('[name="password"]');
+      const meter = this.$(".strength");
+      pw.addEventListener("input", () => {
+        const score = pw.value ? passwordScore(pw.value) : 0;
+        meter.dataset.score = score;
+        meter.querySelector("span").textContent = pw.value
+          ? (pw.value.length < 8 ? "Too short" : ["Too short", "Weak", "Fair", "Good", "Strong"][score])
+          : "8+ characters";
+      });
+
+      const pub = this.$('[name="publication"]');
+      const sub = this.$('[name="subdomain"]');
+      pub.addEventListener("input", () => {
+        if (!this.subdomainTouched) sub.value = slugify(pub.value);
+        this.renderPreview();
+      });
+      sub.addEventListener("input", () => {
+        this.subdomainTouched = sub.value !== "";
+        sub.value = sub.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+        this.renderPreview();
+      });
+      const tagline = this.$('[name="tagline"]');
+      tagline.addEventListener("input", () => {
+        this.$(".counter").textContent = `${tagline.value.length}/90`;
+        this.renderPreview();
+      });
+
+      this.$$('[name="theme"]').forEach((r) => r.addEventListener("change", () => this.renderPreview()));
+      const topics = this.$$('[name="topics"]');
+      topics.forEach((box) =>
+        box.addEventListener("change", () => {
+          const picked = topics.filter((t) => t.checked).length;
+          topics.forEach((t) => (t.disabled = !t.checked && picked >= 3));
+          this.$("[data-topic-count]").textContent = `${picked} of 3`;
+          this.renderPreview();
+        })
+      );
+
+      // The rocket's hover nudge is :hover / :focus-visible in CSS, so the
+      // artboard's "hovered" input and its five listeners are gone.
+    }
+
+    switchTo(mode) {
+      if (mode === this.mode || this.busy) return;
+      this.setAttribute("mode", mode);
+      setTimeout(() => this.panes[mode].querySelector("form:not([hidden]) input, .done:not([hidden]) .cta")?.focus({ preventScroll: true }), 450);
+    }
+
+    applyMode(mode, { initial = false } = {}) {
+      this.container.dataset.mode = mode;
+      for (const [name, pane] of Object.entries(this.panes)) {
+        const active = name === mode;
+        pane.classList.toggle("is-active", active);
+        pane.inert = !active;
+      }
+      this.$(".ov-left").inert = mode !== "login";
+      this.$(".ov-right").inert = mode !== "signup";
+      this.renderCaptions();
+      if (!initial) this.emit("modechange", { mode });
+    }
+
+    /* ---------------- steps ---------------- */
+    goStep(n, { back = false } = {}) {
+      if (n < 0 || n > 4 || this.busy) return;
+      this.step = n;
+      this.renderStep({ back });
+      this.emit("step", { step: n, name: STEPS[n] || "Done" });
+    }
+
+    renderStep({ back = false, initial = false } = {}) {
+      const n = this.step;
+      this.container.dataset.step = n;
+      this.steps.forEach((s) => {
+        const on = Number(s.dataset.step) === n;
+        s.hidden = !on;
+        if (on && !initial) {
+          s.classList.remove("enter", "enter-back");
+          void s.offsetWidth;
+          s.classList.add(back ? "enter-back" : "enter");
+        }
+      });
+      this.$$(".stepper li").forEach((li, i) => {
+        li.dataset.state = i < n ? "done" : i === n ? "current" : "todo";
+        if (i === n) li.setAttribute("aria-current", "step");
+        else li.removeAttribute("aria-current");
+      });
+      this.$("[data-count]").textContent = n < 4 ? `Step ${n + 1} of 4` : "All done";
+      if (n === 3) this.renderReview();
+      this.renderPreview();
+      this.renderCaptions();
+      this.$(".pane--signup .pane-scroll").scrollTop = 0;
+      if (!initial) {
+        setTimeout(() => {
+          const s = this.steps[n];
+          const target = s.querySelector("input:not([type=radio]):not([type=checkbox]), textarea") || s.querySelector(".rive-btn, button.cta");
+          target?.focus({ preventScroll: true });
+        }, 60);
+      }
+    }
+
+    renderCaptions() {
+      const key = this.mode === "login" ? "login" : this.step;
+      const [kicker, title] = CAPTIONS[key];
+      this.$("[data-band]").textContent = title;
+      this.$("[data-pv-kicker]").textContent = kicker;
+      this.$("[data-pv-title]").textContent = title;
+    }
+
+    collect() {
+      const val = (n) => this.$(`[name="${n}"]`)?.value.trim() || "";
+      const sub = val("subdomain");
+      return {
+        name: this.account.name || val("name"),
+        email: this.account.email || val("email"),
+        publication: val("publication"),
+        subdomain: sub,
+        tagline: val("tagline"),
+        theme: this.$('[name="theme"]:checked')?.value || "nebula",
+        topics: this.$$('[name="topics"]:checked').map((t) => t.value),
+        url: `https://${sub || "your-name"}.${this.domain}`
+      };
+    }
+
+    renderPreview() {
+      const d = this.collect();
+      const theme = THEMES[d.theme];
+      this.card.style.setProperty("--accent", theme.color);
+      this.card.style.setProperty("--accent-hi", theme.hi);
+      const title = this.$("[data-card-title]");
+      title.textContent = d.publication || "Your publication";
+      title.classList.toggle("is-placeholder", !d.publication);
+      const tagline = this.$("[data-card-tagline]");
+      tagline.textContent = d.tagline || "A tagline that tells readers what they'll get.";
+      tagline.classList.toggle("is-placeholder", !d.tagline);
+      this.$("[data-card-avatar]").textContent = (d.publication || d.name || "?").trim().charAt(0).toUpperCase() || "?";
+      this.$("[data-card-url]").textContent = d.url.replace(/^https:\/\//, "");
+      this.$("[data-card-topics]").replaceChildren(
+        ...d.topics.map((t) => Object.assign(document.createElement("span"), { textContent: t }))
+      );
+    }
+
+    renderReview() {
+      const d = this.collect();
+      const theme = THEMES[d.theme];
+      this.$('[data-review="publication"]').textContent = d.publication;
+      this.$('[data-review="url"]').textContent = d.url.replace(/^https:\/\//, "");
+      const themeCell = this.$('[data-review="theme"]');
+      const swatch = Object.assign(document.createElement("span"), { className: "swatch" });
+      swatch.style.background = theme.color;
+      themeCell.replaceChildren(swatch, theme.name);
+      this.$('[data-review="topics"]').textContent = d.topics.join(", ");
+    }
+
+    /* ---------------- validation ---------------- */
+    setError(el, message) {
+      const box = el.closest(".field, .group");
+      box.classList.add("is-invalid");
+      box.querySelector(".error span").textContent = message;
+      el.setAttribute("aria-invalid", "true");
+    }
+    clearError(box) {
+      box.classList.remove("is-invalid");
+      box.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+    }
+    showAlert(form, message) {
+      const alert = form.querySelector(".alert");
+      if (!alert) return;
+      alert.querySelector("span").textContent = message;
+      alert.classList.toggle("is-shown", Boolean(message));
+    }
+    shake(el) {
+      el.classList.remove("shake");
+      void el.offsetWidth;
+      el.classList.add("shake");
+    }
+    reject(form, first) {
+      this.shake(form);
+      first?.focus();
+      this.announce("Please fix the highlighted fields.");
+    }
+
+    validate(n) {
+      const q = (name) => this.$(`[name="${name}"]`);
+      let first = null;
+      const fail = (el, msg) => { this.setError(el, msg); first ||= el; };
+      if (n === 0) {
+        if (q("name").value.trim().length < 2) fail(q("name"), "Tell us your name.");
+        if (!EMAIL.test(q("email").value.trim())) fail(q("email"), "Enter a valid email address.");
+        if (q("password").value.length < 8) fail(q("password"), "Use at least 8 characters.");
+      }
+      if (n === 1) {
+        if (q("publication").value.trim().length < 2) fail(q("publication"), "Give your publication a name.");
+        const sub = q("subdomain").value;
+        if (!/^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$/.test(sub) || sub.includes("--")) {
+          fail(q("subdomain"), "3–32 lowercase letters, numbers or single dashes.");
+        }
+      }
+      if (n === 2 && !this.$$('[name="topics"]:checked').length) {
+        fail(this.$('[name="topics"]'), "Pick at least one topic.");
+      }
+      return first;
+    }
+
+    /* ---------------- requests ---------------- */
+    // Hosts hand us their real request via respondWith; otherwise simulate one.
+    request(kind, data) {
+      let supplied = null;
+      this.emit(kind, { data, respondWith: (promise) => { supplied = Promise.resolve(promise); } });
+      if (supplied) return supplied;
+      const sim = this.getAttribute("simulate") || "normal";
+      return new Promise((resolve, reject) =>
+        setTimeout(() => (sim === "fail" ? reject(new Error("Network error")) : resolve()), SIMULATED_MS[sim] ?? SIMULATED_MS.normal)
+      );
+    }
+    emit(name, detail) {
+      this.dispatchEvent(new CustomEvent(`launch-form:${name}`, { bubbles: true, composed: true, detail }));
+    }
+    announce(message) {
+      const el = this.$("[data-status]");
+      el.textContent = "";
+      requestAnimationFrame(() => (el.textContent = message));
+    }
+
+    async withBusy(button, fn) {
+      this.busy = true;
+      button.classList.add("is-busy");
+      button.setAttribute("aria-disabled", "true");
+      try { return await fn(); } finally {
+        this.busy = false;
+        button.classList.remove("is-busy");
+        button.removeAttribute("aria-disabled");
+      }
+    }
+
+    async submitStep(n) {
+      if (this.busy) return;
+      const form = this.steps[n];
+      this.showAlert(form, "");
+      const first = this.validate(n);
+      if (first) return this.reject(form, first);
+
+      if (n === 0) {
+        const data = { name: this.$('[name="name"]').value.trim(), email: this.$('[name="email"]').value.trim() };
+        try {
+          await this.withBusy(form.querySelector(".cta"), () => this.request("signup", data));
+        } catch (err) {
+          this.showAlert(form, `Couldn't create your account: ${err?.message || "something went wrong"}. Try again.`);
+          this.shake(form);
+          return this.announce("Sign up failed.");
+        }
+        this.account = data;
+        const pub = this.$('[name="publication"]');
+        if (!pub.value) {
+          pub.value = `${data.name.split(/\s+/)[0]}'s Notes`;
+          if (!this.subdomainTouched) this.$('[name="subdomain"]').value = slugify(pub.value);
+        }
+        this.renderPreview();
+        this.announce("Account created.");
+        return this.goStep(1);
+      }
+      if (n === 1 || n === 2) return this.goStep(n + 1);
+      if (n === 3) return this.publish();
+    }
+
+    async submitLogin() {
+      if (this.busy) return;
+      const form = this.$("[data-login]");
+      this.showAlert(form, "");
+      const email = this.$('[name="login-email"]');
+      const pass = this.$('[name="login-password"]');
+      let first = null;
+      if (!EMAIL.test(email.value.trim())) { this.setError(email, "Enter the email you signed up with."); first ||= email; }
+      if (!pass.value) { this.setError(pass, "Enter your password."); first ||= pass; }
+      if (first) return this.reject(form, first);
+      try {
+        await this.withBusy(form.querySelector(".cta"), () => this.request("login", { email: email.value.trim() }));
+      } catch (err) {
+        this.showAlert(form, `Couldn't log you in: ${err?.message || "something went wrong"}. Try again.`);
+        this.shake(form);
+        return this.announce("Log in failed.");
+      }
+      form.hidden = true;
+      const welcome = this.$("[data-welcome]");
+      this.$("[data-welcome-text]").textContent = `Signed in as ${email.value.trim()}. Your publications are right where you left them.`;
+      welcome.hidden = false;
+      welcome.classList.add("enter");
+      this.announce("Logged in.");
+      setTimeout(() => welcome.querySelector(".cta").focus({ preventScroll: true }), 300);
+    }
+
+    forgot() {
+      const email = this.$('[name="login-email"]');
+      if (!EMAIL.test(email.value.trim())) {
+        this.setError(email, "Enter your email first and we'll send a reset link.");
+        email.focus();
+        return;
+      }
+      this.$("[data-notice]").textContent = `If an account exists for ${email.value.trim()}, a reset link is on its way.`;
+    }
+
+    /* ---------------- publish ---------------- */
+    publish() {
+      const data = this.collect();
+      this.busy = true;
+      this.pubBtn.setAttribute("aria-disabled", "true");
+      this.announce("Publishing…");
+      const run = (this.run = { settled: false, ok: false, published: false });
+      this.request("publish", data).then(
+        () => { run.settled = true; run.ok = true; this.onPublishSettled(run, data); },
+        (err) => { run.settled = true; run.error = err; this.onPublishSettled(run, data); }
+      );
+      this.publishBtn.launch();
+    }
+
+    onPublishSettled(run, data) {
+      if (this.run !== run) return;
+      if (!run.ok) {
+        this.publishBtn.reset();
+        this.busy = false;
+        this.pubBtn.removeAttribute("aria-disabled");
+        this.showAlert(this.steps[3], `Couldn't publish: ${run.error?.message || "something went wrong"}. Nothing went live, so try again.`);
+        this.shake(this.steps[3]);
+        return this.announce("Publishing failed.");
+      }
+      this.pendingData = data;
+      // If the rocket has not finished leaving yet, the button reports success
+      // itself when it lands on "wait". Otherwise it is holding for us.
+      if (this.publishBtn.phase === "wait") this.publishBtn.settle();
+    }
+
+    onPublishPhase(phase) {
+      const run = this.run;
+      if (!run) return;
+      // Reached the spinner. Settled already? Go straight on; if not, the
+      // button simply stays here, spinning, until onPublishSettled arrives.
+      if (phase === "wait" && run.settled && run.ok) this.publishBtn.settle();
+      if (phase === "done" && !run.published) {
+        run.published = true;
+        this.announce("Published.");
+        setTimeout(() => this.finishPublish(), 1000);
+      }
+    }
+
+    finishPublish() {
+      this.busy = false;
+      this.pubBtn.removeAttribute("aria-disabled");
+      const d = this.pendingData || this.collect();
+      this.$("[data-done-url]").textContent = d.url.replace(/^https:\/\//, "");
+      this.card.toggleAttribute("data-live", true);
+      this.$("[data-card-badge]").textContent = "LIVE";
+      this.goStep(4);
+      this.starBurst();
+    }
+
+    starBurst() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const host = this.$("[data-burst]");
+      const rect = this.card.getBoundingClientRect();
+      if (!rect.width) return; // overlay hidden on narrow screens
+      const base = host.getBoundingClientRect();
+      const cx = rect.left - base.left + rect.width / 2;
+      const cy = rect.top - base.top + rect.height / 2;
+      for (let i = 0; i < 26; i++) {
+        const s = document.createElement("i");
+        s.style.left = `${cx}px`;
+        s.style.top = `${cy}px`;
+        host.append(s);
+        const a = Math.random() * Math.PI * 2;
+        const r = 160 + Math.random() * 220;
+        s.animate(
+          [
+            { translate: "0 0", scale: 1, opacity: 1 },
+            { translate: `${Math.cos(a) * r}px ${Math.sin(a) * r}px`, scale: 0.3, opacity: 0 }
+          ],
+          { duration: 900 + Math.random() * 700, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" }
+        ).finished.then(() => s.remove());
+      }
+    }
+
+  }
+
+  customElements.define("launch-form", LaunchForm);
+})();
+</script>
+</body>
+</html>

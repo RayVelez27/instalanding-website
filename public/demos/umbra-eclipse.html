@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Umbra — the runtime that disappears</title>
+<meta name="description" content="A fictional inference runtime, presented under a stage light: conic spotlights, a rising particle field, a hairline grid and a swept-gradient wordmark. One file, no images, no libraries." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   UMBRA · a stage-lit launch page
+   Conic spotlights, a rising particle field, a hairline grid and
+   a wordmark with a light sweep running through it.
+   One file, no images, no libraries.
+   ============================================================ */
+
+/* the sweep position, animated through the wordmark's gradient */
+@property --p {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+:root {
+  --void: #05060f;
+  --panel: #121521;
+  --ice: #d8ecf8;
+  --sky: #98c0ef;
+  --steel: #9dc3f7;
+  --edge: #c2ccff;
+  --hair: rgba(186, 215, 247, 0.18);
+  /* the frame's second weight. Not a color-mix of --hair: a single
+     percentage over 100% is clamped, so mixing 190% of it with transparent
+     returns --hair unchanged and every 'brighter' line comes out identical. */
+  --hair-2: rgba(186, 215, 247, 0.36);
+
+  /* the flare palette, swapped by the stage light */
+  --flare: #bad6f7;
+  --flare-2: #98c0ef;
+
+  --display: "Archivo", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* everything on the stage is sized off this, so the whole
+     composition scales as one object rather than as parts */
+  --factor: min(600px, 80vh);
+  --size: min(var(--factor), 80vw);
+}
+body.flare {
+  --flare: #f5d87a;
+  --flare-2: #d8a910;
+  --steel: #f0d89a;
+  --edge: #f3dda0;
+  --hair: rgba(247, 228, 186, 0.2);
+  --hair-2: rgba(247, 228, 186, 0.38);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  background: var(--void) linear-gradient(0deg, rgba(216, 236, 248, 0.06), rgba(152, 192, 239, 0.06));
+  color: var(--ice);
+  font-family: var(--display);
+  font-size: max(calc(var(--size) * 0.03), 13px);
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ============================================================
+   STAGE — everything above the fold lives in here
+   ============================================================ */
+/* svh, not vh: on a phone the URL bar collapsing mid-scroll would otherwise
+   resize the stage and shunt the whole composition. min-height keeps the
+   ridge and the wordmark from crushing into each other on a short window. */
+.stage { position: relative; height: 100svh; min-height: 34em; overflow: hidden; isolation: isolate; }
+
+/* ---------- conic spotlights ----------
+   The drift lives on the wrapper and the blur lives on the cone inside it,
+   so the blurred cone rasterises once and the sway is a compositor
+   transform of that cached texture. Keyframing scale() on the blurred
+   element itself re-blurs a 30em layer every frame — measured here at
+   33fps that way against 45fps this way, on the same software raster. */
+/* Fixed, and sitting on z-index 0 with the field — so the cones fall over
+   the drafting frame and the lower page's panel, and under the content of
+   whatever section is on screen. Light behind the words, not washing them. */
+.spotlight {
+  position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+.spotlight span {
+  position: absolute; inset: 0; display: block; transform-origin: 50% 0;
+  animation: drift 19s ease-in-out infinite;
+}
+.spotlight span:nth-child(2) { animation-duration: 23s; animation-delay: -4s; }
+.spotlight span:nth-child(3) { animation-duration: 15s; animation-delay: -9s; }
+.spotlight i {
+  position: absolute; left: 0; right: 0; top: 3em; margin: 0 auto;
+  display: block; width: 30em; height: max(42em, 86vh);
+  border-radius: 0 0 50% 50%;
+  transform-origin: 50% 0;
+  background-image: conic-gradient(from 0deg at 50% -5%,
+    transparent 45%,
+    color-mix(in srgb, var(--flare) 30%, transparent) 49%,
+    color-mix(in srgb, var(--flare) 52%, transparent) 50%,
+    color-mix(in srgb, var(--flare) 30%, transparent) 51%,
+    transparent 55%);
+  filter: blur(10px);
+  opacity: 0;
+  animation: beam-in 2s var(--ease) forwards, flicker 21s ease-in-out 2s infinite reverse;
+}
+.spotlight span:nth-child(1) i { rotate: 20deg; animation: beam-in 2s var(--ease) forwards, flicker 17s ease-in-out 2s infinite; }
+.spotlight span:nth-child(2) i { rotate: -20deg; animation: beam-in 2s var(--ease) forwards, flicker 14s ease-in-out 2s infinite; }
+@keyframes beam-in { from { opacity: 0; scale: 0; } to { opacity: 0.5; scale: 1; } }
+@keyframes drift {
+  0%, 100% { transform: rotateZ(0deg) scale(1); }
+  25% { transform: rotateZ(-1.6deg) scale(1.16); }
+  50% { transform: rotateZ(2.2deg) scale(1.26); }
+  75% { transform: rotateZ(-2deg) scale(1.12); }
+}
+@keyframes flicker {
+  0%, 100% { opacity: 0.5; } 20% { opacity: 0.64; } 40% { opacity: 0.4; }
+  60% { opacity: 0.64; } 80% { opacity: 0.42; }
+}
+
+/* ---------- particle field ---------- */
+@keyframes fade { to { opacity: 1; } }
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.top {
+  position: fixed; inset: 0 0 auto; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  padding: 2em; color: var(--flare);
+  opacity: 0; translate: 0 -1em;
+  animation: fade 2s ease-in 2s forwards, rise 1.4s var(--ease) 2s forwards;
+}
+@keyframes rise { to { translate: 0; } }
+/* The two ends of the bar are the same object at opposite insets: same size,
+   same weight, same resting opacity, same hover. A pill on one side and a
+   wordmark on the other do not sit on the same line however carefully you
+   nudge them, because one has a box and the other does not. */
+.wordmark, .topcta {
+  position: absolute; font-size: 1em; font-weight: 800; letter-spacing: 0.02em;
+  color: inherit; background: none; border: 0; padding: 0;
+  opacity: 0.6; transition: opacity 0.2s ease; cursor: pointer;
+}
+.wordmark { left: 2em; }
+.topcta { right: 2em; font-weight: 600; }
+.wordmark:hover, .topcta:hover { opacity: 1; text-shadow: 0 2px 16px color-mix(in srgb, var(--flare) 60%, transparent); }
+.topcta:focus-visible, .wordmark:focus-visible { outline: 2px solid var(--flare); outline-offset: 5px; }
+/* the stage light: clicking it swaps the whole palette */
+.lamp {
+  width: 1.8em; height: 1.8em; border-radius: 50%; background: #000;
+  box-shadow: 0 0 1em 0 var(--flare-2);
+  transition: box-shadow 0.8s ease-in-out;
+}
+.lamp:hover { box-shadow: -0.3em 0.1em 0.3em 0 var(--flare-2), 0 0 1.6em 0 var(--flare-2); }
+.lamp:focus-visible { outline: 2px solid var(--flare); outline-offset: 6px; }
+/* Third state: out. The cones go, the bulb stops glowing and keeps only a
+   cold rim, and the frame's own lines are all that is left holding the page
+   together — which is the point of having drawn them. */
+body.out .spotlight { opacity: 0; }
+body.out .lamp {
+  box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.22);
+  background: #07080e;
+}
+body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
+
+/* the travelling-glow pill, straight off the reference */
+.pill {
+  position: absolute; right: 2em;
+  width: 9.4em; height: 2.4em; border-radius: 20em;
+  border: 1px solid rgba(194, 204, 255, 0.2);
+  background: var(--panel); color: var(--steel);
+  white-space: nowrap; overflow: hidden;
+}
+.pill::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: radial-gradient(farthest-side at 50% 100%, var(--edge), transparent);
+  opacity: 0.1; transition: opacity 0.4s var(--ease);
+}
+.pill:hover::before { opacity: 0.3; }
+.pill span.label {
+  position: relative; z-index: 2; font-size: 1.05em; font-weight: 600;
+  background: linear-gradient(0deg, var(--ice), var(--flare-2));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.pill .glow {
+  --w: 1px; --loop: 24s;
+  position: absolute; inset: calc(var(--w) * -1); border-radius: 50px;
+  border: var(--w) solid transparent; pointer-events: none;
+  -webkit-mask: linear-gradient(transparent, transparent), linear-gradient(#fff, #fff);
+  mask: linear-gradient(transparent, transparent), linear-gradient(#fff, #fff);
+  -webkit-mask-clip: padding-box, border-box; mask-clip: padding-box, border-box;
+  -webkit-mask-composite: source-in, xor; mask-composite: intersect;
+}
+.pill:hover .glow { --loop: 2s; }
+.pill .glow::before, .pill .glow::after {
+  content: ""; position: absolute; display: inline-block; height: 100%; aspect-ratio: 1;
+  offset-anchor: 100% 50%;
+  offset-path: rect(0 100% 100% 0 round 33px);
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.75), transparent 50%),
+              radial-gradient(circle at 50% 50%, var(--edge) 50%, transparent);
+  opacity: 0.45; transition: opacity 1s ease-in-out;
+  animation: loop var(--loop) linear infinite;
+}
+.pill .glow::before { animation-delay: calc(var(--loop) / -2); }
+.pill:hover .glow::before, .pill:hover .glow::after { opacity: 0.7; }
+.pill--cta { position: relative; right: auto; margin: 0 auto; display: inline-block; }
+@keyframes loop { to { offset-distance: 100%; } }
+
+/* ============================================================
+   HERO TYPE
+   ============================================================ */
+/* Everything on the stage is placed as a percentage of the stage rather
+   than in em. `top` in em resolves against the element's OWN font-size,
+   so the 1.15em tagline was landing 15% further down than the 1em rules
+   around it — which is exactly how it ended up sitting on the peaks. */
+.intro {
+  position: absolute; left: 0; right: 0; top: 28%; z-index: 20;
+  margin: auto; width: fit-content;
+  opacity: 0; translate: 0 -1em;
+  animation: fade-soft 2s ease-in forwards, rise 1.4s var(--ease) forwards;
+}
+@keyframes fade-soft { to { opacity: 0.75; } }
+.intro p {
+  position: relative; width: fit-content; margin: auto;
+  font-family: var(--mono); font-size: 0.95em; letter-spacing: 0.24em; text-transform: uppercase;
+  background: linear-gradient(0deg, var(--ice), var(--flare-2));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.intro p::before, .intro p::after {
+  content: ""; position: absolute; top: 55%; display: block; width: 5em; height: 1px; opacity: 0;
+  animation: rule-soft 1.4s var(--ease) forwards;
+}
+@keyframes rule-soft { to { opacity: 0.35; } }
+.intro p::before { right: 130%; background: linear-gradient(-90deg, var(--steel), transparent); }
+.intro p::after { left: 130%; background: linear-gradient(90deg, var(--steel), transparent); }
+
+.hero { position: absolute; left: 0; right: 0; top: 34%; z-index: 20; height: 8em; }
+.hero h1 {
+  position: absolute; left: 0; right: 0; margin: auto; width: fit-content;
+  font-size: 7em; font-weight: 700; letter-spacing: -0.04em; line-height: 1;
+  color: var(--steel);
+  opacity: 0;
+  animation: fade 2s var(--ease) 0.6s forwards;
+  /* a 2em-wide light sweep travelling across the letterforms, driven by
+     the registered --p property so it can be animated at all */
+  background:
+    radial-gradient(2em 2em at 50% 50%,
+      transparent calc(var(--p) - 2em),
+      #fff calc(var(--p) - 1em),
+      #fff calc(var(--p) - 0.4em),
+      transparent var(--p)),
+    linear-gradient(0deg, var(--flare) 30%, var(--steel) 100%);
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 16px color-mix(in srgb, var(--flare) 24%, transparent);
+}
+.hero h1 + h1 {
+  /* the same sweep again, blurred, so the light bleeds past the glyphs */
+  background:
+    radial-gradient(2em 2em at 50% 50%,
+      transparent calc(var(--p) - 2em),
+      transparent calc(var(--p) - 1em),
+      #fff calc(var(--p) - 1em),
+      #fff calc(var(--p) - 0.4em),
+      transparent calc(var(--p) - 0.4em),
+      transparent var(--p));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: blur(16px) opacity(0.45);
+  text-shadow: none;
+}
+.sweeping h1 { animation: fade 2s var(--ease) 0.6s forwards, sweep 10s linear 1.4s infinite; }
+@keyframes sweep { 0% { --p: 0%; } 50%, 100% { --p: 300%; } }
+
+.tagline {
+  position: absolute; left: 0; right: 0; top: 55%; z-index: 20;
+  margin: auto; width: fit-content; text-align: center;
+  font-size: 1.15em; line-height: 1.5;
+  opacity: 0; translate: 0 1em;
+  animation: fade 2s ease-out 2s forwards, rise 1.4s var(--ease) 2s forwards;
+  background: linear-gradient(0deg, var(--ice), var(--flare-2));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* ============================================================
+   RIDGE — rotated squares reading as a lit horizon
+   ============================================================ */
+/* Anchored to the stage's foot rather than floated at 72% of it: the peaks
+   come up out of the bottom edge and the viewport cuts their bases, which
+   is what a range on a horizon does anyway. No ground line and no mask —
+   the fold IS the ground — and at z-index 10 inside the stage they cross
+   the background frame's rules rather than stopping short of them.
+   --out still runs 0 to 1 over the first half-screen of scroll, written by
+   the rig onto the stage rather than :root, where a per-frame custom
+   property write would invalidate the whole document. */
+.ridge {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
+  margin: auto; height: 10em; width: 100%; pointer-events: none;
+  opacity: calc(1 - var(--out, 0));
+}
+.ridge i {
+  position: absolute; left: 0; right: 0; margin: auto; display: block;
+  width: 20em; height: 20em; rotate: 45deg; z-index: 1;
+  background: var(--panel); filter: brightness(0.82);
+  box-shadow:
+    -1em -0.2em 0.4em -1.1em var(--edge),
+    inset 0 0 0 2px var(--edge),
+    inset 0.2em 0.3em 0.2em -0.2em var(--edge),
+    inset 10.2em 10.3em 2em -10em rgba(212, 230, 255, 0.18);
+  bottom: -240%;
+}
+.ridge i::before {
+  content: ""; position: absolute; left: 0; top: 0; display: block;
+  width: 12em; height: 12em; border-bottom-right-radius: 100%;
+  background: repeating-radial-gradient(at 100% 100%, transparent 0%, rgba(194, 204, 255, 0.13) 2px, transparent 4px);
+}
+/* The entrance animates `bottom`, so the `translate` property is free for
+   the disassembly and the two never fight over a channel. Each peak has a
+   resting offset and a direction to leave in. */
+.ridge i {
+  translate:
+    calc(var(--bx) + var(--ox) * var(--out, 0))
+    calc(var(--by) + var(--oy) * var(--out, 0));
+}
+.ridge i:nth-child(1) { --bx: -6em; --by: 2em; --ox: -9em; --oy: 5em; animation: ridge-a 2s var(--ease) 2.4s forwards; }
+.ridge i:nth-child(2) { --bx: -2em; --by: 0em; --ox: 0em;  --oy: 8em; width: 14em; animation: ridge-b 2s var(--ease) 2.2s forwards; }
+.ridge i:nth-child(3) { --bx: 6em;  --by: 3em; --ox: 9em;  --oy: 5em; animation: ridge-a 2s var(--ease) 2s forwards; }
+@keyframes ridge-a { to { bottom: -140%; } }
+@keyframes ridge-b { to { bottom: -108%; } }
+
+/* ============================================================
+   PAGE BELOW
+   ============================================================ */
+.wrap { width: min(1120px, 100% - 40px); margin: 0 auto; }
+.band { position: relative; z-index: 20; background: var(--panel); }
+
+/* ============================================================
+   THE FIELD
+   One drafting frame for the whole page, fixed to the viewport,
+   so the page slides past it instead of each section carrying a
+   few rules of its own. No ruled grid and no ruler: corner
+   brackets and a depth axis, both on the same inset, so what is
+   left is the margin notation of a drawing and none of it ever
+   crosses the page set on top of it.
+
+   Everything is drawn in --hair, which the stage light swaps, so
+   the frame changes colour with the lamp.
+
+   Layering is the whole trick and it is worth stating: the lower
+   half of this page used to sit on an opaque panel at z-index 20,
+   which would bury anything fixed behind it. So the panel becomes
+   a ::before backdrop at z-index -1 — outside .band's own stacking
+   context, since .band no longer makes one — and the sections lift
+   to z-index 1. Backdrop, then field, then content.
+   ============================================================ */
+.field {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ---- corner brackets ---- */
+.field { --frame: 20px; }
+.field .br {
+  position: absolute; width: 26px; height: 26px;
+  border: 1px solid var(--hair-2);
+}
+.field .br--tl { top: var(--frame); left: var(--frame); border-right: 0; border-bottom: 0; }
+.field .br--tr { top: var(--frame); right: var(--frame); border-left: 0; border-bottom: 0; }
+.field .br--bl { bottom: var(--frame); left: var(--frame); border-right: 0; border-top: 0; }
+.field .br--br { bottom: var(--frame); right: var(--frame); border-left: 0; border-top: 0; }
+
+/* ---- the depth axis ----
+   Pinned to the same inset as the corner brackets and spanning the whole
+   frame, top-left bracket to bottom-left: out at the page's edge it is
+   clear of the measure the content is set in, so nothing runs into it on
+   the way down. Sitting it at 8% put it inside the column instead. */
+.field .axis {
+  position: absolute; top: var(--frame, 20px); left: var(--frame, 20px);
+  height: calc(100% - var(--frame, 20px) * 2); width: 74px;
+}
+.field .axis i {
+  position: absolute; left: 0; width: 9px; height: 1px; background: var(--hair-2);
+}
+.field .axis span {
+  /* past the corner bracket's 26px arm: the scale runs corner to corner, so
+     its first and last labels land right on the brackets otherwise */
+  position: absolute; left: 34px;
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.14em;
+  color: var(--hair-2); transform: translateY(-50%); white-space: nowrap;
+}
+/* the travelling cursor: a mark that rides the axis with the scroll, which
+   is what stops a fixed frame reading as wallpaper */
+.field .cursor {
+  position: absolute; top: var(--frame, 20px); left: var(--frame, 20px);
+  width: 100%; height: 0;
+  /* the axis now runs the full frame, so the cursor's travel has to as well */
+  translate: 0 calc(var(--scan, 0) * (100svh - var(--frame, 20px) * 2));
+  will-change: translate;
+}
+.field .cursor::before {
+  content: ""; position: absolute; left: -5px; top: -4px;
+  border: 4px solid transparent; border-left-color: var(--steel);
+  opacity: 0.55;
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+  .field .cursor { translate: 0 0; }
+}
+/* Below the measure the axis labels and the instrument crowd the copy;
+   the orthogonals and the brackets carry the idea on their own. */
+@media (max-width: 860px) {
+  .field .axis span, .field .cursor span { display: none; }
+}
+
+/* the lower page's panel becomes a backdrop so the field shows over it */
+.band { z-index: auto; background: transparent; }
+.band::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--panel);
+}
+.band > section { position: relative; z-index: 1; }
+
+
+
+
+.pitch { position: relative; overflow: hidden; padding: 10em 0 7em; text-align: center; }
+.pitch-acc { position: absolute; left: 0; right: 0; top: 22%; margin: auto; display: flex; justify-content: center; pointer-events: none; }
+.pitch-acc i {
+  display: block; width: 10em; height: 10em; border-radius: 50%;
+  background: repeating-radial-gradient(at 50% 50%, transparent 0%, rgba(194, 204, 255, 0.13) 2px, transparent 4px);
+  box-shadow:
+    -1em -0.2em 0.4em -1.1em var(--edge),
+    inset 0 0 0 2px var(--edge),
+    inset 0.2em 0.3em 0.2em -0.2em var(--edge),
+    inset -1.2em 2.3em 2em -0.5em rgba(212, 230, 255, 0.18);
+  filter: brightness(0.82);
+  translate: -18em;
+}
+.pitch-acc i:nth-child(2) {
+  translate: 18em 12em; border-radius: 2em;
+  box-shadow:
+    -1em -0.2em 0.4em -1.1em var(--edge),
+    inset 0 0 0 2px var(--edge),
+    inset 0.2em 0.3em 0.2em -0.2em var(--edge),
+    inset 10.8em 11.3em 2em -10.5em rgba(212, 230, 255, 0.18);
+}
+.kicker {
+  position: relative; width: fit-content; margin: auto;
+  font-family: var(--mono); font-size: 0.8em; letter-spacing: 0.22em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ice) 75%, transparent);
+}
+.kicker::before, .kicker::after { content: ""; position: absolute; top: 50%; display: block; width: 5em; height: 1px; opacity: 0.45; }
+.kicker::before { right: 130%; background: linear-gradient(-90deg, var(--steel), transparent); }
+.kicker::after { left: 130%; background: linear-gradient(90deg, var(--steel), transparent); }
+.pitch h2 {
+  margin: 0.5em 0 0.55em; font-size: clamp(1.7em, 5.2vw, 2.4em); text-wrap: balance; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em;
+  background: linear-gradient(0deg, var(--ice), var(--flare-2));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 16px color-mix(in srgb, var(--flare) 24%, transparent);
+}
+.pitch > .wrap > p.lede { max-width: 30em; margin: auto; font-size: 1.05em; line-height: 1.6; color: color-mix(in srgb, var(--ice) 74%, transparent); }
+
+.cards { position: relative; padding: 0 0 7em; }
+.specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4em; }
+
+/* ============================================================
+   GLASS CARDS
+   A tinted plate whose dark inner face pulls away from two corners,
+   a gradient disc turning slowly behind it, and frosted panels
+   floating over the top. The plate is opaque on purpose: the
+   drafting frame runs in the gutters between cards, never through
+   the face of one, so nothing crosses the copy.
+   ============================================================ */
+.gcard {
+  position: relative; display: flex; overflow: hidden; isolation: isolate;
+  min-height: 21em; border-radius: 1em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: border-color 0.4s var(--ease), transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+.gcard:hover {
+  border-color: color-mix(in srgb, var(--flare) 55%, transparent);
+  transform: translateY(-4px);
+  box-shadow: 0 0 44px -18px var(--flare-2);
+}
+
+/* the tint reads as a crescent: it only shows where the inner face's
+   radius pulls back off the corner */
+.gcard-plate {
+  position: absolute; inset: 0; z-index: 0; padding: 3px;
+  background: linear-gradient(150deg, var(--flare), color-mix(in srgb, var(--flare-2) 58%, #11141e) 72%);
+}
+.gcard-plate::before {
+  content: ""; display: block; width: 100%; height: 100%;
+  border-radius: 0.75em 5.5em 2.2em 0.75em;
+  background: #181b28;
+}
+
+.gcard-orb { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center end; padding-right: 0.5em; }
+.gcard-orb::before {
+  content: ""; display: block; width: 8.5em; height: 8.5em; border-radius: 50%;
+  background: linear-gradient(45deg,
+    color-mix(in srgb, var(--flare-2) 62%, #0a0d18),
+    color-mix(in srgb, var(--flare) 72%, #ffffff) 88%);
+  animation: turn 12s linear infinite; animation-play-state: paused;
+}
+/* a disc only turns while its card is on screen — every frosted panel
+   over one has to re-read and re-blur its backdrop when it moves */
+.gcard.live .gcard-orb::before { animation-play-state: running; }
+@keyframes turn { to { rotate: 1turn; } }
+
+.gcard-body { position: relative; z-index: 2; flex: 1; display: flex; gap: 0.5em; padding: 0.55em; }
+.gcard-panel {
+  flex: 1; display: flex; flex-direction: column; padding: 1.1em 1em 0.9em;
+  border-radius: 0.75em; border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 13, 24, 0.32);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+}
+.gcard-panel h3 { font-size: 1.1em; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; text-wrap: balance; margin-bottom: 0.5em; }
+.gcard-panel p { font-size: 0.9em; line-height: 1.6; color: rgba(233, 240, 252, 0.74); }
+.gcard-tag { margin-top: auto; padding-top: 1.2em; font-family: var(--mono); font-size: max(0.66em, 10px); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(233, 240, 252, 0.45); }
+
+.gcard-rail {
+  display: flex; flex-direction: column; align-items: flex-end; padding: 0.5em 0.3em 0 0;
+  font-family: var(--mono); font-size: max(0.62em, 10px); letter-spacing: 0.14em;
+  text-transform: uppercase; line-height: 1.5; color: rgba(233, 240, 252, 0.6);
+  text-shadow: 0 1px 3px rgba(5, 7, 16, 0.8);
+}
+.gcard-go {
+  margin-top: auto; display: grid; place-items: center;
+  width: 2.6em; height: 2.6em; border-radius: 50%;
+  background: rgba(248, 250, 252, 0.18);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  color: rgba(255, 255, 255, 0.8);
+  transition: background 0.35s var(--ease);
+}
+.gcard:hover .gcard-go { background: rgba(248, 250, 252, 0.32); }
+.gcard-go svg { display: block; width: 1.4em; height: 1.4em; }
+
+/* ---------- the wide one ---------- */
+.surface { position: relative; padding: 0 0 7em; }
+.gcard--wide { min-height: 17em; }
+.gcard--wide .gcard-rail { margin-left: auto; }
+.gcard--wide .gcard-orb { place-items: center end; padding-right: 3.6em; }
+.gcard--wide .gcard-orb::before { width: 13em; height: 13em; animation-duration: 20s; }
+.gcard--wide .gcard-panel { flex: 0 1 32em; }
+.gcard--wide .gcard-body { gap: 0.5em; }
+.gcard--wide .gcard-panel h3 { font-size: 1.7em; letter-spacing: -0.03em; }
+.gcard--wide .gcard-panel p { font-size: 0.98em; max-width: 26em; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.4em; margin-top: auto; padding-top: 1.4em; }
+.chip {
+  padding: 0.5em 0.9em; border-radius: 10em;
+  font-family: var(--mono); font-size: max(0.62em, 10px); letter-spacing: 0.12em; text-transform: uppercase;
+  background: rgba(248, 250, 252, 0.1); border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(233, 240, 252, 0.7);
+}
+
+/* ---------- the stat strip ---------- */
+.figures { position: relative; padding: 0 0 7em; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; }
+.gcard--stat { min-height: 11.5em; }
+.gcard--stat .gcard-plate::before { border-radius: 0.75em 3.4em 1.4em 0.75em; }
+/* no rail on a stat card, so reserve the same strip by hand — otherwise the
+   disc is trapped entirely behind the glass and reads as a smudge */
+.gcard--stat .gcard-body { padding-right: 2.4em; }
+.gcard--stat .gcard-orb { padding-right: 0.45em; }
+.gcard--stat .gcard-orb::before { width: 6em; height: 6em; animation-duration: 16s; }
+.gcard--stat .gcard-panel { padding: 1em 0.95em 0.85em; }
+.stat-num {
+  font-size: 2.1em; font-weight: 700; letter-spacing: -0.03em; line-height: 1;
+  background: linear-gradient(0deg, var(--ice), var(--flare-2));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat-lab {
+  margin-top: auto; padding-top: 0.9em;
+  font-family: var(--mono); font-size: max(0.64em, 10px); line-height: 1.55; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(233, 240, 252, 0.5);
+}
+.figures .note {
+  margin-top: 1.6em; text-align: center;
+  font-family: var(--mono); font-size: max(0.68em, 11px); letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--ice) 38%, transparent);
+}
+
+.close { position: relative; text-align: center; padding: 0 0 6em; }
+.close h2 { font-size: 2em; font-weight: 700; margin-bottom: 0.5em; letter-spacing: -0.03em; }
+.close p { max-width: 28em; margin: 0 auto 2em; font-size: 1em; line-height: 1.6; color: color-mix(in srgb, var(--ice) 70%, transparent); }
+
+.foot { position: relative; }
+.foot .wrap {
+  display: flex; justify-content: space-between; gap: 1.4em; flex-wrap: wrap;
+  padding: 2.4em 0 3.4em;
+  font-family: var(--mono); font-size: max(0.72em, 10px); line-height: 1.9;
+  color: color-mix(in srgb, var(--ice) 45%, transparent);
+}
+.foot a { color: var(--steel); border-bottom: 1px solid color-mix(in srgb, var(--steel) 50%, transparent); }
+.foot a:hover { color: var(--ice); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .specs { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .gcard { min-height: 17em; }
+  .gcard--wide .gcard-orb { padding-right: 2em; }
+  .gcard--wide .gcard-panel { flex: 0 1 24em; }
+  .pitch-acc i { translate: -11em; } .pitch-acc i:nth-child(2) { translate: 11em 12em; }
+}
+@media (max-width: 620px) {
+  /* only the bar's CTA — this used to hit .pill, which also took the
+     closer's call to action off every small screen */
+  .topcta { display: none; }
+  .hero h1 { font-size: 4.6em; }
+  .pitch-acc { display: none; }
+  .gcard { min-height: 0; }
+  .gcard--wide .gcard-orb { place-items: end center; padding: 0 0 1.5em; }
+  .gcard--wide .gcard-orb::before { width: 9em; height: 9em; }
+  .gcard--wide .gcard-panel { flex: 1; }
+  .gcard--wide .gcard-panel h3 { font-size: 1.4em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* the stage still arrives, it just arrives already assembled */
+  .spotlight i { opacity: 0.5; scale: 1; }
+  .ridge i:nth-child(1), .ridge i:nth-child(3) { bottom: -140%; }
+  .ridge i:nth-child(2) { bottom: -108%; }
+  /* the field is static anyway; the cursor simply parks at the top */
+  .gcard-orb::before { animation: none; }
+  .top, .intro, .tagline { opacity: 1; translate: 0; }
+  .hero h1 { opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ THE FIELD ============
+     Fixed to the viewport: the page scrolls past it. -->
+<div class="field" aria-hidden="true">
+  <b class="br br--tl"></b><b class="br br--tr"></b><b class="br br--bl"></b><b class="br br--br"></b>
+
+  <div class="axis">
+    <i style="top:0"></i><span style="top:0">000</span>
+    <i style="top:20%"></i><span style="top:20%">020</span>
+    <i style="top:40%"></i><span style="top:40%">040</span>
+    <i style="top:60%"></i><span style="top:60%">060</span>
+    <i style="top:80%"></i><span style="top:80%">080</span>
+    <i style="top:100%"></i><span style="top:100%">100</span>
+  </div>
+  <div class="cursor" id="fieldCursor"></div>
+
+</div>
+
+<!-- The light and the bar live outside the stage and are fixed to the
+     viewport: the lamp stays put while the page runs underneath it, so
+     whatever section you are on is the one being lit. -->
+<div class="spotlight" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+
+<header class="top">
+  <a class="wordmark" href="#pitch">UMBRA</a>
+  <button class="lamp" type="button" id="lamp" aria-pressed="true">
+    <span class="sr" id="lampLabel">Stage light: cool. Press to warm it.</span>
+  </button>
+  <button class="topcta" type="button">Request access</button>
+</header>
+
+<div class="stage">
+
+  <div class="intro"><p>Introducing</p></div>
+
+  <div class="hero" id="hero">
+    <h1>Umbra</h1>
+    <h1 aria-hidden="true">Umbra</h1>
+  </div>
+
+  <p class="tagline">The inference runtime that gets out of the way.<br />Models in, tokens out, nothing left running.</p>
+
+  <div class="ridge" aria-hidden="true"><i></i><i></i><i></i></div>
+</div>
+
+<main class="band">
+  <section class="pitch" id="pitch">
+    <div class="pitch-acc" aria-hidden="true"><i></i><i></i></div>
+    <div class="wrap">
+      <p class="kicker">Built to disappear</p>
+      <h2>Load once. Serve everywhere.<br />Pay for none of the waiting.</h2>
+      <p class="lede">
+        Umbra keeps weights resident and cold-starts in the time it takes to parse the request,
+        so the runtime stops being the thing you plan around.
+      </p>
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="wrap">
+      <div class="specs">
+        <article class="gcard">
+          <span class="gcard-plate" aria-hidden="true"></span>
+          <span class="gcard-orb" aria-hidden="true"></span>
+          <div class="gcard-body">
+            <div class="gcard-panel">
+              <h3>You have been paying for cold starts</h3>
+              <p>Weights stay mapped and the graph stays compiled between calls. The first request after an idle hour costs what the second one does.</p>
+              <span class="gcard-tag">resident</span>
+            </div>
+            <div class="gcard-rail" aria-hidden="true">
+              <span>01</span>
+              <span>spec</span>
+              <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
+            </div>
+          </div>
+        </article>
+        <article class="gcard">
+          <span class="gcard-plate" aria-hidden="true"></span>
+          <span class="gcard-orb" aria-hidden="true"></span>
+          <div class="gcard-body">
+            <div class="gcard-panel">
+              <h3>One artifact, any silicon</h3>
+              <p>The same build runs on the laptop you developed it on and the rack you deployed it to. No per-target rebuild, no quiet precision swap.</p>
+              <span class="gcard-tag">portable</span>
+            </div>
+            <div class="gcard-rail" aria-hidden="true">
+              <span>02</span>
+              <span>spec</span>
+              <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
+            </div>
+          </div>
+        </article>
+        <article class="gcard">
+          <span class="gcard-plate" aria-hidden="true"></span>
+          <span class="gcard-orb" aria-hidden="true"></span>
+          <div class="gcard-body">
+            <div class="gcard-panel">
+              <h3>Nothing left running</h3>
+              <p>Idle means idle. When traffic stops the runtime releases and the meter stops with it, which is the part every other bill forgets.</p>
+              <span class="gcard-tag">idle</span>
+            </div>
+            <div class="gcard-rail" aria-hidden="true">
+              <span>03</span>
+              <span>spec</span>
+              <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface">
+    <div class="wrap">
+      <article class="gcard gcard--wide">
+        <span class="gcard-plate" aria-hidden="true"></span>
+        <span class="gcard-orb" aria-hidden="true"></span>
+        <div class="gcard-body">
+          <div class="gcard-panel">
+            <h3>It runs where you already are.</h3>
+            <p>Umbra picks its backend when the model loads and never asks you to rebuild for the box in front of it. Develop on the laptop, ship the same artifact to the rack.</p>
+            <div class="chips">
+              <span class="chip">Apple silicon</span>
+              <span class="chip">Consumer GPU</span>
+              <span class="chip">Datacentre GPU</span>
+              <span class="chip">Plain CPU</span>
+            </div>
+          </div>
+          <div class="gcard-rail" aria-hidden="true">
+            <span>04</span>
+            <span>surfaces</span>
+            <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="figures">
+    <div class="wrap">
+      <div class="stats">
+        <article class="gcard gcard--stat">
+          <span class="gcard-plate" aria-hidden="true"></span>
+          <span class="gcard-orb" aria-hidden="true"></span>
+          <div class="gcard-body">
+            <div class="gcard-panel">
+              <span class="stat-num">8 ms</span>
+              <span class="stat-lab">to first token, after an idle hour</span>
+            </div>
+          </div>
+        </article>
+        <article class="gcard gcard--stat">
+          <span class="gcard-plate" aria-hidden="true"></span>
+          <span class="gcard-orb" aria-hidden="true"></span>
+          <div class="gcard-body">
+            <div class="gcard-panel">
+              <span class="stat-num">1&times;</span>
+              <span class="stat-lab">build, whatever the target</span>
+            </div>
+          </div>
+        </article>
+        <article class="gcard gcard--stat">
+          <span class="gcard-plate" aria-hidden="true"></span>
+          <span class="gcard-orb" aria-hidden="true"></span>
+          <div class="gcard-body">
+            <div class="gcard-panel">
+              <span class="stat-num">0</span>
+              <span class="stat-lab">processes left when traffic stops</span>
+            </div>
+          </div>
+        </article>
+        <article class="gcard gcard--stat">
+          <span class="gcard-plate" aria-hidden="true"></span>
+          <span class="gcard-orb" aria-hidden="true"></span>
+          <div class="gcard-body">
+            <div class="gcard-panel">
+              <span class="stat-num">3.2 GB</span>
+              <span class="stat-lab">resident for a 7B model</span>
+            </div>
+          </div>
+        </article>
+      </div>
+      <p class="note">Invented product, invented figures — nothing here was measured.</p>
+    </div>
+  </section>
+
+  <section class="close">
+    <div class="wrap">
+      <h2>Come and watch it do nothing.</h2>
+      <p>The interesting part of a runtime is what it stops doing. Put a model in front of it and see how little is left between the request and the first token.</p>
+      <button class="pill pill--cta" type="button">
+        <span class="glow" aria-hidden="true"></span>
+        <span class="label">Request access</span>
+      </button>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="wrap">
+      <span>
+        Umbra is a fictional product and this page is a design demo — the platform,<br />
+        the claims and every figure are invented. Nothing here is real.
+      </span>
+      <span>
+        Stage, spotlights and swept wordmark adapted from a pen by
+        <a href="https://codepen.io/RAFA3L" target="_blank" rel="noopener">RAFA3L</a><br />
+        One file · no images · no libraries
+      </span>
+    </div>
+  </footer>
+</main>
+
+<script>
+(() => {
+"use strict";
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============================================================
+   STAGE LIGHT — swaps the palette rather than inverting the page.
+   The reference does this with filter: invert(1) on everything,
+   which also inverts the photography-free gradients into mud; a
+   handful of custom properties gets the same trick cleanly.
+   ============================================================ */
+/* Three states on one control, cycling cool → warm → out → cool. The two
+   lit states are a palette swap on <body>; the third kills the cones and
+   unlights the bulb. aria-pressed only has two values and cannot describe
+   three, so it tracks lit/unlit and the real state goes in the label the
+   screen reader actually reads. */
+const lamp = document.getElementById("lamp");
+const lampLabel = document.getElementById("lampLabel");
+const LAMP = [
+  { flare: false, out: false, say: "Stage light: cool. Press to warm it." },
+  { flare: true,  out: false, say: "Stage light: warm. Press to switch it off." },
+  { flare: false, out: true,  say: "Stage light: off. Press to switch it on." }
+];
+let lampAt = 0;
+lamp.addEventListener("click", () => {
+  lampAt = (lampAt + 1) % LAMP.length;
+  const st = LAMP[lampAt];
+  document.body.classList.toggle("flare", st.flare);
+  document.body.classList.toggle("out", st.out);
+  lamp.setAttribute("aria-pressed", String(!st.out));
+  lampLabel.textContent = st.say;
+});
+
+/* ============================================================
+   THE SWEEP
+   An @property animation on a 7em wordmark is cheap, but there is
+   no reason to run it while the hero is off screen.
+   ============================================================ */
+const hero = document.getElementById("hero");
+if (!REDUCED) {
+  new IntersectionObserver((es) => {
+    for (const e of es) hero.classList.toggle("sweeping", e.isIntersecting);
+  }, { threshold: 0 }).observe(hero);
+}
+
+/* ============================================================
+   THE FIELD
+   The frame is fixed and the page moves behind it, so there is
+   nothing to draw in on arrival any more. What is left is the
+   cursor riding the depth axis: one custom property per frame,
+   written from a rAF off a passive scroll listener, and nothing
+   that touches layout.
+   ============================================================ */
+(() => {
+  const cur = document.getElementById("fieldCursor");
+  if (!cur || REDUCED) return;
+  let queued = false;
+  const stageEl = document.querySelector(".stage");
+  const paint = () => {
+    queued = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const t = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    cur.style.setProperty("--scan", t.toFixed(4));
+    /* the ridge comes apart over the first half-screen and is gone well
+       before the stage is */
+    if (stageEl) {
+      const o = Math.min(1, Math.max(0, scrollY / (innerHeight * 0.5)));
+      stageEl.style.setProperty("--out", o.toFixed(3));
+    }
+  };
+  const req = () => { if (!queued) { queued = true; requestAnimationFrame(paint); } };
+  addEventListener("scroll", req, { passive: true });
+  addEventListener("resize", req);
+  paint();
+})();
+
+/* ============================================================
+   THE DISCS
+   Each card's disc turns only while that card is on screen. Every
+   frosted panel sitting over one has to re-read and re-blur its
+   backdrop whenever it moves, so an offscreen card that keeps
+   spinning is paying full price for nothing.
+   ============================================================ */
+(() => {
+  if (REDUCED) return;
+  const cards = document.querySelectorAll(".gcard");
+  /* keep the on-screen set, so coming back to the tab can restore exactly
+     those cards — an observer fires on change, and returning is not one */
+  const onScreen = new Set();
+  const apply = () => {
+    for (const c of cards) c.classList.toggle("live", !document.hidden && onScreen.has(c));
+  };
+  const io = new IntersectionObserver((es) => {
+    for (const e of es) e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target);
+    apply();
+  }, { rootMargin: "120px 0px" });
+  for (const c of cards) io.observe(c);
+  document.addEventListener("visibilitychange", apply);
+})();
+
+
+})();
+</script>
+</body>
+</html>

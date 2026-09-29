@@ -1,0 +1,2898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DERMEXCEL — Clay Dermatology Platform</title>
+<meta name="description" content="Single-file clay / neumorphic SaaS landing page for a dermatology imaging API, with a glossy generate button, GSAP entrance and scroll-parallax animation." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  /* ============================================================
+     SOFT UI
+     One light source at the top left, and every raised or pressed
+     surface is the SAME colour as the page. That rule is the whole
+     effect: tint a card away from its background and the pair of
+     shadows stops reading as relief and becomes a drop shadow.
+     ============================================================ */
+  --greyLight-1: #e4ebf5;
+  --greyLight-2: #c8d0e7;
+  --greyLight-3: #bec8e4;
+  --greyDark: #9baacf;
+  --white: #ffffff;
+
+  --primary-light: #8abdff;
+  --primary: #6d5dfc;
+  --primary-dark: #5b0eeb;
+
+  /* the page is one flat colour — soft UI cannot sit on a gradient or on
+     alternating section bands, because the surfaces would stop matching */
+  --bg-top: var(--greyLight-1);
+  --bg-bottom: var(--greyLight-1);
+  --text-dark: #2c3557;
+  --text-muted: #8091bb;
+  --accent-hue: 249deg;
+  --accent-orange: var(--primary);
+  --accent-soft: var(--primary-light);
+  --clay-dark: #1b2138;
+  --clay-light: var(--greyLight-1);
+  --ink-panel: linear-gradient(180deg, #232a45, #171c2e);
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* the two directions, and there are only two */
+  --shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+  --shadow-inset: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+  --shadow-lg: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
+    -0.2rem -0.2rem 1.8rem var(--white);
+
+  /* the old names kept so every existing rule still resolves */
+  --shadow-light: var(--shadow);
+  --shadow-glass: var(--shadow);
+  --shadow-dark: 0.5rem 0.5rem 1rem rgba(24, 30, 52, 0.45),
+    -0.2rem -0.2rem 0.6rem rgba(255, 255, 255, 0.55);
+  --shadow-orange: inset 0.2rem 0.2rem 1rem var(--primary-light),
+    inset -0.2rem -0.2rem 1rem var(--primary-dark),
+    0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", "Inter", sans-serif;
+}
+/* the kit is written in rem at 1rem = 10px */
+html { font-size: 62.5%; }
+@media screen and (min-width: 900px) { html { font-size: 68.75%; } }
+body { font-size: 1.6rem; }
+
+body {
+  background-color: var(--bg-top);
+  color: var(--text-dark);
+  overflow-x: hidden;
+  min-height: 150vh;
+}
+
+/* --- Header --- */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 48px;
+  z-index: 100;
+  mix-blend-mode: exclusion;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.logo svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.nav-center {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.nav-center li {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.nav-center li.active::after {
+  content: "•";
+  font-size: 10px;
+  line-height: 0.5;
+  margin-top: 4px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.menu-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  font-size: 12px;
+}
+
+/* --- Hero Section --- */
+.hero {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  padding: 0 48px;
+  overflow: hidden;
+}
+
+/* Giant Background Text */
+.bg-text {
+  position: absolute;
+  bottom: 15vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 26vw;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 0.8;
+  white-space: nowrap;
+  z-index: 1;
+  letter-spacing: -2vw;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  pointer-events: none;
+}
+
+/* Main Image Overlay */
+.hero-main-img {
+  position: absolute;
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 80vh;
+  max-width: 80vw;
+  z-index: 5;
+  object-fit: contain;
+  object-position: bottom;
+  /* Drop shadow for 3D depth over the background text */
+  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.15));
+}
+
+/* Hero Content Left */
+.hero-left {
+  position: relative;
+  z-index: 10;
+  max-width: 480px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  display: block;
+  color: var(--text-dark);
+}
+
+/* ============================================================
+   BLOCK HEADINGS
+   Press Start 2P is a fixed-width pixel face: every glyph is a full
+   em wide against Inter's ~0.5, so the same px size renders about
+   twice as wide. Each level is resized for its own measure rather
+   than inheriting the old scale, and the tight tracking from the
+   source is what keeps the blocks reading as one mass.
+   ============================================================ */
+/* The reset sets Inter on * , which matches a heading's own child spans
+   directly and beats inheritance — so the spans have to be named too or
+   half of every headline drops back to the body face. */
+h1, h2, h3, .section-title, .plan-title,
+h1 span, h2 span, h3 span, .section-title span, .plan-title span {
+  font-family: "Press Start 2P", "JetBrains Mono", monospace;
+  font-weight: 400;
+  letter-spacing: -0.08em;
+}
+.hero h1 {
+  /* 25% up from clamp(15px, 2vw, 28px). The margin carries the space the
+     status row used to hold, so the buttons do not ride up under the type. */
+  font-size: clamp(19px, 2.5vw, 35px);
+  line-height: 1.32;
+  margin-bottom: 44px;
+}
+.hero h1 span {
+  color: var(--text-muted);
+}
+
+.reviews {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 48px;
+}
+.stars {
+  color: #f59e0b;
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+}
+
+/* ── Primary button ─────────────────────────────────────────────────────
+   Adapted from the Uiverse button by dexter-st. Kept intact: the stacked
+   inset highlights that make the face read as lit glass, the ::before plate
+   that carries the glow, the ::after sheen, and the letter-by-letter flicker.
+   Wired to the page: --button-color is the clay dark, --highlight-color-hue
+   is the page accent hue, so the button is the source of the accent rather
+   than a guest on the page.
+
+   The wrapper isolates: ::before lives at z-index -1 and without a stacking
+   context of its own it would slip behind whatever card the button sits on.
+   ──────────────────────────────────────────────────────────────────────── */
+.btn-wrapper {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+
+.btn {
+  --border-radius: 24px;
+  --padding: 4px;
+  --transition: 0.4s;
+  --button-color: var(--primary);
+  --highlight-color-hue: var(--accent-hue);
+
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5em 0.5em 0.5em 1.1em;
+  font-family: "Inter", sans-serif;
+  font-size: 0.95em;
+  font-weight: 400;
+  color: var(--greyLight-1);
+
+  background-color: var(--button-color);
+
+  /* lit from inside with its own hue, resting on the page's shadow pair */
+  box-shadow: var(--shadow-orange);
+
+  border: 0;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+
+  transition:
+    box-shadow var(--transition),
+    border var(--transition),
+    background-color var(--transition);
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  top: calc(0px - var(--padding));
+  left: calc(0px - var(--padding));
+  width: calc(100% + var(--padding) * 2);
+  height: calc(100% + var(--padding) * 2);
+  border-radius: calc(var(--border-radius) + var(--padding));
+  pointer-events: none;
+  background-image: linear-gradient(0deg, #0004, #000a);
+
+  z-index: -1;
+  transition:
+    box-shadow var(--transition),
+    filter var(--transition);
+  box-shadow:
+    0 -8px 8px -6px #0000 inset,
+    0 -16px 16px -8px #00000000 inset,
+    1px 1px 1px #fff2,
+    2px 2px 2px #fff1,
+    -1px -1px 1px #0002,
+    -2px -2px 2px #0001;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: linear-gradient(
+    0deg,
+    #fff,
+    hsl(var(--highlight-color-hue), 100%, 70%),
+    hsla(var(--highlight-color-hue), 100%, 70%, 50%),
+    8%,
+    transparent
+  );
+  background-position: 0 0;
+  opacity: 0;
+  transition:
+    opacity var(--transition),
+    filter var(--transition);
+}
+
+.btn-letter {
+  position: relative;
+  display: inline-block;
+  color: #fff5;
+  animation: letter-anim 2s ease-in-out infinite;
+  transition:
+    color var(--transition),
+    text-shadow var(--transition),
+    opacity var(--transition);
+}
+@keyframes letter-anim {
+  50% {
+    text-shadow: 0 0 3px #fff8;
+    color: #fff;
+  }
+}
+
+.btn-svg {
+  flex-grow: 1;
+  height: 22px;
+  width: 22px;
+  margin-right: 0.5rem;
+  fill: #e8e8e8;
+  animation: flicker 2s linear infinite;
+  animation-delay: 0.5s;
+  filter: drop-shadow(0 0 2px #fff9);
+  transition:
+    fill var(--transition),
+    filter var(--transition),
+    opacity var(--transition);
+}
+@keyframes flicker {
+  50% { opacity: 0.3; }
+}
+
+/* The label swaps to its busy twin while the button holds focus, which on a
+   click is exactly as long as the thing it kicked off is the user's subject. */
+.txt-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: var(--label-width, 6.4em);
+  height: 1.5em;
+}
+.txt-1,
+.txt-2 {
+  position: absolute;
+  white-space: nowrap;
+}
+.txt-1 { animation: appear-anim 1s ease-in-out forwards; }
+.txt-2 { opacity: 0; }
+@keyframes appear-anim {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.btn:focus .txt-1,
+.btn.is-busy .txt-1 {
+  animation: opacity-anim 0.3s ease-in-out forwards;
+  animation-delay: 1s;
+}
+.btn:focus .txt-2,
+.btn.is-busy .txt-2 {
+  animation: opacity-anim 0.3s ease-in-out reverse forwards;
+  animation-delay: 1s;
+}
+@keyframes opacity-anim {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.btn:focus .btn-letter,
+.btn.is-busy .btn-letter {
+  animation:
+    focused-letter-anim 1s ease-in-out forwards,
+    letter-anim 1.2s ease-in-out infinite;
+  animation-delay: 0s, 1s;
+}
+@keyframes focused-letter-anim {
+  0%,
+  100% { filter: blur(0px); }
+  50% {
+    transform: scale(2);
+    filter: blur(10px) brightness(150%)
+      drop-shadow(-36px 12px 12px hsl(var(--highlight-color-hue), 100%, 70%));
+  }
+}
+.btn:focus .btn-svg,
+.btn.is-busy .btn-svg {
+  animation-duration: 1.2s;
+  animation-delay: 0.2s;
+}
+
+.btn:focus::before,
+.btn.is-busy::before {
+  box-shadow:
+    0 -8px 12px -6px #fff3 inset,
+    0 -16px 16px -8px hsla(var(--highlight-color-hue), 100%, 70%, 20%) inset,
+    1px 1px 1px #fff3,
+    2px 2px 2px #fff1,
+    -1px -1px 1px #0002,
+    -2px -2px 2px #0001;
+}
+.btn:focus::after,
+.btn.is-busy::after {
+  opacity: 0.6;
+  mask-image: linear-gradient(0deg, #fff, transparent);
+  filter: brightness(100%);
+}
+
+/* Letter flicker runs as a wave, one step per letter. */
+.btn-letter:nth-child(1) { animation-delay: 0s; }
+.btn-letter:nth-child(2) { animation-delay: 0.08s; }
+.btn-letter:nth-child(3) { animation-delay: 0.16s; }
+.btn-letter:nth-child(4) { animation-delay: 0.24s; }
+.btn-letter:nth-child(5) { animation-delay: 0.32s; }
+.btn-letter:nth-child(6) { animation-delay: 0.4s; }
+.btn-letter:nth-child(7) { animation-delay: 0.48s; }
+.btn-letter:nth-child(8) { animation-delay: 0.56s; }
+.btn-letter:nth-child(9) { animation-delay: 0.64s; }
+.btn-letter:nth-child(10) { animation-delay: 0.72s; }
+.btn-letter:nth-child(11) { animation-delay: 0.8s; }
+.btn-letter:nth-child(12) { animation-delay: 0.88s; }
+.btn-letter:nth-child(13) { animation-delay: 0.96s; }
+
+.btn:active {
+  border: solid 1px hsla(var(--highlight-color-hue), 100%, 80%, 70%);
+  background-color: hsla(var(--highlight-color-hue), 50%, 20%, 0.5);
+}
+.btn:active::before {
+  box-shadow:
+    0 -8px 12px -6px #fffa inset,
+    0 -16px 16px -8px hsla(var(--highlight-color-hue), 100%, 70%, 80%) inset,
+    1px 1px 1px #fff4,
+    2px 2px 2px #fff2,
+    -1px -1px 1px #0002,
+    -2px -2px 2px #0001;
+}
+.btn:active::after {
+  opacity: 1;
+  mask-image: linear-gradient(0deg, #fff, transparent);
+  filter: brightness(200%);
+}
+.btn:active .btn-letter {
+  text-shadow: 0 0 1px hsla(var(--highlight-color-hue), 100%, 90%, 90%);
+  animation: none;
+}
+
+.btn:hover {
+  border: solid 1px hsla(var(--highlight-color-hue), 100%, 80%, 40%);
+}
+.btn:hover::before {
+  box-shadow:
+    0 -8px 8px -6px #fffa inset,
+    0 -16px 16px -8px hsla(var(--highlight-color-hue), 100%, 70%, 30%) inset,
+    1px 1px 1px #fff2,
+    2px 2px 2px #fff1,
+    -1px -1px 1px #0002,
+    -2px -2px 2px #0001;
+}
+.btn:hover::after {
+  opacity: 1;
+  mask-image: linear-gradient(0deg, #fff, transparent);
+}
+.btn:hover .btn-svg {
+  fill: #fff;
+  filter: drop-shadow(0 0 3px hsl(var(--highlight-color-hue), 100%, 70%))
+    drop-shadow(0 -4px 6px #0009);
+  animation: none;
+}
+
+/* A quieter twin for secondary actions: same geometry, clay instead of glass. */
+.btn-glass {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.72em 1.2em;
+  border-radius: 24px;
+  background: var(--greyLight-1);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--text-dark);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-glass), var(--shadow-light);
+  transition: transform 0.2s, border-color 0.4s, background 0.4s;
+}
+.btn-glass:hover {
+  background: var(--greyLight-1);
+  border-color: hsla(var(--accent-hue), 90%, 60%, 0.45);
+}
+.btn-glass:active { transform: scale(0.97); }
+
+/* Hero Content Right */
+.hero-right {
+  position: absolute;
+  top: 20%;
+  right: 48px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 60px;
+}
+
+.clay-widget {
+  background: var(--greyLight-1);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: var(--shadow-glass), var(--shadow-light);
+  border: 0;
+  width: 340px;
+}
+
+.widget-img {
+  width: 100px;
+  height: 100px;
+  background: var(--clay-dark);
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: var(--shadow-dark);
+}
+.widget-img svg {
+  width: 32px;
+  height: 32px;
+  fill: white;
+}
+
+.widget-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 90px;
+}
+
+.w-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.w-title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.w-dot {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--text-dark);
+  border-radius: 50%;
+}
+
+.w-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.w-line {
+  height: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  width: 40px;
+  border-radius: 2px;
+  position: relative;
+}
+.w-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  background: var(--text-dark);
+  border-radius: 2px;
+}
+.w-controls {
+  display: flex;
+  gap: 6px;
+}
+.w-ctrl {
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.partners {
+  text-align: right;
+  opacity: 0.6;
+  max-width: 280px;
+}
+.p-label {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.p-logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: flex-end;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Hero Footer Bar */
+.hero-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 48px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+  z-index: 15;
+  padding-bottom: 10px;
+}
+
+/* --- Section 2: White Area --- */
+.bottom-section {
+  background-color: var(--bg-bottom);
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+  position: relative;
+  z-index: 20;
+  padding: 80px 48px;
+  margin-top: -30px; /* Overlap hero */
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Wireframe Globe Background */
+.wireframe-globe {
+  position: absolute;
+  top: 0;
+  left: -15vw;
+  width: 800px;
+  height: 800px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(
+      circle,
+      transparent 40%,
+      #000 41%,
+      transparent 42%
+    ),
+    linear-gradient(0deg, transparent 49%, #000 50%, transparent 51%),
+    linear-gradient(90deg, transparent 49%, #000 50%, transparent 51%);
+  background-size: 100% 100%, 50px 50px, 50px 50px;
+  border-radius: 50%;
+  transform: perspective(600px) rotateX(60deg) translateY(-20%);
+}
+
+.s2-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+  z-index: 10;
+}
+
+.s2-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+.about-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.about-label .dot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-dark);
+  border-radius: 50%;
+}
+
+.hub-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  max-width: 220px;
+  line-height: 1.4;
+}
+.hub-info svg {
+  width: 32px;
+  height: 32px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.s2-right {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+.s2-right h2 {
+  font-size: clamp(13px, 1.6vw, 18px);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -1px;
+}
+.s2-right h2 span {
+  color: var(--text-muted);
+}
+
+.social-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.s-icons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.s-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-right: 16px;
+}
+.s-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-top);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.s-icon:hover {
+  transform: scale(1.1);
+}
+.s-icon.orange {
+  background: var(--accent-orange);
+  color: white;
+}
+
+.about-btn {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* --- Giant Clay Pills --- */
+.pill-container {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 100px;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1000px;
+  flex-wrap: wrap;
+}
+
+.giant-pill {
+  flex: 1;
+  min-width: 180px;
+  height: 120px;
+  border-radius: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid transparent;
+}
+
+.giant-pill:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.pill-white {
+  background: var(--bg-bottom);
+  box-shadow: var(--shadow-light);
+  border-color: rgba(255, 255, 255, 0.8);
+  color: var(--text-dark);
+}
+
+.pill-orange {
+  background: var(--accent-orange);
+  box-shadow: var(--shadow-orange);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pill-black {
+  background: var(--clay-dark);
+  box-shadow: var(--shadow-dark);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.pill-black svg {
+  width: 48px;
+  height: 48px;
+  stroke: white;
+  stroke-width: 2;
+  fill: none;
+}
+
+.pill-gray {
+  background: var(--clay-light);
+  box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.05),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.6);
+  color: #b0b0b0;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* =========================================================
+   Extended sections: reuse the tokens, clay shadows and type
+   scale above. Nothing new but layout.
+   ========================================================= */
+
+.section {
+  position: relative;
+  padding: 120px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  overflow: clip; /* clip, not hidden, so position: sticky still works inside */
+}
+.section--gray { background: var(--bg-top); }
+.section--white { background: var(--bg-bottom); }
+
+.section-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 48px;
+  margin-bottom: 64px;
+}
+.section-head .about-label { margin-bottom: 24px; }
+
+.section-title {
+  font-size: clamp(13px, 1.5vw, 20px);
+  line-height: 1.5;
+  max-width: 680px;
+}
+.section-title span { color: var(--text-muted); }
+
+.section-sub {
+  max-width: 340px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.about-label--light { color: #fff; }
+.about-label--light .dot { background: var(--accent-orange); }
+
+/* --- Periodic element tiles: every capability gets a two-letter symbol --- */
+.el {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: var(--greyLight-1);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+.el::before {
+  content: attr(data-n);
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-size: 7px;
+  font-weight: 500;
+  opacity: 0.55;
+}
+
+/* --- Ingredient marquee --- */
+.ingredient-band {
+  position: relative;
+  z-index: 20;
+  background: var(--bg-bottom);
+  padding: 0 0 100px;
+}
+.marquee {
+  display: flex;
+  gap: 16px;
+  overflow: hidden;
+  padding: 24px 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  gap: 16px;
+  flex-shrink: 0;
+  min-width: 100%;
+  justify-content: space-around;
+  animation: marquee 45s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee {
+  to { transform: translateX(calc(-100% - 16px)); }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 22px 8px 8px;
+  border-radius: 40px;
+  background: var(--bg-bottom);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-light);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.chip--orange { background: var(--accent-orange); color: #fff; box-shadow: var(--shadow-orange); }
+.chip--dark { background: var(--clay-dark); color: #fff; box-shadow: var(--shadow-dark); }
+.chip--orange .el,
+.chip--dark .el { border-color: rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.08); }
+
+/* --- Products --- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.product-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 14px 14px 22px;
+  border-radius: 32px;
+  background: var(--clay-light);
+  border: 0;
+  box-shadow: var(--shadow-light);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.product-card:hover { transform: translateY(-8px); }
+
+.product-stage {
+  position: relative;
+  height: 260px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #fafbfc 0%, #e4e6e9 100%);
+  box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.05),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+.product-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--greyLight-1);
+  border: 0;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-glass);
+}
+.product-badge--orange {
+  background: var(--accent-orange);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-orange);
+}
+
+/* CSS-drawn module slabs, same matte black as the hero console */
+.mod-tilt { transform: rotate(var(--tilt, 0deg)); }
+.mod {
+  width: 138px;
+  padding: 14px 12px 12px;
+  border-radius: 18px;
+  background: var(--ink-panel);
+  box-shadow: var(--shadow-dark);
+  color: #e8eef7;
+  display: grid;
+  gap: 10px;
+}
+.mod-rail {
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-orange), transparent);
+  opacity: 0.9;
+}
+.mod-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8fa6c4;
+}
+.mod-face {
+  border: 1px solid #1d2532;
+  border-radius: 12px;
+  background: #0c1016;
+  padding: 10px;
+  display: grid;
+  gap: 7px;
+}
+.mod-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: #1b2330;
+  overflow: hidden;
+}
+.mod-bar i {
+  display: block;
+  height: 100%;
+  width: var(--w, 60%);
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-orange), var(--accent-soft));
+}
+.mod-pins { display: flex; gap: 4px; }
+.mod-pins i {
+  width: 6px;
+  height: 12px;
+  border-radius: 2px;
+  background: #222c3a;
+}
+.mod-pins i:nth-child(-n + 3) { background: var(--accent-orange); opacity: 0.8; }
+.mod-mark { width: 18px; height: 18px; fill: rgba(255, 255, 255, 0.5); justify-self: end; }
+
+.product-info { display: flex; flex-direction: column; gap: 16px; padding: 0 8px; }
+.product-info h3 { font-size: 12px; font-weight: 500; letter-spacing: -0.5px; }
+.product-for { display: block; margin-top: 4px; font-size: 12px; color: var(--text-muted); }
+.el-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.product-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.round-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clay-dark);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 300;
+  box-shadow: var(--shadow-dark);
+  transition: transform 0.2s, background 0.2s;
+}
+.round-btn:hover { transform: scale(1.08); }
+.round-btn:active { transform: scale(0.94); }
+.round-btn.added { background: var(--accent-orange); box-shadow: var(--shadow-orange); font-size: 14px; }
+
+/* --- Formulation technology --- */
+.wireframe-globe--right { left: auto; right: -20vw; top: 8%; }
+
+.step-track {
+  height: 2px;
+  margin-bottom: 32px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.step-track-fill {
+  height: 100%;
+  background: var(--accent-orange);
+  transform-origin: left center;
+}
+
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.step-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 24px 32px;
+  border-radius: 28px;
+  background: var(--bg-bottom);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-light);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.step-card:hover { transform: translateY(-6px); }
+.step-num {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.step-icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clay-dark);
+  box-shadow: var(--shadow-dark);
+}
+.step-icon--orange { background: var(--accent-orange); box-shadow: var(--shadow-orange); }
+.step-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.step-card h3 { font-size: 13px; font-weight: 500; letter-spacing: -0.5px; }
+.step-card p { font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+
+/* --- Stats panel (dark clay) --- */
+.stats-panel {
+  position: relative;
+  margin-top: 96px;
+  padding: 64px;
+  border-radius: 40px;
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: 32px;
+  align-items: end;
+  background: var(--clay-dark);
+  color: #fff;
+  box-shadow: var(--shadow-dark);
+  overflow: hidden;
+}
+.stats-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 100% 0%, hsla(var(--accent-hue), 92%, 52%, 0.32), transparent 50%);
+  pointer-events: none;
+}
+.stats-intro { position: relative; display: flex; flex-direction: column; gap: 20px; }
+.stats-intro p { max-width: 260px; font-size: 15px; line-height: 1.5; color: rgba(255, 255, 255, 0.6); }
+.stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 20px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+.stat-num { font-size: clamp(36px, 4vw, 56px); font-weight: 500; letter-spacing: -2px; line-height: 1; }
+.stat-label { font-size: 12px; line-height: 1.4; color: rgba(255, 255, 255, 0.55); }
+
+/* --- Treatment plans --- */
+.plan-tabs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+.plan-tab {
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-dark);
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-glass);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.plan-tab:hover { background: rgba(255, 255, 255, 0.7); }
+.plan-tab.active {
+  background: var(--clay-dark);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-dark);
+}
+.plan-tab:focus-visible { outline: 2px solid var(--accent-orange); outline-offset: 3px; }
+
+.plan-panel { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; }
+.plan-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px;
+  border-radius: 32px;
+  background: var(--bg-bottom);
+  border: 0;
+  box-shadow: var(--shadow-light);
+}
+.plan-kicker { font-size: 12px; font-weight: 600; color: var(--accent-orange); }
+.plan-title { font-size: clamp(32px, 3.5vw, 48px); font-weight: 500; letter-spacing: -2px; line-height: 1; }
+.plan-desc { max-width: 420px; font-size: 15px; line-height: 1.6; color: var(--text-muted); }
+.plan-focus { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 16px; }
+.plan-focus span {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-top);
+}
+
+.plan-pipe { display: flex; flex-direction: column; gap: 16px; }
+.pipe-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px 20px 20px;
+  border-radius: 28px;
+  background: var(--clay-light);
+  box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.05),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.6);
+}
+.pipe-time {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-bottom);
+  box-shadow: var(--shadow-light);
+}
+.pipe-row--pm .pipe-time { background: var(--clay-dark); color: #fff; box-shadow: var(--shadow-dark); }
+.pipe-row--review .pipe-time { background: var(--accent-orange); color: #fff; box-shadow: var(--shadow-orange); }
+.pipe-product { display: block; font-size: 17px; font-weight: 500; letter-spacing: -0.3px; }
+.pipe-note { display: block; margin-top: 4px; font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+.pipe-step { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.plan-note { padding: 4px 8px; font-size: 12px; color: var(--text-muted); }
+
+/* --- Reviews --- */
+.review-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.review-summary .stars { font-size: 18px; }
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  border-radius: 32px;
+  background: var(--bg-bottom);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-light);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.review-card:hover { transform: translateY(-6px); }
+.review-card--dark {
+  margin-top: 40px;
+  background: var(--clay-dark);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-dark);
+}
+.review-card blockquote { font-size: 17px; line-height: 1.5; letter-spacing: -0.3px; }
+.review-card figcaption { display: flex; align-items: center; gap: 12px; }
+.avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-top);
+  box-shadow: var(--shadow-light);
+}
+.review-card--dark .avatar { background: var(--accent-orange); color: #fff; box-shadow: var(--shadow-orange); }
+.review-card figcaption strong { display: block; font-size: 14px; font-weight: 600; }
+.review-card figcaption em {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-style: normal;
+  color: var(--text-muted);
+}
+.review-card--dark figcaption em { color: rgba(255, 255, 255, 0.55); }
+
+/* --- FAQ --- */
+.faq-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 64px;
+  align-items: start;
+}
+.faq-intro {
+  position: sticky;
+  top: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+.faq-intro .btn-wrapper { margin-top: 8px; }
+.faq-list { display: flex; flex-direction: column; gap: 16px; }
+.faq-item {
+  border-radius: 28px;
+  background: var(--bg-bottom);
+  border: 0;
+  box-shadow: var(--shadow-light);
+}
+.faq-q {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 24px 24px 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  color: var(--text-dark);
+}
+.faq-q:focus-visible { outline: 2px solid var(--accent-orange); outline-offset: -4px; border-radius: 28px; }
+.faq-icon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bg-top);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s, color 0.2s;
+}
+.faq-icon::before,
+.faq-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 1.5px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+.faq-icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+.faq-item.open .faq-icon { transform: rotate(45deg); background: var(--clay-dark); color: #fff; }
+/* 0fr -> 1fr animates to the answer's natural height without measuring it */
+.faq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
+.faq-a > div { overflow: hidden; }
+.faq-item.open .faq-a { grid-template-rows: 1fr; }
+.faq-a p { max-width: 600px; padding: 0 32px 28px; font-size: 14px; line-height: 1.7; color: var(--text-muted); }
+
+/* --- Consultation CTA --- */
+.consult-card {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  padding: 72px;
+  border-radius: 40px;
+  background: var(--clay-dark);
+  color: #fff;
+  box-shadow: var(--shadow-dark);
+  overflow: hidden;
+}
+.consult-card::before {
+  content: "";
+  position: absolute;
+  right: -160px;
+  bottom: -220px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsla(var(--accent-hue), 92%, 52%, 0.5), transparent 65%);
+  pointer-events: none;
+}
+.consult-copy { position: relative; display: flex; flex-direction: column; gap: 24px; }
+.consult-copy h2 { font-size: clamp(14px, 1.8vw, 23px); font-weight: 500; line-height: 1.05; letter-spacing: -2px; }
+.consult-copy h2 span { color: rgba(255, 255, 255, 0.5); }
+.consult-copy p { max-width: 420px; font-size: 15px; line-height: 1.6; color: rgba(255, 255, 255, 0.6); }
+
+.consult-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.1);
+}
+.field { display: flex; flex-direction: column; gap: 8px; font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, 0.6); }
+.field input,
+.field select {
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.5), inset -2px -2px 6px rgba(255, 255, 255, 0.04);
+  transition: border-color 0.2s;
+}
+.field select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+}
+.field select option { color: #111; }
+.field input::placeholder { color: rgba(255, 255, 255, 0.35); }
+.field input:focus,
+.field select:focus { border-color: var(--accent-orange); }
+.btn-orange {
+  justify-content: center;
+  margin-top: 8px;
+  padding: 16px 24px;
+  background: var(--accent-orange);
+  box-shadow: var(--shadow-orange);
+}
+.btn-orange:disabled { cursor: default; }
+.form-status { min-height: 18px; font-size: 13px; color: rgba(255, 255, 255, 0.7); }
+
+/* --- Footer --- */
+.site-footer {
+  position: relative;
+  z-index: 20;
+  margin-top: -30px; /* overlap the section above, like the About panel does the hero */
+  padding: 96px 48px 32px;
+  background: var(--bg-top);
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 48px;
+}
+.footer-brand { display: flex; flex-direction: column; gap: 20px; }
+.footer-brand .s-icon { background: var(--bg-bottom); box-shadow: var(--shadow-light); }
+.footer-brand .s-icon.orange { background: var(--accent-orange); box-shadow: var(--shadow-orange); }
+.footer-brand p { max-width: 280px; font-size: 14px; line-height: 1.6; color: var(--text-muted); }
+.footer-col { display: flex; flex-direction: column; gap: 12px; }
+.footer-col h4 { margin-bottom: 8px; font-size: 12px; font-weight: 600; }
+.footer-col a,
+.footer-bottom a {
+  width: fit-content;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-col a:hover,
+.footer-bottom a:hover { color: var(--text-dark); }
+.footer-wordmark {
+  margin: 72px -48px 0;
+  text-align: center;
+  font-size: 17vw;
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -1vw;
+  white-space: nowrap;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0) 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  user-select: none;
+  pointer-events: none;
+}
+.footer-bottom {
+  max-width: 1200px;
+  margin: 24px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.footer-bottom a { font-size: 12px; }
+
+/* ── Hero: two columns, copy against a drawn console ───────────────────── */
+.hero-grid {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 56px;
+  align-items: center;
+}
+/* 640, not 560: at the larger size "Ship skin analysis" no longer fits the
+   old measure and wrapped, turning the authored three lines into four.
+   640 + 56 gap + the console still clears the grid's 1320 cap. */
+.hero-left { max-width: 640px; }
+.hero-right {
+  position: static;
+  display: grid;
+  gap: 20px;
+  justify-items: stretch;
+  align-items: start;
+}
+.hero h1 span.accent { color: var(--accent-orange); }
+/* Press Start 2P is a full-width face: "Ship skin analysis" is 18 characters
+   and at the new 19px floor it needs 342px, which fits a 390 phone exactly
+   and runs off a 360 one. Below 420 the size tracks the viewport instead of
+   sitting on the floor. 4.3vw lands within a pixel of 19px at the boundary,
+   so there is no step. */
+@media (max-width: 420px) {
+  .hero h1 { font-size: 4.3vw; }
+}
+@media (max-width: 1100px) {
+  .hero { height: auto; padding: 120px 24px 80px; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-left { max-width: none; }
+}
+
+/* ── Console: the hero's product shot, drawn rather than photographed ──── */
+.console {
+  position: relative;
+  z-index: 5;
+  width: min(560px, 42vw);
+  padding: 18px;
+  border-radius: 26px;
+  background: var(--ink-panel);
+  box-shadow: var(--shadow-dark), 0 40px 60px -30px rgba(10, 13, 18, 0.55);
+  color: #e9eef5;
+}
+.console-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #8fa6c4;
+}
+.console-dot { width: 8px; height: 8px; border-radius: 50%; background: #253041; }
+.console-dot--live {
+  background: var(--accent-orange);
+  box-shadow: 0 0 10px hsla(var(--accent-hue), 92%, 60%, 0.9);
+}
+.console-head .spacer { margin-left: auto; opacity: 0.7; }
+.code {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #1b2230;
+  border-radius: 14px;
+  background: #0b0f15;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  white-space: pre;
+  overflow-x: auto;
+}
+.code .k { color: #7aa2ff; }
+.code .s { color: #7ee0a8; }
+.code .c { color: #56657c; }
+.console-out {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.out-tile {
+  padding: 10px 12px;
+  border: 1px solid #1b2230;
+  border-radius: 14px;
+  background: #0f141c;
+}
+.out-k {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6d829e;
+}
+.out-v { font-size: 17px; font-weight: 600; margin-top: 3px; }
+.meter { height: 4px; border-radius: 2px; background: #1b2230; margin-top: 8px; overflow: hidden; }
+.meter i {
+  display: block;
+  height: 100%;
+  width: var(--w, 60%);
+  background: linear-gradient(90deg, var(--accent-orange), var(--accent-soft));
+}
+
+/* ── Mono labels, metric chips ────────────────────────────── */
+.mono { font-family: var(--mono); }
+.quote-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px;
+  border-radius: 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent-orange);
+  background: hsla(var(--accent-hue), 92%, 52%, 0.1);
+  border: 1px solid hsla(var(--accent-hue), 92%, 52%, 0.25);
+}
+.review-card--dark .quote-metric {
+  color: #cfe0ff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+
+@media (max-width: 1100px) {
+  .console { width: min(560px, 86vw); }
+}
+@media (max-width: 760px) {
+  /* The version readout crowds the wordmark long before it is useful. */
+  .nav-right > div { display: none; }
+}
+
+@media (max-width: 1024px) {
+  .hero-bg-img {
+    height: 60vh;
+  }
+  .bg-text {
+    font-size: 20vw;
+    bottom: 25vh;
+  }
+  .hero-right {
+    position: relative;
+    top: 0;
+    right: 0;
+    align-items: flex-start;
+    margin-top: 40px;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 120px;
+    height: auto;
+    padding-bottom: 120px;
+  }
+  .s2-content {
+    flex-direction: column;
+    gap: 60px;
+  }
+  header {
+    mix-blend-mode: normal;
+    color: var(--text-dark);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 16px 24px;
+  }
+  .menu-btn {
+    color: var(--text-dark);
+    border-color: #ccc;
+  }
+  .nav-center {
+    display: none;
+  } /* Hide nav on mobile for simplicity */
+}
+
+/* --- Extended sections: responsive --- */
+@media (max-width: 1024px) {
+  .section { padding: 88px 24px; }
+  .section-head { flex-direction: column; align-items: flex-start; gap: 24px; margin-bottom: 48px; }
+  .review-summary { align-items: flex-start; }
+  .product-grid,
+  .step-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-panel { grid-template-columns: repeat(2, 1fr); margin-top: 72px; padding: 48px 40px; }
+  .stats-intro { grid-column: 1 / -1; }
+  .plan-panel { grid-template-columns: 1fr; }
+  .review-grid { grid-template-columns: repeat(2, 1fr); }
+  .review-card--dark { margin-top: 0; }
+  .faq-layout { grid-template-columns: 1fr; gap: 40px; }
+  .faq-intro { position: static; }
+  .consult-card { grid-template-columns: 1fr; gap: 40px; padding: 48px 40px; }
+  .ingredient-band { padding-bottom: 72px; }
+  .site-footer { padding: 72px 24px 24px; }
+  .footer-inner { grid-template-columns: repeat(3, 1fr); }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-wordmark { margin: 56px -24px 0; }
+}
+
+@media (max-width: 640px) {
+  .section { padding: 72px 20px; }
+  .product-grid,
+  .step-grid,
+  .review-grid { grid-template-columns: 1fr; }
+  .stats-panel { grid-template-columns: 1fr; padding: 40px 28px; border-radius: 32px; }
+  .plan-summary { padding: 28px; }
+  .pipe-row { grid-template-columns: auto 1fr; }
+  .pipe-step { display: none; }
+  .faq-q { padding: 20px 20px 20px 24px; font-size: 15px; }
+  .faq-a p { padding: 0 24px 24px; }
+  .consult-card { padding: 36px 24px; border-radius: 32px; }
+  .consult-form { padding: 20px; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+  .footer-bottom { flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+  .faq-a { transition: none; }
+}
+
+/* pressing either button inverts its relief, which is the whole interaction
+   language of this style */
+.btn:active { box-shadow: inset 0.2rem 0.2rem 1rem var(--primary-dark), inset -0.2rem -0.2rem 1rem var(--primary-light); }
+.btn-glass:active { box-shadow: var(--shadow-inset); }
+.btn-glass:hover { color: var(--primary); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <symbol id="dx-mark" viewBox="0 0 338.3 330">
+    <path d="M75.8,182.2h30.6v-32.5c0-23.6,19.1-43.3,43.3-43.3h33.8v-30.6h-76.5V0h-30.6v75.2H0v30.6h75.2v76.5h.6Z" />
+    <path d="M265,76.5h-51.6v30.6h51.6c23.6,0,43.3,19.1,43.3,43.3v105.8c0,23.6-19.1,43.3-43.3,43.3H106.4v-85.4h-30.6v116h189.2c40.8,0,73.3-33.1,73.3-73.3v-105.8c0-41.4-33.1-74.5-73.3-74.5Z" />
+  </symbol>
+</svg>
+
+<header class="gsap-nav">
+  <div class="logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 338.3 330" aria-hidden="true">
+      <path d="M75.8,182.2h30.6v-32.5c0-23.6,19.1-43.3,43.3-43.3h33.8v-30.6h-76.5V0h-30.6v75.2H0v30.6h75.2v76.5h.6Z" />
+      <path d="M265,76.5h-51.6v30.6h51.6c23.6,0,43.3,19.1,43.3,43.3v105.8c0,23.6-19.1,43.3-43.3,43.3H106.4v-85.4h-30.6v116h189.2c40.8,0,73.3-33.1,73.3-73.3v-105.8c0-41.4-33.1-74.5-73.3-74.5Z" />
+    </svg>
+    DERMEXCEL
+  </div>
+  <ul class="nav-center">
+    <li class="active" data-target=".hero">Platform</li>
+    <li data-target="#products">Modules</li>
+    <li data-target="#science">How it works</li>
+    <li data-target="#plans">Pipelines</li>
+    <li data-target="#faq">Docs</li>
+    <li data-target="#consult">Pricing</li>
+  </ul>
+  <div class="nav-right">
+    <div>
+      <span style="opacity: 0.6; font-size: 10px;">API</span><br>
+      v2.4 · 99.98% uptime
+    </div>
+    <div class="menu-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      MENU
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+
+  <div class="bg-text gsap-bg-text">DERMEXCEL</div>
+
+  <div class="hero-grid">
+    <div class="hero-left">
+      <h1 class="gsap-hero">Ship skin analysis<br>in a single<br><span class="accent">API call.</span></h1>
+
+      <div class="hero-actions gsap-hero">
+        <div class="btn-wrapper">
+          <button class="btn" data-target="#consult" data-label="Generate" data-label-busy="Generating">
+            <svg class="btn-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"></path>
+            </svg>
+            <span class="txt-wrapper">
+              <span class="txt-1">Generate</span>
+              <span class="txt-2">Generating</span>
+            </span>
+          </button>
+        </div>
+        <button class="btn-glass" data-target="#faq">Read the docs →</button>
+      </div>
+
+    </div>
+
+    <div class="hero-right">
+      <div class="console gsap-main-img" aria-label="Example request and response">
+        <div class="console-head">
+          <span class="console-dot console-dot--live"></span>
+          <span class="console-dot"></span>
+          <span class="console-dot"></span>
+          <span class="spacer">POST /v2/analyze · 218 ms</span>
+        </div>
+        <pre class="code"><span class="c"># one call, one lesion report</span>
+<span class="k">curl</span> https://api.dermexcel.dev/v2/analyze \
+  -H <span class="s">"Authorization: Bearer $DX_KEY"</span> \
+  -F <span class="s">"image=@lesion.png"</span> \
+  -F <span class="s">"pipeline=triage"</span></pre>
+        <div class="console-out">
+          <div class="out-tile">
+            <div class="out-k">Confidence</div>
+            <div class="out-v">0.94</div>
+            <div class="meter"><i style="--w: 94%"></i></div>
+          </div>
+          <div class="out-tile">
+            <div class="out-k">Priority</div>
+            <div class="out-v">P2</div>
+            <div class="meter"><i style="--w: 58%"></i></div>
+          </div>
+          <div class="out-tile">
+            <div class="out-k">Routed</div>
+            <div class="out-v">Derm</div>
+            <div class="meter"><i style="--w: 100%"></i></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="hero-footer gsap-nav">
+    <span>• Vision models</span>
+    <span>• Triage routing</span>
+    <span>• Scroll Down</span>
+  </div>
+</section>
+
+<section class="bottom-section">
+  <div class="wireframe-globe"></div>
+
+  <div class="s2-content">
+    <div class="s2-left gsap-s2">
+      <div class="about-label">
+        <div class="dot"></div> The platform
+      </div>
+      <div class="hub-info">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        Six regions · data stays in yours
+      </div>
+    </div>
+
+    <div class="s2-right gsap-s2">
+      <h2>One API for the whole skin pipeline:<br><span>capture, </span>classify, <span>route.</span></h2>
+
+      <div class="social-bar">
+        <div class="s-icons">
+          <span class="s-label">Follow the changelog</span>
+          <div class="s-icon orange">X</div>
+          <div class="s-icon">in</div>
+          <div class="s-icon">gh</div>
+        </div>
+        <div class="about-btn">
+          Read the changelog →
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pill-container">
+    <div class="giant-pill pill-white float-anim gsap-pill">Ship</div>
+    <div class="giant-pill pill-orange float-anim-alt gsap-pill">In</div>
+    <div class="giant-pill pill-black float-anim gsap-pill" data-target="#consult">
+      <svg viewBox="0 0 24 24">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </div>
+    <div class="giant-pill pill-gray float-anim-alt gsap-pill">Days</div>
+  </div>
+</section>
+
+<!-- ============ SDK marquee ============ -->
+<section class="ingredient-band" aria-label="Official SDKs">
+  <div class="marquee">
+    <div class="marquee-track">
+      <div class="chip"><span class="el" data-n="01">Ts</span>TypeScript</div>
+      <div class="chip chip--orange"><span class="el" data-n="02">Py</span>Python</div>
+      <div class="chip"><span class="el" data-n="03">Go</span>Go</div>
+      <div class="chip"><span class="el" data-n="04">Rs</span>Rust</div>
+      <div class="chip chip--dark"><span class="el" data-n="05">Kt</span>Kotlin</div>
+      <div class="chip"><span class="el" data-n="06">Sw</span>Swift</div>
+      <div class="chip"><span class="el" data-n="07">Rb</span>Ruby</div>
+      <div class="chip"><span class="el" data-n="08">Cs</span>C#</div>
+      <div class="chip"><span class="el" data-n="09">Jv</span>Java</div>
+      <div class="chip"><span class="el" data-n="10">Ph</span>PHP</div>
+    </div>
+    <div class="marquee-track" aria-hidden="true">
+      <div class="chip"><span class="el" data-n="01">Ts</span>TypeScript</div>
+      <div class="chip chip--orange"><span class="el" data-n="02">Py</span>Python</div>
+      <div class="chip"><span class="el" data-n="03">Go</span>Go</div>
+      <div class="chip"><span class="el" data-n="04">Rs</span>Rust</div>
+      <div class="chip chip--dark"><span class="el" data-n="05">Kt</span>Kotlin</div>
+      <div class="chip"><span class="el" data-n="06">Sw</span>Swift</div>
+      <div class="chip"><span class="el" data-n="07">Rb</span>Ruby</div>
+      <div class="chip"><span class="el" data-n="08">Cs</span>C#</div>
+      <div class="chip"><span class="el" data-n="09">Jv</span>Java</div>
+      <div class="chip"><span class="el" data-n="10">Ph</span>PHP</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Modules ============ -->
+<section class="section section--gray" id="products">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="gsap-reveal">
+        <div class="about-label"><div class="dot"></div> Modules</div>
+        <h2 class="section-title">Four modules.<br><span>One control plane.</span></h2>
+      </div>
+      <p class="section-sub gsap-reveal">Turn on what you need and leave the rest dark. Every module speaks the same event schema, so a pipeline is a list, not an integration project.</p>
+    </div>
+
+    <div class="product-grid">
+      <article class="product-card gsap-reveal">
+        <div class="product-stage">
+          <span class="product-badge">Inference</span>
+          <div class="mod-tilt" style="--tilt: -6deg">
+            <div class="mod float-mod">
+              <div class="mod-rail"></div>
+              <div class="mod-name">Vision API</div>
+              <div class="mod-face">
+                <div class="mod-bar"><i style="--w: 82%"></i></div>
+                <div class="mod-bar"><i style="--w: 46%"></i></div>
+                <div class="mod-pins"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <svg class="mod-mark" aria-hidden="true"><use href="#dx-mark"></use></svg>
+            </div>
+          </div>
+        </div>
+        <div class="product-info">
+          <div>
+            <h3>Vision API</h3>
+            <span class="product-for">Segmentation · Classification</span>
+          </div>
+          <div class="el-row">
+            <span class="el" data-n="01" title="Image intake">Img</span>
+            <span class="el" data-n="02" title="Segmentation">Seg</span>
+            <span class="el" data-n="03" title="Classification">Cls</span>
+            <span class="el" data-n="04" title="Confidence scoring">Cnf</span>
+          </div>
+          <div class="product-foot">
+            <span class="mono">v2.4 · 168 ms</span>
+            <button class="round-btn" aria-pressed="false" aria-label="Enable Vision API">+</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="product-card gsap-reveal">
+        <div class="product-stage">
+          <span class="product-badge">Routing</span>
+          <div class="mod-tilt" style="--tilt: 5deg">
+            <div class="mod float-mod">
+              <div class="mod-rail"></div>
+              <div class="mod-name">Triage Engine</div>
+              <div class="mod-face">
+                <div class="mod-bar"><i style="--w: 64%"></i></div>
+                <div class="mod-bar"><i style="--w: 88%"></i></div>
+                <div class="mod-pins"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <svg class="mod-mark" aria-hidden="true"><use href="#dx-mark"></use></svg>
+            </div>
+          </div>
+        </div>
+        <div class="product-info">
+          <div>
+            <h3>Triage Engine</h3>
+            <span class="product-for">Rules · Queues</span>
+          </div>
+          <div class="el-row">
+            <span class="el" data-n="05" title="Rule sets">Rul</span>
+            <span class="el" data-n="06" title="Priority model">Pri</span>
+            <span class="el" data-n="07" title="Queues">Que</span>
+          </div>
+          <div class="product-foot">
+            <span class="mono">v2.4 · 40 ms</span>
+            <button class="round-btn" aria-pressed="false" aria-label="Enable Triage Engine">+</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="product-card gsap-reveal">
+        <div class="product-stage">
+          <span class="product-badge">Data</span>
+          <div class="mod-tilt" style="--tilt: -4deg">
+            <div class="mod float-mod">
+              <div class="mod-rail"></div>
+              <div class="mod-name">Records Sync</div>
+              <div class="mod-face">
+                <div class="mod-bar"><i style="--w: 71%"></i></div>
+                <div class="mod-bar"><i style="--w: 35%"></i></div>
+                <div class="mod-pins"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <svg class="mod-mark" aria-hidden="true"><use href="#dx-mark"></use></svg>
+            </div>
+          </div>
+        </div>
+        <div class="product-info">
+          <div>
+            <h3>Records Sync</h3>
+            <span class="product-for">FHIR · HL7 · Webhooks</span>
+          </div>
+          <div class="el-row">
+            <span class="el" data-n="08" title="FHIR resources">Fhr</span>
+            <span class="el" data-n="09" title="HL7 v2 feeds">Hl7</span>
+            <span class="el" data-n="10" title="Webhooks">Whk</span>
+          </div>
+          <div class="product-foot">
+            <span class="mono">v2.4 · at-least-once</span>
+            <button class="round-btn" aria-pressed="false" aria-label="Enable Records Sync">+</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="product-card gsap-reveal">
+        <div class="product-stage">
+          <span class="product-badge product-badge--orange">New</span>
+          <div class="mod-tilt" style="--tilt: 7deg">
+            <div class="mod float-mod">
+              <div class="mod-rail"></div>
+              <div class="mod-name">Insights</div>
+              <div class="mod-face">
+                <div class="mod-bar"><i style="--w: 92%"></i></div>
+                <div class="mod-bar"><i style="--w: 58%"></i></div>
+                <div class="mod-pins"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <svg class="mod-mark" aria-hidden="true"><use href="#dx-mark"></use></svg>
+            </div>
+          </div>
+        </div>
+        <div class="product-info">
+          <div>
+            <h3>Insights</h3>
+            <span class="product-for">Warehouse · Dashboards</span>
+          </div>
+          <div class="el-row">
+            <span class="el" data-n="11" title="SQL access">Sql</span>
+            <span class="el" data-n="12" title="Scheduled exports">Exp</span>
+            <span class="el" data-n="13" title="Audit log">Aud</span>
+          </div>
+          <div class="product-foot">
+            <span class="mono">beta · daily sync</span>
+            <button class="round-btn" aria-pressed="false" aria-label="Enable Insights">+</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ How it works + numbers ============ -->
+<section class="section section--white" id="science">
+  <div class="wireframe-globe wireframe-globe--right"></div>
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="gsap-reveal">
+        <div class="about-label"><div class="dot"></div> How it works</div>
+        <h2 class="section-title">From upload<br><span>to a routed decision.</span></h2>
+      </div>
+      <p class="section-sub gsap-reveal">Four steps, all of them yours to call directly. Nothing here is a black box you cannot log, replay or export.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step-track"><div class="step-track-fill"></div></div>
+      <div class="step-grid">
+        <div class="step-card gsap-reveal">
+          <span class="step-num">01</span>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 16V4"></path><polyline points="7 9 12 4 17 9"></polyline><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg>
+          </div>
+          <h3>Ingest</h3>
+          <p>Post an image or stream a capture. Signed URLs, resumable uploads, EXIF stripped on arrival.</p>
+        </div>
+        <div class="step-card gsap-reveal">
+          <span class="step-num">02</span>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="M8 13l3-3 2 2 3-4"></path></svg>
+          </div>
+          <h3>Analyze</h3>
+          <p>Segmentation and classification run in one pass, with a confidence score and the crop each score came from.</p>
+        </div>
+        <div class="step-card gsap-reveal">
+          <span class="step-num">03</span>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M6 9v4a2 2 0 0 0 2 2h7"></path></svg>
+          </div>
+          <h3>Route</h3>
+          <p>Your rules decide what happens next: a queue, a clinician, a webhook, or straight into the record.</p>
+        </div>
+        <div class="step-card gsap-reveal">
+          <span class="step-num">04</span>
+          <div class="step-icon step-icon--orange">
+            <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"></path><polyline points="21 4 21 9 16 9"></polyline></svg>
+          </div>
+          <h3>Learn</h3>
+          <p>Every override is labelled feedback. Ship a new model version behind a flag and compare on live traffic.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-panel gsap-reveal">
+      <div class="stats-intro">
+        <div class="about-label about-label--light"><div class="dot"></div> In numbers</div>
+        <p>Run in production by teams who page someone when it breaks.</p>
+      </div>
+      <div class="stat"><span class="stat-num">99.98%</span><span class="stat-label">Uptime, trailing 90 days</span></div>
+      <div class="stat"><span class="stat-num" data-count="240" data-suffix=" ms">240 ms</span><span class="stat-label">p95 inference</span></div>
+      <div class="stat"><span class="stat-num" data-count="40" data-suffix="+">40+</span><span class="stat-label">Integrations</span></div>
+      <div class="stat"><span class="stat-num" data-count="6">6</span><span class="stat-label">Regions</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Pipelines ============ -->
+<section class="section section--gray" id="plans">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="gsap-reveal">
+        <div class="about-label"><div class="dot"></div> Pipelines</div>
+        <h2 class="section-title">Pick the workload.<br><span>We'll wire the pipeline.</span></h2>
+      </div>
+      <p class="section-sub gsap-reveal">Each pipeline is a template you can fork: same modules, different routing, thresholds and retention.</p>
+    </div>
+
+    <div class="plan-tabs gsap-reveal" role="tablist" aria-label="Pipelines">
+      <button class="plan-tab active" role="tab" id="tab-telederm" aria-selected="true" aria-controls="plan-panel" data-plan="telederm">Teledermatology</button>
+      <button class="plan-tab" role="tab" id="tab-triage" aria-selected="false" aria-controls="plan-panel" tabindex="-1" data-plan="triage">Triage</button>
+      <button class="plan-tab" role="tab" id="tab-screening" aria-selected="false" aria-controls="plan-panel" tabindex="-1" data-plan="screening">Screening</button>
+      <button class="plan-tab" role="tab" id="tab-research" aria-selected="false" aria-controls="plan-panel" tabindex="-1" data-plan="research">Research</button>
+      <button class="plan-tab" role="tab" id="tab-enterprise" aria-selected="false" aria-controls="plan-panel" tabindex="-1" data-plan="enterprise">Enterprise</button>
+    </div>
+
+    <div class="plan-panel gsap-reveal" id="plan-panel" role="tabpanel" aria-labelledby="tab-telederm">
+      <div class="plan-summary">
+        <span class="plan-kicker">Pipeline · 3 modules</span>
+        <h3 class="plan-title">Teledermatology</h3>
+        <p class="plan-desc">Patient-captured photos in, a scored report and a booked follow-up out, with the clinician always holding the final call.</p>
+        <div class="plan-focus"><span>Vision API</span><span>Records Sync</span><span>Webhooks</span></div>
+      </div>
+      <div class="plan-pipe">
+        <div class="pipe-row pipe-row--am">
+          <span class="pipe-time">IN</span>
+          <div><strong class="pipe-product">POST /v2/analyze</strong><span class="pipe-note">Signed upload from the patient app, EXIF stripped at the edge.</span></div>
+          <span class="pipe-step">Step 1</span>
+        </div>
+        <div class="pipe-row pipe-row--pm">
+          <span class="pipe-time">RUN</span>
+          <div><strong class="pipe-product">vision.v2 · triage.rules</strong><span class="pipe-note">Segment, classify, score, then apply your thresholds.</span></div>
+          <span class="pipe-step">Step 2</span>
+        </div>
+        <div class="pipe-row pipe-row--review">
+          <span class="pipe-time">OUT</span>
+          <div><strong class="pipe-product">webhook → FHIR DiagnosticReport</strong><span class="pipe-note">Written to the record with the crop and the score that produced it.</span></div>
+          <span class="pipe-step">Ongoing</span>
+        </div>
+        <p class="plan-note">Illustrative pipeline. Dermexcel is a fictional product built for this template; nothing here is a medical device or clinical advice.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Customers ============ -->
+<section class="section section--white" id="reviews">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="gsap-reveal">
+        <div class="about-label"><div class="dot"></div> Customers</div>
+        <h2 class="section-title">Shipped in a sprint.<br><span>Still running a year on.</span></h2>
+      </div>
+      <div class="review-summary gsap-reveal">
+        <span class="quote-metric">4.2M scans / month</span>
+      </div>
+    </div>
+
+    <div class="review-grid">
+      <figure class="review-card gsap-reveal">
+        <span class="quote-metric">−38% time to triage</span>
+        <blockquote>"We replaced a queue two people maintained by hand with eleven lines of pipeline config. The part I did not expect was being able to replay a week of traffic against a new model before switching."</blockquote>
+        <figcaption><span class="avatar">SM</span><span><strong>Sarah Mbeki</strong><em>Staff engineer · Northwind Health</em></span></figcaption>
+      </figure>
+      <figure class="review-card review-card--dark gsap-reveal">
+        <span class="quote-metric">3 days to production</span>
+        <blockquote>"Sandbox key on Monday, first real scans routed on Thursday. The SDK did what the docs said it would, which is rarer than it should be."</blockquote>
+        <figcaption><span class="avatar">JK</span><span><strong>James Kerr</strong><em>CTO · Clinic OS</em></span></figcaption>
+      </figure>
+      <figure class="review-card gsap-reveal">
+        <span class="quote-metric">0 PHI egress</span>
+        <blockquote>"Our regulator cares where the images live. Running the inference in our own region, with an audit log we can export, is what got this over the line."</blockquote>
+        <figcaption><span class="avatar">PR</span><span><strong>Priya Raman</strong><em>Head of platform · Meridian Care</em></span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section section--gray" id="faq">
+  <div class="section-inner faq-layout">
+    <div class="faq-intro gsap-reveal">
+      <div class="about-label"><div class="dot"></div> Developer FAQ</div>
+      <h2 class="section-title">Questions,<br><span>answered.</span></h2>
+      <p class="section-sub">Everything else is in the docs, and the docs are versioned with the API.</p>
+      <div class="btn-wrapper">
+        <button class="btn" data-target="#consult" data-label="Generate" data-label-busy="Generating">
+          <svg class="btn-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"></path>
+          </svg>
+          <span class="txt-wrapper">
+            <span class="txt-1">Generate</span>
+            <span class="txt-2">Generating</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item open gsap-reveal">
+        <button class="faq-q" id="faq-q-1" aria-expanded="true" aria-controls="faq-a-1">How does authentication work?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a-1" role="region" aria-labelledby="faq-q-1"><div><p>Project-scoped bearer keys, rotated from the dashboard or the API. Server-side keys can be pinned to an IP range; browser SDKs get short-lived tokens minted by your backend.</p></div></div>
+      </div>
+      <div class="faq-item gsap-reveal">
+        <button class="faq-q" id="faq-q-2" aria-expanded="false" aria-controls="faq-a-2">What are the rate limits?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a-2" role="region" aria-labelledby="faq-q-2"><div><p>60 requests per second per project on the standard plan, burst to 200. Every response carries the remaining budget, and a 429 tells you when to retry rather than making you guess.</p></div></div>
+      </div>
+      <div class="faq-item gsap-reveal">
+        <button class="faq-q" id="faq-q-3" aria-expanded="false" aria-controls="faq-a-3">Where does patient data live?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a-3" role="region" aria-labelledby="faq-q-3"><div><p>In the region you pick, and only there. Images can be dropped the moment a report is written, or kept for a retention window you set per pipeline. Every read is in the audit log.</p></div></div>
+      </div>
+      <div class="faq-item gsap-reveal">
+        <button class="faq-q" id="faq-q-4" aria-expanded="false" aria-controls="faq-a-4">Can we self-host?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a-4" role="region" aria-labelledby="faq-q-4"><div><p>The inference workers ship as a container you can run in your own VPC, with the control plane still managed. Model updates arrive as signed images you choose to promote.</p></div></div>
+      </div>
+      <div class="faq-item gsap-reveal">
+        <button class="faq-q" id="faq-q-5" aria-expanded="false" aria-controls="faq-a-5">What does the SLA cover?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-a-5" role="region" aria-labelledby="faq-q-5"><div><p>99.95% on the API and a p95 latency target per region, measured from our edge, with credits applied automatically from the same numbers on the status page.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Start building ============ -->
+<section class="section section--white" id="consult">
+  <div class="consult-card gsap-reveal">
+    <div class="consult-copy">
+      <div class="about-label about-label--light"><div class="dot"></div> Sandbox access</div>
+      <h2>Start building<br><span>on a live sandbox key.</span></h2>
+      <p>No sales call in the way. Tell us what you're building and the key lands in your inbox with a 10,000-scan sandbox quota.</p>
+    </div>
+    <form class="consult-form">
+      <label class="field">
+        <span>Work email</span>
+        <input type="email" name="email" placeholder="you@company.com" autocomplete="email" required>
+      </label>
+      <label class="field">
+        <span>What are you building?</span>
+        <select name="usecase" required>
+          <option value="" disabled selected>Select a pipeline</option>
+          <option>Teledermatology</option>
+          <option>Triage</option>
+          <option>Screening</option>
+          <option>Research</option>
+          <option>Enterprise</option>
+        </select>
+      </label>
+      <div class="btn-wrapper">
+        <button type="submit" class="btn" data-label="Generate key" data-label-busy="Generating">
+          <svg class="btn-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"></path>
+          </svg>
+          <span class="txt-wrapper" style="--label-width: 7.6em">
+            <span class="txt-1">Generate key</span>
+            <span class="txt-2">Generating</span>
+          </span>
+        </button>
+      </div>
+      <p class="form-status" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ Footer ============ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo">
+        <svg aria-hidden="true"><use href="#dx-mark"></use></svg>
+        DERMEXCEL
+      </div>
+      <p>A dermatology imaging API: capture, classify and route skin cases from one control plane.</p>
+      <div class="s-icons">
+        <div class="s-icon orange">X</div>
+        <div class="s-icon">in</div>
+        <div class="s-icon">gh</div>
+      </div>
+    </div>
+    <nav class="footer-col" aria-label="Platform">
+      <h4>Platform</h4>
+      <a href="#products">Vision API</a>
+      <a href="#products">Triage Engine</a>
+      <a href="#products">Records Sync</a>
+      <a href="#products">Insights</a>
+    </nav>
+    <nav class="footer-col" aria-label="Developers">
+      <h4>Developers</h4>
+      <a href="#faq">Quickstart</a>
+      <a href="#faq">API reference</a>
+      <a href="#plans">Pipeline templates</a>
+      <a href="#science">Status</a>
+    </nav>
+    <nav class="footer-col" aria-label="Company">
+      <h4>Company</h4>
+      <a href="#science">How it works</a>
+      <a href="#reviews">Customers</a>
+      <a href="#faq">Security</a>
+      <a href="#consult">Pricing</a>
+    </nav>
+  </div>
+
+  <div class="footer-wordmark" aria-hidden="true">DERMEXCEL</div>
+
+  <div class="footer-bottom">
+    <span>© <span id="year">2026</span> Dermexcel — a fictional product, built as a template.</span>
+    <span>us · eu · au regions</span>
+    <span><a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Status</a></span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* The generate button animates letter by letter, so each label has to be
+     split into spans. Doing it here rather than in the markup keeps the label
+     readable in the HTML — and readable on the page if this script never
+     runs, since the plain text is what it replaces. */
+  document.querySelectorAll(".btn .txt-1, .btn .txt-2").forEach((label) => {
+    const text = label.textContent.trim();
+    label.replaceChildren(
+      ...[...text].map((char) => {
+        const span = document.createElement("span");
+        span.className = "btn-letter";
+        // A space with no glyph collapses; keep the word gap visible.
+        span.textContent = char === " " ? "\u00a0" : char;
+        return span;
+      })
+    );
+  });
+
+  // 1. Initial Entrance Animations
+  const tl = gsap.timeline();
+
+  tl.from(".gsap-nav", {
+    y: -20,
+    opacity: 0,
+    duration: 0.8,
+    stagger: 0.2,
+    ease: "power2.out"
+  })
+    .from(
+      ".gsap-bg-text",
+      {
+        scale: 0.9,
+        opacity: 0,
+        duration: 1.5,
+        ease: "power2.out"
+      },
+      "-=0.8"
+    )
+    .from(
+      ".gsap-main-img",
+      {
+        y: 100,
+        opacity: 0,
+        duration: 1.5,
+        ease: "power3.out"
+      },
+      "-=1.2"
+    )
+    .from(
+      ".gsap-hero",
+      {
+        x: -30,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out"
+      },
+      "-=1"
+    );
+
+  // 2. Continuous Organic Floating (Clay Feeling)
+  gsap.utils.toArray(".float-anim").forEach((el, i) => {
+    gsap.to(el, {
+      y: "-=10",
+      rotation: "1",
+      duration: 2.5 + i * 0.2,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      delay: i * 0.1
+    });
+  });
+
+  gsap.utils.toArray(".float-anim-alt").forEach((el, i) => {
+    gsap.to(el, {
+      y: "+=10",
+      rotation: "-1",
+      duration: 2.8 + i * 0.2,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      delay: i * 0.15
+    });
+  });
+
+  gsap.to(".float-anim-slow", {
+    y: "-=15",
+    duration: 4,
+    repeat: -1,
+    yoyo: true,
+    ease: "sine.inOut"
+  });
+
+  // 3. Scroll Reveal & Parallax Animations
+
+  // Background Text Parallax
+  gsap.to(".bg-text", {
+    y: -150,
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".hero",
+      start: "top top",
+      end: "bottom top",
+      scrub: 1
+    }
+  });
+
+  // Main Product Image Parallax
+  gsap.to(".console", {
+    y: 50,
+    scale: 0.95,
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".hero",
+      start: "top top",
+      end: "bottom top",
+      scrub: true
+    }
+  });
+
+  // Bottom Section Text Reveal
+  gsap.from(".gsap-s2", {
+    y: 40,
+    opacity: 0,
+    duration: 1,
+    stagger: 0.2,
+    ease: "power3.out",
+    scrollTrigger: {
+      trigger: ".bottom-section",
+      start: "top 70%"
+    }
+  });
+
+  // Giant Pills Stagger Reveal
+  gsap.from(".gsap-pill", {
+    y: 60,
+    opacity: 0,
+    scale: 0.8,
+    rotation: () => gsap.utils.random(-8, 8),
+    duration: 1,
+    stagger: 0.15,
+    ease: "back.out(1.2)",
+    scrollTrigger: {
+      trigger: ".pill-container",
+      start: "top 85%"
+    }
+  });
+
+  // 4. Interactive Clay Button Press Effect
+  const clayButtons = document.querySelectorAll(".giant-pill, .clay-widget");
+  clayButtons.forEach((btn) => {
+    btn.addEventListener("mousedown", () => {
+      gsap.to(btn, { scale: 0.95, duration: 0.1 });
+    });
+    btn.addEventListener("mouseup", () => {
+      gsap.to(btn, { scale: 1, duration: 0.3, ease: "back.out(2)" });
+    });
+  });
+  // 5. Extended Sections
+
+  // Nav items and buttons that name a section scroll to it
+  document.querySelectorAll("[data-target]").forEach((el) => {
+    el.style.cursor = "pointer";
+    el.addEventListener("click", (e) => {
+      const target = document.querySelector(el.dataset.target);
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  // Section reveals: hide up front, then batch-reveal as they enter.
+  // clearProps hands transform back to CSS so :hover lifts keep working.
+  gsap.set(".gsap-reveal", { y: 40, opacity: 0 });
+  const revealBatch = (batch, duration = 0.9) =>
+    gsap.to(batch, {
+      y: 0,
+      opacity: 1,
+      duration,
+      stagger: 0.12,
+      ease: "power3.out",
+      clearProps: "transform",
+      overwrite: true
+    });
+
+  ScrollTrigger.batch(".gsap-reveal", {
+    start: "top 88%",
+    once: true,
+    onEnter: (batch) => revealBatch(batch)
+  });
+
+  /* A `once` batch only fires for elements that cross its start while you are
+     watching. Arrive already past it — an anchor link, a restored scroll
+     position, a jump from another page — and those sections stay at opacity 0
+     forever. So anything on screen gets revealed outright, now and on every
+     refresh, and the batch keeps handling everything below the fold. */
+  const revealOnScreen = () => {
+    const showing = gsap.utils
+      .toArray(".gsap-reveal")
+      .filter((el) => {
+        if (gsap.getProperty(el, "opacity") >= 1) return false;
+        const r = el.getBoundingClientRect();
+        return r.top < window.innerHeight * 0.95 && r.bottom > 0;
+      });
+    if (showing.length) revealBatch(showing, 0.5);
+  };
+  revealOnScreen();
+  ScrollTrigger.addEventListener("refresh", revealOnScreen);
+  // A jump lands in one frame, so the batch never sees the crossing that would
+  // fire onEnter. scrollEnd is the moment to check what we actually arrived at.
+  ScrollTrigger.addEventListener("scrollEnd", revealOnScreen);
+
+  // Module slabs float like the hero console
+  gsap.utils.toArray(".float-mod").forEach((el, i) => {
+    gsap.to(el, {
+      y: i % 2 ? "+=8" : "-=8",
+      duration: 2.6 + i * 0.25,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      delay: i * 0.2
+    });
+  });
+
+  /* iOS Safari does not focus a button on tap, and :focus is the only thing
+     driving the label swap. Mirror it with a class so a tap gets the same
+     "Generating" beat everywhere; the form's own handler keeps it latched. */
+  document.querySelectorAll(".btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.type === "submit") return;
+      btn.classList.add("is-busy");
+      clearTimeout(btn._busy);
+      btn._busy = setTimeout(() => btn.classList.remove("is-busy"), 2600);
+    });
+  });
+
+  // Module enable toggle
+  document.querySelectorAll(".round-btn").forEach((btn) => {
+    const name = (btn.getAttribute("aria-label") || "").replace(/^Enable /, "");
+    btn.addEventListener("click", () => {
+      const added = btn.classList.toggle("added");
+      btn.textContent = added ? "✓" : "+";
+      btn.setAttribute("aria-pressed", String(added));
+      btn.setAttribute("aria-label", `${added ? "Disable" : "Enable"} ${name}`);
+      gsap.fromTo(btn, { scale: 0.8 }, { scale: 1, duration: 0.4, ease: "back.out(3)", clearProps: "transform" });
+    });
+  });
+
+  // Pipeline steps: the accent track fills as you scroll through them
+  gsap.fromTo(
+    ".step-track-fill",
+    { scaleX: 0 },
+    {
+      scaleX: 1,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".steps",
+        start: "top 80%",
+        end: "bottom 55%",
+        scrub: true
+      }
+    }
+  );
+
+  // Stat counters
+  document.querySelectorAll(".stat-num[data-count]").forEach((el) => {
+    const target = Number(el.dataset.count);
+    const suffix = el.dataset.suffix || "";
+    const counter = { v: 0 };
+    const format = () => Math.round(counter.v).toLocaleString("en-US") + suffix;
+    el.textContent = format();
+    gsap.to(counter, {
+      v: target,
+      duration: 1.8,
+      ease: "power2.out",
+      onUpdate: () => (el.textContent = format()),
+      scrollTrigger: { trigger: el, start: "top 85%", once: true }
+    });
+  });
+
+  // Pipeline tabs
+  const plans = {
+    telederm: {
+      modules: 3,
+      desc: "Patient-captured photos in, a scored report and a booked follow-up out, with the clinician always holding the final call.",
+      focus: ["Vision API", "Records Sync", "Webhooks"],
+      am: ["POST /v2/analyze", "Signed upload from the patient app, EXIF stripped at the edge."],
+      pm: ["vision.v2 · triage.rules", "Segment, classify, score, then apply your thresholds."],
+      out: ["webhook → FHIR DiagnosticReport", "Written to the record with the crop and the score that produced it."]
+    },
+    triage: {
+      modules: 2,
+      desc: "Rank the inbox. Every case arrives scored, ordered and assigned, so the queue is worked in the order that matters.",
+      focus: ["Triage Engine", "Queues", "Audit log"],
+      am: ["POST /v2/analyze?pipeline=triage", "Batch or single, straight from the intake form."],
+      pm: ["triage.rules · priority.v3", "Thresholds you own, versioned like code and replayable."],
+      out: ["queue.assign → on-call derm", "Escalation and SLA timers start the moment a case is scored."]
+    },
+    screening: {
+      modules: 3,
+      desc: "High-volume, low-friction passes over a population, tuned so the recall you care about is the one being optimised.",
+      focus: ["Vision API", "Insights", "Exports"],
+      am: ["stream://capture-kiosk", "Resumable uploads from clinic hardware, offline tolerant."],
+      pm: ["vision.v2 · cohort.tags", "One pass per subject, results tagged to the cohort."],
+      out: ["nightly export → warehouse", "Parquet in your bucket, plus a signed summary per run."]
+    },
+    research: {
+      modules: 2,
+      desc: "Frozen model versions, deterministic runs and an export of everything, so a result can be reproduced a year later.",
+      focus: ["Model pinning", "Insights", "Audit log"],
+      am: ["POST /v2/analyze?model=vision.v2.1", "Pin the version; it stays available after it is retired."],
+      pm: ["deterministic · seed=fixed", "Same input, same output, with the full score vector kept."],
+      out: ["dataset.export", "Images, scores and overrides, with the manifest that ties them together."]
+    },
+    enterprise: {
+      modules: 4,
+      desc: "Everything in your own VPC: inference workers you run, a control plane we keep, and the audit trail your regulator asks for.",
+      focus: ["Self-hosted workers", "SSO", "Custom SLA"],
+      am: ["ingress → your VPC", "Images never leave the region or the account you choose."],
+      pm: ["signed worker image", "Model updates arrive signed; you decide what gets promoted."],
+      out: ["audit → your SIEM", "Every read and override streamed out as it happens."]
+    }
+  };
+
+  const tabs = [...document.querySelectorAll(".plan-tab")];
+  const planPanel = document.querySelector(".plan-panel");
+  const planParts = planPanel.querySelectorAll(".plan-summary, .plan-pipe");
+
+  const renderPlan = (tab) => {
+    const p = plans[tab.dataset.plan];
+    planPanel.setAttribute("aria-labelledby", tab.id);
+    planPanel.querySelector(".plan-kicker").textContent = `Pipeline · ${p.modules} modules`;
+    planPanel.querySelector(".plan-title").textContent = tab.textContent;
+    planPanel.querySelector(".plan-desc").textContent = p.desc;
+    const focus = planPanel.querySelector(".plan-focus");
+    focus.replaceChildren(
+      ...p.focus.map((f) => Object.assign(document.createElement("span"), { textContent: f }))
+    );
+    [
+      [".pipe-row--am", p.am],
+      [".pipe-row--pm", p.pm],
+      [".pipe-row--review", p.out]
+    ].forEach(([row, [product, note]]) => {
+      planPanel.querySelector(`${row} .pipe-product`).textContent = product;
+      planPanel.querySelector(`${row} .pipe-note`).textContent = note;
+    });
+  };
+
+  const selectPlan = (tab) => {
+    if (tab.classList.contains("active")) return;
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.classList.toggle("active", on);
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+    });
+    gsap.to(planParts, {
+      opacity: 0,
+      y: 12,
+      duration: 0.2,
+      stagger: 0.05,
+      overwrite: true,
+      onComplete: () => {
+        renderPlan(tab);
+        gsap.to(planParts, { opacity: 1, y: 0, duration: 0.45, stagger: 0.08, ease: "power3.out" });
+      }
+    });
+  };
+
+  tabs.forEach((tab) => tab.addEventListener("click", () => selectPlan(tab)));
+  document.querySelector(".plan-tabs").addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    const next = tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+    next.focus();
+    selectPlan(next);
+  });
+
+  // FAQ accordion: one open at a time
+  const faqItems = document.querySelectorAll(".faq-item");
+  faqItems.forEach((item) => {
+    const q = item.querySelector(".faq-q");
+    q.addEventListener("click", () => {
+      const open = !item.classList.contains("open");
+      faqItems.forEach((other) => {
+        other.classList.remove("open");
+        other.querySelector(".faq-q").setAttribute("aria-expanded", "false");
+      });
+      item.classList.toggle("open", open);
+      q.setAttribute("aria-expanded", String(open));
+    });
+  });
+
+  // Sandbox request (demo: nothing is sent)
+  const form = document.querySelector(".consult-form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    const btn = form.querySelector("button[type=submit]");
+    // is-busy holds the button in the state a click would only hold while
+    // focused, so the label stays on "Generating" after focus moves away.
+    btn.classList.add("is-busy");
+    btn.disabled = true;
+    form.querySelector(".form-status").textContent =
+      "Key on its way — check your inbox for a sandbox key and the quickstart.";
+    gsap.fromTo(btn, { scale: 0.95 }, { scale: 1, duration: 0.4, ease: "back.out(2)", clearProps: "transform" });
+  });
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Webfont swap can shift section heights; re-measure trigger positions
+  window.addEventListener("load", () => {
+    ScrollTrigger.refresh();
+    revealOnScreen();
+  });
+});
+</script>
+</body>
+</html>

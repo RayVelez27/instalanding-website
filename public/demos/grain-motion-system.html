@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en" data-way="rose">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GRAIN — a motion and surface system</title>
+<meta name="description" content="GRAIN is a fictional motion and surface system: four easing curves, five durations, and a grainy gradient that sets the accent for every component." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ==========================================================
+   GRAIN — one system, two halves that have to agree:
+
+   1. the MOTION half: four easing curves, five durations, and
+      the transition shorthands built from them. Nothing on this
+      page animates with a number that is not in this table.
+   2. the SURFACE half: a radial gradient run through an
+      feTurbulence displacement map. That grain is the only
+      artwork, and the three stops that make it ALSO set the
+      page's accent, so changing the colourway re-themes every
+      component at once.
+
+   Warm paper everywhere else: the shadows are brown-tinted
+   rather than black, which is what keeps #f5f3ef from reading
+   as dirty white.
+   ========================================================== */
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+:root{
+  /* ── easing ── */
+  --ease-enter:    cubic-bezier(0.0, 0.0, 0.2, 1.0);
+  --ease-exit:     cubic-bezier(0.4, 0.0, 1.0, 1.0);
+  --ease-standard: cubic-bezier(0.4, 0.0, 0.2, 1.0);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1.0);
+
+  /* ── durations ── */
+  --d-micro:    80ms;
+  --d-fast:     120ms;
+  --d-standard: 200ms;
+  --d-moderate: 280ms;
+  --d-slow:     400ms;
+
+  /* ── transition shorthands, composed from the two tables ── */
+  --t-color:   color var(--d-micro) var(--ease-standard),
+               background-color var(--d-fast) var(--ease-standard);
+  --t-lift:    transform var(--d-fast) var(--ease-spring),
+               box-shadow var(--d-fast) var(--ease-standard);
+  --t-enter:   opacity var(--d-standard) var(--ease-enter),
+               transform var(--d-standard) var(--ease-enter);
+  --t-exit:    opacity var(--d-fast) var(--ease-exit),
+               transform var(--d-fast) var(--ease-exit);
+
+  /* ── surfaces ── */
+  --bg:            #f5f3ef;
+  --surface:       #fdfcf9;
+  --surface-2:     #eeece7;
+  --surface-3:     #e6e3dc;
+  --brand:         #0d0d1a;
+  --brand-hover:   #1a1a33;
+
+  /* ── borders ── */
+  --border:        #dedad2;
+  --border-strong: #c4bfb5;
+
+  /* ── text ── */
+  --text:        #18140f;
+  --text-2:      #453d33;
+  --text-muted:  #8a7d6e;
+  --text-inverse:#f7f5f0;
+  --text-ph:     #b0a898;
+
+  /* ── warm shadows ── */
+  --shadow-sm:   0 1px 3px rgba(90,55,20,.07), 0 0 0 1px rgba(90,55,20,.04);
+  --shadow-md:   0 4px 16px rgba(90,55,20,.09), 0 1px 4px rgba(90,55,20,.05);
+  --shadow-lg:   0 12px 40px rgba(90,55,20,.12), 0 2px 8px rgba(90,55,20,.06);
+  --shadow-lift: 0 8px 28px rgba(90,55,20,.14), 0 2px 6px rgba(90,55,20,.08);
+
+  /* ── type ── */
+  --f-display: "Space Grotesk", "Inter", sans-serif;
+  --f-ui:      "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --f-mono:    "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+
+  /* the button's travelling arrow, masked so it takes currentColor */
+  --arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 12h13M12 6l6 6-6 6' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+  /* ── colourway: three gradient stops and the accent they imply ── */
+  --c1:#f3ecde; --c2:#e581a2; --c3:#fce3ec;
+  --accent:#c24a6d;
+}
+[data-way="amber"]{ --c1:#f7f0dc; --c2:#e0a24a; --c3:#fdf1d9; --accent:#a96a1e; }
+[data-way="cyan"] { --c1:#e6f2f0; --c2:#4aa8b8; --c3:#ddf1f4; --accent:#256f7c; }
+[data-way="violet"]{ --c1:#efe9f7; --c2:#8f7ae0; --c3:#ece6fb; --accent:#5c48b8; }
+:root{
+  --accent-soft: color-mix(in srgb, var(--accent) 8%, transparent);
+  --accent-mid:  color-mix(in srgb, var(--accent) 20%, transparent);
+  --accent-glow: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+body{
+  font-family:var(--f-ui);
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+a{ color:inherit; }
+::selection{ background:var(--accent); color:#fff; }
+:focus-visible{ outline:3px solid var(--accent-mid); outline-offset:2px; border-radius:4px; }
+
+/* ==========================================================
+   THE GRAIN — a radial gradient displaced by animated noise.
+   Two things make it work:
+   · the element is drawn 110% and pulled back 5%, because the
+     default filter region clips at +10% and the displacement
+     drags pixels past the edge
+   · the seed animates in discrete steps, so it flickers like
+     film rather than sliding like a gradient
+   ========================================================== */
+.grain{ position:relative; overflow:hidden; isolation:isolate; }
+.grain::before{
+  content:""; position:absolute; inset:-5%;
+  width:110%; height:110%;
+  background:radial-gradient(circle at 50% 100%,
+    var(--g1, var(--c1)) 20%,
+    var(--g2, var(--c2)) 40% 50%,
+    var(--g3, var(--c3)) 55%) no-repeat center / auto;
+  filter:url(#grain-noise);
+}
+.grain--rose  { --g1:#f3ecde; --g2:#e581a2; --g3:#fce3ec; }
+.grain--amber { --g1:#f7f0dc; --g2:#e0a24a; --g3:#fdf1d9; }
+.grain--cyan  { --g1:#e6f2f0; --g2:#4aa8b8; --g3:#ddf1f4; }
+.grain--violet{ --g1:#efe9f7; --g2:#8f7ae0; --g3:#ece6fb; }
+/* a quieter displacement for the small chips, which fall apart
+   at the full scale the hero panel uses */
+.grain--soft::before{ filter:url(#grain-noise-soft); }
+.noise-defs{ position:absolute; width:0; height:0; }
+
+/* ==========================================================
+   LAYOUT
+   ========================================================== */
+.wrap{ width:min(1080px,100%); margin:0 auto; padding:0 28px; }
+/* ══════════════════════════════════════════════════════════
+   DITHER
+   A second grain, and a different animal from the hero's.
+   The hero panel is a smooth gradient pushed through an
+   feTurbulence displacement — continuous tone, warped. This is
+   the opposite: a hard ordered break-up, where a colour holds
+   solid and then falls apart into loose pixels.
+
+   The trick is two mask layers. One is a 65x65 PNG of random
+   alpha, tiled; the other is a radial gradient. Mask layers
+   composite with add by default, and that default is the
+   effect, not a thing to correct: where the gradient is opaque
+   it wins and the colour stays solid, and only through the
+   gradient's soft band does the noise get a say and scatter the
+   edge into pixels. Force the layers to intersect and the
+   whole shape dissolves at once, which is a different look and
+   not this one.
+
+   image-rendering:pixelated keeps the 65px tile crisp when the
+   browser scales it; without it the dots blur back into a
+   gradient and the whole point is lost.
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --dither:url("data:image/png;base64,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");
+  /* the pen's palette, kept whole: these are swatches, and a swatch wall
+     that has been re-tinted to match the page proves nothing */
+  --d-violet:#7f5fff; --d-pink:#fa709a;  --d-coral:#ff9673;
+  --d-amberz:#fec440; --d-mint:#72f9c1;  --d-blue:#5193ff;
+  --d-hot:#fd2472;    --d-grape:#5e21d6; --d-rose:#e7627d;
+  --d-plum:#3d1635;   --d-cream:#ffecd2;
+}
+
+.dith{
+  position:relative; display:inline-block;
+  width:130px; height:130px;
+  background-color:var(--dith-bg, var(--d-cream));
+  box-shadow:-5px 18px 25px -15px rgba(90,55,20,.75);
+  overflow:hidden;
+  image-rendering:pixelated;
+  transition:transform var(--d-standard) var(--ease-spring);
+}
+/* 400% wide with the gradient repeating every 50% of the element: the
+   hover animation slides it exactly one tile, so the loop has no seam */
+.dith::before,
+.dith::after{
+  content:""; position:absolute; top:0; left:0; display:block;
+  height:100%; width:400%;
+}
+.dith::before{
+  background:repeat-x 100% 0 / 50% 100%
+    radial-gradient(circle at 50% 0, transparent 25%, var(--d1, var(--d-violet)) 65%);
+  -webkit-mask:var(--dither), radial-gradient(circle at 50% 0, transparent 5%, #000 80%) 0 0 / 50% 100%;
+          mask:var(--dither), radial-gradient(circle at 50% 0, transparent 5%, #000 80%) 0 0 / 50% 100%;
+}
+.dith:hover{ transform:scale(1.05); }
+.dith:hover::before, .dith:hover::after{ animation:dith-roll 3.5s linear infinite; }
+@keyframes dith-roll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+/* second and third colours, each on its own band of the same sweep */
+.dith--two::before{
+  background:repeat-x 100% 0 / 50% 100%
+    radial-gradient(circle at 50% 0, transparent 15%, var(--d1) 45%);
+}
+.dith--two::after{
+  background:repeat-x 100% 0 / 50% 100%
+    radial-gradient(circle at 50% 0, transparent 50%, var(--d2) 75%);
+  -webkit-mask:var(--dither), radial-gradient(circle at 50% 0, transparent 40%, #000 90%) 0 0 / 50% 100%;
+          mask:var(--dither), radial-gradient(circle at 50% 0, transparent 40%, #000 90%) 0 0 / 50% 100%;
+}
+
+/* ── shapes ── */
+.dith--sphere { border-radius:50%; }
+.dith--egg    { width:100px; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%; }
+.dith--pudding{ border-radius:50% 50% 10% 10%; }
+.dith--vase   { width:80px; border-radius:40% 40% 70% 70% / 100%; }
+.dith--droplet{
+  width:100px; height:100px;
+  border-radius:5% 100% 50% 65% / 5% 65% 50% 100%;
+  transform:rotate(45deg);
+  box-shadow:5px 18px 25px -15px rgba(90,55,20,.75);
+}
+.dith--droplet:hover{ transform:rotate(45deg) scale(1.05); }
+
+/* the swatch wall */
+/* a grid, not flex-wrap: the captions are wider than the shapes and of
+   different lengths, so a wrapping flex row breaks after five and leaves one
+   shape stranded on a line of its own */
+.dith-wall{
+  display:grid; grid-template-columns:repeat(6, 1fr);
+  align-items:end; gap:30px 20px; margin-top:30px;
+}
+@media (max-width:900px){ .dith-wall{ grid-template-columns:repeat(3, 1fr); } }
+@media (max-width:560px){ .dith-wall{ grid-template-columns:repeat(2, 1fr); } }
+.dith-cell{ text-align:center; }
+.dith-cell figcaption{
+  margin-top:14px; font-family:var(--f-mono); font-size:11px;
+  letter-spacing:.06em; color:var(--text-muted);
+}
+
+/* the three cards under the hero take the dither too, but driven by
+   --accent so the colourway switcher still re-tints them */
+.card-art.dith{
+  display:block; width:100%; height:74px;
+  border-radius:7px; margin-bottom:16px;
+  --d1:var(--accent);
+  --dith-bg:var(--surface-2);
+  box-shadow:var(--shadow-sm);
+}
+.card-art.dith:hover{ transform:none; }
+
+@media (prefers-reduced-motion: reduce){
+  .dith:hover{ transform:none; }
+  .dith--droplet:hover{ transform:rotate(45deg); }
+  .dith:hover::before, .dith:hover::after{ animation:none; }
+}
+
+.band{ padding:88px 0; border-top:1px solid var(--border); }
+.band--flush{ border-top:0; }
+.rule{ height:1px; background:var(--border); border:0; }
+
+.eyebrow{
+  font-family:var(--f-ui); font-size:10.5px; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted);
+}
+.sec-label{
+  font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--accent); display:flex; align-items:center; gap:14px; margin-bottom:34px;
+  transition:color var(--d-standard) var(--ease-standard);
+}
+.sec-label::after{ content:""; flex:1; height:1px; background:var(--border); }
+.sec-label .dot{
+  width:14px; height:14px; border-radius:4px; flex:0 0 auto;
+  box-shadow:var(--shadow-sm);
+}
+h2.band-title{
+  font-family:var(--f-display); font-size:clamp(26px,3.4vw,38px);
+  font-weight:500; letter-spacing:-.03em; line-height:1.12; margin-bottom:14px;
+}
+h2.band-title strong{ font-weight:700; }
+.band-sub{ font-size:14.5px; color:var(--text-muted); max-width:56ch; margin-bottom:38px; }
+.mono{ font-family:var(--f-mono); font-size:11px; color:var(--text-muted); }
+
+/* ==========================================================
+   NAV
+   ========================================================== */
+.nav{
+  position:sticky; top:0; z-index:60;
+  background:color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.nav-in{ display:flex; align-items:center; gap:20px; height:60px; }
+.brand{ display:flex; align-items:center; gap:11px; margin-right:auto; text-decoration:none; }
+.brand .mark{ width:26px; height:26px; border-radius:7px; box-shadow:var(--shadow-sm); }
+.brand b{ font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-.02em; }
+.nav-links{ display:flex; gap:22px; }
+.nav-links a{
+  font-size:13px; font-weight:500; color:var(--text-muted); text-decoration:none;
+  transition:var(--t-color);
+}
+.nav-links a:hover{ color:var(--text); }
+.nav .nav-burger{ display:none; }
+@media (max-width:880px){
+  .nav-links{
+    display:none; position:absolute; top:60px; left:0; right:0;
+    flex-direction:column; gap:0; padding:8px 28px 14px;
+    background:var(--bg); border-bottom:1px solid var(--border);
+  }
+  .nav-links.open{ display:flex; }
+  .nav-links a{ padding:11px 0; border-bottom:1px solid var(--border); }
+  .nav .nav-burger{ display:inline-flex; }
+}
+
+/* ==========================================================
+   HERO
+   ========================================================== */
+.hero{ padding:80px 0 76px; }
+.hero-grid{ display:grid; grid-template-columns:1.06fr .94fr; gap:56px; align-items:center; }
+.hero h1{
+  font-family:var(--f-display); font-size:clamp(38px,5.4vw,60px); font-weight:300;
+  letter-spacing:-.045em; line-height:1.05; margin:14px 0 0;
+}
+.hero h1 strong{ font-weight:700; }
+.hero p.lede{ font-size:15.5px; color:var(--text-muted); max-width:46ch; margin:18px 0 26px; }
+.hero-cta{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.install{
+  display:inline-flex; align-items:center; gap:10px; margin-top:26px;
+  font-family:var(--f-mono); font-size:12px; color:var(--text-2);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:7px; padding:9px 12px; box-shadow:var(--shadow-sm);
+}
+.install .dollar{ color:var(--text-muted); }
+.install button{
+  margin-left:4px; font-family:var(--f-ui); font-size:10.5px; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted);
+  background:none; border:0; cursor:pointer; transition:var(--t-color);
+}
+.install button:hover{ color:var(--accent); }
+
+/* the hero art: the grain panel with a real component floating on it */
+.hero-art{ position:relative; }
+.art-panel{
+  aspect-ratio:1/1; width:100%; border-radius:16px;
+  box-shadow:var(--shadow-lg);
+}
+.art-cap{
+  position:absolute; left:26px; top:22px; z-index:2;
+  font-family:var(--f-display); font-size:30px; font-weight:600;
+  line-height:1.15; letter-spacing:-.035em; color:var(--accent);
+  transition:color var(--d-standard) var(--ease-standard);
+}
+/* Under the caption rather than over the gradient's saturated band: the
+   floating card covers the lower right, and the bottom of the gradient is
+   cream, so there is nowhere down there that holds white type. */
+.art-sub{
+  position:absolute; left:26px; top:98px; z-index:2;
+  font-size:12.5px; font-weight:400; color:var(--accent); opacity:.72;
+  white-space:nowrap;
+  transition:color var(--d-standard) var(--ease-standard);
+}
+.art-float{
+  position:absolute; right:-18px; bottom:-20px; z-index:3; width:236px;
+}
+@media (max-width:900px){
+  .hero-grid{ grid-template-columns:1fr; gap:40px; }
+  .art-float{ right:8px; bottom:-14px; }
+}
+
+/* ==========================================================
+   COMPONENTS — every one of these is the reference component
+   set, with one change: anything that was a fixed accent now
+   reads --accent, so the colourway switch re-themes the lot.
+   ========================================================== */
+
+/* ── buttons ──────────────────────────────────────────────
+   Adapted from the Uiverse button by ryota1231. The shape and
+   the choreography are his: a pill that squares off to 12px on
+   hover, a ring that expands and vanishes, a dot that grows
+   into a full fill, the label sliding right while one arrow
+   leaves and another arrives.
+
+   Everything about the TIMING is ours. The original runs on
+   0.6s and 0.8s of cubic-bezier(0.23, 1, 0.32, 1); a page whose
+   headline is "fewer curves" cannot quietly add a fifth one, so
+   the travel is --d-slow on --ease-enter, the fill is
+   --d-moderate, colour is --d-fast, and the press stays at the
+   system's hard 60ms. It reads the same and it is still nine
+   numbers rather than eleven.
+
+   Three pseudo-elements do it with no extra markup beyond a
+   label span: the circle on .btn::before, and the two arrows on
+   the label's own ::before and ::after, positioned against the
+   button. Buttons that already carry an inline icon skip the
+   arrows and keep everything else.
+   ─────────────────────────────────────────────────────────── */
+.btn{
+  position:relative; isolation:isolate; overflow:hidden;
+  font-family:var(--f-ui); font-size:13px; font-weight:600;
+  padding:11px 24px; border-radius:100px; border:1px solid transparent;
+  cursor:pointer; letter-spacing:.005em;
+  display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  transition:
+    border-radius var(--d-slow) var(--ease-enter),
+    box-shadow var(--d-moderate) var(--ease-standard),
+    background-color var(--d-fast) var(--ease-standard),
+    border-color var(--d-fast) var(--ease-standard),
+    color var(--d-fast) var(--ease-standard),
+    transform 60ms var(--ease-standard);
+}
+/* the dot that becomes the fill. isolation + z-index:-1 puts it
+   above the button's own background and below its label. */
+.btn::before{
+  content:""; position:absolute; top:50%; left:50%; z-index:-1;
+  width:18px; height:18px; border-radius:50%;
+  background:var(--fill, var(--accent));
+  transform:translate(-50%,-50%); opacity:0;
+  transition:
+    width var(--d-moderate) var(--ease-enter),
+    height var(--d-moderate) var(--ease-enter),
+    opacity var(--d-fast) var(--ease-standard);
+}
+.btn:hover{ border-radius:12px; }
+.btn:hover::before{ width:340px; height:340px; opacity:1; }
+.btn:active{ transform:scale(.96); }
+
+/* the label and its two arrows */
+.btn .t{
+  position:relative; z-index:1;
+  transition:transform var(--d-slow) var(--ease-enter);
+}
+.btn--arrow{ padding-right:46px; padding-left:28px; }
+.btn--arrow .t{ transform:translateX(-8px); }
+.btn--arrow:hover .t{ transform:translateX(8px); }
+.btn--arrow .t::before,
+.btn--arrow .t::after{
+  content:""; position:absolute; top:50%; width:17px; height:17px;
+  margin-top:-8.5px; background:currentColor;
+  -webkit-mask:var(--arrow) center/contain no-repeat;
+          mask:var(--arrow) center/contain no-repeat;
+  transition:right var(--d-slow) var(--ease-enter),
+             left var(--d-slow) var(--ease-enter);
+}
+.btn--arrow .t::after{ right:-30px; }
+.btn--arrow .t::before{ left:-48px; }
+.btn--arrow:hover .t::after{ right:-92px; }
+.btn--arrow:hover .t::before{ left:-26px; }
+
+/* variants: each owns a fill colour, and the ring is what
+   expands to nothing as the fill arrives */
+.btn-primary{
+  background:var(--brand); color:var(--text-inverse); border-color:var(--brand);
+  --fill:var(--accent);
+  box-shadow:var(--shadow-sm), 0 0 0 2px var(--surface);
+}
+.btn-primary:hover{ box-shadow:var(--shadow-lift), 0 0 0 10px transparent; }
+.btn-primary:active{ box-shadow:var(--shadow-sm), 0 0 0 3px var(--accent-mid); }
+
+.btn-secondary{
+  background:var(--surface); color:var(--text-2); border-color:var(--border-strong);
+  --fill:var(--accent-soft);
+  box-shadow:var(--shadow-sm), 0 0 0 2px var(--surface);
+}
+.btn-secondary:hover{
+  color:var(--text); border-color:var(--accent-mid);
+  box-shadow:var(--shadow-md), 0 0 0 10px transparent;
+}
+.btn-secondary:active{ box-shadow:0 0 0 3px var(--accent-mid); }
+
+.btn-ghost{
+  background:transparent; color:var(--text-2); border-color:transparent;
+  --fill:var(--surface-2);
+}
+.btn-ghost:hover{ color:var(--text); }
+
+.btn-danger{
+  background:var(--accent-soft); color:var(--accent); border-color:var(--accent-mid);
+  --fill:var(--accent);
+  box-shadow:0 0 0 2px var(--surface);
+}
+.btn-danger:hover{
+  color:#fff; border-color:var(--accent);
+  box-shadow:0 4px 16px var(--accent-glow), 0 0 0 10px transparent;
+}
+.btn-danger:active{ box-shadow:0 0 0 3px var(--accent-mid); }
+
+/* the icon button gets the same choreography at 36px: a circle
+   that squares off, filled from the middle by the same dot */
+.btn-icon{
+  position:relative; isolation:isolate; overflow:hidden;
+  width:36px; height:36px; padding:0; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid var(--border); background:var(--surface); color:var(--text-muted);
+  cursor:pointer; --fill:var(--accent-soft);
+  box-shadow:0 0 0 2px var(--surface);
+  transition:
+    border-radius var(--d-slow) var(--ease-enter),
+    box-shadow var(--d-moderate) var(--ease-standard),
+    color var(--d-micro) var(--ease-standard),
+    border-color var(--d-fast) var(--ease-standard),
+    transform 60ms var(--ease-standard);
+}
+.btn-icon::before{
+  content:""; position:absolute; top:50%; left:50%; z-index:-1;
+  width:10px; height:10px; border-radius:50%; background:var(--fill);
+  transform:translate(-50%,-50%); opacity:0;
+  transition:width var(--d-moderate) var(--ease-enter),
+             height var(--d-moderate) var(--ease-enter),
+             opacity var(--d-fast) var(--ease-standard);
+}
+.btn-icon:hover{
+  border-radius:12px; color:var(--accent); border-color:var(--accent-mid);
+  box-shadow:0 0 0 8px transparent;
+}
+.btn-icon:hover::before{ width:66px; height:66px; opacity:1; }
+.btn-icon:active{ transform:scale(.92); }
+.btn-icon svg{ position:relative; z-index:1; }
+.btn-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+/* ── cards ──────────────────────────────────────────────── */
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:22px; box-shadow:var(--shadow-md);
+  transition:box-shadow var(--d-fast) var(--ease-standard),
+             transform var(--d-fast) var(--ease-spring),
+             border-color var(--d-fast) var(--ease-standard);
+}
+.card:hover{ box-shadow:var(--shadow-lift); transform:translateY(-3px); border-color:var(--border-strong); }
+.card-eyebrow{
+  font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--text-muted); margin-bottom:10px;
+}
+.card-title{ font-family:var(--f-display); font-size:22px; font-weight:600; letter-spacing:-.025em; line-height:1.25; margin-bottom:8px; }
+.card-body{ font-size:13px; line-height:1.65; color:var(--text-2); }
+.card-badge{
+  display:inline-block; margin-top:16px; padding:3px 10px; border-radius:4px;
+  background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent-mid);
+  font-size:10px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  transition:var(--t-color);
+}
+.card-art{ height:74px; border-radius:7px; margin-bottom:16px; box-shadow:var(--shadow-sm); }
+
+/* ── inputs ─────────────────────────────────────────────── */
+.field{ display:flex; flex-direction:column; gap:6px; }
+.field-label{ font-size:12px; font-weight:500; color:var(--text-2); }
+.input{
+  font-family:var(--f-ui); font-size:14px; padding:10px 14px; width:100%;
+  background:var(--surface); border:1px solid var(--border-strong); border-radius:6px;
+  color:var(--text); outline:none;
+  transition:border-color var(--d-fast) var(--ease-standard),
+             box-shadow var(--d-fast) var(--ease-standard);
+}
+.input::placeholder{ color:var(--text-ph); }
+.input:hover{ border-color:var(--text-muted); }
+.input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+
+/* ── toggle ─────────────────────────────────────────────── */
+.toggle-wrap{ display:flex; align-items:center; gap:12px; cursor:pointer; }
+.toggle{ position:relative; width:42px; height:24px; flex-shrink:0; }
+.toggle input{ opacity:0; position:absolute; width:0; height:0; }
+.toggle-track{
+  position:absolute; inset:0; border-radius:12px; background:var(--border-strong);
+  transition:background-color var(--d-standard) var(--ease-standard);
+}
+.toggle input:checked ~ .toggle-track{ background:var(--accent); }
+.toggle-thumb{
+  position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%;
+  background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.18);
+  transition:transform var(--d-standard) var(--ease-spring),
+             box-shadow var(--d-fast) var(--ease-standard);
+}
+.toggle input:checked ~ .toggle-thumb{ transform:translateX(18px); box-shadow:0 2px 6px rgba(0,0,0,.22); }
+.toggle-label{ font-size:13px; font-weight:500; color:var(--text-2); user-select:none; }
+
+/* ── checkbox ───────────────────────────────────────────── */
+.cb-wrap{ display:inline-flex; align-items:center; gap:10px; cursor:pointer; background:none; border:0; padding:0; }
+.cb{
+  width:18px; height:18px; border:1.5px solid var(--border-strong); border-radius:4px;
+  background:var(--surface); display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition:background-color var(--d-fast) var(--ease-standard),
+             border-color var(--d-fast) var(--ease-standard),
+             transform var(--d-fast) var(--ease-spring);
+}
+.cb.on{ background:var(--accent); border-color:var(--accent); transform:scale(1.06); }
+.cb svg{ opacity:0; transform:scale(.4) rotate(-10deg);
+  transition:opacity var(--d-fast) var(--ease-standard), transform var(--d-fast) var(--ease-spring); }
+.cb.on svg{ opacity:1; transform:scale(1) rotate(0deg); }
+.cb-text{ font-size:13px; color:var(--text-2); transition:var(--t-color); user-select:none; }
+.cb-wrap:hover .cb-text{ color:var(--text); }
+
+/* ── nav tabs ───────────────────────────────────────────── */
+.tabs{
+  display:inline-flex; gap:2px; padding:4px; border-radius:8px;
+  background:var(--surface-2); border:1px solid var(--border);
+}
+.tab{
+  font-family:var(--f-ui); font-size:13px; font-weight:500; padding:7px 18px;
+  border-radius:5px; border:0; background:transparent; color:var(--text-muted); cursor:pointer;
+  transition:background-color var(--d-fast) var(--ease-standard),
+             color var(--d-fast) var(--ease-standard),
+             box-shadow var(--d-fast) var(--ease-standard);
+}
+.tab:hover:not(.on){ color:var(--text-2); background:rgba(255,255,255,.5); }
+.tab.on{ background:var(--surface); color:var(--text); box-shadow:var(--shadow-sm); }
+
+/* ── tooltip ────────────────────────────────────────────── */
+.tip-anchor{ position:relative; display:inline-flex; }
+.tip{
+  position:absolute; bottom:calc(100% + 10px); left:50%;
+  transform:translateX(-50%) translateY(5px);
+  background:var(--brand); color:var(--text-inverse);
+  font-size:11.5px; font-weight:500; white-space:nowrap;
+  padding:6px 13px; border-radius:5px; box-shadow:var(--shadow-md);
+  opacity:0; pointer-events:none;
+  transition:opacity var(--d-fast) var(--ease-standard),
+             transform var(--d-fast) var(--ease-standard);
+  transition-delay:400ms;
+}
+.tip::after{
+  content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  border:5px solid transparent; border-top-color:var(--brand);
+}
+.tip-anchor:hover .tip, .tip-anchor:focus-within .tip{ opacity:1; transform:translateX(-50%) translateY(0); transition-delay:400ms; }
+.tip-anchor:not(:hover) .tip{ transition-delay:0ms; }
+
+/* ── dropdown ───────────────────────────────────────────── */
+.dd-wrap{ position:relative; display:inline-block; }
+.dd{
+  position:absolute; top:calc(100% + 6px); left:0; min-width:210px; z-index:100;
+  background:var(--surface); border:1px solid var(--border); border-radius:9px;
+  box-shadow:var(--shadow-lg); padding:6px;
+  opacity:0; transform:translateY(-10px) scale(.97); pointer-events:none;
+  transition:var(--t-exit);
+}
+.dd.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; transition:var(--t-enter); }
+.dd-sep{ height:1px; background:var(--border); margin:5px 0; }
+.dd-item{
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding:8px 12px; border:0; border-radius:5px; background:none;
+  font-family:var(--f-ui); font-size:13px; color:var(--text-2); cursor:pointer; text-align:left;
+  transition:background-color var(--d-micro) var(--ease-standard),
+             color var(--d-micro) var(--ease-standard);
+}
+.dd-item:hover{ background:var(--surface-2); color:var(--text); }
+.dd-item.danger:hover{ background:var(--accent-soft); color:var(--accent); }
+.dd-item svg{ width:14px; height:14px; opacity:.5; flex-shrink:0; }
+
+/* ── modal ──────────────────────────────────────────────── */
+.backdrop{
+  position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+  padding:24px; background:rgba(13,13,26,.42);
+  opacity:0; pointer-events:none; transition:opacity var(--d-fast) var(--ease-standard);
+}
+.backdrop.open{ opacity:1; pointer-events:auto; }
+.modal{
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:30px; width:100%; max-width:420px; box-shadow:var(--shadow-lg);
+  opacity:0; transform:translateY(18px) scale(.975);
+  transition:opacity var(--d-moderate) var(--ease-enter), transform var(--d-moderate) var(--ease-enter);
+}
+.backdrop.open .modal{ opacity:1; transform:translateY(0) scale(1); }
+.modal-icon{
+  width:40px; height:40px; border-radius:9px; margin-bottom:18px;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; box-shadow:var(--shadow-sm);
+}
+.modal-title{ font-family:var(--f-display); font-size:19px; font-weight:600; letter-spacing:-.025em; margin-bottom:8px; }
+.modal-body{ font-size:13px; color:var(--text-2); line-height:1.65; margin-bottom:26px; }
+.modal-actions{ display:flex; gap:10px; justify-content:flex-end; }
+
+/* ── easing visualiser ──────────────────────────────────── */
+.ease-card{ background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:18px 16px; text-align:center; }
+.ease-name{ font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); margin-bottom:14px; }
+.ease-track{ position:relative; width:100%; height:3px; background:var(--surface-2); border-radius:2px; margin-bottom:14px; }
+.ease-ball{
+  position:absolute; top:50%; left:0; width:11px; height:11px; border-radius:50%;
+  background:var(--accent); transform:translateY(-50%);
+  transition-property:left; transition-duration:var(--d-slow);
+}
+.ease-value{ font-family:var(--f-mono); font-size:9px; color:var(--text-muted); line-height:1.6; }
+
+/* ── duration visualiser ────────────────────────────────── */
+.dur-row{ display:flex; align-items:center; gap:16px; }
+.dur-name{ font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); width:74px; flex-shrink:0; }
+.dur-track{ flex:1; height:3px; background:var(--surface-2); border-radius:2px; overflow:hidden; }
+.dur-fill{ height:100%; background:var(--brand); border-radius:2px; opacity:.18; transition:opacity var(--d-standard) var(--ease-standard); }
+.dur-row:hover .dur-fill{ opacity:1; }
+.dur-ms{ font-family:var(--f-mono); font-size:11px; color:var(--text-muted); width:40px; text-align:right; flex-shrink:0; }
+
+/* ── state cards ────────────────────────────────────────── */
+.state-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:20px;
+  box-shadow:var(--shadow-sm);
+  transition:background-color var(--d-fast) var(--ease-standard),
+             border-color var(--d-fast) var(--ease-standard),
+             box-shadow var(--d-fast) var(--ease-standard),
+             transform var(--d-fast) var(--ease-spring);
+}
+.state-card:hover{ background:var(--surface-2); border-color:var(--border-strong); box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.state-card:active{ transform:translateY(1px); box-shadow:none; transition-duration:60ms; }
+.state-label{ font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); }
+.state-num{ font-family:var(--f-display); font-size:28px; font-weight:300; letter-spacing:-.04em; line-height:1; margin:6px 0 6px; }
+.state-sub{ font-size:12px; color:var(--text-muted); }
+
+/* ==========================================================
+   PAGE FURNITURE — grids, the colourway switch, the bench,
+   pricing, questions, footer.
+   ========================================================== */
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.stack{ display:flex; flex-direction:column; gap:14px; }
+.row{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+@media (max-width:900px){ .grid-4{ grid-template-columns:repeat(2,1fr); } .grid-3{ grid-template-columns:1fr; } }
+@media (max-width:640px){ .grid-4, .grid-2{ grid-template-columns:1fr; } }
+
+/* ── the colourway switch: the grain sets the accent ────── */
+.ways{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.way{
+  position:relative; width:46px; height:46px; border-radius:11px; padding:0;
+  border:1px solid var(--border); background:var(--surface); cursor:pointer;
+  box-shadow:var(--shadow-sm); overflow:hidden;
+  transition:transform var(--d-fast) var(--ease-spring),
+             box-shadow var(--d-fast) var(--ease-standard),
+             border-color var(--d-fast) var(--ease-standard);
+}
+.way:hover{ transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.way[aria-pressed="true"]{ border-color:var(--text); box-shadow:var(--shadow-lift), 0 0 0 2px var(--surface), 0 0 0 4px var(--text); }
+.way .grain{ position:absolute; inset:0; border-radius:inherit; }
+.way-name{ font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-left:6px; }
+
+/* ── the component bench ────────────────────────────────── */
+.bench{
+  border:1px solid var(--border); border-radius:14px; background:var(--surface);
+  box-shadow:var(--shadow-md); overflow:hidden;
+}
+.bench-head{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:16px 20px; border-bottom:1px solid var(--border); background:var(--surface-2);
+}
+.bench-head .mono{ margin-left:auto; }
+.bench-body{ padding:30px 26px 34px; }
+.panel{ display:none; }
+.panel.on{ display:block; animation:panelIn var(--d-standard) var(--ease-enter) both; }
+@keyframes panelIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:none; } }
+.panel-note{
+  margin-top:26px; padding-top:18px; border-top:1px dashed var(--border);
+  font-family:var(--f-mono); font-size:11px; color:var(--text-muted); line-height:1.8;
+}
+.panel-note b{ color:var(--text-2); font-weight:500; }
+
+/* ── pricing ────────────────────────────────────────────── */
+.tier{
+  position:relative; display:flex; flex-direction:column; gap:14px;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:26px 24px 28px; box-shadow:var(--shadow-sm);
+  transition:box-shadow var(--d-fast) var(--ease-standard),
+             transform var(--d-fast) var(--ease-spring),
+             border-color var(--d-fast) var(--ease-standard);
+}
+.tier:hover{ box-shadow:var(--shadow-lift); transform:translateY(-3px); border-color:var(--border-strong); }
+.tier--hot{ border-color:var(--accent); box-shadow:var(--shadow-md), 0 0 0 1px var(--accent-mid); }
+.tier .t-name{ font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted); }
+.tier .t-price{ font-family:var(--f-display); font-size:38px; font-weight:300; letter-spacing:-.045em; line-height:1; }
+.tier .t-price strong{ font-weight:600; }
+.tier .t-price small{ font-family:var(--f-mono); font-size:11px; font-weight:400; letter-spacing:.06em; color:var(--text-muted); margin-left:8px; }
+.tier p{ font-size:13px; color:var(--text-muted); }
+.tier ul{ list-style:none; display:flex; flex-direction:column; gap:8px; }
+.tier li{ display:flex; gap:9px; font-size:13px; color:var(--text-2); line-height:1.5; }
+.tier li::before{ content:""; width:14px; height:14px; margin-top:4px; border-radius:4px; background:var(--accent-soft); border:1px solid var(--accent-mid); flex:0 0 auto; }
+.tier .btn{ margin-top:auto; justify-content:center; }
+
+/* ── questions ──────────────────────────────────────────── */
+.faq{ border-top:1px solid var(--border); }
+.faq details{ border-bottom:1px solid var(--border); }
+.faq summary{
+  list-style:none; cursor:pointer; padding:18px 2px; display:flex; align-items:baseline; gap:14px;
+  font-family:var(--f-display); font-size:17px; font-weight:500; letter-spacing:-.02em;
+}
+.faq summary::-webkit-details-marker{ display:none; }
+.faq summary::after{ content:"+"; margin-left:auto; color:var(--accent); font-size:17px; transition:var(--t-color); }
+.faq details[open] summary::after{ content:"\2212"; }
+.faq .qn{ font-family:var(--f-mono); font-size:11px; color:var(--text-muted); font-weight:400; }
+.faq p{ padding:0 0 20px 34px; max-width:74ch; font-size:14px; color:var(--text-2); }
+@media (max-width:560px){ .faq p{ padding-left:0; } }
+
+/* ── closer + footer ────────────────────────────────────── */
+.closer{ text-align:center; }
+.closer h2{ margin-bottom:12px; }
+.closer .band-sub{ margin:0 auto 26px; }
+.closer .hero-cta{ justify-content:center; }
+.foot{ border-top:1px solid var(--border); padding:34px 0 48px; }
+.foot-in{ display:flex; gap:26px; justify-content:space-between; flex-wrap:wrap; align-items:flex-start; }
+.foot small{ font-size:11.5px; color:var(--text-muted); line-height:1.9; max-width:66ch; display:block; }
+.foot small b{ color:var(--text-2); font-weight:600; }
+.foot-links{ display:flex; gap:18px; font-size:11.5px; color:var(--text-muted); }
+
+/* ==========================================================
+   Reduced motion: the tokens still print, the page just stops
+   moving. The grain's SMIL seed is paused from script, since
+   a filter animation cannot be reached from CSS.
+   ========================================================== */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══ the noise, defined once and referenced by every grain surface ══ -->
+<svg class="noise-defs" id="noiseDefs" aria-hidden="true" focusable="false">
+  <filter id="grain-noise" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="turbulence" baseFrequency="0.9" numOctaves="2" seed="1" stitchTiles="stitch" result="turbulence">
+      <animate attributeName="seed" values="1;2;3;4" dur="0.8s" calcMode="discrete" repeatCount="indefinite" />
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="30" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+  <filter id="grain-noise-soft" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="turbulence" baseFrequency="0.9" numOctaves="2" seed="2" stitchTiles="stitch" result="t2">
+      <animate attributeName="seed" values="2;3;4;5" dur="0.8s" calcMode="discrete" repeatCount="indefinite" />
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="t2" scale="11" xChannelSelector="R" yChannelSelector="G" />
+  </filter>
+</svg>
+
+<!-- ══ NAV ══ -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top"><span class="mark grain grain--soft" aria-hidden="true"></span><b>Grain</b></a>
+    <nav class="nav-links" id="navLinks" aria-label="Sections">
+      <a href="#colourway">Colourway</a>
+      <a href="#dither">Dither</a>
+      <a href="#tokens">Tokens</a>
+      <a href="#bench">Components</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <button class="btn btn-secondary nav-burger" id="navBurger" aria-expanded="false" aria-controls="navLinks"><span class="t">Menu</span></button>
+    <button class="btn btn-primary btn--arrow" data-goto="#pricing"><span class="t">Get the system</span></button>
+  </div>
+</header>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Motion &amp; surface system</p>
+      <h1>Fewer curves.<br /><strong>Better motion.</strong></h1>
+      <p class="lede">Four easing curves, five durations, and one grainy gradient that decides what colour everything else is. Plain CSS custom properties — no runtime, no library, nothing to learn twice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn--arrow" data-goto="#bench"><span class="t">See the components</span></button>
+        <button class="btn btn-secondary" data-goto="#tokens">
+          Read the tokens
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="3,4.5 6,7.5 9,4.5" /></svg>
+        </button>
+      </div>
+      <div class="install">
+        <span class="dollar">$</span><span id="installCmd">npx grain add button card toggle</span>
+        <button id="copyBtn" aria-label="Copy the install command">Copy</button>
+      </div>
+    </div>
+
+    <div class="hero-art">
+      <div class="art-panel grain" id="heroArt" aria-hidden="true"></div>
+      <div class="art-cap">Less<br />but better</div>
+      <div class="art-sub">4 curves · 5 durations · 1 accent</div>
+      <div class="art-float">
+        <div class="card">
+          <div class="card-eyebrow">Spring</div>
+          <div class="card-title">0.34, 1.56<br />0.64, 1.0</div>
+          <div class="card-body">The only curve allowed to overshoot. Lifts and thumbs, never opacity.</div>
+          <span class="card-badge">token</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 01 · COLOURWAY ══ -->
+<section class="band" id="colourway">
+  <div class="wrap">
+    <div class="sec-label"><span class="dot grain grain--soft" aria-hidden="true"></span>01 — Colourway</div>
+    <h2 class="band-title">The gradient picks the accent,<br />and the accent picks <strong>everything else</strong></h2>
+    <p class="band-sub">The artwork is a radial gradient pushed through an animated displacement map. Its middle stop is also <span class="mono">--accent</span>, so choosing a colourway re-tints the toggles, the focus rings, the badges, the danger button and the easing balls in the same frame. One decision, not eleven.</p>
+
+    <div class="row" style="gap:22px">
+      <div class="ways" role="group" aria-label="Colourway">
+        <button class="way" data-way="rose" aria-pressed="true" aria-label="Rose"><span class="grain grain--rose grain--soft"></span></button>
+        <button class="way" data-way="amber" aria-pressed="false" aria-label="Amber"><span class="grain grain--amber grain--soft"></span></button>
+        <button class="way" data-way="cyan" aria-pressed="false" aria-label="Cyan"><span class="grain grain--cyan grain--soft"></span></button>
+        <button class="way" data-way="violet" aria-pressed="false" aria-label="Violet"><span class="grain grain--violet grain--soft"></span></button>
+      </div>
+      <span class="way-name" id="wayName">rose · #c24a6d</span>
+    </div>
+
+    <div class="grid-3" style="margin-top:34px">
+      <div class="card">
+        <div class="card-art dith" aria-hidden="true"></div>
+        <div class="card-eyebrow">Surface</div>
+        <div class="card-title">Warm, not white</div>
+        <div class="card-body">Paper at #f5f3ef with brown-tinted shadows. Neutral grey shadows on a warm ground read as dirt.</div>
+        <span class="card-badge">3 surfaces</span>
+      </div>
+      <div class="card">
+        <div class="card-art dith" aria-hidden="true"></div>
+        <div class="card-eyebrow">Accent</div>
+        <div class="card-title">One, derived</div>
+        <div class="card-body">Every tint, ring and glow is a <span class="mono">color-mix</span> of the same accent, so nothing drifts out of step.</div>
+        <span class="card-badge">4 colourways</span>
+      </div>
+      <div class="card">
+        <div class="card-art dith" aria-hidden="true"></div>
+        <div class="card-eyebrow">Grain</div>
+        <div class="card-title">Film, not gradient</div>
+        <div class="card-body">The seed steps in four discrete frames a second. Animate it smoothly and it turns into a lava lamp.</div>
+        <span class="card-badge">2 filters</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 02 · DITHER ══ -->
+<section class="band" id="dither">
+  <div class="wrap">
+    <div class="sec-label"><span class="dot dith dith--sphere" style="--d1:var(--d-hot);width:10px;height:10px;box-shadow:none" aria-hidden="true"></span>02 — Dither</div>
+    <h2 class="band-title">The other grain: a colour that<br />holds, then <strong>falls apart</strong></h2>
+    <p class="band-sub">The hero panel is continuous tone warped by a displacement map. This is its opposite — a hard ordered break-up, where the fill stays solid and only the edge scatters into loose pixels. One tiled <span class="mono">65&times;65</span> PNG of random alpha, added to a radial gradient in the mask, and <span class="mono">image-rendering: pixelated</span> so the dots stay dots. Hover any of them and the sweep rolls; it is 400% wide and moves exactly one tile, so there is no seam to catch.</p>
+
+    <div class="dith-wall">
+      <figure class="dith-cell"><span class="dith" style="--d1:var(--d-violet)"></span><figcaption>violet · block</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--sphere" style="--d1:var(--d-pink)"></span><figcaption>pink · sphere</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--egg" style="--d1:var(--d-coral)"></span><figcaption>coral · egg</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--pudding" style="--d1:var(--d-amberz)"></span><figcaption>amber · pudding</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--vase" style="--d1:var(--d-blue)"></span><figcaption>blue · vase</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--droplet" style="--d1:var(--d-grape)"></span><figcaption>grape · droplet</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 03 · STACKED DITHER ══ -->
+<section class="band" id="stacked">
+  <div class="wrap">
+    <div class="sec-label"><span class="dot dith dith--sphere" style="--d1:var(--d-mint);width:10px;height:10px;box-shadow:none" aria-hidden="true"></span>03 — Stacked</div>
+    <h2 class="band-title">Two colours, two bands,<br /><strong>one sweep</strong></h2>
+    <p class="band-sub">A second layer on the same element, its gradient starting where the first one has finished and its mask cut further down, so the two colours meet in a band of mixed pixels instead of a line. The ground colour underneath is the third. Nothing here is an image and nothing is fetched — the only asset is the four kilobytes of noise, inlined.</p>
+
+    <div class="dith-wall">
+      <figure class="dith-cell"><span class="dith dith--two" style="--d1:var(--d-rose);--d2:var(--d-plum);--dith-bg:var(--d-cream)"></span><figcaption>rose → plum on cream</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--two dith--sphere" style="--d1:var(--d-hot);--d2:var(--d-grape);--dith-bg:var(--d-amberz)"></span><figcaption>hot → grape on amber</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--two dith--pudding" style="--d1:var(--d-mint);--d2:var(--d-blue);--dith-bg:#effeff"></span><figcaption>mint → blue on ice</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--two dith--egg" style="--d1:var(--d-coral);--d2:var(--d-hot);--dith-bg:var(--d-cream)"></span><figcaption>coral → hot on cream</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--two dith--vase" style="--d1:var(--d-amberz);--d2:var(--d-plum);--dith-bg:var(--d-pink)"></span><figcaption>amber → plum on pink</figcaption></figure>
+      <figure class="dith-cell"><span class="dith dith--two dith--droplet" style="--d1:var(--d-blue);--d2:var(--d-grape);--dith-bg:var(--d-mint)"></span><figcaption>blue → grape on mint</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 02 · TOKENS ══ -->
+<section class="band" id="tokens">
+  <div class="wrap">
+    <div class="sec-label"><span class="dot grain grain--soft" aria-hidden="true"></span>04 — Tokens</div>
+    <h2 class="band-title">Nine numbers that decide<br /><strong>how the whole product feels</strong></h2>
+    <p class="band-sub">Four curves and five durations. Everything on this page — every hover, every panel, every thumb — is composed from this table and nothing else.</p>
+
+    <div class="grid-4" id="easeGrid">
+      <div class="ease-card">
+        <div class="ease-name">Enter</div>
+        <div class="ease-track"><div class="ease-ball" style="transition-timing-function:var(--ease-enter)"></div></div>
+        <div class="ease-value">cubic-bezier<br />(0.0, 0.0, 0.2, 1.0)</div>
+      </div>
+      <div class="ease-card">
+        <div class="ease-name">Exit</div>
+        <div class="ease-track"><div class="ease-ball" style="transition-timing-function:var(--ease-exit)"></div></div>
+        <div class="ease-value">cubic-bezier<br />(0.4, 0.0, 1.0, 1.0)</div>
+      </div>
+      <div class="ease-card">
+        <div class="ease-name">Standard</div>
+        <div class="ease-track"><div class="ease-ball" style="transition-timing-function:var(--ease-standard)"></div></div>
+        <div class="ease-value">cubic-bezier<br />(0.4, 0.0, 0.2, 1.0)</div>
+      </div>
+      <div class="ease-card">
+        <div class="ease-name">Spring</div>
+        <div class="ease-track"><div class="ease-ball" style="transition-timing-function:var(--ease-spring)"></div></div>
+        <div class="ease-value">cubic-bezier<br />(0.34, 1.56, 0.64, 1.0)</div>
+      </div>
+    </div>
+
+    <div class="stack" style="margin-top:34px">
+      <div class="dur-row"><div class="dur-name">Micro</div><div class="dur-track"><div class="dur-fill" style="width:10%"></div></div><div class="dur-ms">80ms</div></div>
+      <div class="dur-row"><div class="dur-name">Fast</div><div class="dur-track"><div class="dur-fill" style="width:22%"></div></div><div class="dur-ms">120ms</div></div>
+      <div class="dur-row"><div class="dur-name">Standard</div><div class="dur-track"><div class="dur-fill" style="width:42%"></div></div><div class="dur-ms">200ms</div></div>
+      <div class="dur-row"><div class="dur-name">Moderate</div><div class="dur-track"><div class="dur-fill" style="width:62%"></div></div><div class="dur-ms">280ms</div></div>
+      <div class="dur-row"><div class="dur-name">Slow</div><div class="dur-track"><div class="dur-fill" style="width:100%"></div></div><div class="dur-ms">400ms</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 03 · THE BENCH ══ -->
+<section class="band" id="bench">
+  <div class="wrap">
+    <div class="sec-label"><span class="dot grain grain--soft" aria-hidden="true"></span>05 — Components</div>
+    <h2 class="band-title">Everything is live.<br /><strong>Press all of it.</strong></h2>
+    <p class="band-sub">These are the shipped components, not screenshots of them. The switch above re-themes this panel as you watch.</p>
+
+    <div class="bench">
+      <div class="bench-head">
+        <div class="tabs" id="benchTabs" role="tablist">
+          <button class="tab on" role="tab" aria-selected="true" data-panel="p-buttons">Buttons</button>
+          <button class="tab" role="tab" aria-selected="false" data-panel="p-inputs">Inputs</button>
+          <button class="tab" role="tab" aria-selected="false" data-panel="p-overlays">Overlays</button>
+        </div>
+        <span class="mono">grain/components · v2.4.0</span>
+      </div>
+
+      <div class="bench-body">
+        <!-- buttons -->
+        <div class="panel on" id="p-buttons" role="tabpanel">
+          <div class="btn-row">
+            <button class="btn btn-primary btn--arrow"><span class="t">Primary action</span></button>
+            <button class="btn btn-secondary">
+              Secondary
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="3,4.5 6,7.5 9,4.5" /></svg>
+            </button>
+            <button class="btn btn-ghost"><span class="t">Ghost</span></button>
+            <button class="btn btn-danger">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 3.5h9M5 3.5V2h4v1.5M4.5 3.5l.5 8h5l.5-8" /></svg>
+              Destructive
+            </button>
+          </div>
+          <div class="btn-row" style="margin-top:16px">
+            <button class="btn-icon" aria-label="Edit"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 2l2.5 2.5-8.5 8.5H2v-2.5L10.5 2z" /></svg></button>
+            <button class="btn-icon" aria-label="Copy"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="5" y="5" width="7" height="7" rx="1.5" /><path d="M3 10V3h7" /></svg></button>
+            <button class="btn-icon" aria-label="Search"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4" /><path d="M11 11l2.5 2.5" /></svg></button>
+            <button class="btn-icon" aria-label="Add"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7.5 2v11M2 7.5h11" /></svg></button>
+            <span class="tip-anchor" style="margin-left:6px">
+              <button class="btn btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="5.5" /><path d="M7 6.5V9.5M7 4.5v.5" /></svg>
+                Hover for tooltip
+              </button>
+              <span class="tip" role="tooltip">Appears after 400ms of intent</span>
+            </span>
+          </div>
+          <div class="panel-note">
+            <b>hover</b> the pill squares to 12px over 400ms on the enter curve, the dot grows into a full fill in 280ms, the ring expands to nothing &nbsp;·&nbsp; <b>arrows</b> one leaves right as the other arrives from the left, label slides 16px &nbsp;·&nbsp; <b>active</b> scale 0.96 at 60ms &nbsp;·&nbsp; <b>tooltip</b> 400ms in, 0ms out
+          </div>
+        </div>
+
+        <!-- inputs -->
+        <div class="panel" id="p-inputs" role="tabpanel">
+          <div class="grid-2">
+            <div class="field"><label class="field-label" for="i1">Workspace name</label><input class="input" id="i1" type="text" placeholder="Acme Corp" /></div>
+            <div class="field"><label class="field-label" for="i2">Invite by email</label><input class="input" id="i2" type="email" placeholder="team@domain.example" /></div>
+          </div>
+          <div class="row" style="gap:36px; margin-top:26px">
+            <label class="toggle-wrap"><span class="toggle"><input type="checkbox" checked /><span class="toggle-track"></span><span class="toggle-thumb"></span></span><span class="toggle-label">Auto-save drafts</span></label>
+            <label class="toggle-wrap"><span class="toggle"><input type="checkbox" /><span class="toggle-track"></span><span class="toggle-thumb"></span></span><span class="toggle-label">Reduced motion</span></label>
+            <label class="toggle-wrap"><span class="toggle"><input type="checkbox" checked /><span class="toggle-track"></span><span class="toggle-thumb"></span></span><span class="toggle-label">Warm shadows</span></label>
+          </div>
+          <div class="row" style="gap:24px; margin-top:26px">
+            <button class="cb-wrap" type="button"><span class="cb on"><svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,4 4,7 9,1" /></svg></span><span class="cb-text">Tinted backgrounds</span></button>
+            <button class="cb-wrap" type="button"><span class="cb on"><svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,4 4,7 9,1" /></svg></span><span class="cb-text">Spring easing</span></button>
+            <button class="cb-wrap" type="button"><span class="cb"><svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,4 4,7 9,1" /></svg></span><span class="cb-text">Flat mode</span></button>
+          </div>
+          <div class="panel-note">
+            <b>focus</b> 3px ring in the accent at 8% &nbsp;·&nbsp; <b>thumb</b> 200ms on the spring curve &nbsp;·&nbsp; <b>check</b> scales from 0.4 and unrotates 10°
+          </div>
+        </div>
+
+        <!-- overlays -->
+        <div class="panel" id="p-overlays" role="tabpanel">
+          <div class="btn-row">
+            <div class="dd-wrap">
+              <button class="btn btn-secondary" id="ddBtn" aria-expanded="false" aria-haspopup="true">
+                Options
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="3,4.5 6,7.5 9,4.5" /></svg>
+              </button>
+              <div class="dd" id="dd">
+                <button class="dd-item"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2l2 2-7.5 7.5H3v-2L10 2z" /></svg>Edit component</button>
+                <button class="dd-item"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="4" y="4" width="7" height="7" rx="1.5" /><path d="M2.5 9.5V2.5h7" /></svg>Duplicate</button>
+                <button class="dd-item"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="4" cy="7" r="1.5" /><circle cx="10" cy="3.5" r="1.5" /><circle cx="10" cy="10.5" r="1.5" /><path d="M5.4 6.3l3.2-1.9M5.4 7.7l3.2 1.9" /></svg>Copy tokens</button>
+                <div class="dd-sep"></div>
+                <button class="dd-item danger"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2.5 3.5h9M5 3.5V2h4v1.5M4.5 3.5l.5 8h5l.5-8" /></svg>Remove</button>
+              </div>
+            </div>
+            <button class="btn btn-primary btn--arrow" id="modalBtn"><span class="t">Open modal</span></button>
+          </div>
+          <div class="panel-note">
+            <b>dropdown</b> enters on the enter curve at 200ms, leaves on the exit curve at 120ms &nbsp;·&nbsp; <b>modal</b> 280ms in, lifts 18px and scales from 0.975 &nbsp;·&nbsp; both close on escape and on outside click
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 04 · STATES ══ -->
+<section class="band" id="states">
+  <div class="wrap">
+    <div class="sec-label"><span class="dot grain grain--soft" aria-hidden="true"></span>06 — Interactive states</div>
+    <h2 class="band-title">Three states, <strong>three rules</strong></h2>
+    <p class="band-sub">Hover lifts, active presses further than the lift, focus never moves anything. Press these cards to feel the 60ms snap.</p>
+    <div class="grid-3">
+      <div class="state-card"><div class="state-label">Hover</div><div class="state-num">−2px</div><div class="state-sub">lift + shadow expand, 120ms spring</div></div>
+      <div class="state-card"><div class="state-label">Active</div><div class="state-num">+2px</div><div class="state-sub">buttons scale 0.96, cards press 1px, 60ms</div></div>
+      <div class="state-card"><div class="state-label">Focus</div><div class="state-num">3px</div><div class="state-sub">ring in the accent, zero movement</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 05 · PRICING ══ -->
+<section class="band" id="pricing">
+  <div class="wrap">
+    <div class="sec-label"><span class="dot grain grain--soft" aria-hidden="true"></span>07 — Pricing</div>
+    <h2 class="band-title">Buy it once,<br /><strong>or don't buy it at all</strong></h2>
+    <p class="band-sub">The tokens are free and always will be. You pay for the component source, the figma file, and the updates.</p>
+    <div class="grid-3">
+      <div class="tier">
+        <div class="t-name">Tokens</div>
+        <div class="t-price">Free</div>
+        <p>The nine numbers, the grain filter and the surface scale. MIT.</p>
+        <ul>
+          <li>Easing and duration custom properties</li>
+          <li>Warm shadow scale</li>
+          <li>The grain filter, both scales</li>
+        </ul>
+        <button class="btn btn-secondary btn--arrow" data-goto="#tokens"><span class="t">Copy the tokens</span></button>
+      </div>
+      <div class="tier tier--hot">
+        <div class="t-name">System</div>
+        <div class="t-price"><strong>$180</strong><small>ONCE</small></div>
+        <p>Every component on this page, as source you own outright.</p>
+        <ul>
+          <li>34 components, plain CSS and HTML</li>
+          <li>React and Svelte ports</li>
+          <li>Four colourways, or roll your own</li>
+          <li>A year of updates, keep them forever</li>
+        </ul>
+        <button class="btn btn-primary btn--arrow" id="buyBtn"><span class="t">Get the system</span></button>
+      </div>
+      <div class="tier">
+        <div class="t-name">Studio</div>
+        <div class="t-price"><strong>$640</strong><small>ONCE</small></div>
+        <p>For teams shipping more than one product on it.</p>
+        <ul>
+          <li>Unlimited seats and projects</li>
+          <li>Figma library with the same tokens</li>
+          <li>A colourway built from your brand</li>
+        </ul>
+        <button class="btn btn-secondary btn--arrow" id="studioBtn"><span class="t">Talk to us</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 06 · QUESTIONS ══ -->
+<section class="band" id="faq">
+  <div class="wrap">
+    <div class="sec-label"><span class="dot grain grain--soft" aria-hidden="true"></span>08 — Questions</div>
+    <h2 class="band-title">Four things people ask<br /><strong>before they paste it in</strong></h2>
+    <div class="faq">
+      <details open>
+        <summary><span class="qn">01</span> Is there a runtime?</summary>
+        <p>None. The tokens are custom properties and the components are CSS with a handful of class toggles. The only JavaScript on this page opens a dropdown, switches a tab and moves four balls along a track — you can delete all of it and still have the system.</p>
+      </details>
+      <details>
+        <summary><span class="qn">02</span> Why is the grain an SVG filter and not an image?</summary>
+        <p>Because it has to re-colour with the theme. The gradient is CSS, so the colourway switch changes it instantly; the filter only displaces whatever it is given. An image would have to ship four times and still would not match a custom accent.</p>
+      </details>
+      <details>
+        <summary><span class="qn">03</span> What happens with reduced motion?</summary>
+        <p>Every transition collapses to 0.01ms and the grain's animated seed is paused, which freezes it on one frame without removing the texture. The page still says everything it said before; it just stops moving while it does.</p>
+      </details>
+      <details>
+        <summary><span class="qn">04</span> Is any of this real?</summary>
+        <p>No. Grain is a fictional product built as a design demo: the company, the version number, the prices and the component count were all invented for it. Nothing installs, nothing is purchased, and no request leaves this page.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CLOSER ══ -->
+<section class="band closer">
+  <div class="wrap">
+    <h2 class="band-title">Stop deciding <strong>how long things take</strong></h2>
+    <p class="band-sub">Nine numbers, four colourways, one file. Paste it into the project you are already behind on.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn--arrow" data-goto="#pricing"><span class="t">Get the system</span></button>
+      <button class="btn btn-ghost btn--arrow" data-goto="#colourway"><span class="t">Try the colourways</span></button>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <small>
+      <b>GRAIN is a fictional product and nothing here is real.</b><br />
+      The company, the version number, the component count, the prices and the install command were all invented
+      for a design demo. Nothing is installed, nothing is bought, and no data leaves this page.
+    </small>
+    <div class="foot-links"><span>Docs</span><span>Changelog</span><span>Figma</span><span>© 2026</span></div>
+  </div>
+</footer>
+
+<!-- ══ MODAL ══ -->
+<div class="backdrop" id="backdrop">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-icon grain grain--soft" aria-hidden="true"></div>
+    <div class="modal-title" id="modalTitle">Remove this component from the project?</div>
+    <div class="modal-body">The files are deleted from <span class="mono">src/ui</span> and anything importing them will stop building. The tokens stay where they are — nothing else depends on this one.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close><span class="t">Cancel</span></button>
+      <button class="btn btn-danger" data-close><span class="t">Remove it</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   GRAIN — the only script on the page. Everything it does is
+   a class toggle or a custom property; delete it and the
+   system still works, it just stops switching colourway.
+   ========================================================== */
+(function () {
+  "use strict";
+
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ---------- colourway ----------
+     The swatch sets one attribute on <html>. Every accent on the
+     page is a color-mix of the variable that attribute swaps, so
+     the toggles, rings, badges, danger button, easing balls and
+     the hero grain all re-tint in the same frame. */
+  var ACCENTS = { rose: "#c24a6d", amber: "#a96a1e", cyan: "#256f7c", violet: "#5c48b8" };
+  var wayName = $("#wayName");
+  $$(".way").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var w = b.dataset.way;
+      document.documentElement.dataset.way = w;
+      $$(".way").forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      if (wayName) wayName.textContent = w + " · " + ACCENTS[w];
+    });
+  });
+
+  /* ---------- easing visualiser ----------
+     Four balls, four curves, one shared duration: the only honest
+     way to show what a cubic-bezier actually feels like is to run
+     them side by side on the same clock. */
+  var balls = $$(".ease-ball");
+  if (balls.length && !REDUCED) {
+    var forward = false;
+    var step = function () {
+      forward = !forward;
+      balls.forEach(function (el) {
+        var max = el.parentElement.offsetWidth - 11;
+        el.style.left = forward ? max + "px" : "0px";
+      });
+    };
+    setTimeout(function () { step(); setInterval(step, 1500); }, 700);
+  }
+
+  /* ---------- bench tabs ---------- */
+  $$("#benchTabs .tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      $$("#benchTabs .tab").forEach(function (o) {
+        o.classList.toggle("on", o === t);
+        o.setAttribute("aria-selected", String(o === t));
+      });
+      $$(".panel").forEach(function (p) { p.classList.toggle("on", p.id === t.dataset.panel); });
+    });
+  });
+
+  /* ---------- checkboxes ---------- */
+  $$(".cb-wrap").forEach(function (w) {
+    w.addEventListener("click", function () {
+      var box = $(".cb", w);
+      var on = box.classList.toggle("on");
+      w.setAttribute("aria-pressed", String(on));
+    });
+    w.setAttribute("aria-pressed", String($(".cb", w).classList.contains("on")));
+  });
+
+  /* ---------- dropdown ---------- */
+  var dd = $("#dd"), ddBtn = $("#ddBtn");
+  function setDd(open) {
+    if (!dd) return;
+    dd.classList.toggle("open", open);
+    ddBtn.setAttribute("aria-expanded", String(open));
+  }
+  if (ddBtn) {
+    ddBtn.addEventListener("click", function (e) { e.stopPropagation(); setDd(!dd.classList.contains("open")); });
+    $$(".dd-item").forEach(function (i) { i.addEventListener("click", function () { setDd(false); }); });
+    document.addEventListener("click", function (e) { if (!e.target.closest(".dd-wrap")) setDd(false); });
+  }
+
+  /* ---------- modal ---------- */
+  var backdrop = $("#backdrop"), modalBtn = $("#modalBtn"), lastFocus = null;
+  function setModal(open) {
+    if (!backdrop) return;
+    backdrop.classList.toggle("open", open);
+    if (open) { lastFocus = document.activeElement; var f = $(".modal .btn", backdrop); if (f) f.focus(); }
+    else if (lastFocus) { lastFocus.focus(); }
+  }
+  if (modalBtn) modalBtn.addEventListener("click", function () { setModal(true); });
+  $$("[data-close]").forEach(function (b) { b.addEventListener("click", function () { setModal(false); }); });
+  if (backdrop) backdrop.addEventListener("click", function (e) { if (e.target === backdrop) setModal(false); });
+  ["#buyBtn", "#studioBtn"].forEach(function (sel) {
+    var b = $(sel);
+    if (b) b.addEventListener("click", function () { setModal(true); });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    setDd(false); setModal(false); closeNav();
+  });
+
+  /* ---------- nav ---------- */
+  var links = $("#navLinks"), burger = $("#navBurger");
+  function closeNav() { if (links) { links.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); } }
+  if (burger) {
+    burger.addEventListener("click", function () {
+      var open = links.classList.toggle("open");
+      burger.setAttribute("aria-expanded", String(open));
+    });
+    links.addEventListener("click", function (e) { if (e.target.tagName === "A") closeNav(); });
+  }
+  $$("[data-goto]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = $(b.getAttribute("data-goto"));
+      if (t) t.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "start" });
+    });
+  });
+
+  /* ---------- copy the install line ---------- */
+  var copyBtn = $("#copyBtn"), cmd = $("#installCmd");
+  if (copyBtn && cmd) {
+    copyBtn.addEventListener("click", function () {
+      var done = function (label) {
+        copyBtn.textContent = label;
+        setTimeout(function () { copyBtn.textContent = "Copy"; }, 1600);
+      };
+      // clipboard writes are refused on file:// in some browsers, so fall
+      // back to selecting the text rather than pretending it worked
+      try {
+        navigator.clipboard.writeText(cmd.textContent).then(function () { done("Copied"); }, function () {
+          var r = document.createRange(); r.selectNodeContents(cmd);
+          var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+          done("Selected");
+        });
+      } catch (err) {
+        done("Select it");
+      }
+    });
+  }
+
+  /* ---------- reduced motion ----------
+     The grain's seed animates in SMIL, inside a filter, which CSS
+     cannot reach at all — `transition-duration: 0.01ms` does
+     nothing to it. Pause the document's animations instead: the
+     texture stays, the flicker stops. */
+  if (REDUCED) {
+    var defs = document.getElementById("noiseDefs");
+    if (defs && defs.pauseAnimations) defs.pauseAnimations();
+  }
+})();
+
+</script>
+</body>
+</html>

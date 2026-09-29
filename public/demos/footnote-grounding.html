@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Footnote — every claim gets a source</title>
+<meta name="description" content="A fictional grounding checker that marks up model output with a real highlighter: rough-edged SVG-displaced marks, a colour per verdict, and a per-word split that lets them wrap. One file, no images, no libraries." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   FOOTNOTE — the page is a marked-up document.
+   Every highlight is a real highlighter: a pseudo-element behind
+   the text, roughened by an SVG displacement filter, with a blob
+   at the end where the pen rested.
+   One file, no images, no libraries.
+   ============================================================ */
+:root {
+  /* Flexoki paper and ink */
+  --paper: #fffcf0;
+  --paper-2: #f2f0e5;
+  --paper-3: #e6e4d9;
+  --ink: #100f0f;
+  --ink-2: #6f6e69;
+  --ink-3: #b7b5ac;
+  --rule: #dad8ce;
+
+  /* Flexoki 400 — the highlighter tray */
+  /* Flexoki red 400 sits a hair off orange 400; at 75% over warm paper the
+     two verdicts were the same colour. Deepened so red reads as an alarm. */
+  --hl-red: hsl(6, 82%, 79%);
+  --hl-orange: hsl(27, 98%, 84%);
+  --hl-yellow: hsl(46, 83%, 80%);
+  --hl-green: hsl(66, 45%, 79%);
+  --hl-cyan: hsl(158, 47%, 83%);
+  --hl-blue: hsl(199, 42%, 84%);
+  --hl-purple: hsl(274, 27%, 88%);
+  --hl-magenta: hsl(345, 88%, 90%);
+
+  --serif: "Source Serif 4", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* fluid scale */
+  --step--1: clamp(0.83rem, 0.8rem + 0.16vw, 0.92rem);
+  --step-0: clamp(1rem, 0.96rem + 0.22vw, 1.13rem);
+  --step-1: clamp(1.2rem, 1.13rem + 0.35vw, 1.42rem);
+  --step-2: clamp(1.44rem, 1.32rem + 0.58vw, 1.8rem);
+  --step-4: clamp(2.07rem, 1.76rem + 1.55vw, 3.05rem);
+  --step-6: clamp(2.99rem, 2.3rem + 3.44vw, 5.15rem);
+
+  /* the paper grain, inline so nothing is fetched */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  /* the same noise at a whisper. One shared grain multiplied over the whole
+     sheet turns Flexoki's warm paper grey; the marks want it strong. */
+  --grain-page: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.09'/%3E%3C/svg%3E");
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--serif);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+  background-image: var(--grain-page);
+  background-blend-mode: multiply;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+ul, ol { list-style: none; }
+.wrap { width: min(74ch, 100% - 3rem); margin: 0 auto; }
+.wide { width: min(1100px, 100% - 3rem); margin: 0 auto; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.label {
+  font-family: var(--mono); font-size: var(--step--1); font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2);
+}
+
+/* ============================================================
+   THE HIGHLIGHTER
+   The colour, the noise and the rough edge all sit on ::before so
+   the displacement filter never touches the glyphs — run it on the
+   text and the letters themselves come out wobbling.
+   ============================================================ */
+mark {
+  --color: var(--hl-yellow);
+  position: relative;
+  display: inline-block;   /* see THE WRAP below */
+  background-color: unset; /* the pseudo does the colour */
+  color: inherit;
+  isolation: isolate;
+}
+mark::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  /* nudged by hand until it sat like a pen stroke: wider than the word,
+     a touch taller, and pulled left so the stroke starts before the glyph */
+  width: calc(100% + 1ch); left: -0.25ch;
+  height: 112%; top: -6%;
+  border-bottom-right-radius: 20px 30px;
+  background-color: var(--color);
+  background-image: var(--grain);
+  opacity: 0.75;
+  box-shadow:
+    inset -2px 0 1px hsl(from var(--color) h s calc(l - 20)),
+    inset -4px 0 5px hsl(from var(--color) h s calc(l - 20));
+  filter: url(#rough);
+}
+/* the blob where the pen rested a beat too long */
+mark::after {
+  content: ""; position: absolute; z-index: -1;
+  height: 1ch; width: 0.5ch; top: 2px; right: -0.25em;
+  background: radial-gradient(hsl(from var(--color) h s calc(l - 30)), hsl(from var(--color) h s l));
+  opacity: 0.4;
+  border-radius: 10px 0 50px / 200px 0;
+  rotate: 15deg;
+  filter: url(#rough);
+}
+/* THE WRAP — a mark is inline-block so the filter has a box to work on,
+   which means a long phrase cannot break across lines. The fix is to stop
+   marking phrases: script splits one into a mark per word, so the line
+   breaks between them, and only the last word keeps the pen blob. */
+mark[data-split] { display: inline; }
+mark.w { margin-right: 0.24ch; }
+mark.w:not(.last)::after { content: none; }
+
+.hl-red { --color: var(--hl-red); }
+.hl-orange { --color: var(--hl-orange); }
+.hl-green { --color: var(--hl-green); }
+.hl-cyan { --color: var(--hl-cyan); }
+.hl-blue { --color: var(--hl-blue); }
+.hl-purple { --color: var(--hl-purple); }
+.hl-magenta { --color: var(--hl-magenta); }
+
+/* ============================================================
+   CHROME
+   ============================================================ */
+header.top {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+.top .wide { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 1.5rem; }
+.brand { font-family: var(--mono); font-weight: 700; letter-spacing: 0.1em; font-size: var(--step--1); text-decoration: none; }
+.brand sup { color: var(--ink-3); margin-left: 2px; }
+.nav { display: flex; gap: 1.75rem; }
+.nav a { font-family: var(--mono); font-size: var(--step--1); letter-spacing: 0.06em; color: var(--ink-2); text-decoration: none; }
+.nav a:hover { color: var(--ink); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--mono); font-size: var(--step--1); font-weight: 500; letter-spacing: 0.06em;
+  padding: 0.65rem 1.15rem; border-radius: 3px; text-decoration: none;
+  border: 1px solid var(--ink); transition: 0.18s ease;
+}
+.btn--fill { background: var(--ink); color: var(--paper); }
+.btn--fill:hover { background: #2a2827; }
+.btn--line:hover { background: var(--paper-2); }
+.btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+/* the ridgeline bottoms out on the section edge, so no bottom padding */
+.hero { padding: clamp(4rem, 9vw, 7.5rem) 0 0; }
+/* ============================================================
+   THE RIDGELINE
+   Seven silhouettes receding behind the hero copy, each moving
+   at its own rate as the page scrolls.
+
+   The original is a perspective trick: a scroll container at
+   perspective 100px, layers pushed back translateZ(-100x) and
+   scaled (x+1) to undo the shrink, so the only thing depth
+   changes is how fast each one travels. That needs the element
+   WITH the perspective to be the scroller, which on a page like
+   this one means nesting a second scrollbar inside the hero.
+   The maths is worth keeping and the nested scroller is not:
+   scale(x+1) exactly cancels the perspective division, so each
+   layer's net scale is 1 and its rate is 1/(1+x). Drive that
+   rate off the page scroll and you get the same picture with
+   the page's own scrollbar. The ladder below is the pen's, in
+   order: x = 3, 2.5, 2, 1.5, 1, 0.5, 0.
+
+   The art is inline rather than seven PNGs: this repo inlines
+   everything, and drawing the ridges means they can be cut from
+   the page's own highlighter palette instead of a screenshot of
+   somebody else's.
+   ============================================================ */
+.parallax {
+  position: relative;
+  height: clamp(320px, 54vh, 600px);
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  overflow: hidden;
+  isolation: isolate;
+}
+/* the sky the ridges sit against: paper, warmed toward the horizon */
+.parallax::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(58% 42% at 50% 96%, hsl(27 98% 88% / 0.85) 0%, transparent 70%),
+    linear-gradient(180deg, var(--paper) 0%, hsl(46 83% 93%) 58%, hsl(27 98% 90%) 100%);
+}
+/* The sun sits up with the headline rather than on the horizon: high in the
+   sky, with the ridges far below it, which is the order those two things
+   come in anyway.
+   z-index -1 needs a stacking context on the parent or the disc drops
+   straight through to the page background; the wrap gets position and a
+   z-index of 0 to hold it, and then the copy paints over it without any of
+   the headline elements needing a z-index of their own. */
+.hero .wrap { position: relative; z-index: 0; }
+.hero-sun {
+  position: absolute; z-index: -1;
+  top: -1.2rem; right: -2.2rem;
+  width: clamp(120px, 17vw, 230px); aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsl(46 96% 88%) 0 58%, hsl(27 98% 86%) 60% 100%);
+  pointer-events: none;
+}
+@media (max-width: 720px) {
+  /* no room beside the measure at this width — tuck it behind the top of
+     the headline instead of letting it push the page sideways */
+  .hero-sun { right: -1rem; top: -2.4rem; width: clamp(96px, 26vw, 150px); }
+}
+.parallax__layer {
+  position: absolute; inset: 0;
+  z-index: 2;
+  will-change: transform;
+}
+.parallax__layer svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* Far to near, the page's own highlighter hues run warm to cool and pale to
+   deep — the recession is the palette, not a separate colour scheme. */
+.parallax__layer__0 { --fill: hsl(46 83% 86%); }
+.parallax__layer__1 { --fill: var(--hl-orange); }
+.parallax__layer__2 { --fill: var(--hl-red); }
+.parallax__layer__3 { --fill: var(--hl-magenta); }
+.parallax__layer__4 { --fill: var(--hl-purple); }
+.parallax__layer__5 { --fill: hsl(199 34% 62%); }
+.parallax__layer__6 { --fill: #2f2b33; }
+.parallax__layer path { fill: var(--fill); }
+/* Every ridge but the nearest travels, and a ridge that has drifted up leaves
+   its own bottom edge showing — a sliver of sky under the hill in front of
+   it. This runs each fill on past the foot of its box so there is always
+   more colour below than any layer can uncover. */
+.parallax__layer::after {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 100%;
+  /* deep enough for the furthest ridge's full sink: it now travels most of
+     the band's height on the way past, and any of it that is not backed by
+     its own colour shows as a stripe of sky under the hill in front */
+  height: 380px;
+  background: var(--fill);
+}
+/* the grain carries across so the ridges read as printed, not vector */
+.parallax::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 3;
+  background-image: var(--grain-page);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .parallax__layer { transform: none !important; }
+}
+
+.hero h1 {
+  font-size: var(--step-6); font-weight: 600; line-height: 1.06; letter-spacing: -0.025em;
+  text-wrap: balance; margin: 1.1rem 0 1.5rem;
+}
+.hero .lede { font-size: var(--step-1); max-width: 46ch; color: #2c2a28; }
+.hero .cta { display: flex; gap: 0.75rem; margin-top: 2.25rem; flex-wrap: wrap; }
+
+/* ============================================================
+   THE TRAY — the legend, which is also the product's whole idea
+   ============================================================ */
+.sec { padding: clamp(3.5rem, 7vw, 6rem) 0; border-top: 1px solid var(--rule); }
+.sec-head { max-width: 58ch; margin-bottom: 2.75rem; }
+.sec-head h2 { font-size: var(--step-4); font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; margin: 0.75rem 0 0.85rem; text-wrap: balance; }
+.sec-head p { color: #46443f; max-width: 52ch; }
+
+.tray { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+.swatch h3 { font-size: var(--step-1); font-weight: 600; margin-bottom: 0.4rem; }
+.swatch p { font-size: var(--step--1); line-height: 1.55; color: var(--ink-2); font-family: var(--mono); }
+
+/* ============================================================
+   THE SHEET — a marked-up answer you can interrogate
+   ============================================================ */
+.sheet {
+  position: relative; padding: clamp(1.75rem, 4vw, 3rem);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow: 0 1px 0 var(--paper-3), 0 18px 40px -28px rgba(16, 15, 15, 0.45);
+}
+.sheet-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rule); flex-wrap: wrap;
+}
+.sheet-body p { font-size: var(--step-1); line-height: 1.75; max-width: 58ch; }
+.sheet-body p + p { margin-top: 1.1rem; }
+
+/* a claim is a button so it is reachable by keyboard, not just hover */
+.claim { font: inherit; color: inherit; padding: 0; text-align: left; cursor: pointer; }
+.claim mark { pointer-events: none; }
+.claim:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.note {
+  margin-top: 1.75rem; padding: 1.15rem 1.35rem;
+  background: var(--paper-2); border-left: 3px solid var(--ink);
+  font-size: var(--step--1); line-height: 1.65;
+}
+.note .who { font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); display: block; margin-bottom: 0.35rem; }
+.note q { font-style: italic; }
+.note cite { display: block; margin-top: 0.5rem; font-family: var(--mono); font-style: normal; color: var(--ink-2); }
+
+/* ============================================================
+   NUMBERS / STEPS / CLOSE
+   ============================================================ */
+.figures { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+.fig b { display: block; font-size: var(--step-4); font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.fig span { display: block; margin-top: 0.5rem; font-family: var(--mono); font-size: var(--step--1); color: var(--ink-2); line-height: 1.5; }
+.caveat { margin-top: 2rem; font-family: var(--mono); font-size: var(--step--1); color: var(--ink-3); }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; counter-reset: s; }
+.step { counter-increment: s; }
+.step::before {
+  content: counter(s, decimal-leading-zero);
+  display: block; font-family: var(--mono); font-size: var(--step--1);
+  letter-spacing: 0.14em; color: var(--ink-3); margin-bottom: 0.75rem;
+}
+.step h3 { font-size: var(--step-1); font-weight: 600; margin-bottom: 0.45rem; }
+.step p { font-size: var(--step--1); line-height: 1.65; color: var(--ink-2); }
+
+.close { text-align: center; padding: clamp(4rem, 8vw, 6.5rem) 0; border-top: 1px solid var(--rule); }
+.close h2 { font-size: var(--step-4); font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; margin-bottom: 0.9rem; }
+.close p { max-width: 46ch; margin: 0 auto 2rem; color: #46443f; }
+
+footer { border-top: 1px solid var(--rule); padding: 2.25rem 0 3rem; }
+.foot { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;
+  font-family: var(--mono); font-size: var(--step--1); line-height: 1.8; color: var(--ink-2); }
+.foot a { color: var(--ink); }
+
+@media (max-width: 900px) {
+  .tray, .figures { grid-template-columns: repeat(2, 1fr); }
+  .steps { grid-template-columns: 1fr; gap: 1.75rem; }
+  .nav { display: none; }
+}
+@media (max-width: 520px) {
+  .tray, .figures { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- the roughener. feTurbulence makes the noise field, feDisplacementMap
+     pushes the pixels of whatever it is applied to around by it. -->
+<svg width="0" height="0" aria-hidden="true" style="position: absolute">
+  <defs>
+    <filter id="rough">
+      <feTurbulence type="fractalNoise" baseFrequency=".08" numOctaves="4" />
+      <feDisplacementMap in="SourceGraphic" scale="5" />
+    </filter>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wide">
+    <a class="brand" href="#top">FOOTNOTE<sup>®</sup></a>
+    <nav class="nav">
+      <a href="#tray">Verdicts</a>
+      <a href="#sheet">A marked answer</a>
+      <a href="#how">How it works</a>
+    </nav>
+    <a class="btn btn--line" href="#start">Get a key</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <span class="hero-sun" aria-hidden="true"></span>
+      <h1>Every claim your model makes, <mark class="hl-green">marked</mark> against the source it came from.</h1>
+      <p class="lede">
+        Footnote reads an answer and its retrieved context together, then highlights each assertion by
+        what actually backs it. <mark class="hl-green">Supported</mark> in green. <mark class="hl-orange">Stretched</mark> in orange. <mark data-split class="hl-red">Invented out of nothing</mark> in red.
+      </p>
+      <div class="cta">
+        <a class="btn btn--fill" href="#start">Get a key</a>
+        <a class="btn btn--line" href="#sheet">See a marked answer</a>
+      </div>
+    </div>
+
+    <div class="parallax" id="ridge" aria-hidden="true">
+        <div class="parallax__layer parallax__layer__0">
+          <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,46.7 C27.7,46.7 27.7,34.1 55.4,34.1 C83.1,34.1 83.1,34.3 110.8,34.3 C138.5,34.3 138.5,42.6 166.2,42.6 C193.8,42.6 193.8,48.7 221.5,48.7 C249.2,48.7 249.2,49.4 276.9,49.4 C304.6,49.4 304.6,50.4 332.3,50.4 C360.0,50.4 360.0,55.3 387.7,55.3 C415.4,55.3 415.4,59.8 443.1,59.8 C470.8,59.8 470.8,59.5 498.5,59.5 C526.2,59.5 526.2,58.2 553.8,58.2 C581.5,58.2 581.5,64.4 609.2,64.4 C636.9,64.4 636.9,79.3 664.6,79.3 C692.3,79.3 692.3,92.8 720.0,92.8 C747.7,92.8 747.7,94.9 775.4,94.9 C803.1,94.9 803.1,86.6 830.8,86.6 C858.5,86.6 858.5,76.6 886.2,76.6 C913.8,76.6 913.8,69.9 941.5,69.9 C969.2,69.9 969.2,62.9 996.9,62.9 C1024.6,62.9 1024.6,53.0 1052.3,53.0 C1080.0,53.0 1080.0,45.0 1107.7,45.0 C1135.4,45.0 1135.4,45.6 1163.1,45.6 C1190.8,45.6 1190.8,52.6 1218.5,52.6 C1246.2,52.6 1246.2,55.7 1273.8,55.7 C1301.5,55.7 1301.5,49.2 1329.2,49.2 C1356.9,49.2 1356.9,39.5 1384.6,39.5 C1412.3,39.5 1412.3,37.1 1440.0,37.1 L1440,400 L0,400 Z"/>
+          </svg>
+        </div>
+        <div class="parallax__layer parallax__layer__1">
+          <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,85.0 C27.7,85.0 27.7,101.5 55.4,101.5 C83.1,101.5 83.1,114.0 110.8,114.0 C138.5,114.0 138.5,109.0 166.2,109.0 C193.8,109.0 193.8,104.8 221.5,104.8 C249.2,104.8 249.2,117.7 276.9,117.7 C304.6,117.7 304.6,132.3 332.3,132.3 C360.0,132.3 360.0,133.6 387.7,133.6 C415.4,133.6 415.4,130.6 443.1,130.6 C470.8,130.6 470.8,125.5 498.5,125.5 C526.2,125.5 526.2,106.7 553.8,106.7 C581.5,106.7 581.5,83.5 609.2,83.5 C636.9,83.5 636.9,79.7 664.6,79.7 C692.3,79.7 692.3,90.9 720.0,90.9 C747.7,90.9 747.7,93.4 775.4,93.4 C803.1,93.4 803.1,88.7 830.8,88.7 C858.5,88.7 858.5,91.3 886.2,91.3 C913.8,91.3 913.8,95.9 941.5,95.9 C969.2,95.9 969.2,96.3 996.9,96.3 C1024.6,96.3 1024.6,107.0 1052.3,107.0 C1080.0,107.0 1080.0,131.2 1107.7,131.2 C1135.4,131.2 1135.4,143.9 1163.1,143.9 C1190.8,143.9 1190.8,133.7 1218.5,133.7 C1246.2,133.7 1246.2,120.3 1273.8,120.3 C1301.5,120.3 1301.5,113.9 1329.2,113.9 C1356.9,113.9 1356.9,104.2 1384.6,104.2 C1412.3,104.2 1412.3,94.8 1440.0,94.8 L1440,400 L0,400 Z"/>
+          </svg>
+        </div>
+        <div class="parallax__layer parallax__layer__2">
+          <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,162.7 C27.7,162.7 27.7,174.2 55.4,174.2 C83.1,174.2 83.1,173.4 110.8,173.4 C138.5,173.4 138.5,171.8 166.2,171.8 C193.8,171.8 193.8,163.2 221.5,163.2 C249.2,163.2 249.2,129.5 276.9,129.5 C304.6,129.5 304.6,114.2 332.3,114.2 C360.0,114.2 360.0,129.1 387.7,129.1 C415.4,129.1 415.4,136.6 443.1,136.6 C470.8,136.6 470.8,144.6 498.5,144.6 C526.2,144.6 526.2,154.9 553.8,154.9 C581.5,154.9 581.5,150.2 609.2,150.2 C636.9,150.2 636.9,162.2 664.6,162.2 C692.3,162.2 692.3,189.2 720.0,189.2 C747.7,189.2 747.7,185.9 775.4,185.9 C803.1,185.9 803.1,167.4 830.8,167.4 C858.5,167.4 858.5,152.6 886.2,152.6 C913.8,152.6 913.8,130.7 941.5,130.7 C969.2,130.7 969.2,128.4 996.9,128.4 C1024.6,128.4 1024.6,143.1 1052.3,143.1 C1080.0,143.1 1080.0,134.1 1107.7,134.1 C1135.4,134.1 1135.4,125.2 1163.1,125.2 C1190.8,125.2 1190.8,139.5 1218.5,139.5 C1246.2,139.5 1246.2,153.2 1273.8,153.2 C1301.5,153.2 1301.5,173.7 1329.2,173.7 C1356.9,173.7 1356.9,193.4 1384.6,193.4 C1412.3,193.4 1412.3,177.2 1440.0,177.2 L1440,400 L0,400 Z"/>
+          </svg>
+        </div>
+        <div class="parallax__layer parallax__layer__3">
+          <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,161.2 C27.7,161.2 27.7,168.5 55.4,168.5 C83.1,168.5 83.1,190.5 110.8,190.5 C138.5,190.5 138.5,187.8 166.2,187.8 C193.8,187.8 193.8,200.9 221.5,200.9 C249.2,200.9 249.2,207.1 276.9,207.1 C304.6,207.1 304.6,235.6 332.3,235.6 C360.0,235.6 360.0,232.2 387.7,232.2 C415.4,232.2 415.4,196.8 443.1,196.8 C470.8,196.8 470.8,185.4 498.5,185.4 C526.2,185.4 526.2,174.3 553.8,174.3 C581.5,174.3 581.5,186.4 609.2,186.4 C636.9,186.4 636.9,174.8 664.6,174.8 C692.3,174.8 692.3,173.1 720.0,173.1 C747.7,173.1 747.7,208.0 775.4,208.0 C803.1,208.0 803.1,224.8 830.8,224.8 C858.5,224.8 858.5,235.8 886.2,235.8 C913.8,235.8 913.8,208.5 941.5,208.5 C969.2,208.5 969.2,198.0 996.9,198.0 C1024.6,198.0 1024.6,203.1 1052.3,203.1 C1080.0,203.1 1080.0,180.9 1107.7,180.9 C1135.4,180.9 1135.4,171.1 1163.1,171.1 C1190.8,171.1 1190.8,159.8 1218.5,159.8 C1246.2,159.8 1246.2,191.7 1273.8,191.7 C1301.5,191.7 1301.5,220.4 1329.2,220.4 C1356.9,220.4 1356.9,214.6 1384.6,214.6 C1412.3,214.6 1412.3,219.3 1440.0,219.3 L1440,400 L0,400 Z"/>
+          </svg>
+        </div>
+        <div class="parallax__layer parallax__layer__4">
+          <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,251.8 C27.7,251.8 27.7,261.8 55.4,261.8 C83.1,261.8 83.1,265.0 110.8,265.0 C138.5,265.0 138.5,277.5 166.2,277.5 C193.8,277.5 193.8,228.5 221.5,228.5 C249.2,228.5 249.2,214.4 276.9,214.4 C304.6,214.4 304.6,219.5 332.3,219.5 C360.0,219.5 360.0,240.1 387.7,240.1 C415.4,240.1 415.4,231.9 443.1,231.9 C470.8,231.9 470.8,269.1 498.5,269.1 C526.2,269.1 526.2,280.5 553.8,280.5 C581.5,280.5 581.5,263.3 609.2,263.3 C636.9,263.3 636.9,224.6 664.6,224.6 C692.3,224.6 692.3,233.7 720.0,233.7 C747.7,233.7 747.7,220.1 775.4,220.1 C803.1,220.1 803.1,218.3 830.8,218.3 C858.5,218.3 858.5,238.0 886.2,238.0 C913.8,238.0 913.8,281.7 941.5,281.7 C969.2,281.7 969.2,267.7 996.9,267.7 C1024.6,267.7 1024.6,254.7 1052.3,254.7 C1080.0,254.7 1080.0,246.6 1107.7,246.6 C1135.4,246.6 1135.4,236.5 1163.1,236.5 C1190.8,236.5 1190.8,202.3 1218.5,202.3 C1246.2,202.3 1246.2,220.7 1273.8,220.7 C1301.5,220.7 1301.5,253.1 1329.2,253.1 C1356.9,253.1 1356.9,265.9 1384.6,265.9 C1412.3,265.9 1412.3,257.6 1440.0,257.6 L1440,400 L0,400 Z"/>
+          </svg>
+        </div>
+        <div class="parallax__layer parallax__layer__5">
+          <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,300.2 C27.7,300.2 27.7,294.5 55.4,294.5 C83.1,294.5 83.1,264.4 110.8,264.4 C138.5,264.4 138.5,261.5 166.2,261.5 C193.8,261.5 193.8,287.9 221.5,287.9 C249.2,287.9 249.2,297.3 276.9,297.3 C304.6,297.3 304.6,309.2 332.3,309.2 C360.0,309.2 360.0,315.4 387.7,315.4 C415.4,315.4 415.4,271.9 443.1,271.9 C470.8,271.9 470.8,265.5 498.5,265.5 C526.2,265.5 526.2,280.8 553.8,280.8 C581.5,280.8 581.5,278.6 609.2,278.6 C636.9,278.6 636.9,320.7 664.6,320.7 C692.3,320.7 692.3,318.0 720.0,318.0 C747.7,318.0 747.7,275.7 775.4,275.7 C803.1,275.7 803.1,282.4 830.8,282.4 C858.5,282.4 858.5,262.1 886.2,262.1 C913.8,262.1 913.8,266.7 941.5,266.7 C969.2,266.7 969.2,318.9 996.9,318.9 C1024.6,318.9 1024.6,307.5 1052.3,307.5 C1080.0,307.5 1080.0,295.0 1107.7,295.0 C1135.4,295.0 1135.4,293.5 1163.1,293.5 C1190.8,293.5 1190.8,248.2 1218.5,248.2 C1246.2,248.2 1246.2,271.5 1273.8,271.5 C1301.5,271.5 1301.5,298.2 1329.2,298.2 C1356.9,298.2 1356.9,294.3 1384.6,294.3 C1412.3,294.3 1412.3,318.2 1440.0,318.2 L1440,400 L0,400 Z"/>
+          </svg>
+        </div>
+        <div class="parallax__layer parallax__layer__6">
+          <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,400 L0,400.0 L5.6,381.9 L24.1,338.5 L15.8,331.2 L31.5,280.6 L49.3,219.1 L61.2,280.6 L77.0,331.2 L68.6,338.5 L87.2,381.9 L92.7,400.0 L98.2,387.3 L116.2,356.7 L108.1,351.6 L123.5,315.9 L137.4,272.6 L152.4,315.9 L167.7,351.6 L159.6,356.7 L177.7,387.3 L183.1,400.0 L189.6,381.7 L211.1,337.8 L201.4,330.5 L219.8,279.2 L235.9,217.0 L254.3,279.2 L272.6,330.5 L262.9,337.8 L284.5,381.7 L290.9,400.0 L297.2,386.2 L318.1,353.1 L308.7,347.6 L326.5,308.9 L336.5,262.0 L359.9,308.9 L377.7,347.6 L368.3,353.1 L389.2,386.2 L395.5,400.0 L400.9,379.2 L419.1,329.4 L410.9,321.1 L426.3,262.9 L435.3,192.3 L455.4,262.9 L470.8,321.1 L462.6,329.4 L480.8,379.2 L486.2,400.0 L491.1,387.1 L507.5,356.2 L500.1,351.0 L514.0,315.0 L519.6,271.2 L540.2,315.0 L554.1,351.0 L546.7,356.2 L563.1,387.1 L568.0,400.0 L573.3,381.9 L591.0,338.5 L583.1,331.2 L598.1,280.5 L618.0,219.0 L626.5,280.5 L641.6,331.2 L633.6,338.5 L651.4,381.9 L656.7,400.0 L662.2,384.1 L680.4,346.1 L672.2,339.7 L687.7,295.3 L698.4,241.3 L716.8,295.3 L732.3,339.7 L724.1,346.1 L742.3,384.1 L747.8,400.0 L753.2,379.6 L771.2,330.8 L763.1,322.7 L778.4,265.7 L793.6,196.5 L807.2,265.7 L822.5,322.7 L814.4,330.8 L832.3,379.6 L837.7,400.0 L843.0,387.0 L860.6,355.9 L852.7,350.7 L867.7,314.3 L886.7,270.2 L895.8,314.3 L910.8,350.7 L902.8,355.9 L920.4,387.0 L925.7,400.0 L932.1,379.1 L953.6,328.9 L944.0,320.5 L962.2,262.0 L973.8,190.9 L996.6,262.0 L1014.8,320.5 L1005.1,328.9 L1026.6,379.1 L1033.1,400.0 L1039.1,378.1 L1059.2,325.5 L1050.1,316.8 L1067.2,255.4 L1085.1,180.9 L1099.3,255.4 L1116.4,316.8 L1107.3,325.5 L1127.4,378.1 L1133.4,400.0 L1140.5,386.4 L1164.0,353.6 L1153.4,348.2 L1173.4,310.0 L1203.4,263.6 L1211.1,310.0 L1231.1,348.2 L1220.5,353.6 L1244.0,386.4 L1251.1,400.0 L1255.8,383.6 L1271.7,344.3 L1264.5,337.8 L1278.0,291.9 L1283.1,236.2 L1303.3,291.9 L1316.8,337.8 L1309.7,344.3 L1325.5,383.6 L1330.3,400.0 L1337.0,380.6 L1359.3,334.2 L1349.3,326.4 L1368.3,272.2 L1396.8,206.4 L1404.1,272.2 L1423.1,326.4 L1413.0,334.2 L1435.3,380.6 L1442.1,400.0 L1440,400 L1440,400 Z"/>
+          </svg>
+        </div>
+    </div>
+  </section>
+
+  <!-- ======================= THE TRAY ======================= -->
+  <section class="sec" id="tray">
+    <div class="wide">
+      <div class="sec-head">
+        <p class="label">The tray</p>
+        <h2>Four colours, and each one means something.</h2>
+        <p>A grounding score is a number you have to take on faith. A mark is a thing you can point at, argue with, and send to whoever wrote the retrieval.</p>
+      </div>
+      <div class="tray">
+        <div class="swatch">
+          <h3><mark class="hl-green">Grounded</mark></h3>
+          <p>Every token traceable to a retrieved span. Quote it in a report.</p>
+        </div>
+        <div class="swatch">
+          <h3><mark class="hl-cyan">Paraphrased</mark></h3>
+          <p>Supported, but reworded far enough that the wording is the model's.</p>
+        </div>
+        <div class="swatch">
+          <h3><mark class="hl-orange">Stretched</mark></h3>
+          <p>A source is adjacent but does not carry the claim as stated.</p>
+        </div>
+        <div class="swatch">
+          <h3><mark class="hl-red">Unsupported</mark></h3>
+          <p>Nothing in the context says this. The interesting ones live here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= THE SHEET ======================= -->
+  <section class="sec" id="sheet">
+    <div class="wide">
+      <div class="sec-head">
+        <p class="label">A marked answer</p>
+        <h2>This is what comes back.</h2>
+        <p>The same answer your model produced, with a verdict on every claim. Pick one to read the span it was checked against.</p>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-head">
+          <span class="label">run 4c1f · gpt-class model · 6 retrieved spans</span>
+          <span class="label">3 grounded · 1 stretched · 1 unsupported</span>
+        </div>
+        <div class="sheet-body">
+          <p>
+            <button class="claim" type="button" data-note="0">The reservoir was <mark data-split class="hl-green">commissioned in 1936</mark></button>
+            and has supplied the eastern districts ever since.
+            <button class="claim" type="button" data-note="1">Its spillway was <mark data-split class="hl-cyan">rebuilt after the 1974 floods</mark></button>,
+            which is when the current capacity figure dates from.
+          </p>
+          <p>
+            <button class="claim" type="button" data-note="2">Storage today is <mark data-split class="hl-orange">around 40 million cubic metres</mark></button>,
+            and
+            <button class="claim" type="button" data-note="3">the authority plans a <mark data-split class="hl-red">second intake by 2031</mark></button>.
+          </p>
+        </div>
+        <div class="note" id="note" hidden>
+          <span class="who" id="noteWho"></span>
+          <q id="noteQuote"></q>
+          <cite id="noteCite"></cite>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= FIGURES ======================= -->
+  <section class="sec">
+    <div class="wide">
+      <div class="sec-head">
+        <p class="label">On paper</p>
+        <h2>What it catches.</h2>
+      </div>
+      <div class="figures">
+        <div class="fig"><b>1 in 9</b><span>claims in a grounded answer are not actually grounded</span></div>
+        <div class="fig"><b>210 ms</b><span>median, for an answer of a thousand tokens</span></div>
+        <div class="fig"><b>Span</b><span>level verdicts, not one score for the whole answer</span></div>
+        <div class="fig"><b>0</b><span>changes to the model you already run</span></div>
+      </div>
+      <p class="caveat">Invented product, invented figures — nothing here was measured.</p>
+    </div>
+  </section>
+
+  <!-- ======================= HOW ======================= -->
+  <section class="sec" id="how">
+    <div class="wide">
+      <div class="sec-head">
+        <p class="label">How it works</p>
+        <h2>One call, after the answer exists.</h2>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <h3>Send both halves</h3>
+          <p>The answer and the spans you retrieved for it. Footnote does not need your prompt, your weights or your vector store.</p>
+        </article>
+        <article class="step">
+          <h3>Get claims back</h3>
+          <p>The answer is split into assertions, each with a verdict, a confidence and the span offsets it was checked against.</p>
+        </article>
+        <article class="step">
+          <h3>Mark it up, or gate on it</h3>
+          <p>Render the marks for a human, or fail the response in CI when anything comes back unsupported. Same payload either way.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="close" id="start">
+    <div class="wrap">
+      <h2>Stop shipping answers you cannot <mark class="hl-magenta">point at</mark>.</h2>
+      <p>Send one answer through it and see how much of it survives.</p>
+      <a class="btn btn--fill" href="#top">Get a key</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wide foot">
+    <span>
+      Footnote is a fictional product and this page is a design demo — the platform,<br />
+      the claims and every figure are invented. Nothing here is real.
+    </span>
+    <span>
+      Highlighter effect adapted from a pen by
+      <a href="https://codepen.io/HejChristian" target="_blank" rel="noopener">Christian Alder</a><br />
+      One file · no images · no libraries
+    </span>
+  </div>
+</footer>
+
+<script>
+(() => {
+"use strict";
+
+/* ============================================================
+   THE WRAP
+   The original's open problem: a mark is display:inline-block so the
+   displacement filter has a box to act on, which means a phrase of more
+   than one word cannot break across a line. Marking each WORD instead
+   fixes it — the line breaks between marks, every word keeps its own
+   rough edge, and only the last one keeps the pen blob.
+   ============================================================ */
+for (const m of document.querySelectorAll("mark[data-split]")) {
+  const words = m.textContent.split(/\s+/).filter(Boolean);
+  if (words.length < 2) continue;
+  const frag = document.createDocumentFragment();
+  words.forEach((w, i) => {
+    const s = document.createElement("mark");
+    s.className = "w" + (i === words.length - 1 ? " last" : "");
+    s.textContent = w;
+    frag.append(s, document.createTextNode(" "));
+  });
+  frag.lastChild.remove();
+  m.replaceChildren(frag);
+}
+
+/* ============================================================
+   THE SHEET
+   ============================================================ */
+const NOTES = [
+  ["Grounded", "Impounding began in March 1936, with the reservoir declared operational that October.",
+   "span 2 · district water authority, centenary review, p.14"],
+  ["Paraphrased", "Following the 1974 inundation the spillway was reconstructed to a wider profile.",
+   "span 4 · flood commission report, §3.2"],
+  ["Stretched", "Design capacity at completion was 38.4 million cubic metres.",
+   "span 1 · engineering appendix — a design figure, not a present-day reading"],
+  ["Unsupported", "No retrieved span mentions a second intake, a 2031 date, or any planned works.",
+   "nothing in the context supports this claim"],
+];
+const note = document.getElementById("note");
+const who = document.getElementById("noteWho");
+const quote = document.getElementById("noteQuote");
+const cite = document.getElementById("noteCite");
+let open = -1;
+
+for (const b of document.querySelectorAll(".claim")) {
+  b.setAttribute("aria-expanded", "false");
+  b.setAttribute("aria-controls", "note");
+  b.addEventListener("click", () => {
+    const i = +b.dataset.note;
+    if (i === open) { note.hidden = true; open = -1; b.setAttribute("aria-expanded", "false"); return; }
+    for (const o of document.querySelectorAll(".claim")) o.setAttribute("aria-expanded", "false");
+    b.setAttribute("aria-expanded", "true");
+    const [w, q, c] = NOTES[i];
+    who.textContent = w;
+    quote.textContent = q;
+    cite.textContent = c;
+    note.hidden = false;
+    open = i;
+  });
+}
+})();
+
+/* ============================================================
+   THE RIDGELINE — the pen's depth ladder, driven by page scroll
+   ============================================================
+   x runs 3, 2.5, 2, 1.5, 1, 0.5, 0 from the back layer to the
+   front. Under the original's perspective the apparent travel
+   rate is 1/(1+x), so the offset that reproduces it is
+   (1 - 1/(1+x)) of the distance scrolled: three quarters of a
+   lag on the furthest ridge, none at all on the trees, and it
+   grows the whole way past rather than easing back.
+
+   Transform only, written in a rAF from a passive scroll
+   listener, and skipped entirely once the block has left the
+   viewport — there is no reason to move seven layers nobody can
+   see.
+   ============================================================ */
+(function () {
+  "use strict";
+  var box = document.getElementById("ridge");
+  if (!box) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  var layers = Array.prototype.map.call(
+    box.querySelectorAll(".parallax__layer"),
+    function (el, i) {
+      var x = (6 - i) / 2;
+      return { el: el, rate: 1 - 1 / (1 + x) };
+    }
+  );
+
+  var onScreen = true, queued = false;
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; },
+      { rootMargin: "120px" }).observe(box);
+  }
+
+  function paint() {
+    queued = false;
+    var r = box.getBoundingClientRect();
+    var vh = window.innerHeight;
+
+    /* Distance scrolled since the block's top reached the foot of the
+       viewport. The lag has to be proportional to THIS, not to a fraction
+       of the crossing: the original's layers sit composed at rest and come
+       apart monotonically as the scroller moves, where a symmetric wobble
+       about the midpoint is already half spread before you have seen it,
+       and it re-converges on the way out. */
+    var span = vh + r.height;
+    var s = vh - r.top;
+    if (s < 0) s = 0; else if (s > span) s = span;
+
+    /* The original can afford the full 1/(1+x) lag because its layers are
+       scaled boxes with bottom-anchored art and three viewport-heights of
+       headroom above the frame. In a band on a page the same rates walk the
+       far ridge clean out of it, so the ladder is kept and the gain is
+       scaled to the band — the ratios between the seven are what read as
+       depth, not their absolute travel. Half the band, not more: the far
+       ridges have to still be in frame when the trees leave, or the whole
+       palette walks off the bottom and the section ends as silhouettes on
+       an empty sky. */
+    var gain = (r.height * 0.5) / (0.75 * span);
+
+    for (var i = 0; i < layers.length; i++) {
+      var y = layers[i].rate * s * gain;
+      layers[i].el.style.transform = "translate3d(0," + y.toFixed(2) + "px,0)";
+    }
+  }
+
+  function request() {
+    if (queued || !onScreen) return;
+    queued = true;
+    requestAnimationFrame(paint);
+  }
+
+  window.addEventListener("scroll", request, { passive: true });
+  window.addEventListener("resize", request);
+  paint();
+})();
+</script>
+</body>
+</html>

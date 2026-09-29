@@ -1,0 +1,18 @@
+# Agent-readable library endpoints: CORS-open, cached briefly so new prompts appear fast.
+/prompts.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300
+  Content-Type: application/json; charset=utf-8
+
+/llms.txt
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300
+  Content-Type: text/plain; charset=utf-8
+
+/p/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300
+
+/demos/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600

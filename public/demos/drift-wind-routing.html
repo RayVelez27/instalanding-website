@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DRIFT — Weather Routing for Ocean Fleets</title>
+<meta name="description" content="Single-file landing page built on a live WebGL wind-field: 14k advected particles, six pressure presets, and an instrument-panel design system in Bebas Neue and DM Mono." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+@layer reset, base, layout, ui;
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer base {
+  :root {
+    --bg: #0d141a;
+    --bg-2: #0a1017;
+    --paper: #f0ece3;
+    --muted: #a3b0b8;
+    --low: #e0896a;
+    --high: #6a9fe0;
+    --font-mono: "DM Mono", ui-monospace, monospace;
+    --font-display: "Bebas Neue", system-ui, sans-serif;
+
+    /* One hairline weight everywhere: the whole page is drawn, not boxed. */
+    --rule: color-mix(in oklab, var(--paper) 16%, transparent);
+    --rule-strong: color-mix(in oklab, var(--paper) 34%, transparent);
+    --grid-step: 84px;
+    --gutter: clamp(1rem, 3vmin, 2rem);
+
+    /* The keys are painted in the surface behind the element: they read as
+       gaps in the frame, so they have to be whatever that surface is. */
+    --key-bg: var(--bg);
+  }
+
+  html { scroll-behavior: smooth; }
+  html, body { min-block-size: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--paper); color: var(--bg); }
+
+  a { color: inherit; }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    line-height: 0.9;
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--paper);
+    outline-offset: 3px;
+  }
+}
+
+@layer layout {
+  .shell {
+    inline-size: min(1320px, calc(100vw - var(--gutter) * 2));
+    margin-inline: auto;
+  }
+
+  /* Every section is a ruled sheet: hairline top, 84px grid ghosted over it. */
+  .band {
+    position: relative;
+    border-block-start: 1px solid var(--rule);
+    padding-block: clamp(4rem, 9vmin, 7.5rem);
+  }
+
+  .band::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        to right,
+        color-mix(in oklab, var(--paper) 18%, transparent) 0 1px,
+        transparent 1px var(--grid-step)
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--paper) 18%, transparent) 0 1px,
+        transparent 1px var(--grid-step)
+      );
+    opacity: 0.12;
+  }
+
+  .band > * { position: relative; z-index: 1; }
+
+  .band--quiet { background: var(--bg-2); --key-bg: var(--bg-2); }
+
+  /* ── Hero: the wind field is the page's first instrument ── */
+  .map {
+    position: relative;
+    /* The sticky bar eats the top of the viewport, so the field is sized to
+       what is left of it — otherwise the legend and the presets sit under the
+       fold on exactly the screens that should see them first. */
+    min-block-size: min(calc(100svh - var(--nav-h, 66px)), 860px);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .map::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        to right,
+        color-mix(in oklab, var(--paper) 18%, transparent) 0 1px,
+        transparent 1px var(--grid-step)
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--paper) 18%, transparent) 0 1px,
+        transparent 1px var(--grid-step)
+      );
+    opacity: 0.5;
+  }
+
+  #wind_canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    display: block;
+  }
+
+  /* No WebGL: the field is replaced by a still pressure gradient. */
+  .map[data-field="off"] #wind_canvas { display: none; }
+  .map[data-field="off"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(60% 50% at 18% 34%, color-mix(in oklab, var(--high) 34%, transparent), transparent 70%),
+      radial-gradient(50% 45% at 78% 66%, color-mix(in oklab, var(--low) 30%, transparent), transparent 70%),
+      var(--bg);
+  }
+
+  .markers {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+@layer ui {
+  /* ── Pressure systems, the motif the rest of the page borrows ── */
+  .pressure-system {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: var(--pressure-size, 7rem);
+    block-size: var(--pressure-size, 7rem);
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .pressure-ring,
+  .pressure-marker {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .pressure-ring {
+    inline-size: calc(var(--pressure-size, 7rem) * var(--ring-scale, 1));
+    block-size: calc(var(--pressure-size, 7rem) * var(--ring-scale, 1));
+    border: 1px solid color-mix(in oklab, var(--paper) 46%, transparent);
+    opacity: calc(var(--pressure-opacity, 0.42) * var(--ring-opacity, 1));
+  }
+
+  .pressure-ring[data-ring="1"] { --ring-scale: 0.72; --ring-opacity: 0.24; }
+  .pressure-ring[data-ring="2"] { --ring-scale: 1.18; --ring-opacity: 0.16; }
+  .pressure-ring[data-ring="3"] { --ring-scale: 1.72; --ring-opacity: 0.09; }
+
+  .pressure-marker {
+    display: grid;
+    place-items: center;
+    inline-size: 1.8rem;
+    block-size: 1.8rem;
+    border: 1px solid color-mix(in oklab, var(--paper) 42%, transparent);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    line-height: 1;
+    color: color-mix(in oklab, var(--paper) 88%, transparent);
+    background: color-mix(in oklab, var(--bg) 76%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--bg) 60%, transparent);
+  }
+
+  /* ── Type scale ── */
+  .kicker {
+    font-size: 0.6rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .display {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 8vmin, 6.5rem);
+    line-height: 0.86;
+    letter-spacing: 0.02em;
+  }
+
+  .display span { color: color-mix(in oklab, var(--paper) 46%, transparent); }
+
+  .section-title {
+    font-size: clamp(1.9rem, 5vmin, 3.4rem);
+    max-inline-size: 22ch;
+  }
+
+  .lede {
+    max-inline-size: 54ch;
+    color: color-mix(in oklab, var(--paper) 78%, transparent);
+  }
+
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block-end: 2.5rem;
+  }
+
+  /* ── Nav ── */
+  .nav {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem var(--gutter);
+    border-block-end: 1px solid var(--rule);
+    background: color-mix(in oklab, var(--bg) 82%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+
+  .wordmark small {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.24em;
+    color: var(--muted);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.4rem;
+    list-style: none;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.25s; }
+  .nav-links a:hover { color: var(--paper); }
+
+  /* ── Buttons ──────────────────────────────────────────────────────────
+     The Uiverse "fancy" button by cssbuttons-io, inverted for a dark page:
+     a square 2px frame with three gaps punched in it, a dash that leads the
+     label, and a hover that fills the button and closes the frame. Kept
+     intact: the geometry (1.5625rem keys, the 2em dash inset), the split
+     transition timings, and the fact that hover moves the label rather than
+     just recolouring it. Changed: black becomes --paper, the keys are painted
+     in --key-bg rather than #e8e8e8, and the frame is the page's own rule
+     colour until you touch it. ─────────────────────────────────────────── */
+  .btn {
+    appearance: none;
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 1em 1.6em;
+    border: 2px solid var(--rule-strong);
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--paper);
+    font: inherit;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    overflow: visible;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .btn::before {
+    content: " ";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 1.5em;
+    inline-size: 1.5625rem;
+    block-size: 2px;
+    background: var(--paper);
+    transform: translateY(-50%);
+    transform-origin: center;
+    transition: background 0.3s linear, width 0.3s linear;
+  }
+
+  .btn .text {
+    display: block;
+    padding-inline-start: 2.1rem;
+    font-size: 0.62rem;
+    line-height: 1.33333;
+    letter-spacing: 0.2em;
+    text-align: start;
+    text-transform: uppercase;
+    color: var(--paper);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .btn .top-key {
+    position: absolute;
+    inset-block-start: -2px;
+    inset-inline-start: 0.625rem;
+    inline-size: 1.5625rem;
+    block-size: 2px;
+    background: var(--key-bg);
+    transition: width 0.5s ease-out, left 0.3s ease-out;
+  }
+
+  .btn .bottom-key-1,
+  .btn .bottom-key-2 {
+    position: absolute;
+    inset-block-end: -2px;
+    block-size: 2px;
+    background: var(--key-bg);
+    transition: width 0.5s ease-out, right 0.3s ease-out;
+  }
+
+  .btn .bottom-key-1 { inset-inline-end: 1.875rem; inline-size: 1.5625rem; }
+  .btn .bottom-key-2 { inset-inline-end: 0.625rem; inline-size: 0.625rem; }
+
+  .btn:hover,
+  .btn:focus-visible {
+    background: var(--paper);
+    border-color: var(--paper);
+  }
+
+  .btn:hover::before,
+  .btn:focus-visible::before { inline-size: 0.9375rem; background: var(--bg); }
+
+  .btn:hover .text,
+  .btn:focus-visible .text { color: var(--bg); padding-inline-start: 1.55rem; }
+
+  .btn:hover .top-key,
+  .btn:focus-visible .top-key { inset-inline-start: -2px; inline-size: 0; }
+
+  .btn:hover .bottom-key-1,
+  .btn:hover .bottom-key-2,
+  .btn:focus-visible .bottom-key-1,
+  .btn:focus-visible .bottom-key-2 { inset-inline-end: 0; inline-size: 0; }
+
+  /* The solid twin starts filled and empties on hover, so a pair of them
+     still reads as primary and secondary. */
+  .btn--solid { background: var(--paper); border-color: var(--paper); }
+  .btn--solid::before { background: var(--bg); }
+  .btn--solid .text { color: var(--bg); }
+  .btn--solid:hover,
+  .btn--solid:focus-visible { background: transparent; border-color: var(--paper); }
+  .btn--solid:hover::before,
+  .btn--solid:focus-visible::before { background: var(--paper); inline-size: 0.9375rem; }
+  .btn--solid:hover .text,
+  .btn--solid:focus-visible .text { color: var(--paper); }
+
+  /* ── Hero furniture, straight from the field sketch ── */
+  .hero-body {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    gap: 2rem;
+    align-content: space-between;
+    flex: 1;
+    padding: clamp(1rem, 3vmin, 2rem);
+    pointer-events: none;
+  }
+
+  .hero-body > * { pointer-events: auto; }
+
+  /* The field is dense enough to swallow 14px mono, so the copy gets a scrim:
+     a wash down the reading column and another under the instrument row. Both
+     sit at z-index -1 inside the hero body's own stacking context, which puts
+     them over the canvas and under every word. */
+  .hero-body::before,
+  .hero-body::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .hero-body::before {
+    inset: 0 auto 0 0;
+    inline-size: min(46rem, 62%);
+    background: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--bg) 90%, transparent),
+      color-mix(in oklab, var(--bg) 66%, transparent) 42%,
+      transparent
+    );
+  }
+
+  .hero-body::after {
+    inset: auto 0 0 0;
+    block-size: 26%;
+    background: linear-gradient(to top, color-mix(in oklab, var(--bg) 84%, transparent), transparent);
+  }
+
+  .caption { max-inline-size: 40ch; }
+
+  .caption-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vmin, 2.4rem);
+    line-height: 0.9;
+    letter-spacing: 0.03em;
+  }
+
+  .caption-hint {
+    margin-block-start: 0.4rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hero-copy { display: grid; gap: 1.4rem; max-inline-size: 30ch; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+  .hero-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .mode-panel {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    max-inline-size: min(34rem, 100%);
+  }
+
+  .mode-panel button {
+    appearance: none;
+    border: 1px solid color-mix(in oklab, var(--paper) 18%, transparent);
+    padding: 0.42rem 0.58rem;
+    font: inherit;
+    font-size: 0.55rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--paper) 68%, transparent);
+    background: color-mix(in oklab, var(--bg) 72%, transparent);
+    cursor: pointer;
+  }
+
+  .mode-panel button:hover,
+  .mode-panel button:focus-visible {
+    color: var(--paper);
+    border-color: color-mix(in oklab, var(--paper) 38%, transparent);
+  }
+
+  .mode-panel button.is-active {
+    color: var(--paper);
+    border-color: color-mix(in oklab, var(--paper) 58%, transparent);
+    background: color-mix(in oklab, var(--paper) 12%, var(--bg));
+  }
+
+  .legend { display: flex; flex-direction: column; gap: 0.4rem; pointer-events: none; }
+
+  .legend-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  #legend_bar {
+    inline-size: clamp(9rem, 22vw, 14rem);
+    block-size: 0.45rem;
+    border: 1px solid color-mix(in oklab, var(--paper) 16%, transparent);
+  }
+
+  /* ── Readout strip ── */
+  .readout {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-block: 1px solid var(--rule);
+  }
+
+  .readout div {
+    padding: 1.4rem var(--gutter);
+    border-inline-start: 1px solid var(--rule);
+  }
+
+  .readout div:first-child { border-inline-start: 0; }
+
+  .readout dt {
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .readout dd {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vmin, 2.8rem);
+    line-height: 1;
+    margin-block-start: 0.35rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Panels: a bordered sheet with a ruled header, like a chart plate ── */
+  /* Cards are the button's frame at card scale: 2px, broken top-left and
+     bottom-right, closing when you touch them. Two keys rather than three —
+     a card is wide enough that a third reads as damage, not as drawing. */
+  .panel,
+  .preset {
+    position: relative;
+    border: 2px solid var(--rule);
+    transition: border-color 0.3s ease-in-out, background 0.3s ease-in-out,
+      transform 0.25s ease-in-out;
+  }
+
+  .panel::before,
+  .preset::before,
+  .panel::after,
+  .preset::after {
+    content: "";
+    position: absolute;
+    block-size: 2px;
+    background: var(--key-bg);
+    transition: width 0.5s ease-out, left 0.3s ease-out, right 0.3s ease-out;
+    pointer-events: none;
+  }
+
+  .panel::before,
+  .preset::before {
+    inset-block-start: -2px;
+    inset-inline-start: 1.25rem;
+    inline-size: 2.5rem;
+  }
+
+  .panel::after,
+  .preset::after {
+    inset-block-end: -2px;
+    inset-inline-end: 1.25rem;
+    inline-size: 2.5rem;
+  }
+
+  .panel:hover,
+  .preset:hover,
+  .preset:focus-visible {
+    border-color: var(--rule-strong);
+    background: color-mix(in oklab, var(--paper) 6%, transparent);
+  }
+
+  .panel:hover::before,
+  .preset:hover::before,
+  .preset:focus-visible::before { inset-inline-start: -2px; inline-size: 0; }
+
+  .panel:hover::after,
+  .preset:hover::after,
+  .preset:focus-visible::after { inset-inline-end: -2px; inline-size: 0; }
+
+  .panel {
+    background: color-mix(in oklab, var(--paper) 3%, transparent);
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0.9rem;
+    border-block-end: 1px solid var(--rule);
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .panel-body { padding: 1.4rem 0.9rem 1.6rem; display: grid; gap: 0.7rem; }
+  .panel-body h3 { font-size: 1.6rem; }
+  .panel-body p { color: color-mix(in oklab, var(--paper) 74%, transparent); }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem; align-items: start; }
+
+  /* A static pressure diagram, reusing the hero's rings as an illustration. */
+  .plate {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-block-end: 1px solid var(--rule);
+    overflow: hidden;
+  }
+
+  .plate .pressure-system {
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    --pressure-size: 9rem;
+  }
+
+  .plate--b .pressure-system { --pressure-size: 7rem; }
+
+  /* In the field the rings are a whisper over moving colour; as a static
+     figure on a flat plate they have to carry the drawing, so each ring gets
+     most of its opacity back. */
+  .plate .pressure-ring[data-ring="1"] { --ring-opacity: 1; }
+  .plate .pressure-ring[data-ring="2"] { --ring-opacity: 0.66; }
+  .plate .pressure-ring[data-ring="3"] { --ring-opacity: 0.4; }
+  .plate .pressure-marker { background: var(--bg); }
+
+  .plate-flow {
+    position: absolute;
+    inset: 0;
+    opacity: 0.8;
+    background-image: repeating-linear-gradient(
+      var(--plate-angle, 18deg),
+      color-mix(in oklab, var(--paper) 22%, transparent) 0 1px,
+      transparent 1px 9px
+    );
+    mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent 72%);
+  }
+
+  /* ── Route table ── */
+  .table { inline-size: 100%; border-collapse: collapse; font-size: 0.75rem; }
+
+  .table th,
+  .table td {
+    text-align: start;
+    padding: 0.7rem 0.6rem;
+    border-block-end: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+
+  .table th {
+    font-weight: 400;
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .table td:last-child,
+  .table th:last-child { text-align: end; }
+
+  .table tbody tr { transition: background 0.2s; }
+  .table tbody tr:hover { background: color-mix(in oklab, var(--paper) 5%, transparent); }
+
+  .swatch {
+    display: inline-block;
+    inline-size: 2.6rem;
+    block-size: 0.45rem;
+    border: 1px solid color-mix(in oklab, var(--paper) 16%, transparent);
+    vertical-align: middle;
+  }
+
+  .delta { color: var(--high); }
+  .delta--down { color: var(--low); }
+
+  /* ── Preset cards ── */
+  .preset {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.1rem 1rem 1.3rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .preset:hover { transform: translateY(-2px); }
+  .preset h3 { font-size: 1.5rem; }
+  .preset p { font-size: 0.72rem; color: color-mix(in oklab, var(--paper) 70%, transparent); }
+
+  .preset-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .preset-bar { block-size: 0.35rem; border: 1px solid color-mix(in oklab, var(--paper) 16%, transparent); }
+
+  /* ── Code plate ── */
+  .code {
+    border: 1px solid var(--rule);
+    background: var(--bg-2);
+    padding: 1.1rem;
+    font-size: 0.75rem;
+    line-height: 1.9;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .code .c { color: color-mix(in oklab, var(--paper) 42%, transparent); }
+  .code .k { color: var(--high); }
+  .code .s { color: #74b85a; }
+  .code .n { color: #c9c24c; }
+
+  /* ── Tiers ── */
+  .tier-price {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .tier-list { list-style: none; display: grid; gap: 0.4rem; font-size: 0.75rem; }
+  .tier-list li { padding-inline-start: 1.1rem; position: relative; color: color-mix(in oklab, var(--paper) 74%, transparent); }
+  .tier-list li::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0.55em;
+    inset-inline-start: 0;
+    inline-size: 0.5rem;
+    block-size: 1px;
+    background: var(--paper);
+  }
+
+  .panel--featured { border-color: var(--rule-strong); background: color-mix(in oklab, var(--paper) 7%, transparent); }
+  .panel--featured:hover { background: color-mix(in oklab, var(--paper) 10%, transparent); }
+
+  /* ── Accordion ── */
+  .faq { border-block-start: 1px solid var(--rule); }
+  .faq details { border-block-end: 1px solid var(--rule); }
+
+  .faq summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 0;
+    cursor: pointer;
+    list-style: none;
+    font-size: 0.95rem;
+  }
+
+  .faq summary::-webkit-details-marker { display: none; }
+
+  .faq summary::after {
+    content: "+";
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--muted);
+  }
+
+  .faq details[open] summary::after { content: "–"; color: var(--paper); }
+  .faq p { padding-block-end: 1.2rem; max-inline-size: 70ch; color: color-mix(in oklab, var(--paper) 74%, transparent); }
+
+  /* ── Sign-up ── */
+  .signup { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .signup input {
+    flex: 1 1 16rem;
+    min-inline-size: 0;
+    padding: 0.62rem 0.8rem;
+    font: inherit;
+    font-size: 0.8rem;
+    color: var(--paper);
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+  }
+
+  .signup input::placeholder { color: color-mix(in oklab, var(--paper) 40%, transparent); }
+  .form-status { min-block-size: 1.4rem; font-size: 0.7rem; color: var(--muted); }
+
+  /* ── Footer ── */
+  .footer { padding-block: 3rem 2rem; border-block-start: 1px solid var(--rule); }
+  .footer-cols { display: grid; grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr)); gap: 2rem; }
+  .footer-cols h4 { font-size: 0.55rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-block-end: 0.7rem; }
+  .footer-cols a { display: block; font-size: 0.75rem; text-decoration: none; color: color-mix(in oklab, var(--paper) 72%, transparent); }
+  .footer-cols a:hover { color: var(--paper); }
+
+  .footer-mark {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 16vw, 11rem);
+    line-height: 0.8;
+    letter-spacing: 0.04em;
+    color: color-mix(in oklab, var(--paper) 10%, transparent);
+    margin-block-start: 2.5rem;
+    pointer-events: none;
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    padding-block-start: 1.4rem;
+    border-block-start: 1px solid var(--rule);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}
+
+@media (max-width: 62rem) {
+  @layer ui {
+    .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+    .readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .readout div:nth-child(3) { border-inline-start: 0; }
+    .readout div:nth-child(n + 3) { border-block-start: 1px solid var(--rule); }
+    .footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+}
+
+@media (max-width: 46rem) {
+  @layer ui {
+    .nav-links { display: none; }
+    .grid-3 { grid-template-columns: minmax(0, 1fr); }
+    .mode-panel { justify-content: flex-start; }
+    .mode-panel button { font-size: 0.5rem; padding: 0.36rem 0.48rem; }
+    .hero-foot { flex-direction: column; align-items: stretch; }
+    .table-wrap { overflow-x: auto; }
+  }
+}
+
+/* Short laptop screens: the hero has three stacked blocks and a legend row,
+   which together outgrow a 720px-tall viewport before any of them is wrong. */
+@media (max-height: 820px) {
+  @layer ui {
+    .hero-body { gap: 1.1rem; }
+    .hero-copy { gap: 0.9rem; max-inline-size: 34ch; }
+    .display { font-size: clamp(2.1rem, 6.2vmin, 4.2rem); }
+    .caption-title { font-size: clamp(1.3rem, 3vmin, 1.8rem); }
+    .hero-copy .lede { display: none; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .preset:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <a class="wordmark" href="#top">DRIFT <small>routing</small></a>
+  <ul class="nav-links">
+    <li><a href="#field">The field</a></li>
+    <li><a href="#routes">Routes</a></li>
+    <li><a href="#presets">Presets</a></li>
+    <li><a href="#api">API</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <a class="btn" href="#access"><span class="top-key"></span><span class="text">Request access</span><span class="bottom-key-1"></span><span class="bottom-key-2"></span></a>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO: the live field ============ -->
+  <section class="map" id="field" data-field="on">
+    <canvas id="wind_canvas"></canvas>
+    <div class="markers" id="markers"></div>
+
+    <div class="hero-body">
+      <div class="caption">
+        <div class="caption-title">north atlantic drift v3</div>
+        <div class="caption-hint">l = low pressure · h = high pressure · <span id="mode_label">Mistral</span></div>
+      </div>
+
+      <div class="hero-copy">
+        <p class="kicker">Weather routing · 14,000 advected particles</p>
+        <h1 class="display">Route the<br>weather.<br><span>Not around it.</span></h1>
+        <p class="lede">Drift runs a live pressure field over your fleet and re-solves every voyage as it moves. Same charts your master reads, resolved to a heading.</p>
+        <div class="hero-actions">
+          <a class="btn btn--solid" href="#access"><span class="top-key"></span><span class="text">Request access</span><span class="bottom-key-1"></span><span class="bottom-key-2"></span></a>
+          <a class="btn" href="#routes"><span class="top-key"></span><span class="text">See a live route</span><span class="bottom-key-1"></span><span class="bottom-key-2"></span></a>
+        </div>
+      </div>
+
+      <div class="hero-foot">
+        <div class="legend">
+          <div id="legend_bar"></div>
+          <div class="legend-scale">
+            <span>calm winds</span>
+            <span>strong winds</span>
+          </div>
+        </div>
+
+        <div class="mode-panel" aria-label="Pressure presets">
+          <button type="button" data-mode="summer">summer calm</button>
+          <button type="button" data-mode="levante">levante</button>
+          <button type="button" data-mode="mistral" class="is-active">mistral</button>
+          <button type="button" data-mode="tramontana">tramontana</button>
+          <button type="button" data-mode="sirocco">sirocco</button>
+          <button type="button" data-mode="winter">winter storm</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Readout ============ -->
+  <dl class="readout">
+    <div>
+      <dt>Voyages under routing</dt>
+      <dd data-count="1284">1,284</dd>
+    </div>
+    <div>
+      <dt>Fuel saved, 2025</dt>
+      <dd data-count="9" data-suffix=".4%">9.4%</dd>
+    </div>
+    <div>
+      <dt>Field resolution</dt>
+      <dd>0.25°</dd>
+    </div>
+    <div>
+      <dt>Re-solve cadence</dt>
+      <dd>6 min</dd>
+    </div>
+  </dl>
+
+  <!-- ============ How the field works ============ -->
+  <section class="band">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <p class="kicker">01 · The model</p>
+          <h2 class="section-title">A pressure field, not a forecast PDF</h2>
+        </div>
+        <p class="lede">Every system on the chart is a vortex with a radius, a spin and a strength. Advect a particle through the sum of them and you have the route — which is exactly what the hero is drawing, sixty seconds ahead of itself.</p>
+      </div>
+
+      <div class="grid-3">
+        <article class="panel">
+          <div class="plate">
+            <div class="plate-flow" style="--plate-angle: 14deg"></div>
+            <div class="pressure-system" style="--pressure-opacity: 0.6">
+              <div class="pressure-ring" data-ring="1"></div>
+              <div class="pressure-ring" data-ring="2"></div>
+              <div class="pressure-ring" data-ring="3"></div>
+              <div class="pressure-marker">L</div>
+            </div>
+          </div>
+          <div class="panel-head"><span>Fig. 01</span><span>cyclonic</span></div>
+          <div class="panel-body">
+            <h3>Read the systems</h3>
+            <p>Lows spin one way and draw air in, highs spin the other and push it out. Radius and strength come off the pressure chart; nothing is hand-tuned per voyage.</p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="plate plate--b">
+            <div class="plate-flow" style="--plate-angle: 62deg"></div>
+            <div class="pressure-system" style="--pressure-opacity: 0.55">
+              <div class="pressure-ring" data-ring="1"></div>
+              <div class="pressure-ring" data-ring="2"></div>
+              <div class="pressure-ring" data-ring="3"></div>
+              <div class="pressure-marker">H</div>
+            </div>
+          </div>
+          <div class="panel-head"><span>Fig. 02</span><span>advection</span></div>
+          <div class="panel-body">
+            <h3>Advect the fleet</h3>
+            <p>Each ship is a particle with a fuel curve and a laycan. We step it through the field the way the hero steps its 14,000, then keep the tracks that land on time.</p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="plate">
+            <div class="plate-flow" style="--plate-angle: 118deg"></div>
+            <div class="pressure-system" style="--pressure-opacity: 0.5">
+              <div class="pressure-ring" data-ring="1"></div>
+              <div class="pressure-ring" data-ring="2"></div>
+              <div class="pressure-ring" data-ring="3"></div>
+              <div class="pressure-marker">L</div>
+            </div>
+          </div>
+          <div class="panel-head"><span>Fig. 03</span><span>re-solve</span></div>
+          <div class="panel-body">
+            <h3>Re-solve on arrival</h3>
+            <p>Six-minute cadence. When a system deepens the route changes with it, and the bridge gets a heading, not a 40-page routing advice.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Routes ============ -->
+  <section class="band band--quiet" id="routes">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <p class="kicker">02 · Live board</p>
+          <h2 class="section-title">Voyages under routing right now</h2>
+        </div>
+        <p class="lede">Colour is wind on the leg, on the same scale as the legend under the field. Delta is against the great-circle plan the charterer signed.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Vessel</th>
+              <th scope="col">Leg</th>
+              <th scope="col">Wind on route</th>
+              <th scope="col">Preset</th>
+              <th scope="col">ETA delta</th>
+            </tr>
+          </thead>
+          <tbody id="route_rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Presets ============ -->
+  <section class="band" id="presets">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <p class="kicker">03 · Presets</p>
+          <h2 class="section-title">Six fields the Mediterranean actually runs</h2>
+        </div>
+        <p class="lede">Pick one and the field above rebuilds on it — same systems, new spin, strength and background flow. Every preset is a JSON block you can pin to a voyage.</p>
+      </div>
+
+      <div class="grid-3" id="preset_grid"></div>
+    </div>
+  </section>
+
+  <!-- ============ API ============ -->
+  <section class="band band--quiet" id="api">
+    <div class="shell grid-2">
+      <div>
+        <p class="kicker">04 · API</p>
+        <h2 class="section-title">One call per voyage</h2>
+        <p class="lede" style="margin-block-start: 1rem;">Post the plan, get back a track: waypoints, the field each one was solved against, and the fuel curve that picked it. Everything the bridge sees is in the response.</p>
+        <p style="margin-block-start: 1.5rem;"><a class="btn" href="#access"><span class="top-key"></span><span class="text">Read the docs</span><span class="bottom-key-1"></span><span class="bottom-key-2"></span></a></p>
+      </div>
+      <pre class="code"><span class="c"># solve a voyage against the live field</span>
+<span class="k">POST</span> https://api.drift.example/v3/solve
+{
+  <span class="s">"vessel"</span>: <span class="s">"IMO9421268"</span>,
+  <span class="s">"depart"</span>:  <span class="s">"ESALG"</span>,
+  <span class="s">"arrive"</span>:  <span class="s">"GRPIR"</span>,
+  <span class="s">"laycan"</span>:  [<span class="s">"2026-03-04"</span>, <span class="s">"2026-03-07"</span>],
+  <span class="s">"preset"</span>:  <span class="s">"mistral"</span>
+}
+
+<span class="c">→ 200</span>
+{
+  <span class="s">"track"</span>:    <span class="n">64</span> waypoints,
+  <span class="s">"eta"</span>:      <span class="s">"2026-03-06T11:20Z"</span>,
+  <span class="s">"fuel_mt"</span>:  <span class="n">318.4</span>,
+  <span class="s">"delta"</span>:    <span class="s">"-7h vs great circle"</span>
+}</pre>
+    </div>
+  </section>
+
+  <!-- ============ Pricing ============ -->
+  <section class="band" id="pricing">
+    <div class="shell">
+      <div class="section-head">
+        <div>
+          <p class="kicker">05 · Pricing</p>
+          <h2 class="section-title">Per hull, per month</h2>
+        </div>
+        <p class="lede">No routing-advice fees, no per-call billing. A hull is under routing or it isn't.</p>
+      </div>
+
+      <div class="grid-3">
+        <article class="panel">
+          <div class="panel-head"><span>Single</span><span>1 hull</span></div>
+          <div class="panel-body">
+            <p class="tier-price">$490</p>
+            <p class="kicker">per hull · month</p>
+            <ul class="tier-list">
+              <li>Live field and presets</li>
+              <li>6-minute re-solve</li>
+              <li>Email and bridge PDF</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="panel panel--featured">
+          <div class="panel-head"><span>Fleet</span><span>most chosen</span></div>
+          <div class="panel-body">
+            <p class="tier-price">$390</p>
+            <p class="kicker">per hull · month · from 8</p>
+            <ul class="tier-list">
+              <li>Everything in Single</li>
+              <li>API, webhooks and the board</li>
+              <li>Charter-party deltas</li>
+              <li>Named meteorologist</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><span>Operator</span><span>50+ hulls</span></div>
+          <div class="panel-body">
+            <p class="tier-price">Talk</p>
+            <p class="kicker">annual · sla</p>
+            <ul class="tier-list">
+              <li>Private field workers</li>
+              <li>Your own preset library</li>
+              <li>On-prem export of every solve</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ + access ============ -->
+  <section class="band band--quiet" id="access">
+    <div class="shell grid-2">
+      <div>
+        <p class="kicker">06 · Access</p>
+        <h2 class="section-title">Put one hull on the field</h2>
+        <p class="lede" style="margin-block-start: 1rem;">We open a berth a week. Tell us the vessel and we'll route the next leg alongside your current provider, then show you both tracks.</p>
+
+        <form class="signup" id="access_form" style="margin-block-start: 1.6rem;">
+          <input type="email" name="email" placeholder="ops@yourfleet.com" autocomplete="email" required aria-label="Work email">
+          <button class="btn btn--solid" type="submit"><span class="top-key"></span><span class="text">Request a berth</span><span class="bottom-key-1"></span><span class="bottom-key-2"></span></button>
+        </form>
+        <p class="form-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="faq">
+        <details open>
+          <summary>Where does the field come from?</summary>
+          <p>Global pressure and wind at 0.25°, re-gridded onto our own vortex model every six minutes. The hero on this page runs the same model at demo scale so you can see what the solver sees.</p>
+        </details>
+        <details>
+          <summary>Is this a forecast or a routing advice?</summary>
+          <p>Both, and neither is the deliverable. The deliverable is a track: waypoints and speeds your bridge can steer, with the field that produced them attached so a master can argue with it.</p>
+        </details>
+        <details>
+          <summary>How does it reach the bridge?</summary>
+          <p>API, email, or a one-page PDF over Inmarsat that fits in a 40 kB attachment. The board on this page is the same data, rendered for the office.</p>
+        </details>
+        <details>
+          <summary>What happens when the field is wrong?</summary>
+          <p>Every solve is stored with the field it used. When a system deepens faster than modelled, the re-solve arrives with a diff — not a new PDF that quietly replaces the old one.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-cols">
+      <div>
+        <a class="wordmark" href="#top">DRIFT <small>routing</small></a>
+        <p style="margin-block-start: 0.8rem; max-inline-size: 30ch; color: var(--muted); font-size: 0.75rem;">Weather routing for ocean fleets. A fictional product, built as a template.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="#field">The field</a>
+        <a href="#routes">Live board</a>
+        <a href="#presets">Presets</a>
+        <a href="#api">API</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="#pricing">Pricing</a>
+        <a href="#access">Access</a>
+        <a href="#access">Contact</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Status</a>
+      </div>
+    </div>
+
+    <div class="footer-mark" aria-hidden="true">DRIFT</div>
+
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> Drift Routing — fictional, for demonstration</span>
+      <span>Not for navigation</span>
+      <span>Field v3 · 0.25°</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================================
+   The wind field.
+
+   A flow-field sketch adapted to run as a landing-page hero: 14,000 particles
+   advected through the sum of six pressure vortices, drawn as short GL line
+   segments onto a ping-ponged framebuffer that fades a little each frame, so
+   the trails are the image. Six presets swap palette, background flow and the
+   systems themselves.
+
+   Changes from the sketch it came from: it is bound to the hero rather than
+   the viewport, it pauses when the hero scrolls away or the tab hides, the
+   particle count drops on small screens, a missing WebGL context downgrades
+   the hero to a CSS pressure gradient instead of throwing, and reduced motion
+   gets a single settled frame rather than an animation.
+   ========================================================================== */
+(function () {
+  const canvas = document.getElementById("wind_canvas");
+  const mapEl = document.getElementById("field");
+  const markers = document.getElementById("markers");
+  const legendBar = document.getElementById("legend_bar");
+  const modeButtons = Array.from(document.querySelectorAll("[data-mode]"));
+  const modeLabel = document.getElementById("mode_label");
+  const presetGrid = document.getElementById("preset_grid");
+  const routeRows = document.getElementById("route_rows");
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const COUNT = window.innerWidth < 760 ? 5200 : 14000;
+  const MAX_DPR = 1;
+  const TARGET_FPS = 30;
+  const FRAME_MS = 1000 / TARGET_FPS;
+
+  const ERASE = 0.07;
+  const LINE_ALPHA = 0.54;
+  const LIFE_MIN = 1.15;
+  const LIFE_MAX = 3.9;
+  const INFLOW = 0.32;
+  const DRIFT = 0.0042;
+  const SYSTEM_EVOLUTION = 0.08;
+  const MARKER_SMOOTHING = 0.12;
+  const GRID_STEP = 28;
+  const FIELD_ROWS_PER_FRAME = 1;
+
+  let BG_RGB = [13 / 255, 20 / 255, 26 / 255];
+
+  const PALETTES = {
+    marine: [
+      [0x50 / 255, 0x79 / 255, 0xa8 / 255],
+      [0x4a / 255, 0x93 / 255, 0xa6 / 255],
+      [0x46 / 255, 0xa8 / 255, 0x83 / 255],
+      [0x74 / 255, 0xb8 / 255, 0x5a / 255],
+      [0xc9 / 255, 0xc2 / 255, 0x4c / 255],
+      [0xdc / 255, 0xa0 / 255, 0x46 / 255],
+      [0xd4 / 255, 0x70 / 255, 0x3f / 255],
+      [0xc8 / 255, 0x46 / 255, 0x3a / 255]
+    ],
+    mistral: [
+      [0x45 / 255, 0x67 / 255, 0x9c / 255],
+      [0x43 / 255, 0x83 / 255, 0xad / 255],
+      [0x3f / 255, 0xa2 / 255, 0xa4 / 255],
+      [0x65 / 255, 0xb4 / 255, 0x83 / 255],
+      [0xb6 / 255, 0xc6 / 255, 0x59 / 255],
+      [0xd6 / 255, 0xa4 / 255, 0x42 / 255],
+      [0xd1 / 255, 0x75 / 255, 0x3d / 255],
+      [0xb8 / 255, 0x46 / 255, 0x46 / 255]
+    ],
+    sirocco: [
+      [0x55 / 255, 0x78 / 255, 0x91 / 255],
+      [0x68 / 255, 0x8d / 255, 0x8b / 255],
+      [0x8f / 255, 0xa2 / 255, 0x70 / 255],
+      [0xba / 255, 0xaa / 255, 0x58 / 255],
+      [0xd6 / 255, 0xa0 / 255, 0x4f / 255],
+      [0xdd / 255, 0x7d / 255, 0x46 / 255],
+      [0xce / 255, 0x55 / 255, 0x3f / 255],
+      [0xb9 / 255, 0x3e / 255, 0x38 / 255]
+    ]
+  };
+
+  let COLORS = PALETTES.marine;
+  const NBINS = 8;
+  const SPEED_COLOR_GAIN = 1 / 0.0256;
+
+  const MODES = {
+    summer: {
+      label: "Summer Calm", palette: "marine", bg: [13 / 255, 20 / 255, 26 / 255],
+      blurb: "The basin goes glassy. Long legs, no shelter, and fuel burn decided by hull fouling rather than weather.",
+      flowSpeed: 1.75, fieldGain: 0.31, bgU: 0.032, bgV: 0.0, wander: 0.018,
+      systems: [
+        { x: 0.18, y: 0.36, spin: 1, r: 0.24, strength: 0.55 },
+        { x: 0.46, y: 0.22, spin: -1, r: 0.25, strength: 0.48 },
+        { x: 0.56, y: 0.68, spin: -1, r: 0.29, strength: 0.52 },
+        { x: 0.8, y: 0.34, spin: 1, r: 0.24, strength: 0.5 },
+        { x: 0.86, y: 0.74, spin: 1, r: 0.27, strength: 0.42 },
+        { x: 0.3, y: 0.58, spin: 1, r: 0.2, strength: 0.38 }
+      ]
+    },
+    levante: {
+      label: "Levante", palette: "marine", bg: [12 / 255, 20 / 255, 27 / 255],
+      blurb: "An easterly funnel through the strait. Cheap eastbound, expensive west, and a swell that arrives before the wind does.",
+      flowSpeed: 2.25, fieldGain: 0.35, bgU: -0.055, bgV: 0.004, wander: 0.023,
+      systems: [
+        { x: 0.82, y: 0.3, spin: -1, r: 0.26, strength: 0.76 },
+        { x: 0.62, y: 0.64, spin: 1, r: 0.23, strength: 0.7 },
+        { x: 0.36, y: 0.28, spin: 1, r: 0.22, strength: 0.58 },
+        { x: 0.18, y: 0.72, spin: -1, r: 0.27, strength: 0.66 },
+        { x: 0.74, y: 0.78, spin: 1, r: 0.22, strength: 0.5 },
+        { x: 0.44, y: 0.52, spin: -1, r: 0.2, strength: 0.54 }
+      ]
+    },
+    mistral: {
+      label: "Mistral", palette: "mistral", bg: [10 / 255, 18 / 255, 27 / 255],
+      blurb: "Cold air down the Rhône valley, hard and dry. Gulf of Lion legs get re-solved every cadence until it lets go.",
+      flowSpeed: 2.9, fieldGain: 0.43, bgU: 0.07, bgV: 0.02, wander: 0.026,
+      systems: [
+        { x: 0.14, y: 0.24, spin: -1, r: 0.2, strength: 0.84 },
+        { x: 0.34, y: 0.44, spin: 1, r: 0.18, strength: 0.86 },
+        { x: 0.54, y: 0.66, spin: 1, r: 0.23, strength: 0.95 },
+        { x: 0.74, y: 0.34, spin: -1, r: 0.2, strength: 0.7 },
+        { x: 0.88, y: 0.72, spin: 1, r: 0.22, strength: 0.8 },
+        { x: 0.46, y: 0.2, spin: -1, r: 0.18, strength: 0.62 }
+      ]
+    },
+    tramontana: {
+      label: "Tramontana", palette: "mistral", bg: [11 / 255, 18 / 255, 25 / 255],
+      blurb: "Northerly over the Pyrenees, gusting where the coast bends. Short fetch, steep sea, unhappy deck cargo.",
+      flowSpeed: 3.05, fieldGain: 0.46, bgU: 0.025, bgV: 0.055, wander: 0.031,
+      systems: [
+        { x: 0.2, y: 0.18, spin: -1, r: 0.18, strength: 0.78 },
+        { x: 0.4, y: 0.36, spin: 1, r: 0.16, strength: 0.82 },
+        { x: 0.62, y: 0.28, spin: -1, r: 0.18, strength: 0.72 },
+        { x: 0.8, y: 0.56, spin: 1, r: 0.19, strength: 0.9 },
+        { x: 0.54, y: 0.76, spin: 1, r: 0.22, strength: 0.76 },
+        { x: 0.26, y: 0.66, spin: -1, r: 0.19, strength: 0.68 }
+      ]
+    },
+    sirocco: {
+      label: "Sirocco", palette: "sirocco", bg: [18 / 255, 18 / 255, 20 / 255],
+      blurb: "Saharan air northbound, warm and full of dust. Visibility drops, decks stain, and the field turns ochre.",
+      flowSpeed: 2.45, fieldGain: 0.4, bgU: -0.015, bgV: -0.045, wander: 0.024,
+      systems: [
+        { x: 0.22, y: 0.78, spin: 1, r: 0.26, strength: 0.78 },
+        { x: 0.38, y: 0.56, spin: -1, r: 0.2, strength: 0.66 },
+        { x: 0.58, y: 0.36, spin: 1, r: 0.22, strength: 0.86 },
+        { x: 0.78, y: 0.22, spin: -1, r: 0.24, strength: 0.74 },
+        { x: 0.84, y: 0.68, spin: 1, r: 0.2, strength: 0.68 },
+        { x: 0.28, y: 0.28, spin: -1, r: 0.21, strength: 0.58 }
+      ]
+    },
+    winter: {
+      label: "Winter Storm", palette: "marine", bg: [9 / 255, 15 / 255, 22 / 255],
+      blurb: "Deep lows stacked west to east. Routing stops being about fuel and starts being about the laycan.",
+      flowSpeed: 3.2, fieldGain: 0.5, bgU: 0.06, bgV: -0.012, wander: 0.034,
+      systems: [
+        { x: 0.15, y: 0.32, spin: 1, r: 0.18, strength: 1.08 },
+        { x: 0.35, y: 0.18, spin: -1, r: 0.17, strength: 0.86 },
+        { x: 0.5, y: 0.62, spin: -1, r: 0.22, strength: 1.0 },
+        { x: 0.7, y: 0.38, spin: 1, r: 0.18, strength: 1.04 },
+        { x: 0.86, y: 0.78, spin: 1, r: 0.2, strength: 0.9 },
+        { x: 0.28, y: 0.62, spin: -1, r: 0.17, strength: 0.78 }
+      ]
+    }
+  };
+
+  const SYSTEMS = MODES.mistral.systems;
+
+  function rand(min, max) { return min + Math.random() * (max - min); }
+  function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
+
+  /* ── The page furniture that reads from the same data ─────────────────── */
+  function paletteCss(name) {
+    return PALETTES[name]
+      .map((c) => `rgb(${Math.round(c[0] * 255)}, ${Math.round(c[1] * 255)}, ${Math.round(c[2] * 255)})`)
+      .join(", ");
+  }
+
+  function buildPresets() {
+    presetGrid.replaceChildren(
+      ...Object.entries(MODES).map(([key, mode], i) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "preset";
+        card.dataset.jump = key;
+        card.innerHTML =
+          `<div class="preset-meta"><span>0${i + 1}</span><span>${mode.palette}</span></div>` +
+          `<h3>${mode.label}</h3>` +
+          `<p>${mode.blurb}</p>` +
+          `<div class="preset-bar" style="background: linear-gradient(90deg, ${paletteCss(mode.palette)})"></div>` +
+          `<div class="preset-meta"><span>flow ${mode.flowSpeed.toFixed(2)}</span><span>gain ${mode.fieldGain.toFixed(2)}</span></div>`;
+        return card;
+      })
+    );
+  }
+
+  const ROUTES = [
+    ["Kerkyra Spirit", "ESALG → GRPIR", 0.72, "mistral", "-7h"],
+    ["Bora Trader", "ITTRS → EGPSD", 0.41, "levante", "-3h"],
+    ["Halcyon VII", "FRFOS → TNTUN", 0.88, "tramontana", "+2h"],
+    ["Saffron Bay", "MTMLA → LBBEY", 0.33, "summer", "-1h"],
+    ["Pelagic Nine", "ESBCN → TRIZM", 0.61, "sirocco", "-5h"],
+    ["Northwind Star", "GIGIB → ITGOA", 0.94, "winter", "+6h"]
+  ];
+
+  function buildRoutes() {
+    routeRows.replaceChildren(
+      ...ROUTES.map(([vessel, leg, wind, preset, delta]) => {
+        const row = document.createElement("tr");
+        const colors = PALETTES[MODES[preset].palette];
+        const idx = Math.min(colors.length - 1, Math.round(wind * (colors.length - 1)));
+        const c = colors[idx];
+        const rgb = `rgb(${Math.round(c[0] * 255)}, ${Math.round(c[1] * 255)}, ${Math.round(c[2] * 255)})`;
+        const down = delta.startsWith("+");
+        row.innerHTML =
+          `<td>${vessel}</td>` +
+          `<td>${leg}</td>` +
+          `<td><span class="swatch" style="background: ${rgb}"></span> ${Math.round(wind * 42)} kt</td>` +
+          `<td>${MODES[preset].label}</td>` +
+          `<td class="${down ? "delta delta--down" : "delta"}">${delta}</td>`;
+        return row;
+      })
+    );
+  }
+
+  const nav = document.querySelector(".nav");
+  const measureNav = () =>
+    document.documentElement.style.setProperty("--nav-h", `${Math.round(nav.getBoundingClientRect().height)}px`);
+  measureNav();
+  if ("ResizeObserver" in window) new ResizeObserver(measureNav).observe(nav);
+
+  buildPresets();
+  buildRoutes();
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* Counters on the readout strip. */
+  const countUp = (el) => {
+    const target = Number(el.dataset.count);
+    const suffix = el.dataset.suffix || "";
+    if (!Number.isFinite(target)) return;
+    if (reduced) return;
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / 1400);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * eased).toLocaleString("en-US") + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          countUp(entry.target);
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.6 }
+    );
+    document.querySelectorAll("[data-count]").forEach((el) => io.observe(el));
+  }
+
+  /* Request-a-berth form: validates natively, sends nothing. */
+  const form = document.getElementById("access_form");
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    form.querySelector("button .text").textContent = "Berth requested";
+    document.querySelector(".form-status").textContent =
+      "Logged. We route your next leg alongside your current provider and send both tracks.";
+  });
+
+  /* ── WebGL ────────────────────────────────────────────────────────────── */
+  const gl = canvas.getContext("webgl", {
+    alpha: false,
+    antialias: false,
+    depth: false,
+    stencil: false,
+    premultipliedAlpha: false,
+    preserveDrawingBuffer: false
+  });
+
+  // No context: the hero keeps its CSS pressure gradient and the presets still
+  // drive the legend and the label, so nothing on the page is dead.
+  if (!gl) {
+    mapEl.dataset.field = "off";
+    legendBar.style.background = `linear-gradient(90deg, ${paletteCss("mistral")})`;
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const mode = MODES[button.dataset.mode];
+        modeButtons.forEach((b) => b.classList.toggle("is-active", b === button));
+        modeLabel.textContent = mode.label;
+        legendBar.style.background = `linear-gradient(90deg, ${paletteCss(mode.palette)})`;
+      });
+    });
+    presetGrid.addEventListener("click", (event) => {
+      const card = event.target.closest("[data-jump]");
+      if (!card) return;
+      document.querySelector(`[data-mode="${card.dataset.jump}"]`).click();
+      mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return;
+  }
+
+  const xs = new Float32Array(COUNT);
+  const ys = new Float32Array(COUNT);
+  const ages = new Float32Array(COUNT);
+  const lifes = new Float32Array(COUNT);
+
+  const linePositions = new Float32Array(COUNT * 4);
+  const lineColors = new Float32Array(COUNT * 8);
+
+  let fieldU = new Float32Array(1);
+  let fieldV = new Float32Array(1);
+
+  const markerEls = [];
+
+  const state = {
+    w: 1, h: 1, dpr: 1, pw: 1, ph: 1, aspect: 1,
+    gridW: 1, gridH: 1, fieldRow: 0,
+    sampleU: 0, sampleV: 0, sampleSpeedSq: 0,
+    mode: "mistral",
+    flowSpeed: MODES.mistral.flowSpeed,
+    fieldGain: MODES.mistral.fieldGain,
+    bgU: MODES.mistral.bgU,
+    bgV: MODES.mistral.bgV,
+    wander: MODES.mistral.wander,
+    running: false,
+    inView: true,
+    rafId: 0,
+    contextLost: false,
+    lastT: 0,
+    lastStep: 0,
+    settledFrames: 0,
+    fboA: null, fboB: null, texA: null, texB: null, read: null, write: null,
+    systems: SYSTEMS.map((s) => ({
+      ...s,
+      targetX: s.x, targetY: s.y, targetSpin: s.spin,
+      targetR: s.r, targetStrength: s.strength,
+      baseR: s.r, baseStrength: s.strength,
+      vx: rand(-DRIFT, DRIFT), vy: rand(-DRIFT, DRIFT),
+      displayX: s.x, displayY: s.y,
+      phaseX: rand(0, Math.PI * 2), phaseY: rand(0, Math.PI * 2),
+      phaseStrength: rand(0, Math.PI * 2), phaseRadius: rand(0, Math.PI * 2)
+    }))
+  };
+
+  function compileShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(shader) || "Shader compile failed.");
+    }
+    return shader;
+  }
+
+  function createProgram(vertexSource, fragmentSource) {
+    const program = gl.createProgram();
+    gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vertexSource));
+    gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fragmentSource));
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      throw new Error(gl.getProgramInfoLog(program) || "Program link failed.");
+    }
+    return program;
+  }
+
+  const quadProgram = createProgram(
+    `attribute vec2 a_pos;
+     varying vec2 v_uv;
+     void main() {
+       v_uv = a_pos * 0.5 + 0.5;
+       gl_Position = vec4(a_pos, 0.0, 1.0);
+     }`,
+    `precision mediump float;
+     uniform sampler2D u_tex;
+     uniform vec3 u_bg;
+     uniform float u_keep;
+     uniform float u_mode;
+     varying vec2 v_uv;
+     void main() {
+       vec3 c = texture2D(u_tex, v_uv).rgb;
+       vec3 faded = mix(u_bg, c, u_keep);
+       gl_FragColor = vec4(mix(c, faded, u_mode), 1.0);
+     }`
+  );
+
+  const lineProgram = createProgram(
+    `attribute vec2 a_pos;
+     attribute vec4 a_color;
+     uniform float u_aspect;
+     varying vec4 v_color;
+     void main() {
+       float x = (a_pos.x / u_aspect) * 2.0 - 1.0;
+       float y = 1.0 - a_pos.y * 2.0;
+       gl_Position = vec4(x, y, 0.0, 1.0);
+       v_color = a_color;
+     }`,
+    `precision mediump float;
+     varying vec4 v_color;
+     void main() { gl_FragColor = v_color; }`
+  );
+
+  const quad = {
+    buffer: gl.createBuffer(),
+    aPos: gl.getAttribLocation(quadProgram, "a_pos"),
+    uTex: gl.getUniformLocation(quadProgram, "u_tex"),
+    uBg: gl.getUniformLocation(quadProgram, "u_bg"),
+    uKeep: gl.getUniformLocation(quadProgram, "u_keep"),
+    uMode: gl.getUniformLocation(quadProgram, "u_mode")
+  };
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, quad.buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+  const lines = {
+    positionBuffer: gl.createBuffer(),
+    colorBuffer: gl.createBuffer(),
+    aPos: gl.getAttribLocation(lineProgram, "a_pos"),
+    aColor: gl.getAttribLocation(lineProgram, "a_color"),
+    uAspect: gl.getUniformLocation(lineProgram, "u_aspect")
+  };
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, lines.positionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, linePositions.byteLength, gl.DYNAMIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER, lines.colorBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, lineColors.byteLength, gl.DYNAMIC_DRAW);
+
+  function createTexture(w, h) {
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    return tex;
+  }
+
+  function createFramebuffer(tex) {
+    const fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    return fbo;
+  }
+
+  function clearFramebuffer(fbo) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.viewport(0, 0, state.pw, state.ph);
+    gl.disable(gl.BLEND);
+    gl.clearColor(BG_RGB[0], BG_RGB[1], BG_RGB[2], 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+  }
+
+  function rebuildRenderTargets() {
+    if (state.texA) gl.deleteTexture(state.texA);
+    if (state.texB) gl.deleteTexture(state.texB);
+    if (state.fboA) gl.deleteFramebuffer(state.fboA);
+    if (state.fboB) gl.deleteFramebuffer(state.fboB);
+
+    state.texA = createTexture(state.pw, state.ph);
+    state.texB = createTexture(state.pw, state.ph);
+    state.fboA = createFramebuffer(state.texA);
+    state.fboB = createFramebuffer(state.texB);
+    state.read = { tex: state.texA, fbo: state.fboA };
+    state.write = { tex: state.texB, fbo: state.fboB };
+
+    clearFramebuffer(state.fboA);
+    clearFramebuffer(state.fboB);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
+  function writeLineColor(offset, sp2) {
+    const scaled = clamp(sp2 * SPEED_COLOR_GAIN, 0, 1) * (NBINS - 1);
+    const idx = scaled | 0;
+    const next = idx < NBINS - 1 ? idx + 1 : idx;
+    const mix = scaled - idx;
+    const c0 = COLORS[idx];
+    const c1 = COLORS[next];
+    const r = c0[0] + (c1[0] - c0[0]) * mix;
+    const g = c0[1] + (c1[1] - c0[1]) * mix;
+    const b = c0[2] + (c1[2] - c0[2]) * mix;
+
+    lineColors[offset++] = r; lineColors[offset++] = g;
+    lineColors[offset++] = b; lineColors[offset++] = LINE_ALPHA;
+    lineColors[offset++] = r; lineColors[offset++] = g;
+    lineColors[offset++] = b; lineColors[offset++] = LINE_ALPHA;
+    return offset;
+  }
+
+  function spawn(i) {
+    const x = rand(0, state.aspect);
+    const y = rand(0, 1);
+    xs[i] = x; ys[i] = y;
+    ages[i] = rand(0, LIFE_MAX);
+    lifes[i] = rand(LIFE_MIN, LIFE_MAX);
+  }
+
+  function buildLegend() {
+    legendBar.style.background = `linear-gradient(90deg, ${COLORS.map(
+      (c) => `rgb(${Math.round(c[0] * 255)}, ${Math.round(c[1] * 255)}, ${Math.round(c[2] * 255)})`
+    ).join(", ")})`;
+  }
+
+  function buildMarkers() {
+    markers.textContent = "";
+    markerEls.length = 0;
+
+    for (let i = 0; i < state.systems.length; i++) {
+      const group = document.createElement("div");
+      const label = document.createElement("div");
+      const kind = state.systems[i].spin > 0 ? "L" : "H";
+
+      group.className = "pressure-system";
+      group.dataset.kind = kind;
+
+      for (let r = 0; r < 3; r++) {
+        const ring = document.createElement("div");
+        ring.className = "pressure-ring";
+        ring.dataset.ring = String(r + 1);
+        group.appendChild(ring);
+      }
+
+      label.className = "pressure-marker";
+      label.dataset.kind = kind;
+      label.textContent = kind;
+      group.appendChild(label);
+      markers.appendChild(group);
+      markerEls.push(group);
+    }
+  }
+
+  function stepSystems(dt) {
+    const systems = state.systems;
+    const t = performance.now() * 0.001;
+    const driftEase = Math.min(1, dt * 0.32);
+
+    for (let i = 0; i < systems.length; i++) {
+      const s = systems[i];
+      const wobbleX = Math.sin(t * 0.071 + s.phaseX) * state.wander;
+      const wobbleY = Math.cos(t * 0.064 + s.phaseY) * state.wander;
+      const tx = clamp(s.targetX + wobbleX, 0.1, 0.9);
+      const ty = clamp(s.targetY + wobbleY, 0.14, 0.86);
+
+      s.x += (tx - s.x) * driftEase;
+      s.y += (ty - s.y) * driftEase;
+      s.spin = s.targetSpin;
+
+      const strengthWave = Math.sin(t * 0.045 + s.phaseStrength);
+      const radiusWave = Math.cos(t * 0.038 + s.phaseRadius);
+
+      s.baseStrength += (s.targetStrength - s.baseStrength) * driftEase;
+      s.baseR += (s.targetR - s.baseR) * driftEase;
+      s.strength = s.baseStrength * (1 + strengthWave * SYSTEM_EVOLUTION);
+      s.r = s.baseR * (1 + radiusWave * SYSTEM_EVOLUTION * 0.7);
+
+      s.displayX += (s.x - s.displayX) * MARKER_SMOOTHING;
+      s.displayY += (s.y - s.displayY) * MARKER_SMOOTHING;
+    }
+  }
+
+  function rebuildField() {
+    state.gridW = Math.max(2, Math.ceil(state.w / GRID_STEP));
+    state.gridH = Math.max(2, Math.ceil(state.h / GRID_STEP));
+    state.fieldRow = 0;
+    const total = state.gridW * state.gridH;
+    fieldU = new Float32Array(total);
+    fieldV = new Float32Array(total);
+  }
+
+  function computeCell(fx, fy, p) {
+    let u = state.bgU;
+    let v = state.bgV;
+    const aspect = state.aspect;
+    const systems = state.systems;
+
+    for (let k = 0; k < systems.length; k++) {
+      const s = systems[k];
+      const cx = s.x * aspect;
+      const rx = fx - cx;
+      const ry = fy - s.y;
+      const d2 = rx * rx + ry * ry + 0.0001;
+      const d = Math.sqrt(d2);
+      const invD = 1 / d;
+      const r = s.r;
+      const mag = s.strength * (d / r) * Math.exp(-d2 / (2 * r * r)) * state.fieldGain;
+
+      u += s.spin * mag * (-ry * invD);
+      v += s.spin * mag * (rx * invD);
+
+      const radial = -s.spin * INFLOW * mag;
+      u += rx * invD * radial;
+      v += ry * invD * radial;
+    }
+
+    fieldU[p] = u;
+    fieldV[p] = v;
+  }
+
+  function updateFieldRows(rows) {
+    const gw = state.gridW;
+    const gh = state.gridH;
+    const aspect = state.aspect;
+
+    for (let r = 0; r < rows; r++) {
+      const y = state.fieldRow;
+      const fy = y / (gh - 1);
+      let p = y * gw;
+      for (let x = 0; x < gw; x++) {
+        computeCell((x / (gw - 1)) * aspect, fy, p);
+        p++;
+      }
+      state.fieldRow++;
+      if (state.fieldRow >= gh) state.fieldRow = 0;
+    }
+  }
+
+  function updateFullField() {
+    for (let y = 0; y < state.gridH; y++) updateFieldRows(1);
+  }
+
+  function sampleField(fx, fy) {
+    const gw = state.gridW;
+    const gh = state.gridH;
+    const gx = clamp((fx / state.aspect) * (gw - 1), 0, gw - 1);
+    const gy = clamp(fy * (gh - 1), 0, gh - 1);
+    const x0 = gx | 0;
+    const y0 = gy | 0;
+    const x1 = x0 < gw - 1 ? x0 + 1 : x0;
+    const y1 = y0 < gh - 1 ? y0 + 1 : y0;
+    const tx = gx - x0;
+    const ty = gy - y0;
+    const i00 = y0 * gw + x0;
+    const i10 = y0 * gw + x1;
+    const i01 = y1 * gw + x0;
+    const i11 = y1 * gw + x1;
+
+    const u0 = fieldU[i00] + (fieldU[i10] - fieldU[i00]) * tx;
+    const u1 = fieldU[i01] + (fieldU[i11] - fieldU[i01]) * tx;
+    const v0 = fieldV[i00] + (fieldV[i10] - fieldV[i00]) * tx;
+    const v1 = fieldV[i01] + (fieldV[i11] - fieldV[i01]) * tx;
+
+    state.sampleU = u0 + (u1 - u0) * ty;
+    state.sampleV = v0 + (v1 - v0) * ty;
+    state.sampleSpeedSq = state.sampleU * state.sampleU + state.sampleV * state.sampleV;
+  }
+
+  function simulate(dt) {
+    const aspect = state.aspect;
+    let vp = 0;
+    let cp = 0;
+
+    for (let i = 0; i < COUNT; i++) {
+      const x = xs[i];
+      const y = ys[i];
+      sampleField(x, y);
+      const nx = x + state.sampleU * dt * state.flowSpeed;
+      const ny = y + state.sampleV * dt * state.flowSpeed;
+
+      ages[i] += dt;
+
+      if (ages[i] > lifes[i] || nx < 0 || nx > aspect || ny < 0 || ny > 1) {
+        spawn(i);
+        linePositions[vp++] = xs[i];
+        linePositions[vp++] = ys[i];
+        linePositions[vp++] = xs[i];
+        linePositions[vp++] = ys[i];
+        cp = writeLineColor(cp, 0);
+        continue;
+      }
+
+      xs[i] = nx;
+      ys[i] = ny;
+
+      linePositions[vp++] = x;
+      linePositions[vp++] = y;
+      linePositions[vp++] = nx;
+      linePositions[vp++] = ny;
+      cp = writeLineColor(cp, state.sampleSpeedSq);
+    }
+  }
+
+  function drawQuad(texture, mode) {
+    gl.useProgram(quadProgram);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad.buffer);
+    gl.enableVertexAttribArray(quad.aPos);
+    gl.vertexAttribPointer(quad.aPos, 2, gl.FLOAT, false, 0, 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(quad.uTex, 0);
+    gl.uniform3f(quad.uBg, BG_RGB[0], BG_RGB[1], BG_RGB[2]);
+    gl.uniform1f(quad.uKeep, 1 - ERASE);
+    gl.uniform1f(quad.uMode, mode);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  function drawLines() {
+    gl.bindBuffer(gl.ARRAY_BUFFER, lines.positionBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, linePositions);
+    gl.bindBuffer(gl.ARRAY_BUFFER, lines.colorBuffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, lineColors);
+
+    gl.useProgram(lineProgram);
+    gl.uniform1f(lines.uAspect, state.aspect);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, lines.positionBuffer);
+    gl.enableVertexAttribArray(lines.aPos);
+    gl.vertexAttribPointer(lines.aPos, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, lines.colorBuffer);
+    gl.enableVertexAttribArray(lines.aColor);
+    gl.vertexAttribPointer(lines.aColor, 4, gl.FLOAT, false, 0, 0);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.drawArrays(gl.LINES, 0, COUNT * 2);
+    gl.disable(gl.BLEND);
+  }
+
+  function render() {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, state.write.fbo);
+    gl.viewport(0, 0, state.pw, state.ph);
+    gl.disable(gl.BLEND);
+    drawQuad(state.read.tex, 1);
+    drawLines();
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, state.pw, state.ph);
+    drawQuad(state.write.tex, 0);
+
+    const tmp = state.read;
+    state.read = state.write;
+    state.write = tmp;
+  }
+
+  function updateMarkers() {
+    const w = state.w;
+    const h = state.h;
+    const base = Math.min(w, h);
+
+    for (let i = 0; i < state.systems.length; i++) {
+      const s = state.systems[i];
+      const size = Math.max(86, base * s.r * 1.55);
+      const opacity = clamp(0.34 + s.strength * 0.24, 0.42, 0.64);
+      const kind = s.spin > 0 ? "L" : "H";
+      const label = markerEls[i].querySelector(".pressure-marker");
+
+      markerEls[i].dataset.kind = kind;
+      if (label && label.textContent !== kind) {
+        label.textContent = kind;
+        label.dataset.kind = kind;
+      }
+
+      markerEls[i].style.transform =
+        `translate3d(${s.displayX * w}px, ${s.displayY * h}px, 0) translate(-50%, -50%)`;
+      markerEls[i].style.setProperty("--pressure-size", `${size}px`);
+      markerEls[i].style.setProperty("--pressure-opacity", opacity.toFixed(3));
+    }
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    const w = Math.max(1, canvas.clientWidth | 0);
+    const h = Math.max(1, canvas.clientHeight | 0);
+
+    if (w === state.w && h === state.h && dpr === state.dpr) return;
+
+    state.w = w;
+    state.h = h;
+    state.dpr = dpr;
+    state.pw = Math.max(1, Math.floor(w * dpr));
+    state.ph = Math.max(1, Math.floor(h * dpr));
+    state.aspect = w / h;
+
+    canvas.width = state.pw;
+    canvas.height = state.ph;
+
+    rebuildRenderTargets();
+    rebuildField();
+    updateFullField();
+
+    for (let i = 0; i < COUNT; i++) {
+      if (xs[i] > state.aspect) spawn(i);
+    }
+    updateMarkers();
+  }
+
+  function frame(now) {
+    state.rafId = 0;
+    if (!state.running || state.contextLost || document.hidden || !state.inView) return;
+
+    state.rafId = requestAnimationFrame(frame);
+
+    const since = now - state.lastStep;
+    if (since < FRAME_MS) return;
+    state.lastStep = now - (since % FRAME_MS);
+
+    let dt = (now - state.lastT) * 0.001;
+    state.lastT = now;
+    if (!Number.isFinite(dt) || dt < 0 || dt > 0.05) dt = 1 / TARGET_FPS;
+
+    stepSystems(dt);
+    updateFieldRows(FIELD_ROWS_PER_FRAME);
+    simulate(dt);
+    render();
+    updateMarkers();
+
+    // Reduced motion: build the trails once, then hold the frame.
+    if (reduced && ++state.settledFrames > 40) stopAnimation();
+  }
+
+  function startAnimation() {
+    if (state.rafId || state.contextLost) return;
+    state.running = true;
+    state.lastT = performance.now();
+    state.lastStep = 0;
+    state.rafId = requestAnimationFrame(frame);
+  }
+
+  function stopAnimation() {
+    state.running = false;
+    if (state.rafId) {
+      cancelAnimationFrame(state.rafId);
+      state.rafId = 0;
+    }
+  }
+
+  function setMode(name, immediate = false) {
+    if (!immediate && name === state.mode) return;
+
+    const mode = MODES[name] || MODES.mistral;
+    state.mode = name;
+    COLORS = PALETTES[mode.palette] || PALETTES.marine;
+    BG_RGB = mode.bg.slice();
+    state.flowSpeed = mode.flowSpeed;
+    state.fieldGain = mode.fieldGain;
+    state.bgU = mode.bgU;
+    state.bgV = mode.bgV;
+    state.wander = mode.wander;
+
+    for (let i = 0; i < state.systems.length; i++) {
+      const src = mode.systems[i % mode.systems.length];
+      const s = state.systems[i];
+      s.targetX = src.x;
+      s.targetY = src.y;
+      s.targetSpin = src.spin;
+      s.targetR = src.r;
+      s.targetStrength = src.strength;
+
+      if (immediate) {
+        s.x = src.x; s.y = src.y;
+        s.displayX = src.x; s.displayY = src.y;
+        s.spin = src.spin;
+        s.baseR = src.r; s.baseStrength = src.strength;
+        s.r = src.r; s.strength = src.strength;
+      }
+    }
+
+    for (const button of modeButtons) {
+      button.classList.toggle("is-active", button.dataset.mode === name);
+    }
+    if (modeLabel) modeLabel.textContent = mode.label;
+
+    buildLegend();
+    state.fieldRow = 0;
+    updateFieldRows(Math.min(state.gridH, 6));
+    clearFramebuffer(state.fboA);
+    clearFramebuffer(state.fboB);
+    state.settledFrames = 0;
+    startAnimation();
+  }
+
+  /* The preset cards below the fold drive the same field. */
+  presetGrid.addEventListener("click", (event) => {
+    const card = event.target.closest("[data-jump]");
+    if (!card) return;
+    setMode(card.dataset.jump);
+    mapEl.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  });
+
+  for (const button of modeButtons) {
+    button.addEventListener("click", () => setMode(button.dataset.mode));
+  }
+
+  // 14,000 particles are not worth simulating while the hero is off screen.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      (entries) => {
+        state.inView = entries[0].isIntersecting;
+        if (state.inView) {
+          state.lastT = performance.now();
+          startAnimation();
+        } else {
+          stopAnimation();
+        }
+      },
+      { threshold: 0 }
+    ).observe(mapEl);
+  }
+
+  if ("ResizeObserver" in window) {
+    let pending = false;
+    new ResizeObserver(() => {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        pending = false;
+        resize();
+      });
+    }).observe(canvas);
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopAnimation();
+      return;
+    }
+    state.lastT = performance.now();
+    startAnimation();
+  });
+
+  canvas.addEventListener("webglcontextlost", (event) => {
+    event.preventDefault();
+    state.contextLost = true;
+    stopAnimation();
+  });
+
+  canvas.addEventListener("webglcontextrestored", () => window.location.reload());
+
+  buildLegend();
+  buildMarkers();
+  resize();
+  for (let i = 0; i < COUNT; i++) spawn(i);
+  setMode(state.mode, true);
+  updateFullField();
+  simulate(0.016);
+  render();
+  startAnimation();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Proxima — run the model next to the request</title>
+<meta name="description" content="A fictional inference edge network, staged as concentric stadium rings radiating from the call to action, under a streaked orb. One file, no images, no libraries." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   PROXIMA — the page is a wavefront.
+   Concentric stadium rings radiate out of the button, a streaked
+   orb hangs over the top of them, and the readouts float in the
+   gaps. Everything is CSS.
+   ============================================================ */
+:root {
+  --void: #040d2a;
+  --void-2: #030b22;
+  --deep: #081d5c;
+  --mid: #275bbb;
+  --lit: #a4d8ff;
+  --glass: rgba(2, 15, 57, 0.72);
+  --glass-line: rgba(123, 161, 244, 0.34);
+  --blue: #045cff;
+  --orb: #326ee6;
+  --ink: #fdfdff;
+  --ink-2: #9fb3e0;
+  --ink-3: #64789f;
+
+  --sans: "Poppins", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--void);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+ul { list-style: none; }
+.wrap { width: min(1180px, 100% - 40px); margin: 0 auto; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.lbl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav { position: absolute; inset: 0 0 auto; z-index: 40; }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 92px; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 11px; font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
+.brand svg { width: 24px; height: 24px; }
+
+/* the pill nav, with an indicator that slides to the active item */
+.pillnav {
+  position: relative; display: flex; gap: 4px; padding: 5px;
+  border-radius: 999px; background: rgba(123, 161, 244, 0.13);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.pillnav a {
+  position: relative; z-index: 1; padding: 8px 20px; border-radius: 999px;
+  font-size: 14px; color: var(--ink-2); transition: color 0.3s var(--ease);
+}
+.pillnav a.on { color: #fff; font-weight: 500; }
+.pillnav .glide {
+  position: absolute; top: 5px; left: 0; height: calc(100% - 10px);
+  border-radius: 999px;
+  background: rgba(233, 243, 255, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(233, 243, 255, 0.22);
+  transition: transform 0.42s var(--ease), width 0.42s var(--ease);
+  pointer-events: none;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 11px 24px; border-radius: 999px; font-size: 14px; font-weight: 500;
+  transition: 0.24s var(--ease);
+}
+.btn--blue {
+  background: var(--blue); color: #fff;
+  box-shadow: 0 10px 26px -8px rgba(4, 92, 255, 0.85), inset 0 -8px 14px -6px rgba(255, 255, 255, 0.6);
+}
+.btn--blue:hover { transform: translateY(-2px); box-shadow: 0 16px 32px -8px rgba(4, 92, 255, 0.9), inset 0 -8px 14px -6px rgba(255, 255, 255, 0.7); }
+.btn:focus-visible { outline: 2px solid var(--lit); outline-offset: 3px; }
+
+/* ============================================================
+   THE WAVEFRONT
+   No hard-edged sphere: the light is a wash raked in from the top
+   left, and the rings are closed stadiums nested around the button
+   with a band of light lying across their middle.
+   ============================================================ */
+.hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  padding: 0 0 clamp(4rem, 9vw, 8rem);
+  background:
+    radial-gradient(90% 60% at 78% 8%, rgba(30, 80, 190, 0.28), transparent 60%),
+    linear-gradient(158deg, #0d2a6b 0%, #071845 34%, #04102e 62%, #020814 100%);
+}
+/* The light source. It lives in its own element rather than in the hero's
+   background so the pointer can move it on a transform — repainting a
+   viewport-sized gradient every frame is the expensive way to do this. */
+.lightsrc {
+  position: absolute; z-index: 0; left: 0; top: 0; pointer-events: none;
+  width: min(1500px, 105vw); aspect-ratio: 1;
+  margin: -50vh 0 0 -50vw;   /* centred on its own transform origin */
+  background: radial-gradient(circle,
+    rgba(96, 158, 255, 0.85) 0%, rgba(44, 100, 212, 0.46) 26%,
+    rgba(12, 34, 88, 0.18) 52%, transparent 72%);
+  will-change: transform;
+}
+
+/* the single rake of light off the top-left corner */
+.hero::before {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  left: -14%; top: -46%; width: 52%; height: 130%;
+  background: linear-gradient(180deg, rgba(198, 224, 255, 0.34), rgba(198, 224, 255, 0));
+  transform: rotate(22deg); border-radius: 999px; filter: blur(96px);
+}
+
+.stars { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.stars i {
+  position: absolute; border-radius: 50%;
+  background: var(--fill, #bcd3ff); opacity: var(--o, 0.4);
+}
+/* a few discrete beads among the dust, some solid and some ringed */
+.stars i.bead { background: #1e4fd0; opacity: 0.95; box-shadow: 0 0 10px rgba(30, 79, 208, 0.7); }
+.stars i.ring { background: transparent; border: 1.5px solid rgba(150, 190, 255, 0.55); opacity: 0.8; }
+
+.hero-in { position: relative; z-index: 3; text-align: center; padding-top: clamp(7.5rem, 14vw, 11rem); }
+.hero-in h1 {
+  font-size: clamp(2.3rem, 1rem + 5.2vw, 4.4rem);
+  font-weight: 600; line-height: 1.16; letter-spacing: -0.03em;
+  text-wrap: balance;
+  text-shadow: 0 6px 40px rgba(4, 13, 42, 0.5);
+}
+
+/* ---------- the rings ----------
+   Closed stadiums, every one centred on the button rather than
+   anchored to the bottom, so the stack reads as a tunnel seen
+   end-on instead of a set of arches. */
+.ringstack {
+  position: relative; z-index: 2;
+  margin: clamp(2.5rem, 6vw, 4.5rem) auto 0;
+  width: min(1200px, 100% - 28px);
+  aspect-ratio: 1200 / 500;
+}
+.rings { position: absolute; inset: 0; }
+.rings i {
+  position: absolute; top: 50%; left: 50%; translate: -50% -50%;
+  border-radius: 999px;
+  background: linear-gradient(176deg, var(--c1) 0%, var(--c2) 46%, var(--c3) 100%);
+  box-shadow: inset 0 1px 0 rgba(214, 233, 255, 0.5), 0 0 34px -12px rgba(120, 178, 255, 0.5);
+}
+.rings i:nth-child(1) { width: 100%; height: 100%; --c1: #3164b8; --c2: #14337c; --c3: #0a1c4d; --h1: #5c92e0; --h2: #2755b4; --h3: #112c6e; }
+.rings i:nth-child(2) { width: 86%; height: 86%; --c1: #4076cf; --c2: #1a409a; --c3: #0c2260; --h1: #6fa4ec; --h2: #3063c9; --h3: #143487; }
+.rings i:nth-child(3) { width: 72%; height: 72%; --c1: #5b93e6; --c2: #24509f; --c3: #0e2a6e; --h1: #87b8f6; --h2: #3e76d8; --h3: #173e97; }
+.rings i:nth-child(4) { width: 58%; height: 58%; --c1: #7fb1f2; --c2: #2f63c4; --c3: #11337f; --h1: #a3cbfb; --h2: #518ce6; --h3: #1b4aab; }
+.rings i:nth-child(5) { width: 50%; height: 40%; --c1: #a9d2ff; --c2: #4a85e0; --c3: #14388c; --h1: #c6e2ff; --h2: #6aa3ef; --h3: #2256bd; }
+
+/* ---------- the rings light when you go for the button ----------
+   The brighter state is a pseudo-element faded in over each ring, not a
+   filter or a box-shadow on the ring itself: opacity composites, and five
+   stacked 1200px shapes re-filtering on hover does not.
+   The delay lives in the :hover rule so the light ripples outward from the
+   button on the way in, and all of it drops together on the way out. */
+.rings i::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(176deg, var(--h1) 0%, var(--h2) 46%, var(--h3) 100%);
+  box-shadow: inset 0 1px 0 rgba(236, 246, 255, 0.7), 0 0 60px -16px rgba(150, 200, 255, 0.6);
+  opacity: 0; transition: opacity 0.42s var(--ease);
+}
+.ringstack:hover .rings i::after,
+.ringstack:focus-within .rings i::after { opacity: 1; }
+.ringstack:hover .rings i:nth-child(5)::after { transition-delay: 0s; }
+.ringstack:hover .rings i:nth-child(4)::after { transition-delay: 0.05s; }
+.ringstack:hover .rings i:nth-child(3)::after { transition-delay: 0.1s; }
+.ringstack:hover .rings i:nth-child(2)::after { transition-delay: 0.15s; }
+.ringstack:hover .rings i:nth-child(1)::after { transition-delay: 0.2s; }
+
+/* the band of light lying across the middle of the stack */
+/* over the rings, under the button */
+.beads { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.beads i { position: absolute; border-radius: 50%; translate: -50% -50%; }
+.beads i.bead { background: #1e4fd0; box-shadow: 0 0 12px rgba(30, 79, 208, 0.8); }
+.beads i.ring { border: 1.5px solid rgba(170, 205, 255, 0.6); }
+
+.beam {
+  position: absolute; z-index: 3; inset: 0; pointer-events: none;
+  /* a soft base wash that stays put, so the stack is never unlit */
+  background: radial-gradient(64% 20% at 50% 44%, rgba(186, 217, 255, 0.34) 0%, transparent 78%);
+  mix-blend-mode: screen;
+}
+/* an extra pour of light while the stack is live */
+.beam::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(52% 18% at 50% 44%, rgba(255, 255, 255, 0.3) 0%, rgba(200, 228, 255, 0.16) 44%, transparent 78%);
+  opacity: 0; transition: opacity 0.42s var(--ease);
+}
+.ringstack:hover .beam::after, .ringstack:focus-within .beam::after { opacity: 1; transition-delay: 0.12s; }
+
+/* and the hot core, which is the part that follows the pointer */
+.beam i {
+  position: absolute; inset: 0; display: block;
+  background:
+    radial-gradient(34% 15% at 50% 44%, rgba(233, 243, 255, 0.82) 0%, rgba(190, 220, 255, 0.4) 46%, transparent 76%),
+    radial-gradient(17% 7% at 50% 43%, rgba(255, 255, 255, 0.62), transparent 74%);
+  will-change: transform;
+}
+
+/* ---------- the call to action ---------- */
+.cta-slot { position: absolute; z-index: 5; top: 50%; left: 50%; translate: -50% -50%; }
+.cta {
+  display: inline-flex; align-items: center; gap: 16px;
+  padding: clamp(15px, 2vw, 24px) clamp(30px, 5.2vw, 72px);
+  border-radius: 999px;
+  font-size: clamp(1rem, 0.88rem + 0.62vw, 1.34rem); font-weight: 400;
+  color: #eaf1ff; white-space: nowrap;
+  background: linear-gradient(180deg, #0a1440 0%, #050c26 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(150, 190, 255, 0.28),
+    0 0 0 1px rgba(120, 165, 240, 0.28),
+    0 18px 50px -18px rgba(0, 0, 0, 0.9);
+  transition: 0.26s var(--ease);
+}
+.cta:hover { box-shadow: inset 0 1px 0 rgba(190, 220, 255, 0.45), 0 0 0 1px rgba(170, 205, 255, 0.6), 0 0 54px -10px rgba(120, 180, 255, 0.8); }
+.cta svg { width: 26px; height: 20px; }
+.cta:focus-visible { outline: 2px solid var(--lit); outline-offset: 4px; }
+
+/* ============================================================
+   BELOW
+   ============================================================ */
+.sec { position: relative; padding: clamp(4rem, 8vw, 7rem) 0; }
+.sec-head { max-width: 58ch; margin-bottom: clamp(2rem, 4vw, 3rem); }
+.sec-head h2 { margin: 0.7rem 0 0.8rem; font-size: clamp(1.7rem, 1.1rem + 2.2vw, 2.7rem); font-weight: 600; line-height: 1.16; letter-spacing: -0.025em; text-wrap: balance; }
+.sec-head p { color: var(--ink-2); line-height: 1.65; max-width: 52ch; }
+
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card {
+  position: relative; padding: 26px 24px 28px; border-radius: 20px;
+  background: linear-gradient(180deg, rgba(39, 91, 187, 0.16), rgba(8, 29, 92, 0.18));
+  border: 1px solid rgba(123, 161, 244, 0.2);
+  transition: 0.32s var(--ease);
+}
+.card:hover { transform: translateY(-5px); border-color: rgba(164, 216, 255, 0.55); box-shadow: 0 24px 50px -30px rgba(90, 160, 255, 0.9); }
+/* the ring motif again, at badge scale */
+.card .pip {
+  width: 44px; height: 30px; border-radius: 999px; margin-bottom: 18px;
+  background: linear-gradient(180deg, var(--lit), #3f7ddc);
+  box-shadow: 0 0 0 5px rgba(39, 91, 187, 0.35), 0 0 0 10px rgba(8, 29, 92, 0.45);
+}
+.card:nth-child(2) .pip { background: linear-gradient(180deg, #7fb6ff, #275bbb); }
+.card:nth-child(3) .pip { background: linear-gradient(180deg, #cfe8ff, #4e8ae8); }
+.card h3 { font-size: 1.18rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.015em; }
+.card p { font-size: 0.94rem; line-height: 1.65; color: var(--ink-2); }
+
+.figs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.fig { padding: 22px 20px 24px; border-radius: 18px; background: rgba(8, 29, 92, 0.34); border: 1px solid rgba(123, 161, 244, 0.16); }
+.fig b { display: block; font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+.fig span { display: block; margin-top: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); line-height: 1.5; }
+.caveat { margin-top: 1.6rem; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; color: var(--ink-3); }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; counter-reset: s; }
+.step { counter-increment: s; padding-top: 18px; border-top: 1px solid rgba(123, 161, 244, 0.22); }
+.step::before { content: counter(s, decimal-leading-zero); display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; color: var(--lit); margin-bottom: 10px; }
+.step h3 { font-size: 1.08rem; font-weight: 600; margin-bottom: 0.45rem; }
+.step p { font-size: 0.92rem; line-height: 1.65; color: var(--ink-2); }
+
+.close { text-align: center; padding: clamp(4rem, 8vw, 6.5rem) 0; }
+.close h2 { font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3rem); font-weight: 600; letter-spacing: -0.03em; text-wrap: balance; }
+.close p { max-width: 46ch; margin: 1rem auto 2rem; color: var(--ink-2); line-height: 1.65; }
+
+footer { border-top: 1px solid rgba(123, 161, 244, 0.16); padding: 2rem 0 2.75rem; }
+.foot { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; font-family: var(--mono); font-size: 11.5px; line-height: 1.85; color: var(--ink-3); }
+
+@media (max-width: 900px) {
+  .grid3, .steps { grid-template-columns: 1fr; }
+  .figs { grid-template-columns: repeat(2, 1fr); }
+  .pillnav { display: none; }
+}
+@media (max-width: 560px) {
+  .figs { grid-template-columns: 1fr; }
+  /* the label wrapped to three lines inside the pill; hold it on one */
+  .cta { font-size: 0.92rem; padding: 13px 20px; gap: 9px; white-space: nowrap; }
+  .cta svg { width: 17px; height: 17px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.2" fill="#a4d8ff"/>
+        <ellipse cx="12" cy="12" rx="10" ry="5.6" stroke="#4e8ae8" stroke-width="1.5"/>
+        <ellipse cx="12" cy="12" rx="5.6" ry="10" stroke="#275bbb" stroke-width="1.5"/>
+      </svg>
+      Proxima
+    </a>
+    <div class="pillnav" id="pillnav">
+      <span class="glide" id="glide" aria-hidden="true"></span>
+      <a href="#network" class="on">Network</a>
+      <a href="#how">How it works</a>
+      <a href="#numbers">Numbers</a>
+    </div>
+    <a class="btn btn--blue" href="#start">Sign in</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <span class="lightsrc" id="lightsrc" aria-hidden="true"></span>
+  <div class="stars" id="stars" aria-hidden="true"></div>
+
+  <div class="hero-in">
+    <div class="wrap">
+      <h1>Run the model<br />next to the request.</h1>
+    </div>
+
+    <div class="ringstack">
+      <div class="rings"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="beam" aria-hidden="true"><i id="beamcore"></i></div>
+      <div class="cta-slot">
+        <a class="cta" href="#start">
+          Deploy in one region free
+          <svg viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M2 10h22M17 4l6 6-6 6M13 4l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="sec" id="network">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="lbl">The network</p>
+        <h2>Distance is the part of latency you cannot optimise away.</h2>
+        <p>You can quantise the model, batch the requests and rewrite the kernel, and the packet still has to cross an ocean. Proxima moves the model instead.</p>
+      </div>
+      <div class="grid3">
+        <article class="card">
+          <div class="pip" aria-hidden="true"></div>
+          <h3>Two hundred places</h3>
+          <p>One deploy lands everywhere at once. Requests resolve to the nearest healthy box without you writing a routing table or maintaining one.</p>
+        </article>
+        <article class="card">
+          <div class="pip" aria-hidden="true"></div>
+          <h3>Weights stay warm</h3>
+          <p>A region that has served your model keeps it resident. Adding the two hundred and fifteenth costs a cold start once, not on every call.</p>
+        </article>
+        <article class="card">
+          <div class="pip" aria-hidden="true"></div>
+          <h3>Fails to the next ring</h3>
+          <p>A region going dark is a routing event, not an outage. The request lands one ring further out and the caller sees a slower answer, not an error.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="how" style="padding-top: 0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="lbl">How it works</p>
+        <h2>Three calls, then it is somebody else's problem.</h2>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <h3>Push the artifact</h3>
+          <p>One build, whatever you already produce. Proxima does not need your training code, your dataset or your framework of the month.</p>
+        </article>
+        <article class="step">
+          <h3>Pick a footprint</h3>
+          <p>One region, a continent, or everywhere. It is a number in a config, and changing it is a deploy rather than a migration.</p>
+        </article>
+        <article class="step">
+          <h3>Point your clients at one host</h3>
+          <p>The same hostname everywhere. Anycast puts the call on the nearest edge and the answer comes back from there.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="numbers" style="padding-top: 0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="lbl">Numbers</p>
+        <h2>What it looks like from the caller's side.</h2>
+      </div>
+      <div class="figs">
+        <div class="fig"><b>18 ms</b><span>p50, request to first token</span></div>
+        <div class="fig"><b>214</b><span>regions serving today</span></div>
+        <div class="fig"><b>99.98%</b><span>of calls answered in region</span></div>
+        <div class="fig"><b>1</b><span>hostname to point at</span></div>
+      </div>
+      <p class="caveat">Invented product, invented figures — nothing here was measured.</p>
+    </div>
+  </section>
+
+  <section class="close" id="start">
+    <div class="wrap">
+      <h2>Put it where the people are.</h2>
+      <p>Deploy into one region for nothing, and watch what the round trip was costing you.</p>
+      <a class="cta" href="#top">
+        Deploy in one region free
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M4 12h15M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>
+      Proxima is a fictional product and this page is a design demo — the network,<br />
+      the claims and every figure are invented. Nothing here is real.
+    </span>
+    <span>
+      Rings, orb and floating readouts after a crypto website concept in Rive<br />
+      One file · no images · no libraries
+    </span>
+  </div>
+</footer>
+
+<script>
+(() => {
+"use strict";
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============================================================
+   THE STARFIELD
+   Placed once from a seeded generator rather than animated: the
+   hero already has a 1100px orb and five stacked stadiums in it,
+   and none of this needs to move to read as depth.
+   ============================================================ */
+(() => {
+  const host = document.getElementById("stars");
+  if (!host) return;
+  let x = 20250927;
+  const rnd = () => ((x = (x * 48271) % 2147483647) / 2147483647);
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < 72; i++) {
+    const s = document.createElement("i");
+    s.style.left = (rnd() * 100).toFixed(2) + "%";
+    s.style.top = (rnd() * 100).toFixed(2) + "%";
+    s.style.setProperty("--o", (0.14 + rnd() * 0.45).toFixed(2));
+    const sz = rnd() < 0.15 ? 3 : 2;
+    s.style.width = s.style.height = sz + "px";
+    frag.appendChild(s);
+  }
+  host.appendChild(frag);
+
+  /* The beads sit ON the rings rather than behind them, so they go in their
+     own layer inside the stack — in the dust layer they disappear under the
+     first band. Positions are percentages of the stack, not the page. */
+  const stack = document.querySelector(".ringstack");
+  if (!stack) return;
+  const beads = document.createElement("div");
+  beads.className = "beads";
+  beads.setAttribute("aria-hidden", "true");
+  [[59.6, 14.4, 11, "bead"], [31.3, 28.8, 9, "bead"], [1.1, 43.4, 12, "ring"],
+   [85, 87.4, 10, "bead"], [95, 36, 7, "ring"], [12, 78, 7, "bead"]].forEach((b) => {
+    const e = document.createElement("i");
+    e.className = b[3];
+    e.style.left = b[0] + "%";
+    e.style.top = b[1] + "%";
+    e.style.width = e.style.height = b[2] + "px";
+    beads.appendChild(e);
+  });
+  stack.appendChild(beads);
+})();
+
+/* ============================================================
+   THE LIGHT, TRACKING
+   The source .riv carries a pointer listener called "tracking": the
+   orb follows the cursor and the lit band on the rings follows it.
+   Both are transforms here, not gradient repaints — moving a
+   viewport-sized radial by editing its background position repaints
+   the whole hero every frame.
+   ============================================================ */
+(() => {
+  const hero = document.querySelector(".hero");
+  const src = document.getElementById("lightsrc");
+  const core = document.getElementById("beamcore");
+  if (!hero || !src || !core) return;
+
+  /* where the light sits with no pointer — the composition as authored */
+  const REST = { x: 0.18, y: -0.06 };
+  let tx = REST.x, ty = REST.y, cx = REST.x, cy = REST.y;
+  let raf = 0, visible = false;
+
+  function place() {
+    const r = hero.getBoundingClientRect();
+    src.style.transform =
+      "translate3d(" + (cx * r.width).toFixed(1) + "px," + (cy * r.height).toFixed(1) + "px,0)";
+    /* the hot core slides across the stack, but only a third as far as the
+       pointer, so it stays on the rings instead of running off the ends */
+    core.style.transform = "translate3d(" + ((cx - 0.5) * 34).toFixed(2) + "%,0,0)";
+  }
+  place();
+
+  if (REDUCED) return;
+
+  hero.addEventListener("pointermove", (e) => {
+    const r = hero.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width;
+    ty = (e.clientY - r.top) / r.height;
+    start();
+  });
+  hero.addEventListener("pointerleave", () => { tx = REST.x; ty = REST.y; start(); });
+
+  function frame() {
+    raf = requestAnimationFrame(frame);
+    cx += (tx - cx) * 0.085;
+    cy += (ty - cy) * 0.085;
+    place();
+    /* park once it has caught up rather than burning a frame a tick */
+    if (Math.abs(tx - cx) < 0.0008 && Math.abs(ty - cy) < 0.0008) {
+      cancelAnimationFrame(raf); raf = 0;
+    }
+  }
+  const start = () => { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame); };
+
+  new IntersectionObserver((es) => {
+    for (const e of es) visible = e.isIntersecting;
+    if (!visible && raf) { cancelAnimationFrame(raf); raf = 0; }
+  }, { threshold: 0 }).observe(hero);
+  visible = true;
+  addEventListener("resize", place);
+  document.addEventListener("visibilitychange", () => { if (document.hidden && raf) { cancelAnimationFrame(raf); raf = 0; } });
+})();
+
+/* ============================================================
+   THE PILL NAV
+   The indicator is measured from the active link rather than
+   hard-coded, so it survives a font swap or a copy change.
+   ============================================================ */
+(() => {
+  const nav = document.getElementById("pillnav");
+  const glide = document.getElementById("glide");
+  if (!nav || !glide) return;
+  const links = [...nav.querySelectorAll("a")];
+  function move(to) {
+    const r = to.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    glide.style.width = r.width + "px";
+    glide.style.transform = "translateX(" + (r.left - n.left) + "px)";
+  }
+  const active = () => links.find((a) => a.classList.contains("on")) || links[0];
+  for (const a of links) {
+    a.addEventListener("pointerenter", () => move(a));
+    a.addEventListener("focus", () => move(a));
+    a.addEventListener("click", () => {
+      for (const b of links) b.classList.toggle("on", b === a);
+      move(a);
+    });
+  }
+  nav.addEventListener("pointerleave", () => move(active()));
+  const settle = () => move(active());
+  settle();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle);
+  addEventListener("resize", settle);
+
+  /* the section you are actually looking at owns the pill */
+  if (REDUCED) return;
+  const map = new Map(links.map((a) => [a.getAttribute("href").slice(1), a]));
+  const io = new IntersectionObserver((es) => {
+    for (const e of es) {
+      if (!e.isIntersecting) continue;
+      const a = map.get(e.target.id);
+      if (!a) continue;
+      for (const b of links) b.classList.toggle("on", b === a);
+      move(a);
+    }
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  for (const id of map.keys()) {
+    const el = document.getElementById(id);
+    if (el) io.observe(el);
+  }
+})();
+})();
+</script>
+</body>
+</html>

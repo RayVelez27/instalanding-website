@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Timbre — speech synthesis console</title>
+<meta name="description" content="A fictional speech-synthesis console: a moulded player deck with a lit waveform, a dotted gain knob and stereo tick meters, beside a queue of takes. One viewport, one file, no images." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   TIMBRE — a moulded deck for listening to synthesised speech.
+   The player is one piece of injection-moulded plastic sitting on
+   a stack of trays: a sunken screen, five transport keys, a dotted
+   gain knob and two tick meters. Everything is CSS.
+   ============================================================ */
+:root {
+  --page: #f2f2f3;
+  --tray: #e5e5e5;
+  --tray-edge: #cfcfcf;
+  --shell: #f2f2f2;
+  --shell-2: #e7e7e7;
+  --key: #fefefe;
+  --screen: #1f2022;
+  --screen-2: #17181a;
+  --screen-edge: #2e2f31;
+  --bar: #e8e9ec;
+  --amber: #ff7700;
+  --amber-dim: rgba(255, 119, 0, 0.22);
+  --ink: #1c1d1f;
+  --ink-2: #6c6d70;
+  --ink-3: #b5b5b5;
+  --line: #dcdcdc;
+
+  --sans: "Inter", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --bar-h: 56px;   /* topbar */
+  --sb: 30px;      /* status bar */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* the moulding: one light source, top left */
+  --lift: -6px -6px 14px #ffffff, 6px 6px 16px rgba(60, 60, 64, 0.16);
+  --lift-sm: -3px -3px 7px #ffffff, 3px 3px 8px rgba(60, 60, 64, 0.18);
+  --press: inset -3px -3px 7px #ffffff, inset 3px 3px 8px rgba(60, 60, 64, 0.2);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+ul { list-style: none; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.lbl {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3);
+}
+
+/* ============================================================
+   CHROME
+   ============================================================ */
+.topbar {
+  height: var(--bar-h); flex: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  padding: 0 20px; border-bottom: 1px solid var(--line); background: var(--page);
+}
+/* The left slot of a dashboard's bar is the view you are in, not a mark.
+   These live behind a sign-up: whoever is looking already knows whose
+   product it is, and a wordmark up here is the one thing that would make
+   it read as a landing page again. */
+.view {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.tb-mid { display: flex; align-items: center; gap: 18px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2);
+}
+.chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px var(--amber-dim); }
+
+/* ============================================================
+   THE APP — one viewport, never scrolls
+   ============================================================ */
+.app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+.body {
+  flex: 1; min-height: 0;
+  display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 18px; padding: 18px 20px;
+}
+.col { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 14px; }
+
+/* ---------- the deck ---------- */
+.deckwrap { flex: 1; min-height: 0; display: grid; place-items: center; }
+/* the trays the deck sits on, peeking out below it */
+/* its own stacking context, or the negative-z tray pseudos fall through
+   and paint behind the page instead of behind the deck */
+.trays { position: relative; z-index: 0; width: min(100%, 830px); }
+.trays::before, .trays::after {
+  content: ""; position: absolute; left: 3%; right: 3%; border-radius: 22px;
+  background: var(--tray); box-shadow: 0 1px 0 var(--tray-edge);
+}
+.trays::before { bottom: -14px; height: 40px; z-index: -2; }
+.trays::after { bottom: -28px; left: 6%; right: 6%; height: 40px; z-index: -3; background: #e9e9e9; }
+
+.deck {
+  position: relative; z-index: 1;
+  padding: 14px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, var(--shell), var(--shell-2));
+  box-shadow: var(--lift);
+}
+.deck::before {
+  content: ""; position: absolute; inset: 6px; border-radius: 17px;
+  border: 1px solid rgba(255, 255, 255, 0.9); pointer-events: none;
+}
+
+/* the sunken screen */
+.screen {
+  position: relative; border-radius: 12px; overflow: hidden;
+  background: linear-gradient(180deg, var(--screen), var(--screen-2));
+  box-shadow: inset 0 0 0 1px var(--screen-edge), inset 0 2px 10px rgba(0, 0, 0, 0.5);
+  padding: 15px 18px 13px;
+}
+.scr-top, .scr-bot { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+.scr-top b { font-size: 13.5px; font-weight: 500; color: #f4f5f7; letter-spacing: -0.01em; }
+.scr-top span { font-size: 12.5px; color: #8b8d92; }
+.scr-bot { margin-top: 12px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: #6f7175; }
+.scr-bot b { color: #d6d8dc; font-weight: 500; }
+.scr-bot .grp { display: flex; gap: 16px; }
+
+/* the waveform: one span per bar, lit up to the playhead */
+.wave {
+  position: relative; height: 96px; margin: 15px 0 2px;
+  display: flex; align-items: center; gap: 2px;
+  cursor: pointer; touch-action: none;
+}
+.wave span {
+  flex: 1; min-width: 0; border-radius: 1px;
+  background: #3a3c40; transition: background 0.12s linear;
+}
+.wave span.on { background: var(--bar); }
+.head {
+  position: absolute; top: -15px; bottom: -13px; width: 2px;
+  background: var(--amber); pointer-events: none;
+  transform: translateX(-1px);
+}
+.head::before {
+  content: ""; position: absolute; top: 0; left: -4px;
+  width: 10px; height: 13px; border-radius: 3px; background: var(--amber);
+}
+
+/* ---------- the controls row ---------- */
+.controls {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+  gap: 16px; padding: 16px 6px 4px;
+}
+.keys { display: flex; gap: 8px; }
+.key {
+  width: 42px; height: 34px; border-radius: 9px;
+  background: var(--key); box-shadow: var(--lift-sm);
+  display: grid; place-items: center;
+  transition: box-shadow 0.14s var(--ease), transform 0.14s var(--ease);
+}
+.key:hover { transform: translateY(-1px); }
+.key:active, .key[aria-pressed="true"] { box-shadow: var(--press); transform: translateY(0); }
+.key svg { width: 13px; height: 13px; fill: var(--ink); }
+.key:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+/* the knob, with its ring of dots */
+.knobwrap { display: grid; place-items: center; gap: 8px; justify-self: center; }
+.knob {
+  position: relative; width: 104px; height: 104px; border-radius: 50%;
+  display: grid; place-items: center;
+  cursor: grab; touch-action: none;
+}
+.knob:active { cursor: grabbing; }
+.knob:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: 50%; }
+.knob .dots { position: absolute; inset: 0; }
+.knob .dots i {
+  position: absolute; top: 50%; left: 50%; width: 3px; height: 3px; border-radius: 50%;
+  background: #dcdcdc;
+  transform: rotate(var(--a)) translateY(-50px) translate(-50%, -50%);
+  transform-origin: 0 0;
+}
+.knob .dots i.lit { background: var(--amber); }
+.knob .cap {
+  position: relative; width: 74px; height: 74px; border-radius: 50%;
+  background: linear-gradient(160deg, #fbfbfb, #ececec);
+  box-shadow: var(--lift), inset 0 1px 0 #fff;
+}
+.knob .cap::after {
+  content: ""; position: absolute; top: 11px; left: 50%; width: 2px; height: 15px;
+  border-radius: 2px; background: var(--ink-3);
+  transform: translateX(-50%) rotate(var(--rot, 0deg));
+  transform-origin: 50% 26px;
+}
+
+/* the stereo tick meters */
+.meter { display: grid; gap: 7px; }
+.meter .row { display: flex; align-items: center; gap: 10px; }
+.meter .ticks { display: flex; gap: 2px; }
+.meter .ticks i { width: 2px; height: 13px; border-radius: 1px; background: #e0e0e0; }
+.meter .ticks i.on { background: var(--ink-3); }
+.meter .ticks i.on.hot { background: var(--amber); }
+.meter--r .row { flex-direction: row-reverse; }
+
+/* ---------- the transcript, read along by the playhead ---------- */
+.script {
+  flex: none; border-radius: 16px; background: var(--shell);
+  box-shadow: var(--lift); padding: 13px 16px 15px;
+}
+.script-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.script p { font-size: 14.5px; line-height: 1.7; color: var(--ink-3); }
+.script w { color: var(--ink-3); transition: color 0.1s linear; }
+.script w.said { color: var(--ink); }
+.script w.now { color: var(--amber); }
+
+/* ---------- the queue ---------- */
+.card {
+  border-radius: 16px; background: var(--shell);
+  box-shadow: var(--lift); padding: 14px 15px;
+}
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.queue { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.takes { flex: 1; min-height: 0; overflow: auto; display: grid; gap: 7px; align-content: start; padding-right: 2px; }
+.take {
+  width: 100%; text-align: left; border-radius: 11px; padding: 9px 11px;
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center;
+  background: var(--shell); box-shadow: var(--lift-sm);
+  transition: box-shadow 0.16s var(--ease);
+}
+.take:hover { box-shadow: -4px -4px 9px #fff, 4px 4px 10px rgba(60, 60, 64, 0.2); }
+.take[aria-current="true"] { box-shadow: var(--press); }
+.take b { grid-area: 1 / 1; font-size: 12.5px; font-weight: 500; letter-spacing: -0.01em; }
+.take small { grid-area: 2 / 1; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em; color: var(--ink-3); }
+.take .dur { grid-area: 1 / 2 / 3 / 3; justify-self: end; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+.take[aria-current="true"] .dur { color: var(--amber); }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { border-radius: 13px; background: var(--shell); box-shadow: var(--lift-sm); padding: 11px 12px 12px; }
+.stat b { display: block; font-size: 19px; font-weight: 600; letter-spacing: -0.02em; }
+.stat span { display: block; margin-top: 3px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); line-height: 1.4; }
+
+/* ---------- status bar ---------- */
+.statusbar {
+  height: var(--sb); flex: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 0 20px; border-top: 1px solid var(--line); background: var(--page);
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.06em; color: var(--ink-3);
+  white-space: nowrap; overflow: hidden;
+}
+.statusbar b { color: var(--amber); font-weight: 700; letter-spacing: 0.16em; }
+.sb-r { flex: none; }
+@media (max-width: 820px) { .sb-r { display: none; } }
+
+/* ============================================================
+   RESPONSIVE — below this the deck and the queue cannot share a
+   row, so the app stops being one screen and the page scrolls.
+   ============================================================ */
+@media (max-width: 1080px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100dvh; }
+  .body { grid-template-columns: 1fr; }
+  .deckwrap { min-height: 0; }
+  .takes { max-height: 260px; }
+}
+@media (max-width: 560px) {
+  .controls { grid-template-columns: 1fr; justify-items: center; gap: 18px; }
+  .meter--l, .meter--r { display: none; }
+  .stats { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <span class="view">Speech console</span>
+    <div class="tb-mid">
+      <span class="chip"><span class="dot" aria-hidden="true"></span><span id="tb-state">Stopped</span></span>
+      <span class="chip" id="tb-voice">VOICE — </span>
+    </div>
+    <span class="chip">SESSION 4C1F · SIM</span>
+  </header>
+
+  <div class="body">
+    <!-- ============ THE DECK ============ -->
+    <div class="col">
+      <div class="deckwrap">
+        <div class="trays">
+          <div class="deck">
+            <div class="screen">
+              <div class="scr-top">
+                <b id="s-title">—</b>
+                <span id="s-voice">—</span>
+              </div>
+
+              <div class="wave" id="wave" role="slider" tabindex="0"
+                   aria-label="Playhead" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span class="head" id="head" aria-hidden="true"></span>
+              </div>
+
+              <div class="scr-bot">
+                <span class="grp"><span>Model: <b id="s-model">—</b></span><span>Codec: <b>WAV</b></span></span>
+                <span class="grp"><span>Rate: <b>48kHz</b></span><span>Depth: <b>24-bit</b></span><span><b id="s-time">0:00</b></span></span>
+              </div>
+            </div>
+
+            <div class="controls">
+              <div class="keys">
+                <button class="key" type="button" id="k-prev" title="Previous take">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2.5v14H6zM20 5v14L9.5 12z"/></svg><span class="sr">Previous take</span>
+                </button>
+                <button class="key" type="button" id="k-play" title="Play">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg><span class="sr">Play</span>
+                </button>
+                <button class="key" type="button" id="k-pause" title="Pause">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg><span class="sr">Pause</span>
+                </button>
+                <button class="key" type="button" id="k-stop" title="Stop">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg><span class="sr">Stop</span>
+                </button>
+                <button class="key" type="button" id="k-next" title="Next take">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 5H18v14h-2.5zM4 5l10.5 7L4 19z"/></svg><span class="sr">Next take</span>
+                </button>
+              </div>
+
+              <div class="knobwrap">
+                <div class="knob" id="knob" role="slider" tabindex="0"
+                     aria-label="Output gain" aria-valuemin="0" aria-valuemax="100" aria-valuenow="72">
+                  <div class="dots" id="dots" aria-hidden="true"></div>
+                  <div class="cap" id="cap"></div>
+                </div>
+                <span class="lbl">Output gain <b id="gainv" style="color:var(--ink-2)">72</b></span>
+              </div>
+
+              <div class="meter meter--r">
+                <div class="row"><span class="lbl">Level R</span><span class="ticks" id="mr"></span></div>
+                <div class="row"><span class="lbl">Level L</span><span class="ticks" id="ml"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="script">
+        <div class="script-head"><span class="lbl">Transcript</span><span class="lbl" id="sc-pos">—</span></div>
+        <p id="script"></p>
+      </div>
+    </div>
+
+    <!-- ============ THE QUEUE ============ -->
+    <div class="col">
+      <div class="card queue">
+        <div class="card-head">
+          <span class="lbl">Takes</span>
+          <span class="lbl" id="q-count">—</span>
+        </div>
+        <div class="takes" id="takes"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b id="st-rtf">0.18×</b><span>realtime factor</span></div>
+        <div class="stat"><b id="st-ttfb">240 ms</b><span>to first audio</span></div>
+        <div class="stat"><b>48 kHz</b><span>mono, 24-bit</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="statusbar">
+    <span><b>SIM</b> · Timbre is a fictional product — the model, the voices and every reading are invented. Nothing here is real.</span>
+    <span class="sb-r">Deck after an audio player by Riotters · one file · no images · no libraries</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (s) => document.querySelector(s);
+
+/* ============================================================
+   TAKES
+   ============================================================ */
+const TAKES = [
+  { t: "Onboarding welcome, v4", v: "Halden", m: "tb-2-hd", s: 42, seed: 11,
+    x: "Welcome aboard. Before you start, take a moment to name your first workspace — everything you import will live inside it, and you can rename it later from settings." },
+  { t: "Checkout confirmation", v: "Halden", m: "tb-2-hd", s: 17, seed: 29,
+    x: "Your order is confirmed. A receipt is on its way to the address on file." },
+  { t: "Outage notice, calm read", v: "Wren", m: "tb-2-hd", s: 26, seed: 47,
+    x: "We are aware of an issue affecting sign in for some accounts. Engineers are on it, and this notice will update every fifteen minutes until it is resolved." },
+  { t: "Password reset prompt", v: "Wren", m: "tb-2-lt", s: 12, seed: 63,
+    x: "Enter the six digit code we just sent you. It expires in ten minutes." },
+  { t: "Long-form chapter 3", v: "Osgood", m: "tb-2-hd", s: 138, seed: 81,
+    x: "The valley had been quiet for a hundred years before the surveyors came, and it would be quiet again long after the last of them had packed up and gone home." },
+  { t: "IVR menu, six options", v: "Osgood", m: "tb-2-lt", s: 34, seed: 97,
+    x: "For account balances, press one. For a recent transaction, press two. To speak to someone, stay on the line and we will connect you." },
+  { t: "Error, retry guidance", v: "Halden", m: "tb-2-lt", s: 9, seed: 113,
+    x: "That did not go through. Check the card details and try once more." },
+];
+const BARS = 96;
+let cur = 0, playing = false, pos = 0, gain = 72;
+
+/* a seeded PRNG so a take's waveform is its own and never shifts */
+function rng(seed) {
+  let x = seed * 2654435761 % 2147483647;
+  return () => ((x = (x * 48271) % 2147483647) / 2147483647);
+}
+function waveFor(seed) {
+  const r = rng(seed), out = [];
+  for (let i = 0; i < BARS; i++) {
+    /* a speech envelope: syllable bursts inside phrase-length swells */
+    const phrase = 0.45 + 0.55 * Math.abs(Math.sin(i / BARS * Math.PI * 2.4 + seed));
+    const syl = 0.35 + 0.65 * r();
+    const gap = r() < 0.07 ? 0.12 : 1;
+    out.push(Math.max(0.08, Math.min(1, phrase * syl * gap)));
+  }
+  return out;
+}
+
+const wave = $("#wave"), head = $("#head");
+const bars = [];
+for (let i = 0; i < BARS; i++) {
+  const b = document.createElement("span");
+  wave.appendChild(b);
+  bars.push(b);
+}
+let amp = waveFor(TAKES[0].seed);
+
+const fmt = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+
+/* The transcript is read along by the same playhead the waveform uses, so the
+   two can never disagree: word n lights when the head passes n/total. */
+const scriptEl = document.getElementById("script");
+let words = [];
+function buildScript(text) {
+  scriptEl.replaceChildren();
+  words = text.split(" ").map((w) => {
+    const el = document.createElement("w");
+    el.textContent = w;
+    scriptEl.append(el, document.createTextNode(" "));
+    return el;
+  });
+}
+function paintScript() {
+  const at = Math.floor(pos * words.length);
+  for (let i = 0; i < words.length; i++) {
+    words[i].className = i < at ? "said" : i === at && playing ? "now" : "";
+  }
+  document.getElementById("sc-pos").textContent =
+    Math.min(words.length, at + 1) + " / " + words.length + " words";
+}
+
+function paintWave() {
+  for (let i = 0; i < BARS; i++) {
+    bars[i].style.height = (amp[i] * 100).toFixed(1) + "%";
+    bars[i].classList.toggle("on", i / BARS <= pos);
+  }
+  head.style.left = (pos * 100).toFixed(2) + "%";
+  paintScript();
+  wave.setAttribute("aria-valuenow", Math.round(pos * 100));
+  $("#s-time").textContent = fmt(pos * TAKES[cur].s) + " / " + fmt(TAKES[cur].s);
+}
+
+/* ============================================================
+   THE QUEUE
+   ============================================================ */
+const takesEl = $("#takes");
+TAKES.forEach((tk, i) => {
+  const b = document.createElement("button");
+  b.className = "take";
+  b.type = "button";
+  b.innerHTML = '<b></b><small></small><span class="dur"></span>';
+  b.querySelector("b").textContent = tk.t;
+  b.querySelector("small").textContent = tk.v.toUpperCase() + " · " + tk.m;
+  b.querySelector(".dur").textContent = fmt(tk.s);
+  b.addEventListener("click", () => load(i, true));
+  takesEl.appendChild(b);
+});
+$("#q-count").textContent = TAKES.length + " queued";
+
+function load(i, autoplay) {
+  cur = i; pos = 0;
+  amp = waveFor(TAKES[i].seed);
+  const tk = TAKES[i];
+  $("#s-title").textContent = tk.t;
+  $("#s-voice").textContent = tk.v;
+  $("#s-model").textContent = tk.m;
+  buildScript(tk.x);
+  $("#tb-voice").textContent = "VOICE " + tk.v.toUpperCase();
+  $("#st-rtf").textContent = (0.12 + (tk.seed % 13) / 100).toFixed(2) + "×";
+  $("#st-ttfb").textContent = (180 + (tk.seed % 17) * 9) + " ms";
+  [...takesEl.children].forEach((el, n) => el.setAttribute("aria-current", String(n === i)));
+  paintWave();
+  setPlaying(!!autoplay && !REDUCED);
+}
+
+/* ============================================================
+   TRANSPORT
+   ============================================================ */
+function setPlaying(on) {
+  playing = on;
+  $("#tb-state").textContent = on ? "Playing" : pos > 0 ? "Paused" : "Stopped";
+  $("#k-play").setAttribute("aria-pressed", String(on));
+}
+$("#k-play").addEventListener("click", () => { if (pos >= 1) pos = 0; setPlaying(true); });
+$("#k-pause").addEventListener("click", () => setPlaying(false));
+$("#k-stop").addEventListener("click", () => { setPlaying(false); pos = 0; paintWave(); });
+$("#k-prev").addEventListener("click", () => load((cur - 1 + TAKES.length) % TAKES.length, playing));
+$("#k-next").addEventListener("click", () => load((cur + 1) % TAKES.length, playing));
+
+/* scrubbing, by pointer and by keyboard */
+function scrubTo(clientX) {
+  const r = wave.getBoundingClientRect();
+  pos = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+  paintWave();
+}
+wave.addEventListener("pointerdown", (e) => {
+  wave.setPointerCapture(e.pointerId);
+  scrubTo(e.clientX);
+  const move = (ev) => scrubTo(ev.clientX);
+  const up = () => { wave.removeEventListener("pointermove", move); wave.removeEventListener("pointerup", up); };
+  wave.addEventListener("pointermove", move);
+  wave.addEventListener("pointerup", up);
+});
+wave.addEventListener("keydown", (e) => {
+  const step = e.shiftKey ? 0.1 : 0.02;
+  if (e.key === "ArrowRight") { pos = Math.min(1, pos + step); paintWave(); e.preventDefault(); }
+  if (e.key === "ArrowLeft") { pos = Math.max(0, pos - step); paintWave(); e.preventDefault(); }
+});
+
+/* ============================================================
+   THE KNOB
+   Forty dots on a ring, lit to the gain. Dragging reads vertical
+   travel rather than the angle to the pointer — a rotary that
+   snaps to wherever the cursor happens to be is unusable.
+   ============================================================ */
+const DOTS = 40;
+const dotsEl = $("#dots"), cap = $("#cap"), knob = $("#knob");
+const dotEls = [];
+for (let i = 0; i < DOTS; i++) {
+  const d = document.createElement("i");
+  d.style.setProperty("--a", (-135 + (270 / (DOTS - 1)) * i) + "deg");
+  dotsEl.appendChild(d);
+  dotEls.push(d);
+}
+function paintGain() {
+  const n = Math.round((gain / 100) * DOTS);
+  dotEls.forEach((d, i) => d.classList.toggle("lit", i < n));
+  cap.style.setProperty("--rot", (-135 + (gain / 100) * 270) + "deg");
+  knob.setAttribute("aria-valuenow", gain);
+  $("#gainv").textContent = gain;
+}
+knob.addEventListener("pointerdown", (e) => {
+  knob.setPointerCapture(e.pointerId);
+  const y0 = e.clientY, g0 = gain;
+  const move = (ev) => { gain = Math.max(0, Math.min(100, Math.round(g0 + (y0 - ev.clientY) * 0.7))); paintGain(); };
+  const up = () => { knob.removeEventListener("pointermove", move); knob.removeEventListener("pointerup", up); };
+  knob.addEventListener("pointermove", move);
+  knob.addEventListener("pointerup", up);
+});
+knob.addEventListener("keydown", (e) => {
+  const step = e.shiftKey ? 10 : 2;
+  if (e.key === "ArrowUp" || e.key === "ArrowRight") { gain = Math.min(100, gain + step); paintGain(); e.preventDefault(); }
+  if (e.key === "ArrowDown" || e.key === "ArrowLeft") { gain = Math.max(0, gain - step); paintGain(); e.preventDefault(); }
+});
+
+/* ============================================================
+   THE METERS
+   ============================================================ */
+const TICKS = 26;
+const ml = $("#ml"), mr = $("#mr"), mlEls = [], mrEls = [];
+for (let i = 0; i < TICKS; i++) {
+  const a = document.createElement("i"), b = document.createElement("i");
+  ml.appendChild(a); mr.appendChild(b); mlEls.push(a); mrEls.push(b);
+}
+function paintMeter(els, v) {
+  const n = Math.round(v * TICKS);
+  els.forEach((e, i) => {
+    e.classList.toggle("on", i < n);
+    e.classList.toggle("hot", i < n && i > TICKS * 0.82);
+  });
+}
+
+/* ============================================================
+   THE LOOP — one rAF, parked whenever nothing is moving
+   ============================================================ */
+let raf = 0, last = 0, lv = 0, rv = 0;
+function frame(ts) {
+  const dt = last ? Math.min((ts - last) / 1000, 0.05) : 0.016;
+  last = ts;
+  if (playing) {
+    pos += dt / TAKES[cur].s;
+    if (pos >= 1) { pos = 1; setPlaying(false); }
+    paintWave();
+    /* the meters read the waveform under the playhead, not noise */
+    const a = amp[Math.min(BARS - 1, Math.floor(pos * BARS))] * (gain / 100);
+    lv += (a * (0.85 + Math.random() * 0.15) - lv) * 0.3;
+    rv += (a * (0.85 + Math.random() * 0.15) - rv) * 0.3;
+  } else {
+    lv += (0 - lv) * 0.12;
+    rv += (0 - rv) * 0.12;
+  }
+  paintMeter(mlEls, lv);
+  paintMeter(mrEls, rv);
+  if (playing || lv > 0.005 || rv > 0.005) raf = requestAnimationFrame(frame);
+  else { raf = 0; last = 0; }
+}
+const kick = () => { if (!raf && !document.hidden) { last = 0; raf = requestAnimationFrame(frame); } };
+const origSetPlaying = setPlaying;
+setPlaying = function (on) { origSetPlaying(on); if (on) kick(); };
+document.addEventListener("visibilitychange", () => { if (document.hidden && raf) { cancelAnimationFrame(raf); raf = 0; } else kick(); });
+
+paintGain();
+load(0, false);
+if (!REDUCED) setPlaying(true);
+})();
+</script>
+</body>
+</html>

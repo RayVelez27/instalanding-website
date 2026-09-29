@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mnemo — a million tokens your agent can reach</title>
+<meta name="description" content="A fictional context layer for agents, staged inside a recessed parallax aperture with tokens drifting through it. One file, no images, no libraries." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   MNEMO — the page is an aperture.
+   Two recessed discs, a drift of tokens crossing them, and the
+   context size sitting in the middle of it. Everything below the
+   fold is built from the same three things: a recessed disc, a
+   rounded pill, and the two gradients.
+   One file, no images, no libraries.
+   ============================================================ */
+:root {
+  --bg-1: #695681;
+  --bg-2: #36184f;
+  --bg-3: #32243e;
+  --coral: #fb8a8a;
+  --cream: #ffedc0;
+  --g-warm: linear-gradient(90deg, #ffedc0 0%, #ff9d87 100%);
+  --g-cool: linear-gradient(90deg, #8077ea 13.7%, #eb73ff 94.65%);
+
+  --sans: "Barlow", system-ui, sans-serif;
+  --cond: "Barlow Condensed", "Barlow", sans-serif;
+  --cubic: cubic-bezier(0.4, 0.35, 0, 1.53);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Soft UI, done properly: one light source at the top left, and every
+     surface is the SAME colour as the page. That is the rule the whole
+     effect rests on — tint the element away from its background and the
+     shadows stop reading as relief and start reading as a drop shadow.
+     Light mode does this with #FFF against #F0F0F3; the violet equivalent
+     is a lighter and a darker violet either side of --bg-1. */
+  --nm-lit: #7f6b9b;
+  --nm-dim: #4d3e60;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* ============================================================
+   THE SHADOW SYSTEM
+   The relief lives on a pseudo-element behind the surface, not on the
+   surface itself, so one element can carry an outer and an inner cast at
+   once and each can be tuned without touching the other.
+   Anything using them needs its own stacking context — .nm sets z-index 0
+   — or a z-index:-1 pseudo-element falls through its parent entirely and
+   lands behind whatever ancestor painted last.
+   ============================================================ */
+.nm { position: relative; z-index: 0; background: var(--bg-1); }
+.nm::before, .nm::after {
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit; z-index: -1; pointer-events: none;
+}
+/* raised off the page */
+.nm--offset::before {
+  box-shadow: -10px -10px 30px 0 var(--nm-lit), 10px 10px 30px 0 rgba(37, 27, 48, 0.55);
+}
+/* pressed in, lit from the top left */
+.nm--inner::after {
+  box-shadow: inset -10px -10px 10px 0 rgba(37, 27, 48, 0.4), inset 10px 10px 10px 0 var(--nm-lit);
+}
+/* pressed in, lit from the bottom right — the well the aperture is made of */
+.nm--inset::after {
+  box-shadow: inset -10px -10px 10px 0 rgba(146, 126, 172, 0.5), inset 10px 10px 10px 0 var(--nm-dim);
+}
+/* a shallow bead: raised and pressed at once, at a tighter radius */
+.nm--wave { box-shadow: inset 4px 4px 6px 0 var(--nm-lit), inset -4px -4px 6px 0 rgba(37, 27, 48, 0.35); }
+.nm--wave::before { box-shadow: 4px 4px 6px 0 var(--nm-lit), -4px -4px 6px 0 rgba(37, 27, 48, 0.35); }
+/* the soft slab: a wide diffuse lift with a hard inner lip */
+.nm--cake { box-shadow: 4px 4px 6px 0 var(--nm-lit); }
+.nm--cake::before {
+  box-shadow: -20px -20px 20px 0 rgba(160, 140, 186, 0.4), 10px 10px 20px 0 rgba(37, 27, 48, 0.5);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  color: #fff;
+  background: var(--bg-1);
+  overflow-x: clip;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+ul { list-style: none; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { width: min(1140px, 100% - 44px); margin: 0 auto; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+nav { position: absolute; inset: 0 0 auto; z-index: 6; }
+.menu {
+  height: 80px; padding: 0 5%;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand {
+  color: var(--bg-1); font-weight: 600; font-size: 20px; letter-spacing: 1px;
+  background: #fff; padding: 4px 9px; border-radius: 2px;
+  opacity: 0.55; transition: opacity 0.4s ease;
+}
+.brand:hover { opacity: 1; }
+.menu-links { display: flex; gap: 50px; opacity: 0.55; transition: opacity 0.4s ease; }
+.menu-links:hover { opacity: 1; }
+.menu-links a {
+  position: relative; text-transform: uppercase; font-weight: 500; letter-spacing: 2px;
+  transition: color 0.3s 0.2s ease;
+}
+.menu-links a::before {
+  content: ""; position: absolute; left: 100%; bottom: -10px;
+  width: 0; height: 4px; border-radius: 4px; background: var(--g-warm);
+  transition: all 0.4s cubic-bezier(0.82, 0.02, 0.13, 1.26);
+}
+.menu-links a:hover { color: var(--coral); }
+.menu-links a:hover::before { width: 40px; left: 0; }
+.menu-links a:focus-visible { outline: 2px solid var(--cream); outline-offset: 6px; }
+.burger { display: none; width: 40px; height: 40px; position: relative; }
+.burger i { position: absolute; top: 19px; left: 8px; width: 24px; height: 2px; background: #fff; }
+.burger i::before, .burger i::after {
+  content: ""; position: absolute; inset: 0; background: inherit;
+  transition: transform 0.3s cubic-bezier(0.49, 0.04, 0, 1.55);
+}
+.burger i::before { transform: translateY(-8px); }
+.burger i::after { transform: translateY(8px); }
+.burger:hover i { background: var(--cream); }
+.burger:hover i::before { transform: translateY(-10px); }
+.burger:hover i::after { transform: translateY(10px); }
+
+/* ============================================================
+   THE APERTURE
+   ============================================================ */
+.stage {
+  position: relative;
+  height: 100vh; height: 100dvh;
+  min-height: 620px;
+  display: grid; place-items: center;
+  overflow: hidden;
+}
+.scene { position: absolute; inset: 0; }
+/* every parallax layer is the same box; only the contents differ */
+.layer {
+  position: absolute; top: 20%; left: 20%;
+  width: 60%; height: 60%; min-width: 400px; min-height: 400px;
+  will-change: transform;
+}
+.layer .content {
+  position: absolute; top: 50%; left: 50%;
+  width: 1800px; height: 660px;
+  display: flex; align-items: center; justify-content: center;
+  transform: translate(-50%, -50%);
+  animation: open 0.8s cubic-bezier(1, 0.06, 0.25, 1) backwards;
+}
+@keyframes open { 0% { width: 0; } }
+
+/* the two recessed discs */
+.disc::before {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: 800px; height: 800px; border-radius: 50%;
+  background: var(--bg-1);
+  box-shadow: inset -18px -18px 34px 0 rgba(150, 130, 176, 0.42),
+              inset 18px 18px 34px 0 var(--nm-dim);
+  transform: translate(-50%, -50%);
+  animation: iris 0.8s cubic-bezier(1, 0.06, 0.25, 1) backwards;
+}
+.l-one .content::before {
+  content: ""; position: absolute;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: var(--bg-1);
+  box-shadow: inset -16px -16px 30px 0 rgba(150, 130, 176, 0.38),
+              inset 16px 16px 30px 0 var(--nm-dim);
+  animation: iris 0.8s 0.4s cubic-bezier(1, 0.06, 0.25, 1) backwards;
+}
+@keyframes iris { 0% { width: 0; height: 0; } }
+
+/* The tokens crossing the aperture. This animates left and width, like the
+   source, rather than a transform: scaleX squashes the 80px radius into a
+   lens and the pill stops being a pill, and on nine small absolutely
+   positioned elements the layout it avoids measured at nothing either way. */
+.piece {
+  position: absolute; display: flex; z-index: 1;
+  border-radius: 80px;
+  animation: drift-l 13s cubic-bezier(1, 0.06, 0.25, 1) infinite both;
+}
+/* the shrink target is a fixed width, not a percentage of the field: at
+   1400px wide a tenth of it is 140px, which is larger than half the tokens
+   start at, so they would swell on the way across instead of tapering */
+@keyframes drift-l { 50% { left: 80%; width: 56px; } }
+@keyframes drift-r { 50% { right: 80%; width: 56px; } }
+.piece.to-l { animation-name: drift-l; }
+.piece.to-r { animation-name: drift-r; }
+
+/* The field is wider than the viewport on purpose: the outermost tokens
+   start off the edge and bleed in, which is what makes the page look full
+   rather than like a disc with decoration around it. */
+.l-one .piece { background: var(--g-cool); }
+.l-one .piece:nth-child(1) { right: 7%; top: 12%; width: 260px; height: 56px; animation-delay: 0.5s; }
+.l-one .piece:nth-child(2) { left: 9%; top: 44%; width: 320px; height: 82px; animation-delay: 1s; }
+.l-one .piece:nth-child(3) { left: 30%; top: 80%; width: 170px; height: 38px; animation-delay: 1.5s; }
+.l-one .piece:nth-child(4) { left: 14%; top: 64%; width: 230px; height: 48px; animation-delay: 7.5s; }
+.l-two .piece { background: var(--g-warm); }
+.l-two .piece:nth-child(1) { left: 6%; top: 22%; width: 280px; height: 70px; animation-delay: 2s; }
+.l-two .piece:nth-child(2) { right: 14%; top: 19%; width: 380px; height: 88px; animation-delay: 2.5s; }
+.l-two .piece:nth-child(3) { right: 5%; top: 85%; width: 300px; height: 40px; animation-delay: 3s; }
+.l-two .piece:nth-child(4) { right: 10%; top: 58%; width: 260px; height: 56px; animation-delay: 9.5s; }
+.l-three .piece { background: var(--coral); }
+.l-three .piece:nth-child(1) { left: 19%; top: 30%; width: 180px; height: 36px; animation-delay: 3.5s; }
+.l-three .piece:nth-child(2) { right: 22%; top: 57%; width: 290px; height: 66px; animation-delay: 4s; }
+.l-three .piece:nth-child(3) { left: 36%; top: 70%; width: 180px; height: 38px; animation-delay: 4.5s; }
+.l-three .piece:nth-child(4) { left: 4%; top: 15%; width: 240px; height: 44px; animation-delay: 11s; }
+
+/* The figure in the middle of the aperture, printed twice so the back copy
+   can be blurred into a shadow the front one sits inside.
+   The entrance animates transform, and so does the parallax — but a filled
+   animation outranks an inline style, so keyframing the layer itself would
+   leave these two the only things in the scene that never move. The layer
+   parallaxes; the child does the entrance. */
+/* .layer.figure, not .figure: the responsive rules retune .layer, and at
+   equal specificity the later rule wins — which quietly handed the numeral
+   back its centred position on a phone and dropped it on the copy. */
+.layer.figure {
+  display: flex !important; align-items: center; justify-content: center;
+  top: 3%; height: 54%;
+  z-index: 2;
+}
+.fig-in {
+  display: flex; align-items: center;
+  font-size: 200px; font-weight: 700; letter-spacing: 4px; line-height: 1;
+  animation: punch 0.6s 1.2s cubic-bezier(0.3, 0.8, 1, 1.05) both;
+}
+@keyframes punch { 0% { opacity: 0; transform: scale(10) skew(20deg, 20deg); } }
+.fig-in span { font-size: 0.23em; font-weight: 600; letter-spacing: 2px; align-self: flex-end; margin: 0 0 1.5em 0.18em; opacity: 0.7; }
+.figure.back { color: var(--bg-2); z-index: 1; filter: blur(10px); opacity: 0.8; }
+.figure.back .fig-in { animation-delay: 1s; }
+
+/* ---------- the hero copy, over the aperture ---------- */
+.lede::before {
+  content: ""; position: absolute; inset: -30% -26%; z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 56% 60% at 50% 50%,
+    rgba(50, 36, 62, 0.86) 0%, rgba(50, 36, 62, 0.58) 44%, transparent 78%);
+}
+.lede {
+  position: relative; z-index: 4; text-align: center;
+  width: min(560px, 100% - 44px);
+  margin-top: 196px;
+  animation: lift 0.6s 1.8s ease backwards;
+}
+@keyframes lift { 0% { opacity: 0; transform: translateY(40px); } }
+.eyebrow {
+  font-family: var(--cond); font-size: 15px; font-weight: 600;
+  letter-spacing: 4px; text-transform: uppercase; color: var(--cream);
+  opacity: 0.85; margin-bottom: 14px;
+}
+.lede h1 {
+  font-size: clamp(27px, 3.4vw, 38px); font-weight: 700; line-height: 1.16;
+  letter-spacing: -0.01em; text-wrap: balance;
+  text-shadow: 6px 6px 16px var(--bg-3);
+}
+.lede p {
+  margin: 14px auto 28px; max-width: 46ch;
+  font-size: 17px; line-height: 1.55; letter-spacing: 0.3px;
+  text-shadow: 6px 6px 10px var(--bg-3);
+}
+.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  height: 42px; padding: 0 28px; border-radius: 50px;
+  font-family: var(--sans); font-weight: 600; font-size: 12px;
+  letter-spacing: 1.4px; text-transform: uppercase;
+  display: inline-flex; align-items: center;
+  transition: all 0.3s ease;
+}
+.btn--solid { background: #fff; color: var(--bg-1); box-shadow: 0 15px 20px rgba(54, 24, 79, 0.5); }
+.btn--solid:hover { background: var(--coral); color: #fff; transform: translateY(5px); box-shadow: 0 10px 10px -10px rgba(54, 24, 79, 0.5); }
+.btn--ghost { border: 1px solid rgba(255, 255, 255, 0.4); }
+.btn--ghost:hover { border-color: #fff; background: rgba(255, 255, 255, 0.1); transform: translateY(5px); }
+.btn:focus-visible { outline: 2px solid var(--cream); outline-offset: 4px; }
+
+/* ============================================================
+   BELOW THE FOLD
+   ============================================================ */
+/* Flat, not a gradient. Relief only works while the surface and the page
+   are the same colour, and a gradient behind a flat-filled card turns every
+   card into a lighter patch the further down the page you get. */
+.band { position: relative; z-index: 2; background: var(--bg-1); }
+.sec { padding: 104px 0; }
+.sec-head { max-width: 640px; margin-bottom: 52px; }
+.sec-head h2 {
+  margin-top: 12px; font-size: clamp(30px, 4vw, 44px); font-weight: 700;
+  line-height: 1.1; letter-spacing: -0.02em; text-wrap: balance;
+}
+.sec-head p { margin-top: 14px; font-size: 17px; line-height: 1.6; color: rgba(255, 255, 255, 0.72); }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.card {
+  padding: 34px 30px 36px; border-radius: 22px;
+  transition: transform 0.4s var(--ease);
+}
+.card:hover { transform: translateY(-6px); }
+/* pressing a raised surface is the whole interaction language here: the
+   outer cast fades out and the inner one fades in, on the same element */
+.card::before { transition: opacity 0.4s var(--ease); }
+.card::after { opacity: 0; transition: opacity 0.4s var(--ease);
+  box-shadow: inset -10px -10px 10px 0 rgba(37, 27, 48, 0.4), inset 10px 10px 10px 0 var(--nm-lit); }
+.card:active { transform: translateY(0); }
+.card:active::before { opacity: 0; }
+.card:active::after { opacity: 1; }
+/* the same recess as the aperture, at badge scale */
+.dot {
+  width: 62px; height: 62px; border-radius: 50%; margin-bottom: 22px;
+  display: grid; place-items: center;
+}
+.dot i { display: block; width: 26px; height: 9px; border-radius: 40px; background: var(--g-cool); }
+.card:nth-child(2) .dot i { width: 18px; background: var(--g-warm); }
+.card:nth-child(3) .dot i { width: 30px; background: var(--coral); }
+.card h3 { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+.card p { font-size: 15.5px; line-height: 1.65; color: rgba(255, 255, 255, 0.72); }
+.card .tag {
+  display: inline-block; margin-top: 20px;
+  font-family: var(--cond); font-size: 13px; font-weight: 600;
+  letter-spacing: 2.4px; text-transform: uppercase; color: var(--cream); opacity: 0.8;
+}
+
+/* ---------- the figures ---------- */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.stat { padding: 28px 26px 30px; border-radius: 20px; }
+.stat b {
+  display: block; font-size: 42px; font-weight: 800; letter-spacing: -0.02em; line-height: 1;
+  background: var(--g-warm); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.stat span {
+  display: block; margin-top: 12px;
+  font-family: var(--cond); font-size: 14px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); line-height: 1.5;
+}
+.note {
+  margin-top: 26px; text-align: center;
+  font-family: var(--cond); font-size: 14px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255, 255, 255, 0.42);
+}
+
+
+/* ============================================================
+   THE CONSOLE — the controls are the style's natural showcase:
+   a track is a well, a knob is a raised disc, a dial is both.
+   ============================================================ */
+.console { display: grid; grid-template-columns: 1.15fr 1fr; gap: 26px; align-items: stretch; }
+.panel { padding: 34px 32px 36px; border-radius: 26px; }
+.panel h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.panel .hint { font-family: var(--cond); font-size: 14px; letter-spacing: 1.6px;
+  text-transform: uppercase; color: rgba(255, 255, 255, 0.5); margin-bottom: 26px; }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 0; }
+.row + .row { border-top: 1px solid rgba(255, 255, 255, 0.07); }
+.row b { display: block; font-size: 16px; font-weight: 600; }
+.row small { display: block; font-size: 13.5px; color: rgba(255, 255, 255, 0.58); line-height: 1.45; }
+
+/* a switch: a well with a raised knob in it */
+.sw { flex: none; width: 66px; height: 34px; border-radius: 40px; position: relative; z-index: 0;
+  background: var(--bg-1); cursor: pointer; }
+.sw::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  box-shadow: inset -6px -6px 8px 0 rgba(150, 130, 176, 0.42), inset 6px 6px 8px 0 var(--nm-dim); }
+.sw i {
+  position: absolute; top: 4px; left: 4px; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--bg-1);
+  box-shadow: -4px -4px 7px 0 var(--nm-lit), 4px 4px 7px 0 rgba(37, 27, 48, 0.55);
+  transition: transform 0.32s var(--cubic), background 0.32s ease;
+}
+.sw[aria-pressed="true"] i { transform: translateX(32px); background: var(--coral); }
+.sw:focus-visible { outline: 2px solid var(--cream); outline-offset: 4px; }
+
+/* a slider: the same well, with a native range sitting invisibly on top */
+.slider { margin-top: 8px; }
+.track { position: relative; z-index: 0; height: 26px; border-radius: 40px; background: var(--bg-1); }
+.track::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  box-shadow: inset -6px -6px 8px 0 rgba(150, 130, 176, 0.42), inset 6px 6px 8px 0 var(--nm-dim); }
+.track .fill { position: absolute; top: 7px; left: 8px; height: 12px; border-radius: 40px;
+  background: var(--g-warm); width: calc((100% - 16px) * var(--v, 0.5)); pointer-events: none; }
+.track input {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; cursor: pointer; margin: 0;
+}
+.track input:focus-visible + .fill { outline: 2px solid var(--cream); outline-offset: 6px; }
+.readout { display: flex; justify-content: space-between; margin-top: 12px;
+  font-family: var(--cond); font-size: 14px; letter-spacing: 1.6px; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55); }
+.readout b { color: var(--cream); font-weight: 600; }
+
+/* the dial: the aperture again, at panel scale */
+.dial { display: grid; place-items: center; padding: 30px; border-radius: 26px; }
+.ring { position: relative; z-index: 0; width: 210px; height: 210px; border-radius: 50%; background: var(--bg-1);
+  display: grid; place-items: center; }
+.ring::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  box-shadow: inset -12px -12px 20px 0 rgba(150, 130, 176, 0.4), inset 12px 12px 20px 0 var(--nm-dim); }
+.ring .ring { width: 148px; height: 148px; }
+.ring .ring .ring { width: 96px; height: 96px; }
+.ring .ring .ring::after {
+  box-shadow: -8px -8px 14px 0 var(--nm-lit), 8px 8px 14px 0 rgba(37, 27, 48, 0.55);
+}
+.dial-val { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1;
+  background: var(--g-warm); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dial-lab { margin-top: 18px; font-family: var(--cond); font-size: 14px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255, 255, 255, 0.55); text-align: center; }
+
+/* ---------- plans ---------- */
+.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.plan { padding: 34px 30px 36px; border-radius: 24px; display: flex; flex-direction: column; }
+.plan-name { font-family: var(--cond); font-size: 15px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--cream); opacity: 0.85; }
+.price { margin: 18px 0 22px; padding: 18px 20px; border-radius: 18px; text-align: center; }
+.price b { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+.price span { font-family: var(--cond); font-size: 14px; letter-spacing: 1.6px;
+  text-transform: uppercase; color: rgba(255, 255, 255, 0.55); display: block; margin-top: 2px; }
+.plan ul { display: grid; gap: 10px; margin-bottom: 26px; }
+.plan li { position: relative; padding-left: 26px; font-size: 15px; line-height: 1.5;
+  color: rgba(255, 255, 255, 0.74); }
+.plan li::before { content: ""; position: absolute; left: 0; top: 8px;
+  width: 14px; height: 6px; border-radius: 40px; background: var(--g-cool); }
+.plan .btn { margin-top: auto; align-self: stretch; justify-content: center; }
+
+/* ---------- questions ---------- */
+.qa { display: grid; gap: 14px; max-width: 820px; }
+/* No overflow:hidden. The relief lives on a pseudo-element inside the row,
+   so clipping the row clips the cast and the whole thing goes flat.
+   A shorter surface also wants a tighter, less diffuse pair than a card. */
+.q { border-radius: 18px; }
+.q::before { box-shadow: -6px -6px 14px 0 var(--nm-lit), 6px 6px 14px 0 rgba(37, 27, 48, 0.5); }
+.q[open]::before { box-shadow: -3px -3px 8px 0 var(--nm-lit), 3px 3px 8px 0 rgba(37, 27, 48, 0.4); }
+.q summary {
+  list-style: none; cursor: pointer; padding: 20px 24px;
+  font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.q summary::-webkit-details-marker { display: none; }
+.q summary i {
+  flex: none; width: 26px; height: 26px; border-radius: 50%; position: relative; z-index: 0;
+  background: var(--bg-1);
+  box-shadow: -3px -3px 6px 0 var(--nm-lit), 3px 3px 6px 0 rgba(37, 27, 48, 0.55);
+  transition: transform 0.3s var(--ease);
+}
+.q summary i::before, .q summary i::after {
+  content: ""; position: absolute; top: 50%; left: 50%; width: 11px; height: 2px; border-radius: 2px;
+  background: var(--cream); transform: translate(-50%, -50%);
+}
+.q summary i::after { transform: translate(-50%, -50%) rotate(90deg); transition: opacity 0.3s ease; }
+.q[open] summary i { transform: rotate(180deg); }
+.q[open] summary i::after { opacity: 0; }
+.q p { padding: 0 24px 22px; font-size: 15.5px; line-height: 1.65; color: rgba(255, 255, 255, 0.72); }
+
+/* ---------- the pipeline ---------- */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.step { position: relative; padding-top: 30px; }
+/* the connector is a token pill, the same shape crossing the aperture */
+.step::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 22px;
+  height: 9px; border-radius: 40px; background: var(--g-cool); opacity: 0.85;
+}
+.step:nth-child(2)::before { background: var(--g-warm); }
+.step:nth-child(3)::before { background: var(--coral); right: 0; }
+.step b {
+  display: block; font-family: var(--cond); font-size: 14px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase; color: var(--cream); opacity: 0.85; margin-bottom: 10px;
+}
+.step h3 { font-size: 20px; font-weight: 700; margin-bottom: 9px; letter-spacing: -0.01em; }
+.step p { font-size: 15.5px; line-height: 1.65; color: rgba(255, 255, 255, 0.7); }
+
+/* ---------- close + footer ---------- */
+.close { text-align: center; padding: 30px 0 104px; }
+.close h2 { font-size: clamp(30px, 4.4vw, 48px); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
+.close p { margin: 16px auto 30px; max-width: 48ch; font-size: 17px; line-height: 1.6; color: rgba(255, 255, 255, 0.72); }
+footer {
+  background: var(--bg-3);
+  padding: 34px 0 44px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.foot {
+  display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  font-family: var(--cond); font-size: 14px; letter-spacing: 1.2px; line-height: 1.7;
+  color: rgba(255, 255, 255, 0.5);
+}
+.foot a { color: var(--cream); border-bottom: 1px solid rgba(255, 237, 192, 0.4); }
+.foot a:hover { color: #fff; border-bottom-color: #fff; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 980px) {
+  .grid-3, .steps, .console, .plans { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .step::before { right: 0; }
+}
+@media (max-width: 799px) {
+  .menu-links { display: none; }
+  .menu-links.open {
+    display: flex; position: absolute; top: 78px; right: 5%;
+    flex-direction: column; align-items: flex-end; gap: 14px;
+    padding: 18px 22px; border-radius: 14px; opacity: 1;
+    background: rgba(54, 24, 79, 0.78);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+  .burger { display: block; }
+  .layer { width: 90%; height: 90%; top: 5%; left: 5%; min-width: 280px; min-height: 280px; }
+  .disc::before { width: 400px; height: 400px; }
+  /* the tokens are laid out in fixed px inside a 600px field; on a phone
+     that field is wider than the screen, so scale the whole thing rather
+     than re-sizing nine pills and their positions by hand */
+  .layer .content { transform: translate(-50%, -50%) scale(0.23); }
+  .fig-in { font-size: 104px; }
+  .lede { margin-top: 128px; }
+  .sec { padding: 78px 0; }
+}
+@media (max-height: 700px) {
+  .layer { width: 60%; height: 60%; top: 20%; left: 20%; min-width: 280px; min-height: 280px; }
+  .disc::before { width: 460px; height: 460px; }
+  .layer .content { transform: translate(-50%, -50%) scale(0.42); }
+  .fig-in { font-size: 120px; }
+  .lede { margin-top: 132px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* the aperture arrives already open, with the tokens parked where
+     they were authored rather than mid-drift */
+  .piece { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="menu">
+    <a class="brand" href="#top">MNEMO</a>
+    <div class="menu-links">
+      <a href="#window">The window</a>
+      <a href="#console">Policy</a>
+      <a href="#plans">Plans</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="nav-links">
+      <i aria-hidden="true"></i><span class="sr">Menu</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ======================= THE APERTURE ======================= -->
+<header class="stage" id="top">
+  <div class="scene" id="scene" aria-hidden="true">
+    <div class="layer disc" data-depth="1.2"></div>
+
+    <div class="layer l-one" data-depth="0.9">
+      <div class="content">
+        <span class="piece to-r"></span><span class="piece to-l"></span><span class="piece to-l"></span><span class="piece to-l"></span>
+      </div>
+    </div>
+
+    <div class="layer l-two" data-depth="0.6">
+      <div class="content">
+        <span class="piece to-l"></span><span class="piece to-r"></span><span class="piece to-r"></span><span class="piece to-r"></span>
+      </div>
+    </div>
+
+    <div class="layer l-three" data-depth="0.4">
+      <div class="content">
+        <span class="piece to-l"></span><span class="piece to-r"></span><span class="piece to-l"></span><span class="piece to-l"></span>
+      </div>
+    </div>
+
+    <p class="layer figure" data-depth="0.5"><b class="fig-in">1M<span>tokens</span></b></p>
+    <p class="layer figure back" data-depth="0.1"><b class="fig-in">1M<span>tokens</span></b></p>
+  </div>
+
+  <div class="lede">
+    <p class="eyebrow">Context layer for agents</p>
+    <h1>A million tokens your agent can actually reach.</h1>
+    <p>Mnemo keeps the whole run resident and addressable, so the model stops re-reading what it already knows.</p>
+    <div class="cta">
+      <button class="btn btn--solid" type="button">Start free</button>
+      <a class="btn btn--ghost" href="#how">How it works</a>
+    </div>
+  </div>
+</header>
+
+<main class="band">
+  <!-- ======================= THE WINDOW ======================= -->
+  <section class="sec" id="window">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">What sits in the aperture</p>
+        <h2>A context window is not a prompt you keep re-sending.</h2>
+        <p>Every turn, every tool result and every document stays where the model left it. Mnemo addresses them directly, so a long run costs what a short one does.</p>
+      </div>
+      <div class="grid-3">
+        <article class="card nm nm--offset">
+          <div class="dot nm nm--inner" aria-hidden="true"><i></i></div>
+          <h3>Resident, not replayed</h3>
+          <p>The run is held once and referenced by handle. Turn forty does not pay to re-read turns one through thirty-nine, which is where a long agent loop quietly spends its budget.</p>
+          <span class="tag">O(1) per turn</span>
+        </article>
+        <article class="card nm nm--offset">
+          <div class="dot nm nm--inner" aria-hidden="true"><i></i></div>
+          <h3>Addressable, not a blob</h3>
+          <p>Ask for the third tool call or the paragraph a claim came from and get exactly that back. The window is an index, not one long string you slice by hand.</p>
+          <span class="tag">Span-level reads</span>
+        </article>
+        <article class="card nm nm--offset">
+          <div class="dot nm nm--inner" aria-hidden="true"><i></i></div>
+          <h3>Evictable on your terms</h3>
+          <p>You decide what ages out and what is pinned for the life of the run. Nothing disappears because a buffer filled up while you were not looking.</p>
+          <span class="tag">Explicit policy</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= THE FIGURES ======================= -->
+  <section class="sec" style="padding-top: 0">
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat nm nm--inset"><b>1M</b><span>tokens addressable per run</span></div>
+        <div class="stat nm nm--inset"><b>6 ms</b><span>median span fetch</span></div>
+        <div class="stat nm nm--inset"><b>0</b><span>re-reads on turn forty</span></div>
+        <div class="stat nm nm--inset"><b>94%</b><span>fewer prompt tokens billed</span></div>
+      </div>
+      <p class="note">Invented product, invented figures — nothing here was measured.</p>
+    </div>
+  </section>
+
+  <!-- ======================= HOW IT WORKS ======================= -->
+  <section class="sec" id="how" style="padding-top: 0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Three calls</p>
+        <h2>Open it, write to it, point the model at it.</h2>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <b>01 — Open</b>
+          <h3>Start a window</h3>
+          <p>One call per run returns a handle. Everything after that is written against it, including the turns your framework would otherwise be concatenating for you.</p>
+        </article>
+        <article class="step">
+          <b>02 — Write</b>
+          <h3>Append as you go</h3>
+          <p>Turns, tool results and documents go in as spans with whatever metadata you want to query them by later. Writes are append-only, so a replay is exact.</p>
+        </article>
+        <article class="step">
+          <b>03 — Point</b>
+          <h3>Hand over the handle</h3>
+          <p>The model reads through the window instead of through your prompt. You send the question and the handle, and nothing else travels.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= THE CONSOLE ======================= -->
+  <section class="sec" id="console" style="padding-top: 0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Eviction policy</p>
+        <h2>You decide what the window keeps.</h2>
+        <p>Nothing ages out on its own schedule. Set the policy once per run and the window holds to it.</p>
+      </div>
+      <div class="console">
+        <div class="panel nm nm--offset">
+          <h3>Retention</h3>
+          <p class="hint">Applies to the whole run</p>
+
+          <div class="row">
+            <span><b>Pin tool results</b><small>Never evict a tool call or its output</small></span>
+            <button class="sw" type="button" id="sw1" aria-pressed="true"><i aria-hidden="true"></i><span class="sr">Pin tool results</span></button>
+          </div>
+          <div class="row">
+            <span><b>Pin cited spans</b><small>Keep anything an answer has pointed at</small></span>
+            <button class="sw" type="button" id="sw2" aria-pressed="true"><i aria-hidden="true"></i><span class="sr">Pin cited spans</span></button>
+          </div>
+          <div class="row">
+            <span><b>Summarise on evict</b><small>Leave a stub behind instead of a hole</small></span>
+            <button class="sw" type="button" id="sw3" aria-pressed="false"><i aria-hidden="true"></i><span class="sr">Summarise on evict</span></button>
+          </div>
+
+          <div class="slider">
+            <label class="sr" for="budget">Window budget</label>
+            <div class="track" style="--v: 0.62">
+              <input id="budget" type="range" min="50" max="1000" step="10" value="620" />
+              <span class="fill" aria-hidden="true"></span>
+            </div>
+            <div class="readout"><span>Window budget</span><b id="budgetOut">620K tokens</b></div>
+          </div>
+        </div>
+
+        <div class="dial nm nm--offset">
+          <div class="ring">
+            <div class="ring">
+              <div class="ring"><span class="dial-val" id="dialVal">62%</span></div>
+            </div>
+          </div>
+          <p class="dial-lab">of the window in use<br />at the current policy</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= PLANS ======================= -->
+  <section class="sec" id="plans" style="padding-top: 0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Plans</p>
+        <h2>Priced per window, not per token you resend.</h2>
+      </div>
+      <div class="plans">
+        <article class="plan nm nm--offset">
+          <span class="plan-name">Solo</span>
+          <div class="price nm nm--inset"><b>$0</b><span>one window at a time</span></div>
+          <ul>
+            <li>128K addressable per run</li>
+            <li>Span reads and pins</li>
+            <li>Seven day retention</li>
+          </ul>
+          <button class="btn btn--ghost" type="button">Start free</button>
+        </article>
+        <article class="plan nm nm--offset">
+          <span class="plan-name">Team</span>
+          <div class="price nm nm--inset"><b>$40</b><span>per seat, per month</span></div>
+          <ul>
+            <li>1M addressable per run</li>
+            <li>Policy per run, not per org</li>
+            <li>Replay from any append</li>
+            <li>Ninety day retention</li>
+          </ul>
+          <button class="btn btn--solid" type="button">Start free</button>
+        </article>
+        <article class="plan nm nm--offset">
+          <span class="plan-name">Self hosted</span>
+          <div class="price nm nm--inset"><b>Talk</b><span>annual, on your metal</span></div>
+          <ul>
+            <li>Unlimited windows</li>
+            <li>Your storage, your keys</li>
+            <li>Air-gapped deploys</li>
+          </ul>
+          <button class="btn btn--ghost" type="button">Contact us</button>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= QUESTIONS ======================= -->
+  <section class="sec" id="faq" style="padding-top: 0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Questions</p>
+        <h2>The ones worth asking.</h2>
+      </div>
+      <div class="qa">
+        <details class="q nm nm--offset">
+          <summary>Is this a vector store?<i aria-hidden="true"></i></summary>
+          <p>No. A vector store is for finding things you did not know you had. A window is for holding things you already put there, in order, and reading them back by address. You would sensibly use both.</p>
+        </details>
+        <details class="q nm nm--offset">
+          <summary>What happens when a run exceeds the budget?<i aria-hidden="true"></i></summary>
+          <p>The policy you set decides. Pinned spans stay, the oldest unpinned spans go, and with summarise-on-evict a stub is left in their place so the order of the run is still readable.</p>
+        </details>
+        <details class="q nm nm--offset">
+          <summary>Does the model need to know about Mnemo?<i aria-hidden="true"></i></summary>
+          <p>Only enough to be handed a window id. Everything else is the runtime's job, so the same window works across whichever model you route to that day.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= CLOSE ======================= -->
+  <section class="close" id="start">
+    <div class="wrap">
+      <h2>Give the model somewhere to put things.</h2>
+      <p>Open a window, run an agent through it, and watch the prompt stop growing.</p>
+      <div class="cta">
+        <button class="btn btn--solid" type="button">Start free</button>
+        <a class="btn btn--ghost" href="#top">Back to the top</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>
+      Mnemo is a fictional product and this page is a design demo — the platform,<br />
+      the claims and every figure are invented. Nothing here is real.
+    </span>
+    <span>
+      Aperture, drifting pills and the doubled figure adapted from a pen by<br />
+      <a href="https://www.rafaelalucas.com" target="_blank" rel="noopener">Rafaela Lucas</a>
+      · One file · no images · no libraries
+    </span>
+  </div>
+</footer>
+
+<script>
+(() => {
+"use strict";
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============================================================
+   PARALLAX
+   The source runs parallax.js for this. It is one lerp and one
+   transform per layer, so it is written out instead: no library,
+   and it can be stopped when the aperture is off screen, which a
+   drop-in cannot do for you.
+   ============================================================ */
+(() => {
+  const scene = document.getElementById("scene");
+  if (!scene || REDUCED) return;
+  const layers = [...scene.querySelectorAll("[data-depth]")].map((el) => ({
+    el, depth: parseFloat(el.dataset.depth) || 0, x: 0, y: 0,
+  }));
+  if (!layers.length) return;
+
+  const REACH = 42;            // px of travel at depth 1
+  let tx = 0, ty = 0, raf = 0, visible = false;
+
+  scene.parentElement.addEventListener("pointermove", (e) => {
+    const r = scene.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width - 0.5;
+    ty = (e.clientY - r.top) / r.height - 0.5;
+  });
+  scene.parentElement.addEventListener("pointerleave", () => { tx = 0; ty = 0; });
+
+  function frame() {
+    raf = requestAnimationFrame(frame);
+    let moved = false;
+    for (const L of layers) {
+      const gx = -tx * REACH * L.depth, gy = -ty * REACH * L.depth;
+      L.x += (gx - L.x) * 0.08;
+      L.y += (gy - L.y) * 0.08;
+      if (Math.abs(gx - L.x) > 0.01 || Math.abs(gy - L.y) > 0.01) moved = true;
+      L.el.style.transform = "translate3d(" + L.x.toFixed(2) + "px," + L.y.toFixed(2) + "px,0)";
+    }
+    /* park the loop once everything has settled, rather than burning a
+       frame a tick redrawing four identical transforms */
+    if (!moved) { cancelAnimationFrame(raf); raf = 0; }
+  }
+  const start = () => { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame); };
+  const stop = () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+
+  scene.parentElement.addEventListener("pointermove", start);
+  scene.parentElement.addEventListener("pointerleave", start);
+  new IntersectionObserver((es) => {
+    for (const e of es) visible = e.isIntersecting;
+    visible ? start() : stop();
+  }, { threshold: 0 }).observe(scene);
+  document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+})();
+
+/* ============================================================
+   THE CONSOLE
+   The controls are real: the switches change the budget the dial
+   reports, so the panel is a working model rather than three
+   pictures of controls.
+   ============================================================ */
+(() => {
+  const range = document.getElementById("budget");
+  const track = range && range.closest(".track");
+  const out = document.getElementById("budgetOut");
+  const dial = document.getElementById("dialVal");
+  const switches = [...document.querySelectorAll(".sw")];
+  if (!range || !track || !out || !dial) return;
+
+  function paint() {
+    const v = +range.value, min = +range.min, max = +range.max;
+    const frac = (v - min) / (max - min);
+    track.style.setProperty("--v", frac.toFixed(4));
+    out.textContent = v + "K tokens";
+    /* each pin costs headroom, so the share in use climbs as you pin more */
+    const pinned = switches.filter((b) => b.getAttribute("aria-pressed") === "true").length;
+    dial.textContent = Math.min(99, Math.round(frac * (76 + pinned * 7))) + "%";
+  }
+  range.addEventListener("input", paint);
+  for (const b of switches) {
+    b.addEventListener("click", () => {
+      b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true"));
+      paint();
+    });
+  }
+  paint();
+})();
+
+/* ============================================================
+   NAV
+   ============================================================ */
+(() => {
+  const burger = document.querySelector(".burger");
+  const links = document.querySelector(".menu-links");
+  if (!burger || !links) return;
+  links.id = "nav-links";
+  burger.addEventListener("click", () => {
+    const open = burger.getAttribute("aria-expanded") !== "true";
+    burger.setAttribute("aria-expanded", String(open));
+    links.classList.toggle("open", open);
+  });
+  for (const a of links.querySelectorAll("a")) {
+    a.addEventListener("click", () => {
+      burger.setAttribute("aria-expanded", "false");
+      links.classList.remove("open");
+    });
+  }
+})();
+})();
+</script>
+</body>
+</html>

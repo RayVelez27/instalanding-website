@@ -1,0 +1,35 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# MCP server has its own dependency tree
+mcp/node_modules
+
+# Local env. These are VITE_-prefixed Supabase publishable values, so they end
+# up in the client bundle anyway — but the repo is public and a committed .env
+# is how the next, genuinely secret one gets committed too. Set them in the
+# deploy platform instead.
+.env
+.env.local
+.env.*.local

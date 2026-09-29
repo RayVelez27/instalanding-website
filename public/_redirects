@@ -1,0 +1,17 @@
+# Client-routed SPA. Static files (including /prompts.json, /llms.txt, /p/*, /demos/*)
+# are served first; only unmatched paths fall through to the app shell.
+# The fire button demo was rebuilt without Rive and renamed, so its slug moved.
+# Keep the old URLs working for anything already pointing at them.
+/prompt/rive-fire-button  /prompt/canvas-fire-button  301
+/p/rive-fire-button.txt   /p/canvas-fire-button.txt    301
+/p/rive-fire-button.json  /p/canvas-fire-button.json   301
+
+# Both of these became dashboards rather than landing pages and were renamed,
+# which moved their slugs. Keep the old URLs working.
+/prompt/model-capture-console-page  /prompt/model-capture-console  301
+/p/model-capture-console-page.txt   /p/model-capture-console.txt   301
+/p/model-capture-console-page.json  /p/model-capture-console.json  301
+/prompt/driving-cluster-landing-page  /prompt/driving-cluster-dashboard  301
+/p/driving-cluster-landing-page.txt   /p/driving-cluster-dashboard.txt   301
+/p/driving-cluster-landing-page.json  /p/driving-cluster-dashboard.json  301
+/*  /index.html  200

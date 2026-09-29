@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SPOOL — A Reading of Run 4f2a1c</title>
+<meta name="description" content="SPOOL is a fictional agent trace recorder. Every run is wound onto tape and can be played back step by step, with the tokens, the latency and the tool results it produced." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+/* ==========================================================
+   SPOOL — the same printed field-manual system as the rest of
+   this set: plain white stock, true-black line art, one halt
+   red, four type registers that never blur into each other.
+     display — EB Garamond italic   (headlines, prose)
+     label   — Space Grotesk caps   (captions, eyebrows)
+     mono    — IBM Plex Mono        (the transcript, all numbers)
+     chrome  — Silkscreen (pixel)   (literal System-7 UI only)
+   The subject is different, so the machine is different: this
+   page is a tape deck, not a card catalogue.
+   ========================================================== */
+:root{
+  --paper:      #ffffff;
+  --paper-dim:  #f3f2ed;
+  --paper-deep: #e9e7de;
+  --ink:        #0b0b0a;
+  --ink-70:     rgba(11,11,10,.72);
+  --ink-45:     rgba(11,11,10,.46);
+  --ink-25:     rgba(11,11,10,.22);
+  --ink-12:     rgba(11,11,10,.12);
+  --halt:       #b3221d;
+
+  --f-display: "EB Garamond", Georgia, serif;
+  --f-label:   "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-mono:    "IBM Plex Mono", ui-monospace, monospace;
+  --f-chrome:  "Silkscreen", monospace;
+}
+
+*{ box-sizing:border-box; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+html,body{ margin:0; padding:0; }
+body{
+  min-height:100vh; background:var(--paper); color:var(--ink);
+  font-family:var(--f-label); overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:3;
+  opacity:.15; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+button{ font:inherit; color:inherit; }
+a{ color:var(--ink); }
+::selection{ background:var(--ink); color:var(--paper); }
+:focus-visible{ outline:2px solid var(--halt); outline-offset:2px; }
+
+/* ---- shared motifs, same as the rest of the set ---- */
+.comb{ display:flex; flex-direction:column; gap:2px; width:132px; }
+.comb i{ display:block; height:3px; background:var(--ink); }
+.eyes{ display:flex; gap:14px; align-items:center; }
+.eye{
+  width:26px; height:26px; border-radius:50%;
+  background:radial-gradient(var(--ink) 32%, transparent 33%) 0 0/7px 7px;
+  background-color:transparent;
+}
+.eye.dense{ background-size:4.5px 4.5px; }
+.sunburst{
+  width:64px; height:64px; border-radius:50%;
+  background:repeating-conic-gradient(var(--ink) 0deg 3deg, transparent 3deg 15deg);
+  animation:spin 14s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.hatch{ background:repeating-linear-gradient(45deg, var(--ink) 0 2px, transparent 2px 8px); }
+.stripes{ background:repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 5px); }
+.dither{
+  background-image:radial-gradient(var(--ink) 40%, transparent 41%);
+  background-size:6px 6px;
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 35%,transparent 92%);
+          mask-image:linear-gradient(90deg,#000 0%,#000 35%,transparent 92%);
+}
+.reel{ display:block; }
+.reel path, .reel circle{ fill:none; stroke:var(--ink); stroke-width:1.6; stroke-linecap:round; }
+.reel .hub{ animation:spin 3.2s linear infinite; transform-origin:center; }
+
+.ruler{
+  position:fixed; top:0; bottom:0; width:18px; z-index:1; pointer-events:none;
+  background-repeat:repeat-y; background-position:left top; background-size:100% 20px;
+  background-image:linear-gradient(var(--ink-12) 1px, transparent 1px);
+  opacity:.7;
+}
+.ruler-left{ left:max(0px, calc(50% - 580px)); }
+.ruler-right{ right:max(0px, calc(50% - 580px)); }
+@media (max-width:1220px){ .ruler{ display:none; } }
+
+.eyebrow-label{
+  font-family:var(--f-label); font-size:11px; letter-spacing:2.2px;
+  text-transform:uppercase; color:var(--ink-70); margin-bottom:10px;
+}
+
+/* ============================================================
+   COVER — the tape is the hero here, so it runs the full width
+   of the jacket rather than sitting in a side panel.
+   ============================================================ */
+.hero{ display:grid; place-items:center; padding:24px 16px 0; }
+.jacket{
+  width:min(1080px,100%); min-height:min(540px, 74vh);
+  border:1.5px solid var(--ink); padding:22px 26px 18px;
+  display:flex; flex-direction:column; gap:16px;
+}
+.jacket-row-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.ticker{ text-align:right; }
+.ticker div{
+  font-family:var(--f-label); font-size:11px; letter-spacing:1.4px;
+  color:var(--ink-70); text-transform:uppercase; line-height:1.8;
+}
+.ticker div:nth-child(2){ opacity:.8; }
+.ticker div:nth-child(3){ opacity:.6; }
+.ticker div:nth-child(4){ opacity:.42; }
+
+/* the full-width tape strip */
+.tape-strip{
+  position:relative; border:1px solid var(--ink); height:132px; overflow:hidden;
+  background:var(--paper);
+}
+/* the film rails the canvas used to paint, now plain CSS so the SVG chart
+   can have the field to itself */
+.tape-strip::before, .tape-strip::after{
+  content:""; position:absolute; left:0; right:0; height:5px; z-index:1;
+  background:repeating-linear-gradient(90deg, var(--ink) 0 7px, transparent 7px 16px);
+}
+.tape-strip::before{ top:4px; }
+.tape-strip::after{ bottom:4px; }
+.tape-strip .chart-svg{ position:absolute; inset:14px 0; width:100%; height:calc(100% - 28px); }
+.tape-cap{
+  position:absolute; left:8px; bottom:13px;
+  font-family:var(--f-mono); font-size:9px; letter-spacing:.5px;
+  color:var(--paper); background:var(--ink); padding:2px 6px;
+}
+.tape-cap.right{ left:auto; right:8px; background:var(--halt); }
+
+.jacket-body{ display:grid; grid-template-columns:1.25fr .75fr; gap:28px; align-items:end; flex:1; }
+.jacket-title-row{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+.jacket-title{
+  font-family:var(--f-display); font-style:italic; font-weight:500;
+  font-size:clamp(38px,5.6vw,64px); line-height:.96; margin:0;
+}
+.jacket-kind{
+  font-family:var(--f-label); font-size:12px; letter-spacing:4px;
+  text-transform:uppercase; color:var(--ink-70); white-space:nowrap;
+}
+.jacket-lede{
+  font-family:var(--f-display); font-size:17px; line-height:1.5;
+  color:var(--ink-70); margin:12px 0 0; max-width:46ch;
+}
+.jacket-byline{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:18px; }
+.enter-btn{
+  font-family:var(--f-label); font-size:11px; letter-spacing:1.6px; text-transform:uppercase;
+  background:var(--ink); color:var(--paper); border:1px solid var(--ink);
+  padding:10px 16px; display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+}
+.enter-btn .car{ width:6px; height:11px; background:var(--paper); animation:blink 1.1s steps(1) infinite; }
+@keyframes blink{ 50%{ opacity:0; } }
+.enter-alt{
+  font-family:var(--f-label); font-size:10px; letter-spacing:1.4px; text-transform:uppercase;
+  background:none; border:0; border-bottom:1px solid var(--ink-25); padding:2px 0;
+  cursor:pointer; color:var(--ink-70);
+}
+
+/* the docket: the run's vital statistics, printed as a slip */
+.docket{ border:1px solid var(--ink); }
+.docket-head{
+  font-family:var(--f-label); font-size:9px; letter-spacing:1.6px; text-transform:uppercase;
+  color:var(--paper); background:var(--ink); padding:5px 10px;
+}
+.docket dl{ margin:0; padding:10px 12px; display:grid; grid-template-columns:auto 1fr; gap:5px 12px; }
+.docket dt{ font-family:var(--f-label); font-size:9px; letter-spacing:1.4px; text-transform:uppercase; color:var(--ink-45); align-self:center; }
+.docket dd{ margin:0; font-family:var(--f-mono); font-size:11.5px; text-align:right; }
+.docket dd.bad{ color:var(--halt); font-weight:600; }
+.jacket-foot{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding-top:12px; border-top:1px solid var(--ink-12);
+}
+.dither-bar{ width:180px; height:22px; flex:0 0 auto; }
+.foot-caption{
+  font-family:var(--f-display); font-style:italic; font-size:13px; color:var(--ink-70);
+  text-align:right; max-width:340px; margin:0;
+}
+@media (max-width:900px){
+  .jacket-body{ grid-template-columns:1fr; align-items:start; }
+  .foot-caption{ text-align:left; }
+  .jacket-foot{ flex-wrap:wrap; }
+  .tape-strip{ height:104px; }
+}
+
+/* ============================================================
+   THE DECK — a System-7 window wrapped around a transport.
+   ============================================================ */
+.app{ padding:0; }
+.deck-stats{
+  font-family:var(--f-mono); font-size:10px; letter-spacing:1px;
+  color:var(--ink-45); margin:-14px 0 16px;
+}
+
+.win{ background:var(--paper); border:1.5px solid var(--ink); box-shadow:5px 5px 0 var(--ink-12); }
+.win-title{
+  display:flex; align-items:center; gap:10px; height:24px; padding:6px 8px;
+  border-bottom:1.5px solid var(--ink);
+  background:repeating-linear-gradient(180deg, var(--ink) 0 1px, transparent 1px 3px);
+}
+.win-box{ width:12px; height:12px; border:1.3px solid var(--ink); background:var(--paper); flex:0 0 auto; cursor:pointer; padding:0; }
+.win-title-text{
+  font-family:var(--f-chrome); font-size:11px; letter-spacing:.5px;
+  background:var(--paper); padding:0 8px; margin:0 auto;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.win-title-spacer{ width:12px; flex:0 0 auto; }
+
+/* Silkscreen at 11px, never 10: at 10px on a 1x screen its C
+   rasterises as an O and "RECORD" prints "REOORD". */
+.mac-btn{
+  font-family:var(--f-chrome); font-size:11px; letter-spacing:.5px;
+  background:var(--paper); border:1.3px solid var(--ink);
+  padding:7px 10px; cursor:pointer; box-shadow:2px 2px 0 var(--ink);
+}
+.mac-btn:active{ box-shadow:none; transform:translate(2px,2px); }
+.mac-btn.default{ box-shadow:0 0 0 1.5px var(--paper), 0 0 0 3px var(--ink), 2px 2px 0 var(--ink); }
+.mac-btn.default:active{ box-shadow:0 0 0 1.5px var(--paper), 0 0 0 3px var(--ink); transform:translate(2px,2px); }
+.mac-btn.on{ background:var(--ink); color:var(--paper); }
+
+/* ---- transport ---- */
+.transport{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:12px 16px; border-bottom:1px solid var(--ink-12);
+}
+.transport-group{ display:flex; gap:6px; align-items:center; }
+.transport-spacer{ flex:1; }
+.tp-clock{
+  font-family:var(--f-mono); font-size:12px; letter-spacing:.5px;
+  border:1px solid var(--ink); padding:6px 10px; white-space:nowrap;
+}
+.tp-clock b{ font-weight:600; }
+.tp-label{ font-family:var(--f-label); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-45); }
+
+
+/* ============================================================
+   THE CHARTS — every moving graphic on this page is drawn the
+   same way, after the stats-chart reference: a faint grid, a
+   gradient-stroked line that draws itself by running its own
+   dash offset to zero, and an area under it revealed by a clip
+   rectangle sliding across. Both run 1.3s linear, so the line
+   and its shadow arrive together.
+
+   The reference's teal and purple become this page's only two
+   inks: black running to halt red, which on a trace that ends
+   in a halt is not decoration — the line goes red where the
+   run does.
+   ============================================================ */
+.chart-svg{ display:block; overflow:visible; }
+.chart-grid line{ stroke:var(--ink-12); stroke-width:.1; }
+.chart-area{ fill:url(#areaGrad); }
+.chart-line{
+  fill:none; stroke:url(#lineGrad); stroke-width:1.1;
+  stroke-linecap:round; stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
+}
+.chart-dot{ fill:var(--halt); }
+/* the two animations, started by adding .drawing to the svg */
+.chart-svg.drawing .chart-line{ animation:lineani 1.3s linear forwards; }
+.chart-svg.drawing .chart-clip{ animation:clipani 1.3s linear forwards; }
+.chart-svg.drawing .chart-dot{ animation:dotani 1.3s linear forwards; }
+@keyframes lineani{ to{ stroke-dashoffset:0; } }
+@keyframes clipani{ to{ transform:translateX(var(--clipw, 100px)); } }
+@keyframes dotani{ 0%,88%{ opacity:0; } 100%{ opacity:1; } }
+
+/* the reference's corner flag, kept for the one card that has a
+   verdict to give */
+.docket{ position:relative; }
+.docket::after{
+  content:""; position:absolute; left:0; bottom:0; width:0; height:0;
+  border-style:solid; border-width:22px 0 0 22px;
+  border-color:transparent transparent transparent var(--halt);
+}
+
+/* the deck's tape gets the same line laid over its bars: the
+   spend accumulating across the run */
+.tape{ position:relative; }
+.tape .chart-svg{
+  position:absolute; inset:10px 10px 0; width:calc(100% - 20px); height:calc(100% - 10px);
+  pointer-events:none; z-index:3;
+}
+.tape .chart-line{ stroke-width:1.6; }
+.tape .chart-dot{ r:1.8; }
+/* the tape chart is not a one-off: its dash offset and its clip follow the
+   playhead, so the spend curve draws itself in step with the run and jumps
+   with you when you scrub */
+.tape .chart-line, .tape .chart-area{ transition:none; }
+
+/* ---- the tape: one block per step, height is latency ---- */
+.tape-wrap{ padding:16px 16px 10px; }
+.tape{
+  position:relative; height:104px; border:1.3px solid var(--ink);
+  padding:10px 10px 0; display:flex; align-items:flex-end; gap:2px;
+  cursor:pointer; touch-action:none;
+}
+.blk{
+  flex:1 1 0; min-width:4px; background:var(--ink); position:relative;
+  transition:opacity .15s ease;
+}
+/* the kind of step is written into the fill, not into a colour */
+.blk.think{ background:repeating-linear-gradient(45deg, var(--ink) 0 2px, transparent 2px 6px); }
+.blk.write{ background:repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 4px); }
+.blk.retry, .blk.halt{ background:var(--halt); }
+.blk.future{ opacity:.22; }
+.blk.now::after{
+  content:""; position:absolute; left:50%; bottom:-9px; width:0; height:0;
+  transform:translateX(-50%);
+  border-left:4px solid transparent; border-right:4px solid transparent;
+  border-bottom:5px solid var(--halt);
+}
+.playhead{ position:absolute; top:0; bottom:0; width:1.5px; background:var(--halt); pointer-events:none; }
+.tape-axis{
+  display:flex; justify-content:space-between; margin-top:12px;
+  font-family:var(--f-mono); font-size:9px; color:var(--ink-45);
+}
+.tape-key{
+  display:flex; gap:16px; flex-wrap:wrap; margin-top:8px;
+  font-family:var(--f-label); font-size:9px; letter-spacing:1.4px;
+  text-transform:uppercase; color:var(--ink-45);
+}
+.tape-key i{ display:inline-block; width:12px; height:10px; background:var(--ink); margin-right:6px; vertical-align:-1px; }
+.tape-key i.think{ background:repeating-linear-gradient(45deg, var(--ink) 0 2px, transparent 2px 6px); }
+.tape-key i.write{ background:repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 4px); }
+.tape-key i.bad{ background:var(--halt); }
+
+/* ---- the reading: step detail, waterfall and transcript ---- */
+.reading{ display:grid; grid-template-columns:1fr 332px; gap:0; border-top:1px solid var(--ink-12); }
+.reading-main{ padding:18px 16px 20px; border-right:1px solid var(--ink-12); min-width:0; }
+.reading-side{ padding:18px 16px 20px; min-width:0; display:flex; flex-direction:column; }
+@media (max-width:860px){
+  .reading{ grid-template-columns:1fr; }
+  .reading-main{ border-right:0; border-bottom:1px solid var(--ink-12); }
+}
+
+.frame-label{
+  font-family:var(--f-label); font-size:9px; letter-spacing:1.6px; text-transform:uppercase;
+  color:var(--ink-45); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;
+}
+.step-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+.step-no{ font-family:var(--f-mono); font-size:11px; border:1px solid var(--ink); padding:5px 9px; white-space:nowrap; }
+.badge{
+  font-family:var(--f-label); font-size:10px; letter-spacing:1.6px; text-transform:uppercase;
+  padding:6px 10px; border:1.3px solid var(--ink); white-space:nowrap;
+}
+.badge.retry, .badge.halt{ background:var(--halt); border-color:var(--halt); color:var(--paper); }
+.step-title{ font-family:var(--f-display); font-weight:500; font-size:clamp(24px,3.4vw,34px); margin:8px 0 2px; line-height:1.08; }
+.step-call{ font-family:var(--f-mono); font-size:11.5px; color:var(--ink-45); margin:0 0 14px; word-break:break-all; }
+.step-note{ font-family:var(--f-display); font-size:18px; line-height:1.55; margin:0 0 16px; max-width:58ch; }
+.step-meta{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; border-top:1px solid var(--ink-25); border-bottom:1px solid var(--ink-25); }
+.step-meta div{ padding:10px 12px 12px; border-right:1px solid var(--ink-12); }
+.step-meta div:last-child{ border-right:0; }
+.step-meta .n{ font-family:var(--f-mono); font-size:15px; }
+.step-meta .n.bad{ color:var(--halt); font-weight:600; }
+.step-meta .l{ font-family:var(--f-label); font-size:8.5px; letter-spacing:1.4px; text-transform:uppercase; color:var(--ink-45); margin-top:5px; }
+@media (max-width:520px){ .step-meta{ grid-template-columns:repeat(2,1fr); } .step-meta div:nth-child(2){ border-right:0; } }
+
+/* the waterfall — hairlines only, no fills but the bars */
+.wfall{ margin-top:18px; }
+.wf-row{ display:grid; grid-template-columns:104px 1fr 54px; gap:8px; align-items:center; padding:3px 0; }
+.wf-name{ font-family:var(--f-mono); font-size:10px; color:var(--ink-45); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.wf-track{ position:relative; height:9px; border-bottom:1px dotted var(--ink-12); }
+.wf-bar{ position:absolute; top:0; height:9px; background:var(--ink); min-width:2px; }
+.wf-bar.think{ background:repeating-linear-gradient(45deg, var(--ink) 0 2px, transparent 2px 6px); }
+.wf-bar.write{ background:repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 4px); }
+.wf-bar.retry, .wf-bar.halt{ background:var(--halt); }
+.wf-ms{ font-family:var(--f-mono); font-size:9.5px; color:var(--ink-45); text-align:right; }
+.wf-row.now .wf-name{ color:var(--ink); font-weight:600; }
+.wf-row.now .wf-track{ border-bottom-color:var(--ink-45); }
+
+/* The gauges are the reference's other chart: a ring drawn by the same
+   trick as the line — one path, its own length as the dash array, and the
+   offset walked back toward zero. The number in the middle counts with it. */
+.gauges{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px;
+  border:1px solid var(--ink-25); padding:14px 8px 12px;
+}
+.gauge{ text-align:center; }
+.ring{ position:relative; width:100%; max-width:88px; margin:0 auto 9px; }
+.ring svg{ display:block; width:100%; transform:rotate(-90deg); overflow:visible; }
+.ring .ring-bg{ fill:none; stroke:var(--ink-12); stroke-width:6; stroke-linecap:round; }
+.ring .ring-fg{
+  fill:none; stroke:url(#ringGrad); stroke-width:6; stroke-linecap:round;
+  transition:stroke-dashoffset .18s linear;
+}
+.ring.bad .ring-fg{ stroke:var(--halt); }
+/* the one-off draw-in when the deck first arrives, then back to live speed */
+.gauges.intro .ring .ring-fg{ transition:stroke-dashoffset 1.3s cubic-bezier(.4,0,.2,1); }
+.ring .pct{
+  position:absolute; inset:0; display:grid; place-items:center;
+  font-family:var(--f-mono); font-size:15px; letter-spacing:-.02em;
+}
+.ring.bad .pct{ color:var(--halt); font-weight:600; }
+.gauge .l{
+  display:block; font-family:var(--f-label); font-size:8px; letter-spacing:1.3px;
+  text-transform:uppercase; color:var(--ink-45); line-height:1.5;
+}
+.gauge .v{ display:block; font-family:var(--f-mono); font-size:10.5px; margin-top:3px; }
+.gauge .v.bad{ color:var(--halt); font-weight:600; }
+@media (max-width:860px){ .gauges{ grid-template-columns:repeat(3,1fr); } }
+/* The tape's viewBox is stretched about ten to one, so a plain stroke-width
+   comes out ten times heavier on the verticals than on the horizontals.
+   non-scaling-stroke measures it in device pixels instead and the grid reads
+   the same in both directions. The dot goes for the same reason — a circle
+   in a stretched viewBox is an ellipse, and the playhead already marks the
+   spot it would have marked. */
+.tape .chart-grid line{ stroke:var(--ink-12); stroke-width:1; vector-effect:non-scaling-stroke; }
+.tape .chart-dot{ display:none; }
+
+/* the transcript: the run, read back line by line */
+.tlog{
+  flex:1; min-height:220px; max-height:340px; overflow-y:auto;
+  border:1.3px dashed var(--ink-45); padding:10px 12px;
+  font-family:var(--f-mono); font-size:11px; line-height:1.65;
+}
+.tline{ display:grid; grid-template-columns:22px 1fr; gap:6px; padding:2px 0; color:var(--ink-45); }
+.tline .ix{ color:var(--ink-25); }
+.tline.seen{ color:var(--ink-70); }
+.tline.now{ color:var(--ink); font-weight:600; }
+.tline.now .ix{ color:var(--halt); }
+.tline.bad{ color:var(--halt); }
+.tlog::-webkit-scrollbar{ width:8px; }
+.tlog::-webkit-scrollbar-thumb{ background:var(--ink-25); }
+.verdict{
+  margin-top:14px; border:1.3px dashed var(--ink-45); padding:12px 14px;
+}
+.verdict .l{ font-family:var(--f-label); font-size:9px; letter-spacing:1.6px; text-transform:uppercase; color:var(--halt); margin-bottom:6px; }
+.verdict p{ font-family:var(--f-display); font-style:italic; font-size:16px; line-height:1.45; margin:0; }
+
+/* ============================================================
+   BANDS — separated by line weight alone, never by a fill.
+   ============================================================ */
+.band{ border-top:1.5px solid var(--ink); margin-top:42px; padding:38px 16px 0; }
+.band-inner{ width:min(1020px,100%); margin:0 auto; }
+.band-head{ display:flex; align-items:baseline; justify-content:space-between; gap:18px; flex-wrap:wrap; margin-bottom:22px; }
+.band-title{ font-family:var(--f-display); font-style:italic; font-weight:500; font-size:clamp(26px,3.6vw,38px); margin:0; line-height:1.05; }
+.band-num{ font-family:var(--f-mono); font-size:10px; letter-spacing:1.4px; color:var(--ink-45); white-space:nowrap; }
+.band-lede{ font-family:var(--f-display); font-size:19px; line-height:1.55; color:var(--ink-70); margin:0 0 26px; max-width:66ch; }
+
+.cols{ display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--ink-25); }
+.col{ padding:18px 22px 24px; border-right:1px solid var(--ink-12); }
+.col:last-child{ border-right:0; }
+.col-mark{ height:42px; display:flex; align-items:center; margin-bottom:12px; }
+.col h3{ font-family:var(--f-display); font-weight:500; font-size:22px; margin:0 0 8px; }
+.col p{ font-family:var(--f-display); font-size:16px; line-height:1.5; color:var(--ink-70); margin:0 0 10px; }
+.col .kv{ font-family:var(--f-mono); font-size:10px; letter-spacing:.6px; color:var(--ink-45); text-transform:uppercase; }
+@media (max-width:820px){
+  .cols{ grid-template-columns:1fr; }
+  .col{ border-right:0; border-bottom:1px solid var(--ink-12); }
+  .col:last-child{ border-bottom:0; }
+}
+
+/* the comparison sheet — a printed table, hairlines only */
+.sheet-table{ width:100%; border-collapse:collapse; }
+.sheet-table caption{
+  font-family:var(--f-label); font-size:9px; letter-spacing:1.6px; text-transform:uppercase;
+  color:var(--ink-45); text-align:left; padding-bottom:10px;
+}
+.sheet-table th, .sheet-table td{ padding:10px 12px; text-align:right; border-bottom:1px solid var(--ink-12); }
+.sheet-table th:first-child, .sheet-table td:first-child{ text-align:left; }
+.sheet-table thead th{
+  font-family:var(--f-label); font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--ink-70); border-bottom:1.3px solid var(--ink);
+}
+.sheet-table tbody td{ font-family:var(--f-mono); font-size:12px; }
+.sheet-table tbody th{ font-family:var(--f-display); font-size:17px; font-weight:500; text-align:left; }
+.sheet-table td.bad{ color:var(--halt); font-weight:600; }
+.sheet-table td.good{ font-weight:600; }
+.sheet-table tr:last-child td, .sheet-table tr:last-child th{ border-bottom:0; }
+.table-wrap{ border:1.3px solid var(--ink); padding:14px 16px 6px; overflow-x:auto; }
+.table-foot{ font-family:var(--f-mono); font-size:9.5px; color:var(--ink-45); padding:10px 2px 0; border-top:1px dotted var(--ink-25); margin-top:6px; }
+
+/* instrumentation */
+.split{ display:grid; grid-template-columns:1.35fr .65fr; gap:18px; align-items:start; }
+@media (max-width:860px){ .split{ grid-template-columns:1fr; } }
+.code-wrap{ border:1.3px solid var(--ink); }
+.code-tabs{ display:flex; border-bottom:1.3px solid var(--ink); }
+.code-tab{
+  font-family:var(--f-chrome); font-size:11px; background:var(--paper); color:var(--ink);
+  border:0; border-right:1.3px solid var(--ink); padding:9px 14px; cursor:pointer;
+}
+.code-tab.on{ background:var(--ink); color:var(--paper); }
+.code-body{
+  margin:0; padding:16px 18px; font-family:var(--f-mono); font-size:12px; line-height:1.75;
+  overflow-x:auto; white-space:pre; color:var(--ink);
+}
+.code-body .c{ color:var(--ink-45); }
+.code-body .k{ font-weight:600; }
+.code-body .s{ color:var(--halt); }
+.code-foot{
+  border-top:1px dotted var(--ink-25); padding:8px 18px;
+  font-family:var(--f-mono); font-size:9.5px; letter-spacing:.4px; color:var(--ink-45);
+  display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+}
+.code-side{ display:grid; gap:12px; align-content:start; }
+.fact{ border:1px solid var(--ink-25); padding:12px 14px; }
+.fact .n{ font-family:var(--f-display); font-style:italic; font-size:30px; line-height:1; }
+.fact .l{ font-family:var(--f-label); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-45); margin-top:6px; }
+
+/* the rate card */
+.rate{ display:grid; grid-template-columns:1fr 1fr; gap:0; border:1.3px solid var(--ink); }
+.rate-left{ padding:22px 24px; border-right:1px solid var(--ink-12); }
+.rate-price{ font-family:var(--f-display); font-style:italic; font-size:52px; line-height:1; }
+.rate-price small{ font-family:var(--f-mono); font-style:normal; font-size:11px; letter-spacing:1px; color:var(--ink-45); margin-left:8px; }
+.rate-left p{ font-family:var(--f-display); font-size:17px; line-height:1.5; color:var(--ink-70); margin:12px 0 18px; }
+.rate-right{ padding:22px 24px; }
+.rate-right ul{ list-style:none; margin:0 0 18px; padding:0; display:flex; flex-direction:column; gap:8px; }
+.rate-right li{ font-family:var(--f-mono); font-size:11.5px; line-height:1.5; color:var(--ink-70); display:flex; gap:8px; }
+.rate-right li::before{ content:"·"; color:var(--halt); font-weight:700; }
+@media (max-width:760px){
+  .rate{ grid-template-columns:1fr; }
+  .rate-left{ border-right:0; border-bottom:1px solid var(--ink-12); }
+}
+
+.closer{ text-align:center; padding:12px 0 0; }
+.closer h2{ font-family:var(--f-display); font-style:italic; font-weight:500; font-size:clamp(28px,4.4vw,44px); margin:0 0 10px; }
+.closer p{ font-family:var(--f-display); font-size:18px; color:var(--ink-70); margin:0 auto 20px; max-width:56ch; line-height:1.5; }
+.closer-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.sheet-footer{
+  text-align:center; font-family:var(--f-mono); font-size:9px; color:var(--ink-45);
+  letter-spacing:.4px; line-height:1.9; padding:26px 16px 34px;
+  border-top:1px solid var(--ink-12); margin-top:38px;
+}
+.sheet-footer strong{ color:var(--ink); font-weight:600; }
+
+/* ---- the one overlay: the field manual ---- */
+.overlay{
+  position:fixed; inset:0; z-index:50; background:rgba(11,11,10,.5);
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  opacity:0; pointer-events:none; transition:opacity .15s ease;
+}
+.overlay.open{ opacity:1; pointer-events:auto; }
+.panel{
+  width:min(580px,100%); max-height:84vh; background:var(--paper);
+  border:1.5px solid var(--ink); box-shadow:6px 6px 0 rgba(11,11,10,.3);
+  display:flex; flex-direction:column;
+}
+.article-body{ padding:16px 22px 22px; overflow-y:auto; }
+.article-body p{ font-family:var(--f-display); font-size:18px; line-height:1.6; margin:0 0 14px; }
+.article-body .eyebrow{ font-family:var(--f-label); font-size:9px; letter-spacing:1.6px; color:var(--halt); display:block; margin:0 0 14px; text-transform:uppercase; }
+.article-body .keyline{ font-family:var(--f-mono); font-size:12px; color:var(--ink-70); border-left:3px solid var(--halt); padding-left:12px; margin:0 0 16px; line-height:1.7; }
+.article-body .about-motifs{ display:flex; gap:16px; align-items:center; margin:0 0 18px; }
+
+@media (max-width:560px){
+  .band{ padding-left:10px; padding-right:10px; }
+  .hero{ padding-left:10px; padding-right:10px; }
+  .tape-wrap{ padding:12px 10px 8px; }
+  .reading-main, .reading-side{ padding:14px 12px 16px; }
+  .jacket{ padding:18px; }
+  .band{ padding-top:30px; margin-top:32px; }
+  .wf-row{ grid-template-columns:78px 1fr 46px; }
+  #tapeHint{ display:none; }
+}
+
+/* ============================================================
+   THE PAGE AROUND THE DECK — a landing page is a sequence of
+   bands on the same stock, so none of these get a background
+   either. Rule weight and type size do all the separating.
+   ============================================================ */
+.nav{
+  position:sticky; top:0; z-index:30;
+  background:var(--paper); border-bottom:1.5px solid var(--ink);
+}
+.nav-inner{
+  position:relative; width:min(1020px,100%); margin:0 auto;
+  display:flex; align-items:center; gap:16px; padding:9px 16px;
+}
+.nav-mark{ display:flex; align-items:baseline; gap:10px; margin-right:auto; text-decoration:none; }
+.nav-mark .wm{ font-family:var(--f-display); font-style:italic; font-size:22px; line-height:1; }
+.nav-mark .tag{
+  font-family:var(--f-label); font-size:8.5px; letter-spacing:1.6px; text-transform:uppercase;
+  color:var(--ink-45); border-left:1px solid var(--ink-25); padding-left:10px;
+}
+.nav-links{ display:flex; gap:18px; }
+.nav-links a{
+  font-family:var(--f-label); font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--ink-70); text-decoration:none; padding:3px 0; border-bottom:1px solid transparent;
+}
+.nav-links a:hover{ color:var(--ink); border-bottom-color:var(--ink); }
+.nav-burger{ display:none; }
+@media (max-width:860px){
+  .nav-links{
+    display:none; position:absolute; top:100%; left:0; right:0; z-index:31;
+    flex-direction:column; gap:0; padding:4px 16px 12px;
+    background:var(--paper); border-bottom:1.5px solid var(--ink);
+  }
+  .nav-links.open{ display:flex; }
+  .nav-links a{ padding:10px 0; border-bottom:1px dotted var(--ink-12); }
+  .nav-burger{ display:inline-block; }
+}
+@media (max-width:520px){ #navCta{ display:none; } .nav-mark .tag{ display:none; } }
+
+/* the sticky bar would otherwise sit on top of whatever you jumped to */
+section[id]{ scroll-margin-top:62px; }
+.band--first{ border-top:0; margin-top:0; padding-top:34px; }
+
+/* who is recording — a hairline strip, not a wall of logos */
+.trust{ border-bottom:1.5px solid var(--ink); margin-top:26px; }
+.trust-inner{
+  width:min(1020px,100%); margin:0 auto; padding:12px 16px;
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+}
+.trust .l{
+  font-family:var(--f-label); font-size:8.5px; letter-spacing:1.6px;
+  text-transform:uppercase; color:var(--ink-45); white-space:nowrap;
+}
+.trust ul{ list-style:none; display:flex; gap:20px; flex-wrap:wrap; margin:0; padding:0; }
+.trust li{ font-family:var(--f-mono); font-size:11px; color:var(--ink-70); }
+.trust .fine{ margin-left:auto; font-family:var(--f-mono); font-size:9px; color:var(--ink-25); }
+@media (max-width:760px){ .trust .fine{ margin-left:0; } }
+
+/* the anatomy of one step: the record on the left, the reading on the right */
+.anatomy{ display:grid; grid-template-columns:1.02fr .98fr; gap:24px; align-items:start; }
+@media (max-width:880px){ .anatomy{ grid-template-columns:1fr; } }
+/* The record is short and the reading beside it is long, so the record rides
+   down with it rather than leaving half a column of white. */
+.spec{ border:1.3px solid var(--ink); padding:14px 16px; position:sticky; top:74px; }
+@media (max-width:880px){ .spec{ position:static; } }
+.spec-head{
+  font-family:var(--f-label); font-size:9px; letter-spacing:1.6px; text-transform:uppercase;
+  color:var(--ink-45); padding-bottom:10px; border-bottom:1px solid var(--ink-25); margin-bottom:6px;
+}
+.spec .row{
+  display:grid; grid-template-columns:18px 76px 1fr; gap:10px; align-items:baseline;
+  padding:7px 0; border-bottom:1px dotted var(--ink-12);
+  font-family:var(--f-mono); font-size:11.5px; line-height:1.5;
+}
+.spec .row:last-child{ border-bottom:0; }
+.spec .num{ color:var(--halt); font-weight:600; }
+.spec .key{ color:var(--ink-45); }
+.spec .val.bad{ color:var(--halt); font-weight:600; }
+.note{ display:grid; grid-template-columns:20px 1fr; gap:12px; padding:11px 0; border-bottom:1px solid var(--ink-12); }
+.note:last-child{ border-bottom:0; }
+.note .n{ font-family:var(--f-mono); font-size:11px; color:var(--halt); font-weight:600; }
+.note p{ margin:0; font-family:var(--f-display); font-size:16.5px; line-height:1.5; color:var(--ink-70); }
+.note b{ color:var(--ink); font-weight:600; }
+
+/* three moves */
+.moves{ display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--ink-25); }
+.move{ padding:20px 22px 24px; border-right:1px solid var(--ink-12); }
+.move:last-child{ border-right:0; }
+.move .ix{ font-family:var(--f-display); font-style:italic; font-size:38px; line-height:1; color:var(--ink-25); }
+.move h3{ font-family:var(--f-display); font-weight:500; font-size:21px; margin:10px 0 8px; }
+.move p{ font-family:var(--f-display); font-size:16px; line-height:1.5; color:var(--ink-70); margin:0 0 10px; }
+.move .kv{ font-family:var(--f-mono); font-size:10px; letter-spacing:.6px; color:var(--ink-45); text-transform:uppercase; }
+@media (max-width:820px){
+  .moves{ grid-template-columns:1fr; }
+  .move{ border-right:0; border-bottom:1px solid var(--ink-12); }
+  .move:last-child{ border-bottom:0; }
+}
+
+/* what it clips onto */
+.grid-list{ display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--ink-25); }
+.grid-list div{
+  padding:14px 16px; border-right:1px solid var(--ink-12); border-bottom:1px solid var(--ink-12);
+  font-family:var(--f-mono); font-size:11px; line-height:1.5; color:var(--ink-70);
+}
+.grid-list div:nth-child(4n){ border-right:0; }
+@media (max-width:760px){
+  .grid-list{ grid-template-columns:repeat(2,1fr); }
+  .grid-list div:nth-child(4n){ border-right:1px solid var(--ink-12); }
+  .grid-list div:nth-child(2n){ border-right:0; }
+}
+
+/* voices */
+.quotes{ display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--ink-25); }
+.quote{ padding:20px 22px 24px; border-right:1px solid var(--ink-12); display:flex; flex-direction:column; gap:16px; }
+.quote:last-child{ border-right:0; }
+.quote blockquote{ margin:0; font-family:var(--f-display); font-size:18px; line-height:1.5; }
+.quote .who{ margin-top:auto; font-family:var(--f-mono); font-size:10px; line-height:1.7; color:var(--ink-45); }
+.quote .who b{ display:block; color:var(--ink); font-weight:600; }
+@media (max-width:820px){
+  .quotes{ grid-template-columns:1fr; }
+  .quote{ border-right:0; border-bottom:1px solid var(--ink-12); }
+  .quote:last-child{ border-bottom:0; }
+}
+
+/* questions — native details, so it works before the script runs */
+.faq{ border-top:1px solid var(--ink-25); }
+.faq details{ border-bottom:1px solid var(--ink-12); }
+.faq summary{
+  list-style:none; cursor:pointer; padding:16px 2px;
+  display:flex; align-items:baseline; gap:14px;
+  font-family:var(--f-display); font-size:20px; line-height:1.3;
+}
+.faq summary::-webkit-details-marker{ display:none; }
+.faq summary::after{ content:"+"; margin-left:auto; font-family:var(--f-mono); font-size:15px; color:var(--halt); }
+.faq details[open] summary::after{ content:"\2212"; }
+.faq .qn{ font-family:var(--f-mono); font-size:10px; color:var(--ink-45); }
+.faq p{
+  margin:0 0 18px; padding-left:36px; max-width:72ch;
+  font-family:var(--f-display); font-size:17px; line-height:1.55; color:var(--ink-70);
+}
+@media (max-width:560px){ .faq p{ padding-left:0; } .faq summary{ font-size:18px; } }
+
+/* Reduced motion: the deck still reads, it just never moves by
+   itself — no autoplay, no spinning reel, no blinking caret. */
+@media (prefers-reduced-motion: reduce){
+  .sunburst, .reel .hub{ animation:none; }
+  .enter-btn .car{ animation:none; }
+  .hero, .app, .overlay{ transition:none; }
+  .ring .ring-fg, .gauges.intro .ring .ring-fg{ transition:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="ruler ruler-left" aria-hidden="true"></div>
+<div class="ruler ruler-right" aria-hidden="true"></div>
+
+<!-- ======================= NAV ======================= -->
+<header class="nav">
+  <div class="nav-inner">
+    <a class="nav-mark" href="#top"><span class="wm">Spool</span><span class="tag">Trace recorder</span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Sections">
+      <a href="#player">The deck</a>
+      <a href="#anatomy">A step</a>
+      <a href="#how">How it works</a>
+      <a href="#plans">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <button class="mac-btn nav-burger" id="navBurger" aria-expanded="false" aria-controls="navLinks">MENU</button>
+    <button class="mac-btn default" id="navCta">START RECORDING</button>
+  </div>
+</header>
+
+<!-- ======================= HERO ======================= -->
+<section class="hero" id="top">
+  <div class="jacket">
+
+    <div class="jacket-row-top">
+      <div class="comb" id="combBars" aria-hidden="true"></div>
+      <div class="ticker" aria-hidden="true">
+        <div>WHAT DID IT DO</div>
+        <div>WHAT DID IT DO</div>
+        <div>WHAT DID IT DO</div>
+        <div>WHAT DID IT DO</div>
+      </div>
+    </div>
+
+    <div class="tape-strip">
+      <svg class="chart-svg" id="heroChart" viewBox="0 0 240 40" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#0b0b0a"/>
+            <stop offset="0.6" stop-color="#0b0b0a"/>
+            <stop offset="1" stop-color="#b3221d"/>
+          </linearGradient>
+          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#b3221d" stop-opacity="0.10"/>
+            <stop offset="0.5" stop-color="#b3221d" stop-opacity="0.14"/>
+            <stop offset="1" stop-color="#b3221d" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0b0b0a"/>
+            <stop offset="0.65" stop-color="#0b0b0a"/>
+            <stop offset="1" stop-color="#b3221d"/>
+          </linearGradient>
+          <clipPath id="heroClip"><rect class="chart-clip" x="-240" y="0" width="240" height="40"/></clipPath>
+          <clipPath id="tapeClip"><rect class="chart-clip" x="-100" y="0" width="100" height="100"/></clipPath>
+        </defs>
+        <g class="chart-grid"></g>
+        <polygon class="chart-area" clip-path="url(#heroClip)"/>
+        <path class="chart-line"/>
+        <circle class="chart-dot" r="1.6"/>
+      </svg>
+      <span class="tape-cap">run 4f2a1c · 24 steps</span>
+      <span class="tape-cap right">halted at 38.4s</span>
+    </div>
+
+    <div class="jacket-body">
+      <div>
+        <div class="eyebrow-label">Trace Recorder &nbsp;·&nbsp; A Reading of One Run</div>
+        <div class="jacket-title-row">
+          <h1 class="jacket-title">Spool</h1>
+          <span class="jacket-kind">A Transcript</span>
+        </div>
+        <p class="jacket-lede">Your agent did two dozen things last night and told you about two of them. Spool keeps the tape: every step, every token, every tool result, playable back at the speed you can read.</p>
+        <div class="jacket-byline">
+          <button class="enter-btn" id="enterBtn">Play the Run <span class="car"></span></button>
+          <button class="enter-alt" id="skipBtn">or read what Spool does</button>
+        </div>
+      </div>
+
+      <div class="docket">
+        <div class="docket-head">Docket — run 4f2a1c</div>
+        <dl>
+          <dt>Task</dt><dd>reconcile-invoices</dd>
+          <dt>Model</dt><dd>atlas-2</dd>
+          <dt>Steps</dt><dd>24</dd>
+          <dt>Tools</dt><dd>14 calls</dd>
+          <dt>Tokens</dt><dd>128,410</dd>
+          <dt>Spend</dt><dd>$0.42</dd>
+          <dt>Wall</dt><dd>38.4s</dd>
+          <dt>Outcome</dt><dd class="bad">HALTED 5.7.0</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="jacket-foot">
+      <div class="dither-bar dither" aria-hidden="true"></div>
+      <p class="foot-caption">A run you cannot read is a run you cannot fix. This one is on the record.</p>
+    </div>
+  </div>
+</section>
+
+<div class="trust">
+  <div class="trust-inner">
+    <span class="l">Recording runs at</span>
+    <ul>
+      <li>Northgate Freight</li>
+      <li>Bellwether Labs</li>
+      <li>Corvid Systems</li>
+      <li>Halden &amp; Co</li>
+      <li>Meridian Payments</li>
+      <li>Tessellate</li>
+    </ul>
+    <span class="fine">all six invented, like everything else here</span>
+  </div>
+</div>
+
+<!-- ======================= THE DECK ======================= -->
+<div class="app" id="app">
+
+  <section class="band band--first" id="player">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">Thirty-eight seconds,<br/>one step at a time</h2>
+        <span class="band-num">§ 01 — The deck</span>
+      </div>
+      <p class="band-lede">This is a real recording of a fictional run: an agent reconciling a month of invoices against the ledger. Press play and watch it work, or grab the tape and go straight to the part that went wrong.</p>
+      <div class="deck-stats"><span id="stats">—</span></div>
+
+      <main class="win" id="deck">
+      <div class="win-title">
+        <button class="win-box" id="btnCover" title="Back to the cover" aria-label="Back to the cover"></button>
+        <span class="win-title-text" id="winTitleText">RUN 4F2A1C — RECONCILE-INVOICES</span>
+        <span class="win-title-spacer"></span>
+      </div>
+
+      <div class="transport">
+        <div class="transport-group">
+          <button class="mac-btn" id="btnStart" aria-label="Back to the first step">|&lt;</button>
+          <button class="mac-btn" id="btnPrev" aria-label="Previous step">&lt;&lt;</button>
+          <button class="mac-btn default" id="btnPlay" aria-label="Play or pause">PLAY</button>
+          <button class="mac-btn" id="btnNext" aria-label="Next step">&gt;&gt;</button>
+          <button class="mac-btn" id="btnEnd" aria-label="Jump to the halt">&gt;|</button>
+        </div>
+        <div class="transport-group">
+          <span class="tp-label">Speed</span>
+          <button class="mac-btn" data-speed="1">1x</button>
+          <button class="mac-btn on" data-speed="4">4x</button>
+          <button class="mac-btn" data-speed="16">16x</button>
+        </div>
+        <div class="transport-spacer"></div>
+        <div class="tp-clock">t <b id="clock">00.00s</b> / 38.40s &nbsp;·&nbsp; step <b id="stepNo">01</b>/24</div>
+        <button class="mac-btn" id="btnHelp">? Manual</button>
+      </div>
+
+      <div class="tape-wrap">
+        <div class="frame-label">
+          <span>Tape — width is time, height is tokens</span>
+          <span id="tapeHint">click or drag to scrub</span>
+        </div>
+        <div class="tape" id="tape" role="slider" tabindex="0" aria-label="Scrub the run" aria-valuemin="1" aria-valuemax="24" aria-valuenow="1">
+          <svg class="chart-svg" id="tapeChart" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <g class="chart-grid"></g>
+            <polygon class="chart-area" clip-path="url(#tapeClip)"/>
+            <path class="chart-line"/>
+            <circle class="chart-dot" cx="0" cy="100"/>
+          </svg>
+          <div class="playhead" id="playhead" style="left:0"></div>
+        </div>
+        <div class="tape-axis"><span>00.0s</span><span>19.2s</span><span>38.4s</span></div>
+        <div class="tape-key">
+          <span><i></i>tool call</span>
+          <span><i class="think"></i>reasoning</span>
+          <span><i class="write"></i>write</span>
+          <span><i class="bad"></i>retry / halt</span>
+        </div>
+      </div>
+
+      <div class="reading">
+        <div class="reading-main">
+          <div class="step-top">
+            <span class="step-no">STEP <span id="stepBig">01</span></span>
+            <span class="badge" id="stepKind">—</span>
+          </div>
+          <h2 class="step-title" id="stepTitle">—</h2>
+          <p class="step-call" id="stepCall">—</p>
+          <p class="step-note" id="stepNote">—</p>
+
+          <div class="step-meta">
+            <div><div class="n" id="mLatency">—</div><div class="l">latency</div></div>
+            <div><div class="n" id="mTokens">—</div><div class="l">tokens in / out</div></div>
+            <div><div class="n" id="mSpend">—</div><div class="l">spend to here</div></div>
+            <div><div class="n" id="mState">—</div><div class="l">run state</div></div>
+          </div>
+
+          <div class="wfall">
+            <div class="frame-label"><span>Waterfall — the eight steps around the head</span></div>
+            <div id="wfall"></div>
+          </div>
+        </div>
+
+        <div class="reading-side">
+          <div class="gauges" id="gauges">
+            <div class="gauge">
+              <div class="ring" id="ringCtx">
+                <svg viewBox="0 0 100 100">
+                  <path class="ring-bg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
+                  <path class="ring-fg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
+                </svg>
+                <span class="pct" id="pctCtx">0%</span>
+              </div>
+              <span class="l">Context</span>
+              <span class="v" id="gCtx">—</span>
+            </div>
+            <div class="gauge">
+              <div class="ring" id="ringSpend">
+                <svg viewBox="0 0 100 100">
+                  <path class="ring-bg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
+                  <path class="ring-fg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
+                </svg>
+                <span class="pct" id="pctSpend">0%</span>
+              </div>
+              <span class="l">Spend</span>
+              <span class="v" id="gSpend">—</span>
+            </div>
+            <div class="gauge">
+              <div class="ring" id="ringWall">
+                <svg viewBox="0 0 100 100">
+                  <path class="ring-bg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
+                  <path class="ring-fg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
+                </svg>
+                <span class="pct" id="pctWall">0%</span>
+              </div>
+              <span class="l">Wall clock</span>
+              <span class="v" id="gWall">—</span>
+            </div>
+          </div>
+
+          <div class="frame-label"><span>Transcript</span><span id="tlogCount">—</span></div>
+          <div class="tlog" id="tlog"></div>
+
+          <div class="verdict">
+            <div class="l">Verdict on file</div>
+            <p id="verdictText">The run halted on its last step. Play to the end to see what it tried to do.</p>
+          </div>
+        </div>
+      </div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ---------------- 02 — what it keeps ---------------- -->
+  <section class="band" id="product">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">The run happened once.<br/>Keep it that way.</h2>
+        <span class="band-num">§ 02 — Premise</span>
+      </div>
+      <p class="band-lede">A model's summary of its own run is a story about the run, written by the thing being investigated. Spool records the primary sources instead: the calls as issued, the results as returned, signed at the boundary, with the clock and the token counter running the whole time. You get a transcript you can read out loud in a post-mortem.</p>
+
+      <div class="cols">
+        <div class="col">
+          <div class="col-mark"><div class="comb" style="width:88px" aria-hidden="true"><i style="width:88px"></i><i style="width:54px"></i><i style="width:70px"></i><i style="width:32px"></i></div></div>
+          <h3>Every step, not a sample</h3>
+          <p>Reasoning, tool call, result, retry, write. Each one timestamped, measured and attributed to the model that produced it.</p>
+          <div class="kv">Overhead — 1.4% of wall clock</div>
+        </div>
+        <div class="col">
+          <div class="col-mark"><div class="eyes" aria-hidden="true"><span class="eye" style="width:22px;height:22px"></span><span class="eye dense" style="width:22px;height:22px"></span></div></div>
+          <h3>Results signed at the boundary</h3>
+          <p>Tool results are signed where they enter the loop and verified on the way back in, so a result the model wrote itself cannot pass as one a tool returned.</p>
+          <div class="kv">Detects fabricated results</div>
+        </div>
+        <div class="col">
+          <div class="col-mark"><span class="sunburst" style="width:34px;height:34px;animation-duration:22s" aria-hidden="true"></span></div>
+          <h3>Playable, not just greppable</h3>
+          <p>Scrub the tape, watch the context window fill, see the spend accumulate against its cap, and stop on the step where it went wrong.</p>
+          <div class="kv">Share a link to a step</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- 03 — anatomy of a step ---------------- -->
+  <section class="band" id="anatomy">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">What one step<br/>looks like on the tape</h2>
+        <span class="band-num">§ 03 — Anatomy</span>
+      </div>
+      <p class="band-lede">Step nineteen of the run above, as it is stored. Eight fields, none of them written by the model — every one measured at the boundary as the step happened.</p>
+
+      <div class="anatomy">
+        <div class="spec">
+          <div class="spec-head">Record · run 4f2a1c · step 19</div>
+          <div class="row"><span class="num">1</span><span class="key">kind</span><span class="val bad">retry</span></div>
+          <div class="row"><span class="num">2</span><span class="key">call</span><span class="val">fetch_invoice(id=INV-4512)</span></div>
+          <div class="row"><span class="num">3</span><span class="key">response</span><span class="val bad">429 · retry-after 2.4s</span></div>
+          <div class="row"><span class="num">4</span><span class="key">latency</span><span class="val">2.40s</span></div>
+          <div class="row"><span class="num">5</span><span class="key">tokens</span><span class="val">400 in / 30 out</span></div>
+          <div class="row"><span class="num">6</span><span class="key">context</span><span class="val">30.4k of 128k</span></div>
+          <div class="row"><span class="num">7</span><span class="key">state</span><span class="val">no change</span></div>
+          <div class="row"><span class="num">8</span><span class="key">signature</span><span class="val">verified at tool boundary</span></div>
+        </div>
+
+        <div class="notes">
+          <div class="note"><span class="n">1</span><p><b>Kind</b> is one of five, and it is what the tape draws: solid for a tool call, hatched for reasoning, striped for a write, red for a retry or a halt. You can read the shape of a run without reading a word of it.</p></div>
+          <div class="note"><span class="n">2</span><p><b>The call as issued</b>, not the model's description of the call. Those two disagree more often than anyone would like.</p></div>
+          <div class="note"><span class="n">3</span><p><b>The response</b> the tool actually gave back, including the status. A 429 here is why six per cent of this run is spent waiting.</p></div>
+          <div class="note"><span class="n">4</span><p><b>Latency</b> for the step alone. Reasoning is slow and expensive in tokens; a rate-limited call is slow and costs almost none. On the tape they look nothing alike, which is the point.</p></div>
+          <div class="note"><span class="n">5</span><p><b>Tokens in and out</b>, billed. Times the rate, that is the step's share of the spend — the number the gauge is accumulating while it plays.</p></div>
+          <div class="note"><span class="n">6</span><p><b>Context after the step</b>. Watch it halve at step thirteen, where compaction ran and fourteen older tool results were summarised away.</p></div>
+          <div class="note"><span class="n">7</span><p><b>What changed</b> in the run's state. Four steps in a row that change nothing is the signature of a run that has stopped making progress.</p></div>
+          <div class="note"><span class="n">8</span><p><b>The signature</b>, verified where the result entered the loop. An unsigned result is one the model produced itself, and it is flagged rather than trusted.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- 04 — two runs, one task ---------------- -->
+  <section class="band" id="compare">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">The same task, twice,<br/>read side by side</h2>
+        <span class="band-num">§ 04 — Sheet II</span>
+      </div>
+      <p class="band-lede">Two runs of reconcile-invoices, one per model. The cheaper model is not cheaper: it takes seventeen more steps to arrive at the same variance report, and spends most of them re-reading files it had already read.</p>
+      <div class="table-wrap">
+        <table class="sheet-table">
+          <caption>Run 4f2a1c vs run 91be07 — same task, same corpus, same day</caption>
+          <thead>
+            <tr><th scope="col">Measure</th><th scope="col">atlas-2</th><th scope="col">atlas-2-mini</th><th scope="col">Delta</th></tr>
+          </thead>
+          <tbody id="cmpBody"></tbody>
+        </table>
+        <div class="table-foot">Both runs stopped at the same place: the send step is outside policy, and no amount of model is going to fix that.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- 05 — how it works ---------------- -->
+  <section class="band" id="how">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">Three moves,<br/>and then it is just there</h2>
+        <span class="band-num">§ 05 — How it works</span>
+      </div>
+      <p class="band-lede">Nothing to instrument per step, no spans to open and close by hand, and no decision to make about what is worth keeping. Wrap the loop, and the tape exists whether or not anyone ever watches it.</p>
+
+      <div class="moves">
+        <div class="move">
+          <div class="ix">01</div>
+          <h3>Record</h3>
+          <p>One decorator around the loop you already wrote. The recorder sits at the tool boundary, so it sees the calls as issued and the results as returned rather than as described.</p>
+          <div class="kv">1.4% wall clock · no sampling</div>
+        </div>
+        <div class="move">
+          <div class="ix">02</div>
+          <h3>Read</h3>
+          <p>Scrub the tape to the moment it went strange. Every step carries its latency, its tokens, its context and its state, and the transcript follows the head as it moves.</p>
+          <div class="kv">Share a link that opens on a step</div>
+        </div>
+        <div class="move">
+          <div class="ix">03</div>
+          <h3>Route</h3>
+          <p>A run that stops, stops with a code. Recoverable ones resume from the last checkpoint under a policy you set; terminal ones page whoever is on call and bring the tape with them.</p>
+          <div class="kv">4.x.x resumes · 5.x.x pages</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- 06 — recording ---------------- -->
+  <section class="band" id="install">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">Wrap the loop once,<br/>keep every run after</h2>
+        <span class="band-num">§ 06 — Recording</span>
+      </div>
+      <div class="split">
+        <div class="code-wrap">
+          <div class="code-tabs" id="codeTabs">
+            <button class="code-tab on" data-lang="py">PYTHON</button>
+            <button class="code-tab" data-lang="ts">TYPESCRIPT</button>
+            <button class="code-tab" data-lang="sh">REPLAY</button>
+          </div>
+          <pre class="code-body" id="codeBody"></pre>
+          <div class="code-foot">
+            <span>one line per loop, none per step</span>
+            <span>traces stay yours — export or self-host</span>
+          </div>
+        </div>
+        <div class="code-side">
+          <div class="fact"><div class="n">1.4<span style="font-size:15px">%</span></div><div class="l">wall-clock overhead</div></div>
+          <div class="fact"><div class="n">30<span style="font-size:15px">d</span></div><div class="l">full tape retention</div></div>
+          <div class="fact"><div class="n">0</div><div class="l">sampling — every run</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- 07 — what it clips onto ---------------- -->
+  <section class="band" id="works">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">It clips onto<br/>whatever you have</h2>
+        <span class="band-num">§ 07 — Compatibility</span>
+      </div>
+      <p class="band-lede">There is no framework to adopt. If your agent is a loop that calls tools, it is already recordable.</p>
+      <div class="grid-list">
+        <div>any loop you already wrote</div>
+        <div>function-calling APIs</div>
+        <div>streaming or blocking</div>
+        <div>tool servers over stdio or http</div>
+        <div>sub-agents and fan-out</div>
+        <div>batch jobs and scheduled runs</div>
+        <div>OpenTelemetry export</div>
+        <div>self-hosted collector</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- 08 — voices ---------------- -->
+  <section class="band" id="voices">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">What people find<br/>on the first tape they watch</h2>
+        <span class="band-num">§ 08 — From the pit</span>
+      </div>
+      <div class="quotes">
+        <div class="quote">
+          <blockquote>“We found four minutes of backoff in a run we had been calling model-bound for a month. It was not model-bound.”</blockquote>
+          <div class="who"><b>R. Okonjo</b>staff engineer<br/>Northgate Freight</div>
+        </div>
+        <div class="quote">
+          <blockquote>“The tape settled an argument about whether the agent had read the policy file. It had — at step eleven, for a hundred and eighteen milliseconds.”</blockquote>
+          <div class="who"><b>D. Farrow</b>platform lead<br/>Bellwether Labs</div>
+        </div>
+        <div class="quote">
+          <blockquote>“Cheaper model, twice the wall clock, same halt at the end. Nobody believed it until we watched both tapes stop in the same place.”</blockquote>
+          <div class="who"><b>M. Vance</b>head of infrastructure<br/>Corvid Systems</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- 09 — rate card ---------------- -->
+  <section class="band" id="plans">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">One rate,<br/>counted in runs</h2>
+        <span class="band-num">§ 09 — Rate card</span>
+      </div>
+      <div class="rate">
+        <div class="rate-left">
+          <div class="rate-price">$0.004<small>/ RUN RECORDED</small></div>
+          <p>The first 25,000 runs each month are free, and nothing is metered per seat. A run is a run whether it takes four steps or four hundred.</p>
+          <button class="mac-btn default" id="btnStartFree">Start recording</button>
+        </div>
+        <div class="rate-right">
+          <ul>
+            <li>Full tape for 30 days, headers and metadata for a year</li>
+            <li>Signed tool results, on by default</li>
+            <li>Run-to-run comparison sheets</li>
+            <li>Share a link that opens on one step</li>
+            <li>Self-hosted collector on the annual plan</li>
+            <li>Export to Parquet whenever you like — it is your tape</li>
+          </ul>
+          <button class="mac-btn" id="btnTalk">Talk to us about volume</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- 10 — questions ---------------- -->
+  <section class="band" id="faq">
+    <div class="band-inner">
+      <div class="band-head">
+        <h2 class="band-title">Questions we get<br/>in the first week</h2>
+        <span class="band-num">§ 10 — Questions</span>
+      </div>
+      <div class="faq">
+        <details open>
+          <summary><span class="qn">01</span> Does recording slow the agent down?</summary>
+          <p>About 1.4% of wall clock, nearly all of it the signature at the tool boundary. The recorder never sits between the model and the network — it watches a copy and writes it out of band, so a slow collector costs you a tape, not a run.</p>
+        </details>
+        <details>
+          <summary><span class="qn">02</span> What happens to the tape afterwards?</summary>
+          <p>Full tape for thirty days, headers and metadata for a year, and an export to Parquet whenever you want it. On the annual plan the collector runs inside your own network and nothing leaves it at all.</p>
+        </details>
+        <details>
+          <summary><span class="qn">03</span> Can it record a run that has already failed?</summary>
+          <p>That is most of what it records. A halted run is the interesting one: the tape keeps everything up to the stop, including the step that caused it and the state the run was in when it happened.</p>
+        </details>
+        <details>
+          <summary><span class="qn">04</span> How big is a tape?</summary>
+          <p>The run above is twenty-four steps and about forty kilobytes compressed. Tool results dominate, so a run that reads a lot of files is larger than one that thinks a lot; a four-hundred-step run is still under a megabyte.</p>
+        </details>
+        <details>
+          <summary><span class="qn">05</span> Is any of this real?</summary>
+          <p>No. Spool is a fictional product built as a design demo, and the run, the models, the companies, the quotes, the timings and the prices were all invented for it. Nothing is recorded here and nothing leaves this page.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- closer ---------------- -->
+  <section class="band" id="closer">
+    <div class="band-inner closer">
+      <h2>Stop asking the agent what it did</h2>
+      <p>Play the tape back and watch it. The run is thirty-eight seconds long; you can read it in two minutes.</p>
+      <div class="closer-row">
+        <button class="mac-btn default" id="btnClose1">Play the run</button>
+        <button class="mac-btn" id="btnClose2">Read the field manual</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="sheet-footer">
+    <strong>SPOOL is a fictional product and this run never happened.</strong> The trace, the task, the models, the
+    timings, the token counts and the prices were all invented for this demo; nothing is recorded, and no data leaves the page.<br />
+    keys — space play/pause &nbsp;·&nbsp; &#8592;/&#8594; step &nbsp;·&nbsp; home/end &nbsp;·&nbsp; 1/2/3 speed &nbsp;·&nbsp; ? manual
+  </footer>
+</div>
+
+<!-- ======================= FIELD MANUAL ======================= -->
+<div class="overlay" id="helpOverlay">
+  <div class="panel" role="dialog" aria-modal="true" aria-label="About the recorder">
+    <div class="win-title">
+      <button class="win-box" id="btnCloseHelp" aria-label="Close the manual"></button>
+      <span class="win-title-text">ABOUT THE RECORDER</span>
+      <span class="win-title-spacer"></span>
+    </div>
+    <div class="article-body">
+      <span class="eyebrow">Field Manual · Section 1</span>
+      <div class="about-motifs" aria-hidden="true">
+        <span class="sunburst" style="width:40px;height:40px;animation-duration:20s"></span>
+        <div class="eyes"><span class="eye" style="width:18px;height:18px"></span><span class="eye dense" style="width:18px;height:18px"></span></div>
+      </div>
+      <p>An agent run is a sequence of decisions, and by the time anyone looks at it the only surviving witness is the model that made them. Ask it what happened and you get a summary — fluent, plausible, and written by the party under investigation. The tape is the alternative: the calls as they were issued, the results as they were returned, in order, with the clock running.</p>
+      <p class="keyline">think — what it decided to do<br/>tool — what it asked for, and what came back<br/>write — what it changed<br/>retry — what it had to do twice</p>
+      <p>Each step carries its latency, its tokens in and out, the running spend against the run's cap, and the state of the working context. Reasoning steps are cheap in wall clock and expensive in tokens; tool calls are the reverse; retries are where both go to die. Reading a run is mostly looking for the moment those two lines diverge.</p>
+      <p>This tape ends in a halt. On its last step the run tried to send the report it had just written, and the send was outside the policy it was given — a terminal stop, filed under 5.7.0. The work it did before that is still good; it is sitting in the draft, waiting for a person to press send.</p>
+      <p>Scrub the tape with a click or a drag, step with the arrow keys, play with space, and change speed with 1, 2 and 3. Every number on this page is invented.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   SPOOL — one run, wound onto tape. No dependencies, nothing
+   fetched, and every number below is invented.
+
+   The tape is the single source of truth: the total wall clock,
+   the token count, the spend and the axis labels are all summed
+   from STEPS at boot and written into the page, so a hand-typed
+   total can never drift away from the trace it describes.
+   ============================================================ */
+
+/* ---------- 1. THE RUN ----------
+   kind: think | tool | write | retry | halt
+   ms:   how long the step took
+   tin/tout: tokens billed in and out
+   ctx:  working context after the step, in tokens
+   state: what changed in the run's state, if anything */
+const STEPS = [
+  { kind:"think", title:"Plan the reconciliation", call:"reasoning · 1 candidate plan",
+    ms:2840, tin:1180, tout:320, ctx:1800, state:"no change",
+    note:"Reads the task, decides to pull both sides for September and join them on the invoice reference before looking at anything by hand." },
+  { kind:"tool", title:"Pull September invoices", call:"fetch_invoices(month=9, status=any)",
+    ms:1412, tin:1900, tout:80, ctx:9400, state:"+214 invoices",
+    note:"214 rows, 41 of them already marked paid. The whole result goes into context, which is the decision that everything after this step has to live with." },
+  { kind:"tool", title:"Pull the ledger side", call:"fetch_ledger(month=9)",
+    ms:1288, tin:2100, tout:76, ctx:18600, state:"+2,904 ledger rows",
+    note:"Two and a half times the size of the invoice set, because the ledger carries every line item rather than every document." },
+  { kind:"think", title:"Align the two schemas", call:"reasoning · schema mapping",
+    ms:3120, tin:8200, tout:640, ctx:20100, state:"no change",
+    note:"Works out that invoices key on inv_ref and the ledger on invoice_no, and decides — wrongly, as the next step shows — that both tables carry both columns." },
+  { kind:"tool", title:"Join invoices to ledger", call:"run_sql(JOIN ON i.invoice_no = l.invoice_no)",
+    ms:1902, tin:2400, tout:120, ctx:21200, state:"no change",
+    note:"The query is well formed and the column does not exist. The database says so in eleven words and the run has to spend a step reading them." },
+  { kind:"retry", title:"Column not found", call:"error · unknown column \"i.invoice_no\"",
+    ms:210, tin:900, tout:40, ctx:21600, state:"no change", bad:true,
+    note:"The first of two retries. Cheap in tokens, cheap in wall clock, and the only thing on the tape that says the plan was wrong." },
+  { kind:"think", title:"Repair the join", call:"reasoning · re-read the schema",
+    ms:2460, tin:9100, tout:410, ctx:23400, state:"no change",
+    note:"Goes back to the schema it already had in context and finds inv_ref. No new tool call — this is the repair working the way it should." },
+  { kind:"tool", title:"Join, second attempt", call:"run_sql(JOIN ON i.inv_ref = l.inv_ref)",
+    ms:2870, tin:2600, tout:140, ctx:28900, state:"+3,118 joined rows",
+    note:"Two point nine seconds, the slowest tool call in the run, and the one that produces everything the rest of it reasons about." },
+  { kind:"tool", title:"Diff the two sides", call:"diff_rows(invoices, ledger, on=amount)",
+    ms:224, tin:1400, tout:180, ctx:31200, state:"22 variances",
+    note:"Twenty-two rows where the amounts disagree. Out of 3,118 that is a good night, and it is the number the report is eventually written around." },
+  { kind:"think", title:"Group the variances", call:"reasoning · cluster by cause",
+    ms:3380, tin:12400, tout:880, ctx:34800, state:"4 groups",
+    note:"Sorts the twenty-two into four shapes: rounding, currency, timing, and three it cannot explain. The three unexplained ones are what a person actually wants." },
+  { kind:"tool", title:"Read the materiality policy", call:"open_file(policy/materiality.md)",
+    ms:118, tin:1100, tout:60, ctx:36100, state:"+policy in context",
+    note:"The cheapest call on the tape and the one that changes the answer most: it sets the threshold under which a variance is not worth anyone's morning." },
+  { kind:"think", title:"Apply the threshold", call:"reasoning · materiality at $250",
+    ms:2760, tin:13800, tout:720, ctx:39900, state:"9 above threshold",
+    note:"Nine of the twenty-two clear $250. The other thirteen stay in an appendix rather than being dropped, which is the correct instinct." },
+  { kind:"tool", title:"Re-query above threshold", call:"run_sql(WHERE ABS(delta) >= 250)",
+    ms:1342, tin:2200, tout:150, ctx:22400, state:"9 rows · context compacted",
+    note:"Context crossed its high-water mark here and the older tool results were summarised, which is why the window drops by half on the gauge beside this step." },
+  { kind:"write", title:"Draft the variance report", call:"write_file(variance_report.md, draft)",
+    ms:260, tin:3100, tout:1240, ctx:25800, state:"draft written",
+    note:"First artefact on disk. Everything before this step was reversible; from here the run has produced something a person would miss if it vanished." },
+  { kind:"think", title:"Check the three largest by hand", call:"reasoning · verify top 3",
+    ms:2980, tin:11200, tout:690, ctx:28400, state:"no change",
+    note:"Decides not to trust its own join for the three biggest numbers and to re-read those invoices at source. This is the most expensive good decision in the run." },
+  { kind:"tool", title:"Re-read INV-4471", call:"fetch_invoice(id=INV-4471)",
+    ms:182, tin:1300, tout:90, ctx:29100, state:"confirmed",
+    note:"Matches the join. $1,840.00 against a ledger line of $1,790.00, a fifty-dollar rounding difference that is real." },
+  { kind:"tool", title:"Re-read INV-4498", call:"fetch_invoice(id=INV-4498)",
+    ms:176, tin:1300, tout:88, ctx:29800, state:"confirmed",
+    note:"Also matches — and carries the same purchase order as INV-4471, which nothing has noticed yet." },
+  { kind:"tool", title:"Re-read INV-4512", call:"fetch_invoice(id=INV-4512)",
+    ms:2140, tin:1300, tout:40, ctx:30200, state:"no change", bad:true,
+    note:"Two seconds waiting, then 429. The invoice service rate-limits per minute and the three reads in a row crossed it." },
+  { kind:"retry", title:"Rate limited — backing off", call:"429 · retry-after 2.4s",
+    ms:2400, tin:400, tout:30, ctx:30400, state:"no change", bad:true,
+    note:"Six per cent of the run's wall clock spent waiting on a quota, which is the sort of thing you only find by looking at the tape." },
+  { kind:"tool", title:"Re-read INV-4512, second attempt", call:"fetch_invoice(id=INV-4512)",
+    ms:194, tin:1300, tout:92, ctx:31100, state:"confirmed",
+    note:"Goes through. All three of the largest variances survive verification at source." },
+  { kind:"think", title:"One variance is a duplicate", call:"reasoning · cross-check purchase orders",
+    ms:2640, tin:12800, tout:820, ctx:34600, state:"22 → 21 variances",
+    note:"Catches that INV-4498 and INV-4471 share a purchase order: the same invoice entered twice. The best finding of the run, and it came from reasoning, not a tool." },
+  { kind:"write", title:"Write the final report", call:"write_file(variance_report.md, final)",
+    ms:1410, tin:6400, tout:2100, ctx:38200, state:"report written",
+    note:"Twenty-one variances, nine material, one duplicate flagged for credit. Two pages, with the appendix, and it is sitting in the working directory right now." },
+  { kind:"think", title:"Decide to send it", call:"reasoning · choose a recipient",
+    ms:1980, tin:9800, tout:540, ctx:40100, state:"no change",
+    note:"Reads the task line again, decides that filing means sending, and picks the finance address out of the original brief. Nothing in the brief said it could send anything." },
+  { kind:"halt", title:"Send refused — outside policy", call:"send_report(to=finance@northgate.example)",
+    ms:112, tin:800, tout:40, ctx:40400, state:"run stopped", bad:true,
+    note:"Terminal halt, filed 5.7.0. The policy allows writes to the working directory and nothing else, so the send never left the process. The report is fine; it needs a person to press send." },
+];
+
+/* ---------- 2. DERIVED TOTALS ---------- */
+const TOTAL_MS = STEPS.reduce((a, s) => a + s.ms, 0);
+const AT = [];                                   // start time of each step
+STEPS.reduce((t, s, i) => { AT[i] = t; return t + s.ms; }, 0);
+const TOK = STEPS.map((s) => s.tin + s.tout);
+const MAX_TOK = Math.max(...TOK);
+const TOTAL_TOK = TOK.reduce((a, b) => a + b, 0);
+/* A published rate, applied to the tape, so the spend on the gauge and the
+   spend in the docket cannot disagree: $2.50 per million in, $10 per out. */
+const RATE_IN = 2.5 / 1e6, RATE_OUT = 10 / 1e6;
+const SPEND = [];
+STEPS.reduce((acc, s, i) => { const v = acc + s.tin*RATE_IN + s.tout*RATE_OUT; SPEND[i] = v; return v; }, 0);
+const TOTAL_SPEND = SPEND[SPEND.length - 1];
+const CTX_CAP = 128000, SPEND_CAP = 1.0;
+
+const fmtMs = (ms) => ms >= 1000 ? (ms/1000).toFixed(2) + "s" : Math.round(ms) + "ms";
+const fmtClock = (ms) => (ms/1000).toFixed(2).padStart(5, "0") + "s";
+const fmtTok = (n) => n.toLocaleString("en-US");
+const fmtK = (n) => (n/1000).toFixed(1) + "k";
+const pad2 = (n) => String(n).padStart(2, "0");
+const KIND_LABEL = { think:"REASONING", tool:"TOOL CALL", write:"WRITE", retry:"RETRY", halt:"TERMINAL HALT" };
+
+/* ---------- 3. STATE ---------- */
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const state = { t: 0, i: 0, playing: false, speed: 4, scrubbing: false, visible: true, focused: false };
+
+const els = {
+  tape: document.getElementById("tape"),
+  playhead: document.getElementById("playhead"),
+  clock: document.getElementById("clock"),
+  stepNo: document.getElementById("stepNo"),
+  stepBig: document.getElementById("stepBig"),
+  stepKind: document.getElementById("stepKind"),
+  stepTitle: document.getElementById("stepTitle"),
+  stepCall: document.getElementById("stepCall"),
+  stepNote: document.getElementById("stepNote"),
+  mLatency: document.getElementById("mLatency"),
+  mTokens: document.getElementById("mTokens"),
+  mSpend: document.getElementById("mSpend"),
+  mState: document.getElementById("mState"),
+  wfall: document.getElementById("wfall"),
+  gCtx: document.getElementById("gCtx"),
+  gSpend: document.getElementById("gSpend"),
+  gWall: document.getElementById("gWall"),
+  tlog: document.getElementById("tlog"),
+  tlogCount: document.getElementById("tlogCount"),
+  verdict: document.getElementById("verdictText"),
+  stats: document.getElementById("stats"),
+  btnPlay: document.getElementById("btnPlay"),
+  app: document.getElementById("app"),
+};
+
+const stepAt = (t) => {
+  for(let i = STEPS.length - 1; i >= 0; i--) if(t >= AT[i]) return i;
+  return 0;
+};
+
+/* ---------- 4. BUILD THE TAPE ----------
+   Block width is the step's share of the wall clock and block height is its
+   share of the tokens, so the two costs of a run — time and money — are the
+   two axes of the same picture. A wide short block is a slow cheap call; a
+   narrow tall one is the model thinking hard and fast. */
+function buildTape(){
+  STEPS.forEach((s, i) => {
+    const b = document.createElement("div");
+    b.className = "blk " + s.kind;
+    b.style.flexGrow = String(s.ms);
+    b.style.height = (10 + (TOK[i]/MAX_TOK)*74).toFixed(1) + "px";
+    b.title = `step ${pad2(i+1)} · ${s.title} · ${fmtMs(s.ms)} · ${fmtTok(TOK[i])} tokens`;
+    b.dataset.i = String(i);
+    els.tape.appendChild(b);
+  });
+}
+
+function buildTranscript(){
+  STEPS.forEach((s, i) => {
+    const row = document.createElement("div");
+    row.className = "tline" + (s.bad ? " bad" : "");
+    row.dataset.i = String(i);
+    const ix = document.createElement("span");
+    ix.className = "ix";
+    ix.textContent = pad2(i+1);
+    const tx = document.createElement("span");
+    tx.textContent = `${s.kind.padEnd(5, " ")} ${s.call}`;
+    row.append(ix, tx);
+    els.tlog.appendChild(row);
+  });
+}
+
+/* ---------- 5. RENDER ---------- */
+let lastI = -1;
+function render(){
+  const i = state.i;
+  const s = STEPS[i];
+
+  els.playhead.style.left = (state.t / TOTAL_MS * 100).toFixed(3) + "%";
+  els.clock.textContent = fmtClock(state.t);
+  els.stepNo.textContent = pad2(i+1);
+  els.tape.setAttribute("aria-valuenow", String(i+1));
+  els.tape.setAttribute("aria-valuetext", `step ${i+1}, ${s.title}`);
+
+  // the three rings and the tape's curve move continuously, so they are
+  // written every frame rather than on the step boundary
+  const ctxNow = s.ctx;
+  setRing("Ctx", ctxNow / CTX_CAP, ctxNow / CTX_CAP > 0.8);
+  els.gCtx.textContent = fmtK(ctxNow) + " / 128k";
+  const spendNow = SPEND[i];
+  setRing("Spend", spendNow / SPEND_CAP, false);
+  els.gSpend.textContent = "$" + spendNow.toFixed(3) + " / $1.00";
+  setRing("Wall", state.t / TOTAL_MS, state.t >= TOTAL_MS - 1);
+  els.gWall.textContent = fmtClock(state.t) + " / " + fmtClock(TOTAL_MS);
+  syncTape(state.t / TOTAL_MS);
+
+  if(i === lastI) return;        // the rest only changes on a step boundary
+  lastI = i;
+
+  els.stepBig.textContent = pad2(i+1);
+  els.stepKind.textContent = KIND_LABEL[s.kind];
+  els.stepKind.className = "badge " + (s.bad ? (s.kind === "halt" ? "halt" : "retry") : s.kind);
+  els.stepTitle.textContent = s.title;
+  els.stepCall.textContent = s.call;
+  els.stepNote.textContent = s.note;
+  els.mLatency.textContent = fmtMs(s.ms);
+  els.mLatency.className = "n" + (s.ms > 2000 ? " bad" : "");
+  els.mTokens.textContent = fmtTok(s.tin) + " / " + fmtTok(s.tout);
+  els.mSpend.textContent = "$" + SPEND[i].toFixed(3);
+  els.mState.textContent = s.state;
+  els.mState.className = "n" + (s.kind === "halt" ? " bad" : "");
+
+  els.tlogCount.textContent = pad2(i+1) + " / " + STEPS.length;
+  els.tlog.querySelectorAll(".tline").forEach((row) => {
+    const ri = Number(row.dataset.i);
+    row.classList.toggle("now", ri === i);
+    row.classList.toggle("seen", ri < i);
+  });
+  /* Keep the live line centred by setting scrollTop directly. scrollIntoView
+     would do it too — and would scroll the page and every scroll parent with
+     it, which inside the library's modal iframe yanks the whole demo. */
+  const live = els.tlog.querySelector(".tline.now");
+  if(live) els.tlog.scrollTop = live.offsetTop - els.tlog.clientHeight/2 + live.offsetHeight/2;
+
+  els.tape.querySelectorAll(".blk").forEach((b) => {
+    const bi = Number(b.dataset.i);
+    b.classList.toggle("future", bi > i);
+    b.classList.toggle("now", bi === i);
+  });
+
+  drawWaterfall(i);
+
+  if(s.kind === "halt"){
+    els.verdict.textContent = "5.7.0 action outside policy — terminal. The report it wrote is intact in the working directory; the send is what stopped, and a person has to make that call.";
+  } else if(s.bad){
+    els.verdict.textContent = "Recoverable: the run repaired this itself and carried on. It still cost " + fmtMs(s.ms) + " of the thirty-eight seconds.";
+  } else {
+    els.verdict.textContent = "The run halted on its last step. Play to the end to see what it tried to do.";
+  }
+}
+
+/* A window of eight steps around the head, drawn as a printed waterfall: the
+   bar starts where the step started and is as wide as the step took. */
+function drawWaterfall(i){
+  const N = 8;
+  const start = Math.max(0, Math.min(i - 3, STEPS.length - N));
+  const end = Math.min(STEPS.length, start + N);
+  const t0 = AT[start];
+  const t1 = AT[end-1] + STEPS[end-1].ms;
+  const span = t1 - t0 || 1;
+
+  const frag = document.createDocumentFragment();
+  for(let k = start; k < end; k++){
+    const s = STEPS[k];
+    const row = document.createElement("div");
+    row.className = "wf-row" + (k === i ? " now" : "");
+    const name = document.createElement("div");
+    name.className = "wf-name";
+    name.textContent = pad2(k+1) + " " + s.kind;
+    const track = document.createElement("div");
+    track.className = "wf-track";
+    const bar = document.createElement("div");
+    bar.className = "wf-bar " + s.kind;
+    bar.style.left = ((AT[k]-t0)/span*100).toFixed(2) + "%";
+    bar.style.width = Math.max(0.6, s.ms/span*100).toFixed(2) + "%";
+    track.appendChild(bar);
+    const ms = document.createElement("div");
+    ms.className = "wf-ms";
+    ms.textContent = fmtMs(s.ms);
+    row.append(name, track, ms);
+    frag.appendChild(row);
+  }
+  els.wfall.replaceChildren(frag);
+}
+
+/* ---------- 6. TRANSPORT ---------- */
+function seek(t, { pause = false } = {}){
+  state.t = Math.max(0, Math.min(TOTAL_MS, t));
+  state.i = stepAt(state.t);
+  if(pause) setPlaying(false);
+  render();
+}
+function toStep(i, opts){
+  const n = Math.max(0, Math.min(STEPS.length - 1, i));
+  seek(AT[n] + 1, opts);
+}
+function setPlaying(on){
+  // At the end, pressing play rewinds rather than doing nothing.
+  if(on && state.t >= TOTAL_MS - 1) state.t = 0;
+  state.playing = on;
+  els.btnPlay.textContent = on ? "PAUSE" : "PLAY";
+  els.btnPlay.classList.toggle("on", on);
+}
+function setSpeed(mult){
+  state.speed = mult;
+  document.querySelectorAll("[data-speed]").forEach((b) =>
+    b.classList.toggle("on", Number(b.dataset.speed) === mult));
+}
+
+let lastFrame = 0;
+function frame(now){
+  const dt = lastFrame ? now - lastFrame : 0;
+  lastFrame = now;
+  // A hidden tab or an off-screen deck gets no clock at all: this runs inside
+  // an iframe on the library page, sometimes several at once.
+  if(state.playing && !document.hidden && state.visible){
+    state.t += dt * state.speed;
+    if(state.t >= TOTAL_MS){ state.t = TOTAL_MS; setPlaying(false); }
+    state.i = stepAt(state.t);
+    render();
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- 7. SCRUBBING ---------- */
+function tFromEvent(ev){
+  const r = els.tape.getBoundingClientRect();
+  return ((ev.clientX - r.left) / r.width) * TOTAL_MS;
+}
+els.tape.addEventListener("pointerdown", (ev) => {
+  state.scrubbing = true;
+  els.tape.setPointerCapture(ev.pointerId);
+  seek(tFromEvent(ev), { pause: true });
+});
+els.tape.addEventListener("pointermove", (ev) => {
+  if(state.scrubbing) seek(tFromEvent(ev));
+});
+const endScrub = () => { state.scrubbing = false; };
+els.tape.addEventListener("pointerup", endScrub);
+els.tape.addEventListener("pointercancel", endScrub);
+els.tape.addEventListener("keydown", (ev) => {
+  if(ev.key === "ArrowLeft"){ ev.preventDefault(); toStep(state.i - 1, { pause: true }); }
+  else if(ev.key === "ArrowRight"){ ev.preventDefault(); toStep(state.i + 1, { pause: true }); }
+  else if(ev.key === " " || ev.key === "Enter"){ ev.preventDefault(); setPlaying(!state.playing); }
+});
+
+/* ---------- 7b. THE RINGS ----------
+   Same mechanic as the line, bent into a circle: measure the path once,
+   use its length as the dash array, and move the offset back toward zero
+   as the value rises. The centre number is written from the same call so
+   the ring and the digits can never disagree. */
+const RINGS = {};
+function ring(id){
+  if(RINGS[id]) return RINGS[id];
+  const host = document.getElementById("ring" + id);
+  if(!host) return null;
+  const fg = host.querySelector(".ring-fg");
+  const len = fg.getTotalLength();
+  fg.style.strokeDasharray = len;
+  fg.style.strokeDashoffset = len;
+  RINGS[id] = { host, fg, len, pct: document.getElementById("pct" + id) };
+  return RINGS[id];
+}
+function setRing(id, frac, bad){
+  const r = ring(id);
+  if(!r) return;
+  const f = Math.max(0, Math.min(1, frac));
+  r.fg.style.strokeDashoffset = r.len * (1 - f);
+  r.pct.textContent = Math.round(f * 100) + "%";
+  r.host.classList.toggle("bad", !!bad);
+}
+
+/* ---------- 8. THE CHARTS ----------
+   One routine draws every chart on the page, in the manner of the stats
+   reference: sample the run, lay a faint grid, build the area polygon and
+   the line, then hand both to CSS by setting the dash length and the clip
+   width. The line runs its own stroke-dashoffset to zero while the clip
+   rectangle slides across underneath it — 1.3s linear for both, so the
+   fill never arrives before the stroke that defines it. */
+function drawChart(svg, values, opts){
+  if(!svg) return;
+  const o = Object.assign({ w:240, h:40, pad:3, grid:false, dot:false, still:false }, opts || {});
+  const max = Math.max(...values), min = Math.min(...values);
+  const span = (max - min) || 1;
+  const pts = values.map((v, i) => ({
+    x: values.length > 1 ? (i / (values.length - 1)) * o.w : 0,
+    y: o.h - o.pad - ((v - min) / span) * (o.h - o.pad * 2)
+  }));
+
+  if(o.grid){
+    const g = svg.querySelector(".chart-grid");
+    if(g && !g.childElementCount){
+      const line = (x1,y1,x2,y2) => {
+        const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        l.setAttribute("x1", x1); l.setAttribute("y1", y1);
+        l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+        g.appendChild(l);
+      };
+      for(let i = 0; i <= 5; i++) line(0, i*o.h/5, o.w, i*o.h/5);
+      for(let i = 0; i <= values.length - 1; i++) line(i*o.w/(values.length-1), 0, i*o.w/(values.length-1), o.h);
+    }
+  }
+
+  const d = pts.map((p, i) => (i ? "L" : "M") + p.x.toFixed(2) + "," + p.y.toFixed(2)).join(" ");
+  const path = svg.querySelector(".chart-line");
+  path.setAttribute("d", d);
+  const len = path.getTotalLength();
+  path.style.strokeDasharray = len;
+  path.style.strokeDashoffset = REDUCED ? 0 : len;
+
+  const area = svg.querySelector(".chart-area");
+  if(area) area.setAttribute("points",
+    pts.map(p => p.x.toFixed(2) + "," + p.y.toFixed(2)).join(" ") + " " + o.w + "," + o.h + " 0," + o.h);
+
+  const dot = svg.querySelector(".chart-dot");
+  if(dot){
+    const last = pts[pts.length - 1];
+    dot.setAttribute("cx", last.x); dot.setAttribute("cy", last.y);
+    dot.style.opacity = REDUCED ? 1 : 0;
+  }
+
+  svg.style.setProperty("--clipw", o.w + "px");
+  if(!o.still && !REDUCED) requestAnimationFrame(() => svg.classList.add("drawing"));
+  return pts;
+}
+
+/* The count-up the reference runs under its charts: the docket's totals
+   arrive the same way the line does rather than being there already. */
+function countUp(el, to, fmt){
+  if(!el) return;
+  if(REDUCED){ el.textContent = fmt(to); return; }
+  const t0 = performance.now(), dur = 1300;
+  (function step(now){
+    const p = Math.min(1, (now - t0) / dur);
+    el.textContent = fmt(to * p);
+    if(p < 1) requestAnimationFrame(step);
+  })(performance.now());
+}
+
+let heroDrawn = false;
+function drawHero(){
+  if(heroDrawn) return;
+  heroDrawn = true;
+  drawChart(document.getElementById("heroChart"), TOK, { w:240, h:40, pad:4, grid:true, dot:true });
+  const dd = document.querySelectorAll(".docket dd");
+  if(dd.length >= 6){
+    countUp(dd[4], TOTAL_TOK, (v) => fmtTok(Math.round(v)));
+    countUp(dd[5], TOTAL_SPEND, (v) => "$" + v.toFixed(2));
+  }
+}
+
+/* The tape's curve is the running spend, and unlike the hero it is not a
+   one-off: syncTape walks the same dash offset and the same clip with the
+   playhead, so the chart builds as the run plays and jumps with you when
+   you scrub. The mechanic is the reference's; only the clock is different. */
+let tapeChart = null, tapeLen = 0, tapePts = null;
+function drawTapeChart(){
+  if(tapeChart) return;
+  const svg = document.getElementById("tapeChart");
+  if(!svg) return;
+  tapePts = drawChart(svg, SPEND, { w:100, h:100, pad:7, grid:true, still:true });
+  tapeChart = svg;
+  tapeLen = svg.querySelector(".chart-line").getTotalLength();
+  syncTape(state.t / TOTAL_MS);
+}
+function syncTape(p){
+  if(!tapeChart) return;
+  const f = Math.max(0, Math.min(1, p));
+  tapeChart.querySelector(".chart-line").style.strokeDashoffset = tapeLen * (1 - f);
+  const clip = document.querySelector("#tapeClip .chart-clip");
+  if(clip) clip.setAttribute("transform", "translate(" + (100 * f).toFixed(2) + ",0)");
+  const dot = tapeChart.querySelector(".chart-dot");
+  if(dot && tapePts && tapePts.length){
+    const at = tapePts[Math.min(tapePts.length - 1, Math.round(f * (tapePts.length - 1)))];
+    dot.setAttribute("cx", at.x); dot.setAttribute("cy", at.y);
+    dot.style.opacity = f > 0.01 ? 1 : 0;
+  }
+}
+
+function buildComb(el, count){
+  if(!el) return;
+  const widths = [38,72,54,132,26,98,44,120,60,84,32,110];
+  for(let i = 0; i < count; i++){
+    const bar = document.createElement("i");
+    bar.style.width = widths[i % widths.length] + "px";
+    el.appendChild(bar);
+  }
+}
+buildComb(document.getElementById("combBars"), 10);
+buildComb(document.getElementById("combBars2"), 10);
+
+/* ---------- 9. THE PAGE ---------- */
+function goTo(sel, { play = false } = {}){
+  const target = document.querySelector(sel);
+  if(target) target.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "start" });
+  if(play && !REDUCED){ seek(1); setPlaying(true); }
+}
+document.getElementById("enterBtn").addEventListener("click", () => goTo("#player", { play:true }));
+document.getElementById("skipBtn").addEventListener("click", () => goTo("#product"));
+document.getElementById("navCta").addEventListener("click", () => goTo("#player", { play:true }));
+document.getElementById("btnCover").addEventListener("click", () => { setPlaying(false); goTo("#top"); });
+
+const navLinks = document.getElementById("navLinks");
+const navBurger = document.getElementById("navBurger");
+const closeNav = () => { navLinks.classList.remove("open"); navBurger.setAttribute("aria-expanded", "false"); };
+navBurger.addEventListener("click", () => {
+  const open = navLinks.classList.toggle("open");
+  navBurger.setAttribute("aria-expanded", String(open));
+});
+navLinks.addEventListener("click", (ev) => { if(ev.target.tagName === "A") closeNav(); });
+
+/* ---------- 10. THE MANUAL ---------- */
+const helpOverlay = document.getElementById("helpOverlay");
+const openHelp = () => helpOverlay.classList.add("open");
+const closeHelp = () => helpOverlay.classList.remove("open");
+document.getElementById("btnHelp").addEventListener("click", openHelp);
+document.getElementById("btnCloseHelp").addEventListener("click", closeHelp);
+helpOverlay.addEventListener("click", (ev) => { if(ev.target === helpOverlay) closeHelp(); });
+
+/* ---------- 11. RECORDING SNIPPETS ---------- */
+const SNIPPETS = {
+  py: `from spool import record
+
+@record(project="finance-agent")
+def run(task):
+    return agent.loop(task)
+
+# every run is on tape from here:
+#   spool open 4f2a1c           play it back
+#   spool diff 4f2a1c 91be07    read two runs side by side`,
+  ts: `import { record } from "@spool/sdk";
+
+export const run = record({ project: "finance-agent" }, async (task) => {
+  return agent.loop(task);
+});
+
+// the tape rides on the result:
+//   run.tape.steps   24
+//   run.tape.halt    "5.7.0"`,
+  sh: `$ spool open 4f2a1c --at 18
+
+  step 18  tool   fetch_invoice(INV-4512)    429    2140 ms
+  step 19  retry  rate limited, backoff 2.4s   --   2400 ms
+  step 20  tool   fetch_invoice(INV-4512)     ok     194 ms
+
+$ spool export 4f2a1c --format parquet`,
+};
+function highlight(src){
+  const esc = src.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return esc
+    .replace(/\b([45]\.\d\.\d|429)\b/g, '<span class="s">$1</span>')
+    .replace(/\b(from|import|def|return|export|const|async|await|function)\b/g, '<span class="k">$1</span>')
+    .replace(/^([ \t]*(?:#|\/\/).*)$/gm, '<span class="c">$1</span>');
+}
+function setLang(lang){
+  document.getElementById("codeBody").innerHTML = highlight(SNIPPETS[lang] || SNIPPETS.py);
+  document.querySelectorAll(".code-tab").forEach((t) => t.classList.toggle("on", t.dataset.lang === lang));
+}
+document.querySelectorAll(".code-tab").forEach((t) => {
+  t.addEventListener("click", () => setLang(t.dataset.lang));
+});
+
+/* ---------- 12. WIRE UP ---------- */
+document.getElementById("btnPlay").addEventListener("click", () => setPlaying(!state.playing));
+document.getElementById("btnPrev").addEventListener("click", () => toStep(state.i - 1, { pause: true }));
+document.getElementById("btnNext").addEventListener("click", () => toStep(state.i + 1, { pause: true }));
+document.getElementById("btnStart").addEventListener("click", () => seek(0, { pause: true }));
+document.getElementById("btnEnd").addEventListener("click", () => toStep(STEPS.length - 1, { pause: true }));
+document.querySelectorAll("[data-speed]").forEach((b) => {
+  b.addEventListener("click", () => setSpeed(Number(b.dataset.speed)));
+});
+const toDeck = () => {
+  document.getElementById("deck").scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "start" });
+};
+document.getElementById("btnClose1").addEventListener("click", () => { toDeck(); if(!REDUCED) setPlaying(true); });
+document.getElementById("btnClose2").addEventListener("click", openHelp);
+document.getElementById("btnStartFree").addEventListener("click", toDeck);
+document.getElementById("btnTalk").addEventListener("click", openHelp);
+
+document.addEventListener("keydown", (ev) => {
+  if(ev.key === "Escape"){ closeHelp(); closeNav(); return; }
+  // Only while the deck is the thing on screen — see the observer below.
+  if(!state.focused) return;
+  if(ev.target === els.tape) return;               // the tape handles its own keys
+  if(ev.target.closest("summary, input, textarea, select")) return;
+  if(ev.key === " "){ ev.preventDefault(); setPlaying(!state.playing); }
+  else if(ev.key === "ArrowLeft"){ ev.preventDefault(); toStep(state.i - 1, { pause: true }); }
+  else if(ev.key === "ArrowRight"){ ev.preventDefault(); toStep(state.i + 1, { pause: true }); }
+  else if(ev.key === "Home"){ ev.preventDefault(); seek(0, { pause: true }); }
+  else if(ev.key === "End"){ ev.preventDefault(); toStep(STEPS.length - 1, { pause: true }); }
+  else if(ev.key === "1") setSpeed(1);
+  else if(ev.key === "2") setSpeed(4);
+  else if(ev.key === "3") setSpeed(16);
+  else if(ev.key === "?"){ ev.preventDefault(); openHelp(); }
+});
+
+/* Two thresholds, two jobs: any sliver of the deck on screen keeps the clock
+   running, and 40% of it on screen is what binds the keyboard shortcuts and
+   starts the run playing the first time you scroll to it. */
+let introDone = false;
+if("IntersectionObserver" in window){
+  let started = false;
+  new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      state.visible = en.intersectionRatio > 0;
+      state.focused = en.intersectionRatio >= 0.4;
+      if(state.focused && !introDone){
+        introDone = true;
+        drawTapeChart();
+        const g = document.getElementById("gauges");
+        if(g && !REDUCED){
+          g.classList.add("intro");
+          setTimeout(() => g.classList.remove("intro"), 1500);
+        }
+        render();
+      }
+      if(state.focused && !started && !REDUCED){ started = true; setPlaying(true); }
+    });
+  }, { threshold: [0, 0.4] }).observe(document.getElementById("deck"));
+
+  // the hero chart draws itself the first time the strip is on screen
+  new IntersectionObserver((entries, obs) => {
+    entries.forEach((en) => { if(en.isIntersecting){ drawHero(); obs.disconnect(); } });
+  }, { rootMargin: "100px" }).observe(document.querySelector(".tape-strip"));
+} else {
+  state.focused = true;
+}
+
+/* ---------- 12b. THE COMPARISON SHEET ----------
+   One column is this run, summed from STEPS; the other is the second run,
+   which is fiction and says so in the footer. The delta is computed, and
+   which direction counts as worse is per row — spending less is good, and
+   taking 71% more steps to get there is not. */
+function buildCompare(){
+  const body = document.getElementById("cmpBody");
+  if(!body) return;
+  const tools = STEPS.filter((s) => s.kind === "tool").length;
+  const pct = (a, b) => (b - a) / a * 100;
+  const rows = [
+    { l:"Steps",              a:STEPS.length, b:41,     f:(v)=>String(v) },
+    { l:"Tool calls",         a:tools,        b:26,     f:(v)=>String(v) },
+    { l:"Repeated calls",     a:1,            b:9,      f:(v)=>String(v) },
+    { l:"Tokens",             a:TOTAL_TOK,    b:206880, f:fmtTok },
+    { l:"Spend",              a:TOTAL_SPEND,  b:0.19,   f:(v)=>"$" + v.toFixed(2) },
+    { l:"Wall clock",         a:TOTAL_MS,     b:71200,  f:fmtClock },
+    { l:"Variances reported", a:21,           b:21,     f:(v)=>String(v) },
+    { l:"Outcome",            text:true, a:"halted 5.7.0", b:"halted 5.7.0", d:"same", bad:true },
+  ];
+  const frag = document.createDocumentFragment();
+  rows.forEach((r) => {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th");
+    th.scope = "row";
+    th.textContent = r.l;
+    const a = document.createElement("td");
+    const b = document.createElement("td");
+    const d = document.createElement("td");
+    if(r.text){
+      a.textContent = r.a; b.textContent = r.b; d.textContent = r.d;
+      a.className = b.className = "bad";
+    } else {
+      a.textContent = r.f(r.a);
+      b.textContent = r.f(r.b);
+      const p = pct(r.a, r.b);
+      d.textContent = Math.abs(p) < 0.5 ? "0" : (p > 0 ? "+" : "\u2212") + Math.round(Math.abs(p)) + "%";
+      // On every row here more is worse, including spend: the cheap model's
+      // −48% is the one green number on the sheet, and it cost 85% more wall.
+      if(Math.abs(p) >= 0.5) d.className = p > 0 ? "bad" : "good";
+    }
+    tr.append(th, a, b, d);
+    frag.appendChild(tr);
+  });
+  body.replaceChildren(frag);
+}
+
+/* ---------- 13. INIT ---------- */
+buildTape();
+buildTranscript();
+setLang("py");
+
+/* Every total on the page is written from the tape, so nothing can drift. */
+els.stats.textContent =
+  `${STEPS.length} STEPS · ${STEPS.filter(s => s.kind === "tool").length} TOOL CALLS · ` +
+  `${fmtTok(TOTAL_TOK)} TOKENS · $${TOTAL_SPEND.toFixed(2)} · ${fmtClock(TOTAL_MS)}`;
+document.querySelectorAll("[data-total-ms]").forEach((el) => { el.textContent = fmtClock(TOTAL_MS); });
+{
+  const axis = document.querySelector(".tape-axis");
+  if(axis){
+    axis.children[0].textContent = fmtClock(0);
+    axis.children[1].textContent = fmtClock(TOTAL_MS/2);
+    axis.children[2].textContent = fmtClock(TOTAL_MS);
+  }
+  buildCompare();
+  const clockLine = document.querySelector(".tp-clock");
+  if(clockLine) clockLine.innerHTML =
+    `t <b id="clock">00.00s</b> / ${fmtClock(TOTAL_MS)} &nbsp;·&nbsp; step <b id="stepNo">01</b>/${STEPS.length}`;
+  els.clock = document.getElementById("clock");
+  els.stepNo = document.getElementById("stepNo");
+  const dd = document.querySelectorAll(".docket dd");
+  if(dd.length >= 7){
+    dd[2].textContent = String(STEPS.length);
+    dd[3].textContent = STEPS.filter(s => s.kind === "tool").length + " calls";
+    dd[4].textContent = fmtTok(TOTAL_TOK);
+    dd[5].textContent = "$" + TOTAL_SPEND.toFixed(2);
+    dd[6].textContent = fmtClock(TOTAL_MS);
+  }
+  const cap = document.querySelector(".tape-cap.right");
+  if(cap) cap.textContent = "halted at " + fmtClock(TOTAL_MS);
+}
+
+seek(0);
+setSpeed(4);
+requestAnimationFrame(frame);
+
+if(REDUCED){
+  // No autoplay and nothing drawing itself: the charts are laid out fully
+  // formed and the run sits at its halt, which is the frame that says most.
+  toStep(STEPS.length - 1);
+  drawHero();
+  drawTapeChart();
+  render();
+}
+</script>
+</body>
+</html>

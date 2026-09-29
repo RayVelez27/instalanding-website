@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CRAFT® — Digital Design Experience</title>
+<meta name="description" content="Single-file studio landing page: a WebGL glass torus knot refracting giant type, scroll-linked storytelling, services, work, numbers and contact." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+
+<style>
+:root {
+  --bg: #e9e9e7;
+  --paper: #f3f3f1;
+  --ink: #111111;
+  --mute: rgba(17, 17, 17, 0.55);
+  --line: rgba(17, 17, 17, 0.14);
+  /* The only accent: the dispersion spectrum the glass knot throws */
+  --prism: linear-gradient(90deg, #ff3b3b, #ffb000, #2fd27a, #1e90ff, #a24bff);
+  --ease: cubic-bezier(0.7, 0, 0.2, 1);
+  --pad: 40px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter Tight", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--ink); color: var(--bg); }
+
+#scene {
+  position: fixed;
+  inset: 0;
+  display: block;
+}
+
+/* Shown only when WebGL is unavailable: the headline as real type */
+.hero-fallback {
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: clamp(56px, 15vw, 260px);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.no-webgl .hero-fallback { display: flex; }
+.no-webgl #scene { display: none; }
+
+/* White + difference renders as ink on light sections and paper on dark ones */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px var(--pad);
+  z-index: 20;
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+.nav__logo {
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+}
+
+.nav__links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav__links a {
+  color: inherit;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  transition: opacity 0.25s ease;
+}
+
+.nav__links a:hover,
+.nav__links a:focus-visible {
+  opacity: 1;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.meta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px var(--pad);
+  z-index: 2;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  pointer-events: none;
+}
+.meta__scroll { display: inline-flex; align-items: center; gap: 10px; }
+.meta__scroll::after {
+  content: "";
+  width: 1px;
+  height: 22px;
+  background: currentColor;
+  transform-origin: top;
+  animation: drip 1.8s var(--ease) infinite;
+}
+@keyframes drip {
+  0% { transform: scaleY(0); }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* ================= Content: sections slide up over the fixed scene ================= */
+main { position: relative; z-index: 1; }
+.hero-spacer { height: 100vh; height: 100svh; }
+
+.section {
+  position: relative;
+  padding: 140px var(--pad);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+
+.label {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 56px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.label span:first-child { color: var(--ink); }
+
+.display {
+  font-weight: 900;
+  font-size: clamp(56px, 12vw, 220px);
+  line-height: 0.84;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+}
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding-bottom: 4px;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+  transition: background-size 0.4s var(--ease);
+}
+.link-arrow:hover { background-size: 0 1px; background-position: 100% 100%; }
+
+/* ---------- 01 Studio: statement lights up word by word as you scroll ---------- */
+.statement {
+  max-width: 1280px;
+  font-size: clamp(30px, 4.6vw, 76px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+.statement .w { opacity: 0.14; transition: opacity 0.25s linear; }
+.statement .w.is-lit { opacity: 1; }
+.statement em {
+  font-style: normal;
+  background: var(--prism);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.intro-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-top: 88px;
+}
+.intro-foot p { max-width: 360px; font-size: 15px; line-height: 1.55; color: var(--mute); }
+
+/* ---------- 02 Capabilities ---------- */
+.svc { list-style: none; border-top: 1px solid var(--ink); }
+.svc-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 80px 1fr minmax(0, 380px) 48px;
+  align-items: center;
+  gap: 24px;
+  padding: 34px 0;
+  border-bottom: 1px solid var(--ink);
+  overflow: hidden;
+  isolation: isolate;
+  cursor: default;
+}
+/* ink wipe from the bottom on hover */
+.svc-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ink);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.55s var(--ease);
+}
+.svc-row:hover::before { transform: scaleY(1); }
+.svc-row > * { transition: color 0.4s var(--ease), translate 0.55s var(--ease); }
+.svc-row:hover > * { color: var(--bg); }
+.svc-row:hover h3 { translate: 18px 0; }
+.svc-num { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; }
+.svc-row h3 { font-size: clamp(32px, 5.4vw, 92px); font-weight: 900; line-height: 0.9; letter-spacing: -0.04em; text-transform: uppercase; }
+.svc-row p { font-size: 15px; line-height: 1.5; color: var(--mute); }
+.svc-row:hover p { color: rgba(233, 233, 231, 0.7); }
+.svc-arrow { justify-self: end; font-size: 28px; transition: rotate 0.55s var(--ease), color 0.4s; }
+.svc-row:hover .svc-arrow { rotate: 45deg; }
+
+/* ---------- 03 Selected work ---------- */
+.work-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 64px; flex-wrap: wrap; }
+.work-head .display { font-size: clamp(56px, 10vw, 180px); }
+.work-count { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 88px 24px;
+}
+.project { color: var(--ink); text-decoration: none; display: block; }
+.project:nth-child(1) { grid-column: 1 / span 7; }
+.project:nth-child(2) { grid-column: 9 / span 4; margin-top: 180px; }
+.project:nth-child(3) { grid-column: 2 / span 4; margin-top: 120px; }
+.project:nth-child(4) { grid-column: 7 / span 6; }
+.cover {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--paper);
+  container-type: size;
+}
+.project:nth-child(2) .cover,
+.project:nth-child(3) .cover { aspect-ratio: 4 / 5; }
+.cover-art { position: absolute; inset: 0; transition: scale 1.1s var(--ease); }
+.project:hover .cover-art { scale: 1.05; }
+.project-meta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 16px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ink);
+}
+.project-meta h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.project-meta span { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.project-meta .year { grid-row: 1; grid-column: 2; align-self: center; color: var(--ink); }
+
+/* Procedural covers, one composition each, monochrome + prism */
+.art-nova { background: var(--ink); }
+.art-nova::before {
+  content: "N";
+  position: absolute;
+  left: 6%;
+  bottom: -30%;
+  font-size: 118cqh;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(233, 233, 231, 0.9);
+}
+.art-nova::after {
+  content: "";
+  position: absolute;
+  right: 12%;
+  top: 16%;
+  width: 34%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(from 90deg, #ff3b3b, #ffb000, #2fd27a, #1e90ff, #a24bff, #ff3b3b);
+  -webkit-mask: radial-gradient(closest-side, transparent 86%, #000 87%);
+  mask: radial-gradient(closest-side, transparent 86%, #000 87%);
+  animation: spin 14s linear infinite;
+}
+@keyframes spin { to { rotate: 360deg; } }
+.art-halo {
+  background:
+    radial-gradient(circle at center, var(--ink) 0 3px, transparent 3.5px) 0 0 / 28px 28px,
+    var(--paper);
+}
+.art-halo::after {
+  content: "";
+  position: absolute;
+  inset: 22% 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #d8d8d4 45%, #9c9c98 100%);
+  box-shadow: 0 40px 60px -20px rgba(0, 0, 0, 0.35);
+}
+.art-lumen {
+  background: repeating-linear-gradient(-45deg, var(--ink) 0 22px, var(--bg) 22px 44px);
+}
+.art-lumen::after {
+  content: "LUMEN";
+  position: absolute;
+  inset: auto 0 10% 0;
+  display: grid;
+  place-items: center;
+  padding: 14px 0;
+  background: var(--bg);
+  font-size: clamp(28px, 4vw, 56px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+.art-orbit { background: #cfcfcc; }
+.art-orbit::before,
+.art-orbit::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+.art-orbit::before { width: 78%; aspect-ratio: 1; border: 1px solid var(--ink); }
+.art-orbit::after {
+  width: 26%;
+  aspect-ratio: 1;
+  background: var(--prism);
+  filter: blur(0.5px);
+  box-shadow: 0 0 80px 10px rgba(30, 144, 255, 0.35);
+  animation: drift 7s ease-in-out infinite alternate;
+}
+@keyframes drift { to { translate: -20% -80%; } }
+
+/* ---------- 04 Numbers (dark) ---------- */
+.numbers { background: var(--ink); color: var(--bg); border-top: 0; }
+.numbers .label { color: rgba(233, 233, 231, 0.55); }
+.numbers .label span:first-child { color: var(--bg); }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(233, 233, 231, 0.2); }
+.stat { padding: 28px 24px 0 0; }
+.stat + .stat { padding-left: 24px; border-left: 1px solid rgba(233, 233, 231, 0.2); }
+.stat-num { display: block; font-size: clamp(64px, 9vw, 160px); font-weight: 900; line-height: 0.9; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.stat-label { display: block; margin-top: 14px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(233, 233, 231, 0.6); }
+.quote {
+  max-width: 1100px;
+  margin: 140px 0 0 auto;
+  font-size: clamp(26px, 3.4vw, 54px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.quote-by { display: block; margin-top: 28px; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(233, 233, 231, 0.6); }
+.clients {
+  display: flex;
+  gap: 64px;
+  margin: 140px calc(var(--pad) * -1) 0;
+  padding: 28px 0;
+  border-block: 1px solid rgba(233, 233, 231, 0.2);
+  overflow: hidden;
+}
+.clients-track {
+  display: flex;
+  flex-shrink: 0;
+  gap: 64px;
+  min-width: 100%;
+  justify-content: space-around;
+  animation: marquee 30s linear infinite;
+}
+.clients:hover .clients-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(calc(-100% - 64px)); } }
+.clients-track span { font-size: clamp(28px, 3.4vw, 52px); font-weight: 900; letter-spacing: -0.04em; text-transform: uppercase; white-space: nowrap; opacity: 0.85; }
+.clients-track span:nth-child(3n + 2) { font-weight: 400; letter-spacing: -0.02em; text-transform: none; }
+
+/* ---------- 05 Contact ---------- */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: end; }
+.mail {
+  display: inline-block;
+  margin-top: 40px;
+  color: var(--ink);
+  font-size: clamp(22px, 2.6vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  background: linear-gradient(var(--ink), var(--ink)) 0 100% / 100% 2px no-repeat;
+  padding-bottom: 6px;
+  transition: color 0.3s;
+}
+.mail:hover { background-image: var(--prism); background-clip: text; -webkit-background-clip: text; color: transparent; background-size: 100% 100%; }
+.brief { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 24px; }
+.field { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.field--full { grid-column: 1 / -1; }
+.field > span { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 500 18px "Inter Tight", sans-serif;
+  outline: none;
+  resize: none;
+}
+.field textarea { height: 96px; }
+.field input:focus,
+.field textarea:focus { border-bottom-width: 2px; padding-bottom: 9px; }
+.field.is-invalid input,
+.field.is-invalid textarea { border-bottom-color: #d12b2b; }
+.field .err { min-height: 16px; font-size: 12px; color: #d12b2b; }
+.budget { display: flex; flex-wrap: wrap; gap: 8px; border: 0; }
+.budget legend { margin-bottom: 10px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.budget label { position: relative; }
+.budget input { position: absolute; opacity: 0; }
+.budget span {
+  display: inline-block;
+  padding: 10px 18px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+.budget input:checked + span { background: var(--ink); color: var(--bg); }
+.budget input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 3px; }
+.brief-foot { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.brief-status { font-size: 14px; font-weight: 500; }
+.send {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--bg);
+  font: 700 13px "Inter Tight", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition: scale 0.4s var(--ease);
+}
+.send::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--prism);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.send:hover { scale: 1.06; }
+.send:hover::before { opacity: 1; }
+.send:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.send[disabled] { cursor: progress; }
+
+/* ---------- Footer ---------- */
+.footer { position: relative; z-index: 1; padding: 80px var(--pad) 28px; background: var(--bg); border-top: 1px solid var(--line); overflow: hidden; }
+.footer-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-bottom: 72px; }
+.footer-cols h4 { margin-bottom: 14px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.footer-cols p, .footer-cols a { display: block; font-size: 15px; font-weight: 500; line-height: 1.6; color: var(--ink); text-decoration: none; }
+.footer-cols a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.clock { font-variant-numeric: tabular-nums; }
+.wordmark {
+  font-weight: 900;
+  font-size: 30.5vw;
+  line-height: 0.76;
+  letter-spacing: -0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-left: -0.04em;
+}
+.wordmark sup { font-size: 0.18em; vertical-align: top; letter-spacing: 0; margin-left: 0.04em; }
+.footer-bottom { display: flex; justify-content: space-between; margin-top: 28px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); }
+.footer-bottom a { color: inherit; text-decoration: none; }
+
+/* ---------- Cursor (fine pointers only) ---------- */
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  opacity: 0;
+  transition: width 0.4s var(--ease), height 0.4s var(--ease), margin 0.4s var(--ease), opacity 0.3s;
+  font-size: 0;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #000;
+}
+.cursor.is-on { opacity: 1; }
+.cursor.is-view { width: 96px; height: 96px; margin: -48px 0 0 -48px; font-size: 12px; }
+@media (hover: none) { .cursor { display: none; } }
+
+/* ---------- Reveals ---------- */
+.reveal { opacity: 0; translate: 0 40px; transition: opacity 1s var(--ease), translate 1s var(--ease); }
+.reveal.is-in { opacity: 1; translate: 0 0; }
+
+@media (max-width: 900px) {
+  :root { --pad: 22px; }
+  .section { padding: 96px var(--pad); }
+  .svc-row { grid-template-columns: 48px 1fr 32px; }
+  .svc-row p { grid-column: 2 / -1; grid-row: 2; }
+  .work-grid { grid-template-columns: 1fr; gap: 56px; }
+  .project:nth-child(n) { grid-column: 1 / -1; margin-top: 0; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stat:nth-child(3) { padding-left: 0; border-left: 0; }
+  .stat:nth-child(n + 3) { margin-top: 40px; }
+  .contact-grid { grid-template-columns: 1fr; gap: 56px; }
+  .footer-cols { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .nav,
+  .meta {
+    padding: 20px 22px;
+  }
+
+  .nav__links {
+    gap: 18px;
+  }
+  .brief { grid-template-columns: 1fr; }
+  .send { width: 104px; height: 104px; }
+  .quote { margin-top: 96px; }
+  .clients, .quote { margin-top: 96px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; translate: none; }
+  .statement .w { opacity: 1; }
+  .clients-track, .art-nova::after, .art-orbit::after, .meta__scroll::after { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="hero-fallback" aria-hidden="true"><span>Digital</span><span>Design</span><span>Experience</span></div>
+
+<h1 id="headline" class="sr-only">
+  <span>Digital</span>
+  <span>Design</span>
+  <span>Experience</span>
+</h1>
+
+<nav class="nav" aria-label="Primary">
+  <a class="nav__logo" href="#top">CRAFT&reg;</a>
+  <ul class="nav__links">
+    <li><a href="#work">Work</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="meta" aria-hidden="true">
+  <span>Milano &mdash; 2026</span>
+  <span class="meta__scroll">Scroll to explore</span>
+</div>
+
+<main id="top">
+  <div class="hero-spacer" aria-hidden="true"></div>
+
+  <!-- 01 STUDIO -->
+  <section class="section" id="about">
+    <div class="label"><span>(01)</span><span>Studio</span></div>
+    <p class="statement" data-words>
+      CRAFT is an independent design studio in Milano. We build <em>brands, products and digital worlds</em> for companies that would rather be remembered than merely seen.
+    </p>
+    <div class="intro-foot reveal">
+      <p>Founded 2017. Fourteen people, one room: strategists, designers, engineers and motion artists working on the same table.</p>
+      <a class="link-arrow" href="#work">See the work <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- 02 CAPABILITIES -->
+  <section class="section" id="services">
+    <div class="label"><span>(02)</span><span>Capabilities</span></div>
+    <ol class="svc">
+      <li class="svc-row reveal"><span class="svc-num">01</span><h3>Brand Systems</h3><p>Identity, naming, type and the rules that keep it all consistent at scale.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
+      <li class="svc-row reveal"><span class="svc-num">02</span><h3>Digital Product</h3><p>Research-led interfaces for apps and platforms that people actually return to.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
+      <li class="svc-row reveal"><span class="svc-num">03</span><h3>Motion &amp; 3D</h3><p>Real-time scenes, product films and the small animations that give a brand its pulse.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
+      <li class="svc-row reveal"><span class="svc-num">04</span><h3>Creative Dev</h3><p>WebGL, shaders and performance-obsessed front ends, built in house.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
+    </ol>
+  </section>
+
+  <!-- 03 WORK -->
+  <section class="section" id="work">
+    <div class="label"><span>(03)</span><span>Selected work</span></div>
+    <div class="work-head">
+      <h2 class="display reveal">Selected<br />Work</h2>
+      <span class="work-count reveal">04 Projects · 2024—2026</span>
+    </div>
+    <div class="work-grid">
+      <a class="project reveal" href="#contact" data-cursor="view">
+        <div class="cover"><div class="cover-art art-nova"></div></div>
+        <div class="project-meta"><h3>Nova Bank</h3><span class="year">2026</span><span>Brand system · Digital product</span></div>
+      </a>
+      <a class="project reveal" href="#contact" data-cursor="view">
+        <div class="cover"><div class="cover-art art-halo"></div></div>
+        <div class="project-meta"><h3>Halo Audio</h3><span class="year">2025</span><span>Product launch · 3D</span></div>
+      </a>
+      <a class="project reveal" href="#contact" data-cursor="view">
+        <div class="cover"><div class="cover-art art-lumen"></div></div>
+        <div class="project-meta"><h3>Lumen Editions</h3><span class="year">2025</span><span>Identity · Editorial</span></div>
+      </a>
+      <a class="project reveal" href="#contact" data-cursor="view">
+        <div class="cover"><div class="cover-art art-orbit"></div></div>
+        <div class="project-meta"><h3>Orbit Mobility</h3><span class="year">2024</span><span>Creative development · WebGL</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- 04 NUMBERS -->
+  <section class="section numbers" aria-labelledby="numbers-title">
+    <div class="label"><span>(04)</span><span id="numbers-title">In numbers</span></div>
+    <div class="stats">
+      <div class="stat reveal"><span class="stat-num" data-count="38">38</span><span class="stat-label">Launches shipped</span></div>
+      <div class="stat reveal"><span class="stat-num" data-count="12">12</span><span class="stat-label">Industry awards</span></div>
+      <div class="stat reveal"><span class="stat-num" data-count="9">9</span><span class="stat-label">Years on Via Tortona</span></div>
+      <div class="stat reveal"><span class="stat-num" data-count="4">4</span><span class="stat-label">Continents of clients</span></div>
+    </div>
+    <blockquote class="quote reveal">
+      "They didn't design a website. They designed the first thing our customers fall in love with."
+      <span class="quote-by">Giulia Ferri · CMO, Nova Bank</span>
+    </blockquote>
+    <div class="clients" aria-label="Clients">
+      <div class="clients-track">
+        <span>Nova</span><span>halo audio</span><span>Lumen</span><span>Orbit</span><span>Fabbrica</span><span>vento</span><span>Arcadia</span><span>Monolite</span>
+      </div>
+      <div class="clients-track" aria-hidden="true">
+        <span>Nova</span><span>halo audio</span><span>Lumen</span><span>Orbit</span><span>Fabbrica</span><span>vento</span><span>Arcadia</span><span>Monolite</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 CONTACT -->
+  <section class="section" id="contact">
+    <div class="label"><span>(05)</span><span>Contact</span></div>
+    <div class="contact-grid">
+      <div>
+        <h2 class="display reveal">Let's<br />make it</h2>
+        <a class="mail reveal" href="mailto:hello@craft.example">hello@craft.example</a>
+      </div>
+      <form class="brief reveal" novalidate>
+        <label class="field"><span>Name</span><input name="name" autocomplete="name" /><em class="err"></em></label>
+        <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" /><em class="err"></em></label>
+        <fieldset class="budget field--full">
+          <legend>Budget</legend>
+          <label><input type="radio" name="budget" value="<25k" /><span>&lt; €25k</span></label>
+          <label><input type="radio" name="budget" value="25-75k" checked /><span>€25–75k</span></label>
+          <label><input type="radio" name="budget" value="75k+" /><span>€75k +</span></label>
+        </fieldset>
+        <label class="field field--full"><span>Tell us about it</span><textarea name="message"></textarea><em class="err"></em></label>
+        <div class="brief-foot">
+          <p class="brief-status" role="status" aria-live="polite"></p>
+          <button class="send" type="submit">Send<br />brief</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-cols">
+    <div><h4>Studio</h4><p>Via Tortona 31<br />20144 Milano, IT</p></div>
+    <div><h4>Local time</h4><p class="clock" data-clock>--:--:--</p></div>
+    <div><h4>Social</h4><a href="#">Instagram</a><a href="#">LinkedIn</a><a href="#">Are.na</a></div>
+    <div><h4>New business</h4><a href="mailto:hello@craft.example">hello@craft.example</a><a href="#top">Back to top ↑</a></div>
+  </div>
+  <div class="wordmark" aria-hidden="true">CRAFT<sup>®</sup></div>
+  <div class="footer-bottom"><span>© 2026 CRAFT Studio</span><span>Digital Design Experience</span></div>
+</footer>
+
+<div class="cursor" aria-hidden="true">VIEW</div>
+
+<script type="importmap">
+  {
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+
+<!-- ================= Page interactions (no WebGL needed) ================= -->
+<script>
+(() => {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // 01 — split the statement into words; light them as the paragraph crosses the viewport
+  const statement = document.querySelector("[data-words]");
+  const walk = (node) => {
+    for (const child of [...node.childNodes]) {
+      if (child.nodeType === Node.TEXT_NODE) {
+        const frag = document.createDocumentFragment();
+        for (const part of child.textContent.split(/(\s+)/)) {
+          if (!part) continue;
+          if (/^\s+$/.test(part)) frag.append(part);
+          else frag.append(Object.assign(document.createElement("span"), { className: "w", textContent: part }));
+        }
+        child.replaceWith(frag);
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        walk(child);
+      }
+    }
+  };
+  walk(statement);
+  const words = [...statement.querySelectorAll(".w")];
+
+  const meta = document.querySelector(".meta");
+  let ticking = false;
+  const onScroll = () => {
+    ticking = false;
+    const vh = innerHeight;
+    // meta bar belongs to the hero only
+    meta.style.opacity = String(Math.max(0, 0.6 * (1 - scrollY / (vh * 0.35))));
+    if (reducedMotion) return;
+    const r = statement.getBoundingClientRect();
+    // 0 when the paragraph's top reaches 85% of the viewport, 1 when its bottom reaches 45%
+    const start = vh * 0.85;
+    const end = vh * 0.45;
+    const p = Math.min(1, Math.max(0, (start - r.top) / (start - end + r.height)));
+    const lit = Math.round(p * words.length);
+    words.forEach((w, i) => w.classList.toggle("is-lit", i < lit));
+  };
+  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  addEventListener("resize", onScroll);
+  onScroll();
+
+  // Reveals
+  const revealer = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      e.target.classList.add("is-in");
+      revealer.unobserve(e.target);
+    }
+  }, { rootMargin: "0px 0px -8% 0px" });
+  document.querySelectorAll(".reveal").forEach((el) => revealer.observe(el));
+
+  // Counters
+  const counter = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      counter.unobserve(e.target);
+      const el = e.target;
+      const target = Number(el.dataset.count);
+      if (reducedMotion) continue;
+      const t0 = performance.now();
+      const tick = (now) => {
+        const k = Math.min(1, (now - t0) / 1400);
+        el.textContent = String(Math.round(target * (1 - Math.pow(1 - k, 3)))).padStart(2, "0");
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+  }, { threshold: 0.6 });
+  document.querySelectorAll("[data-count]").forEach((el) => counter.observe(el));
+
+  // Milano clock
+  const clock = document.querySelector("[data-clock]");
+  // timeZoneName gives CET or CEST as appropriate, instead of hardcoding one
+  const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Rome", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "short" });
+  const tickClock = () => (clock.textContent = fmt.format(new Date()));
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  // Cursor with a "VIEW" state over projects (fine pointers only)
+  const cursor = document.querySelector(".cursor");
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    let px = -100, py = -100;
+    const update = () => {
+      const el = document.elementFromPoint(px, py);
+      cursor.classList.toggle("is-view", !!el?.closest("[data-cursor='view']"));
+    };
+    addEventListener("pointermove", (e) => {
+      px = e.clientX;
+      py = e.clientY;
+      cursor.classList.add("is-on");
+      cursor.style.transform = `translate(${px}px, ${py}px)`;
+      update();
+    }, { passive: true });
+    // scrolling moves content under a still pointer, so re-check what it's over
+    addEventListener("scroll", update, { passive: true });
+    document.addEventListener("pointerleave", () => cursor.classList.remove("is-on"));
+  }
+
+  // Brief form (demo: nothing is sent)
+  const form = document.querySelector(".brief");
+  const status = form.querySelector(".brief-status");
+  const setErr = (el, msg) => {
+    const field = el.closest(".field");
+    field.classList.toggle("is-invalid", Boolean(msg));
+    field.querySelector(".err").textContent = msg;
+    el.setAttribute("aria-invalid", String(Boolean(msg)));
+  };
+  form.addEventListener("input", (e) => { if (e.target.closest(".field.is-invalid")) setErr(e.target, ""); });
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const { name, email, message } = form.elements;
+    setErr(name, name.value.trim() ? "" : "Who are we talking to?");
+    setErr(email, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim()) ? "" : "We need a valid email to reply.");
+    setErr(message, message.value.trim().length >= 10 ? "" : "A sentence or two about the project, please.");
+    const firstInvalid = form.querySelector('[aria-invalid="true"]');
+    if (firstInvalid) { firstInvalid.focus(); status.textContent = ""; return; }
+    const btn = form.querySelector(".send");
+    btn.disabled = true;
+    btn.innerHTML = "Sending…";
+    setTimeout(() => {
+      btn.innerHTML = "Sent ✓";
+      status.textContent = `Grazie, ${name.value.trim().split(/\s+/)[0]}. We'll reply within two working days.`;
+      form.reset();
+    }, 900);
+  });
+})();
+</script>
+
+<!-- ================= Hero scene ================= -->
+<script type="module">
+import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const LINES = [...document.querySelectorAll("#headline span")].map((span) =>
+  span.textContent.trim().toUpperCase()
+);
+const BG = "#e9e9e7";
+const INK = "#111111";
+const CAMERA_Z = 5;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const canvas = document.getElementById("scene");
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+} catch {
+  // No WebGL: show the headline as real type instead of a blank hero
+  document.documentElement.classList.add("no-webgl");
+  throw new Error("WebGL unavailable");
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(BG);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+camera.position.z = CAMERA_Z;
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const textCanvas = document.createElement("canvas");
+const textCtx = textCanvas.getContext("2d");
+let textTexture = null;
+
+const textPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(1, 1),
+  new THREE.MeshBasicMaterial({ toneMapped: false, transparent: true })
+);
+scene.add(textPlane);
+
+const torus = new THREE.Mesh(
+  new THREE.TorusKnotGeometry(1, 0.3, 300, 48, 2, 3),
+  new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
+    metalness: 0,
+    roughness: 0,
+    transmission: 1,
+    thickness: 0.7,
+    ior: 1.45,
+    dispersion: 4,
+    envMapIntensity: 1,
+    toneMapped: false
+  })
+);
+torus.position.z = 2.2;
+scene.add(torus);
+
+let torusBase = 1;
+let visibleHeight = 1;
+
+function drawText(width, height) {
+  const dpr = Math.min(window.devicePixelRatio, 2);
+  textCanvas.width = Math.round(width * dpr);
+  textCanvas.height = Math.round(height * dpr);
+  textCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  textCtx.fillStyle = BG;
+  textCtx.fillRect(0, 0, width, height);
+  textCtx.fillStyle = INK;
+  textCtx.textAlign = "center";
+  textCtx.textBaseline = "middle";
+
+  const maxWidth = width * 0.92;
+  const maxHeight = height * 0.78;
+  const baseSize = 100;
+  const lineGap = 0.98;
+
+  textCtx.font = `900 ${baseSize}px "Inter Tight", sans-serif`;
+  const sizes = LINES.map(
+    (line) => baseSize * (maxWidth / textCtx.measureText(line).width)
+  );
+  const totalHeight = sizes.reduce((sum, size) => sum + size * lineGap, 0);
+  const fit = Math.min(1, maxHeight / totalHeight);
+
+  let y = height / 2 - (totalHeight * fit) / 2;
+  LINES.forEach((line, i) => {
+    const size = sizes[i] * fit;
+    textCtx.font = `900 ${size}px "Inter Tight", sans-serif`;
+    y += (size * lineGap) / 2;
+    textCtx.fillText(line, width / 2, y);
+    y += (size * lineGap) / 2;
+  });
+
+  if (textTexture) {
+    textTexture.dispose();
+  }
+  textTexture = new THREE.CanvasTexture(textCanvas);
+  textTexture.colorSpace = THREE.SRGBColorSpace;
+  textTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  textPlane.material.map = textTexture;
+  textPlane.material.needsUpdate = true;
+}
+
+function resize() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  renderer.setSize(width, height);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+
+  visibleHeight = 2 * CAMERA_Z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const visibleWidth = visibleHeight * camera.aspect;
+  textPlane.scale.set(visibleWidth, visibleHeight, 1);
+
+  torusBase = Math.min(visibleWidth, visibleHeight) * 0.09;
+  torus.scale.setScalar(torusBase);
+
+  drawText(width, height);
+}
+
+const pointer = new THREE.Vector2();
+window.addEventListener("pointermove", (e) => {
+  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
+});
+
+// Scroll progress through the hero (0 → 1 over the first viewport)
+let heroProgress = 0;
+const readScroll = () => (heroProgress = Math.min(1, Math.max(0, window.scrollY / window.innerHeight)));
+window.addEventListener("scroll", readScroll, { passive: true });
+readScroll();
+
+const clock = new THREE.Clock();
+
+function render() {
+  const t = clock.getElapsedTime();
+  const p = heroProgress;
+
+  if (!reducedMotion) {
+    torus.rotation.x = t * 0.35 + pointer.y * 0.15 + p * 1.6;
+    torus.rotation.y = t * 0.5 + pointer.x * 0.2 + p * 2.2;
+    // the knot swells toward the camera while the type drifts up and fades
+    torus.scale.setScalar(torusBase * (1 + p * 0.9));
+    textPlane.position.y = p * visibleHeight * 0.18;
+  } else {
+    torus.rotation.set(0.6, 0.4, 0);
+  }
+  textPlane.material.opacity = 1 - p * 0.85;
+
+  renderer.render(scene, camera);
+}
+
+function debounce(fn, delay) {
+  let timeoutId;
+  return () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(fn, delay);
+  };
+}
+
+const debouncedResize = debounce(resize, 150);
+
+window.addEventListener("resize", () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  debouncedResize();
+});
+
+// Transmission + dispersion is expensive: only render while the hero can be seen
+let running = false;
+const setRunning = (on) => {
+  if (on === running) return;
+  running = on;
+  renderer.setAnimationLoop(on && !reducedMotion ? render : null);
+  if (on && reducedMotion) render();
+};
+window.addEventListener("scroll", () => { if (reducedMotion && running) render(); }, { passive: true });
+
+// fonts.ready alone resolves at once when nothing has requested the font yet
+Promise.race([
+  document.fonts.load('900 100px "Inter Tight"'),
+  new Promise((r) => setTimeout(r, 2500))
+]).then(() => {
+  resize();
+  // start observing only once the scene is sized and the type is drawn
+  new IntersectionObserver(([entry]) => setRunning(entry.isIntersecting)).observe(document.querySelector(".hero-spacer"));
+});
+</script>
+</body>
+</html>

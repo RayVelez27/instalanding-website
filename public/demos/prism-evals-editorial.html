@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PRISM — Evals for teams shipping LLMs</title>
+<meta name="description" content="Single-file editorial landing page for an AI evals platform: every image is a generative gooey-grid composition, with GSAP scroll work, tickers and a card slider." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Asul:wght@400;700&family=Cabin:ital,wght@0,400..700;1,400..700&family=Covered+By+Your+Grace&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --accent: #ff4081;
+  --ink: #000000;
+  --paper: #ffffff;
+  --b5: #f1f1f1;
+  --b10: #e5e5e5;
+  --b60: #6b6b6b;
+  --white-5: rgba(255, 255, 255, 0.05);
+
+  /* The generative palette. Every "image" on this page is built from these
+     six and nothing else, which is what keeps a page with no photography
+     from reading as a wireframe. */
+  --g1: #561ccd;
+  --g2: #a169e9;
+  --g3: #361bec;
+  --g4: #100091;
+  --g5: #fc7f0c;
+  --g6: #e51263;
+
+  --display: "Asul", Georgia, serif;
+  --hand: "Covered By Your Grace", cursive;
+  --sans: "Cabin", system-ui, sans-serif;
+
+  --pad: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg, canvas { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+
+::selection { background: var(--accent); color: #fff; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.wrap { width: 100%; max-width: 1968px; margin-inline: auto; }
+
+/* The bar is sticky, so anchored sections have to stop short of it. */
+section[id], .quotes, .process { scroll-margin-top: 64px; }
+
+/* ── Type ───────────────────────────────────────────────────────────── */
+.display {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+}
+.h-sec { font-size: clamp(40px, 6.6vw, 96px); }
+.h-mid { font-size: clamp(36px, 5vw, 64px); }
+.hand {
+  font-family: var(--hand);
+  color: var(--accent);
+  font-size: 28px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.micro {
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: 0.14px;
+  text-transform: uppercase;
+}
+.body-lg { font-size: 18px; line-height: 1.45; }
+
+/* ── Link with a rule under it ──────────────────────────────────────── */
+.linkr {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0 4px;
+  font-size: 14px;
+  letter-spacing: 0.14px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+.linkr::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 1px;
+  background: currentColor;
+}
+.linkr svg { width: 12px; height: 12px; transition: transform 0.25s ease; }
+.linkr:hover svg { transform: translateX(3px); }
+
+/* ── Nav ────────────────────────────────────────────────────────────── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: var(--accent);
+  padding: 8px var(--pad) 9px;
+}
+.nav-in {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1968px;
+  margin-inline: auto;
+}
+.wordmark {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 24px;
+  line-height: 0.8;
+  letter-spacing: -1.92px;
+  padding: 2px 0;
+}
+.nav-links {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.nav-links a { font-size: 14px; letter-spacing: 0.14px; text-transform: uppercase; transition: opacity 0.2s; }
+.nav-links a:hover { opacity: 0.6; }
+
+/* ── Hero ───────────────────────────────────────────────────────────── */
+.hero { position: relative; padding: 24px var(--pad); }
+.hero-meta { position: absolute; z-index: 10; display: flex; flex-direction: column; text-transform: uppercase; }
+.hero-meta small { font-size: 12px; }
+.hero-meta strong { font-size: 18px; font-weight: 400; }
+.hero-meta.tl { top: 24px; left: var(--pad); }
+.hero-meta.tr { top: 24px; right: var(--pad); text-align: right; align-items: flex-end; }
+.hero-meta.bl { bottom: 24px; left: var(--pad); }
+.hero-meta.br { bottom: 24px; right: var(--pad); text-align: right; align-items: flex-end; }
+
+.hero-word {
+  max-width: 1280px;
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+  padding-inline: clamp(0px, 8vw, 128px);
+}
+.hero-word > div { position: relative; display: inline-block; line-height: 0.9; font-size: clamp(110px, 22vw, 340px); }
+.hero-word h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  font-size: 1em;
+  line-height: inherit;
+}
+.hero-deco { position: absolute; font-family: var(--hand); color: var(--accent); line-height: 1; pointer-events: none; white-space: nowrap; }
+
+/* ── Tickers ────────────────────────────────────────────────────────── */
+.ticker { overflow: hidden; border-block: 1px solid var(--b10); padding-block: 12px; }
+.ticker-track { display: flex; gap: 48px; white-space: nowrap; width: max-content; animation: ticker 60s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.ticker-item { display: flex; align-items: center; gap: 48px; flex-shrink: 0; }
+.ticker-rule { width: 64px; height: 1px; background: var(--b10); }
+
+.ticker--big { padding-block: 24px; }
+.ticker--big .ticker-track { animation-duration: 50s; align-items: center; }
+.ticker--big .word { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(36px, 5vw, 64px); line-height: 0.96; letter-spacing: -2.56px; flex-shrink: 0; }
+.ticker--big .swatch { width: 75px; height: 56px; background: var(--accent); flex-shrink: 0; }
+.ticker--big .sep { width: 96px; height: 1px; background: var(--b10); flex-shrink: 0; }
+
+/* ── The generative art ─────────────────────────────────────────────
+   A grid of cells; each cell holds one shape sized, rotated, rounded and
+   coloured at random from the six-colour palette. The whole grid runs
+   through an SVG gooey filter — a heavy blur, then a colour matrix that
+   crushes the alpha ramp back to a hard edge — so neighbouring shapes melt
+   into one another instead of sitting side by side. That melting is the
+   whole image: nothing here is a photograph or a gradient mesh.
+   ─────────────────────────────────────────────────────────────────── */
+.goo {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  background: var(--g5);
+  grid-template-columns: repeat(var(--cols, 6), calc(100% / var(--cols, 6)));
+  grid-template-rows: repeat(var(--rows, 6), calc(100% / var(--rows, 6)));
+  filter: url(#goo);
+  cursor: crosshair;
+}
+.goo--flat { filter: none; }
+.goo .cell { position: relative; }
+.goo .inner {
+  position: absolute;
+  width: var(--size, 100%);
+  height: var(--size, 100%);
+  left: calc(50% - var(--size, 100%) / 2);
+  top: calc(50% - var(--size, 100%) / 2);
+  background: var(--c1);
+  mix-blend-mode: hard-light;
+  transform: rotate(var(--angle, 0deg));
+  border-radius: 0 0 var(--radius, 0) 0;
+  transition: 0.22s ease-in-out;
+}
+.goo .inner.s1,
+.goo .inner.s2 {
+  background:
+    radial-gradient(circle at center, var(--c1) 1px, transparent 1px, transparent 5px),
+    var(--c2);
+  background-size: 10px 10px;
+}
+.goo .inner.s3 { background: linear-gradient(45deg, var(--c1) 50%, transparent 50%); }
+.goo .inner.s4 { border-radius: 500%; }
+.goo .inner.s5 {
+  clip-path: polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%,
+    80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%);
+}
+
+.art { position: relative; overflow: hidden; background: var(--b5); }
+/* Every host fills with its composition, whatever the host is: an art panel,
+   a run tile, a floating card or a 64px avatar. Keyed off the attribute, not
+   off one wrapper class, or half of them collapse to a zero-height grid. */
+[data-goo] { position: relative; }
+[data-goo] > .goo { position: absolute; inset: 0; }
+
+/* the 8x8 rule grid that sits over the hero composition */
+.art-grid {
+  position: absolute;
+  inset: 0;
+  /* the composition is appended after this, so the rule grid needs the layer */
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  pointer-events: none;
+}
+.art-grid > div { border: 2px solid rgba(255, 255, 255, 0.6); }
+.art-grid > div.lit { background: rgba(255, 64, 129, 0.6); mix-blend-mode: multiply; }
+
+.art-note {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  background: #fff;
+  padding: 6px 10px;
+  font-size: 12px;
+  letter-spacing: 0.14px;
+  text-transform: uppercase;
+}
+
+/* ── Big black bar CTA ──────────────────────────────────────────────── */
+.bar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -2.56px;
+  font-size: clamp(32px, 5vw, 64px);
+  padding: clamp(32px, 5vw, 56px) 48px;
+  transition: opacity 0.2s;
+}
+.bar:hover { opacity: 0.9; }
+.bar svg { width: clamp(28px, 4vw, 48px); height: clamp(28px, 4vw, 48px); }
+
+/* ── Sections ───────────────────────────────────────────────────────── */
+.sec { padding: 24px var(--pad); }
+.sec-tall { min-height: 900px; display: flex; flex-direction: column; }
+.row-between { display: flex; align-items: flex-start; justify-content: space-between; width: 100%; gap: 24px; }
+
+.about-mid { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; padding-block: 64px; }
+/* The column gives up width before it gives up its margins: a 200px card
+   rotated 10deg needs ~245px of clear space, so the text never grows into
+   the lane the cards live in. */
+.about-inner {
+  position: relative;
+  z-index: 2;
+  max-width: min(824px, calc(100% - 560px));
+  width: 100%;
+}
+.about-inner h2 { text-align: center; }
+
+/* The compositions belong to the whole band, not to the text block: they sit
+   behind the statement and out at the margins, so nothing ever reads through
+   a card. Three cards, three corners, none of them crossing the 824px column
+   the headline occupies. */
+.about-floats {
+  position: absolute;
+  /* starts at the band, not above it: -24px put the first card on top of the
+     "evals for shipping teams" label in the row above. */
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.float-card { position: absolute; }
+/* The label rows are type, so they sit above the art like the headline does;
+   the first card also starts below them, because a 10deg rotation throws its
+   corner ~23px past its own box. */
+.sec-tall .row-between { position: relative; z-index: 2; }
+.float-card.a { left: 0; top: 48px; }
+.float-card.b { right: 0; top: 56px; }
+.float-card.c { left: 0; bottom: 0; }
+.float-card .tile {
+  width: 200px;
+  height: 267px;
+  border: 3px solid #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  background: var(--b5);
+  position: relative;
+}
+
+/* ── Runs grid (the old photo grid) ─────────────────────────────────── */
+.runs { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+.run-row { display: flex; gap: 24px; align-items: flex-start; width: 100%; }
+.run { flex: 1; }
+.run-inner { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; width: 100%; }
+.run-art { position: relative; width: 100%; overflow: hidden; background: var(--b5); transition: transform 0.5s ease; }
+.run:hover .run-art { transform: scale(1.03); }
+.run-cap { width: 100%; text-align: right; font-size: 14px; letter-spacing: 0.14px; text-transform: uppercase; }
+
+/* ── Services ───────────────────────────────────────────────────────── */
+.svc-band { background: var(--ink); padding: clamp(80px, 12vw, 200px) var(--pad); }
+.svc-band h2 { color: #fff; text-align: center; max-width: 760px; margin-inline: auto; }
+.svc-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  width: 100%;
+  margin-top: clamp(64px, 10vw, 160px);
+}
+.svc {
+  flex-shrink: 0;
+  background: var(--ink);
+  border: 3px solid var(--white-5);
+  width: 328px;
+  height: 400px;
+  padding: 24px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.svc .mark { width: 64px; height: 64px; }
+.svc h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: 32px; line-height: 0.96; letter-spacing: -1.28px; }
+.svc p { font-size: 18px; margin-top: 8px; max-width: 240px; color: #d7d7d7; }
+
+/* ── Process ────────────────────────────────────────────────────────── */
+.process { position: relative; padding: 96px var(--pad); min-height: 900px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+.process-floats, .process-smalls { position: absolute; inset: 0; pointer-events: none; }
+.process-smalls { opacity: 0.5; }
+.process-core { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.steps { display: flex; flex-direction: column; gap: 8px; align-items: center; padding-left: 24px; }
+.step { position: relative; display: inline-flex; align-items: flex-start; text-transform: uppercase; }
+.step .n { position: absolute; left: -24px; top: 0; font-family: var(--hand); color: var(--accent); font-size: 28px; }
+.step p { font-family: var(--display); font-weight: 700; font-size: clamp(36px, 5vw, 64px); line-height: 0.96; letter-spacing: -2.56px; }
+
+/* ── Testimonials ───────────────────────────────────────────────────── */
+.quotes { position: relative; background: var(--b5); padding: 96px var(--pad); min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+.quotes .hand-top { position: absolute; top: 44px; left: 50%; transform: translateX(-50%); }
+.qbtn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 20; background: var(--ink); padding: 12px; color: #fff; border: 0; cursor: pointer; transition: opacity 0.2s; }
+.qbtn:hover { opacity: 0.9; }
+.qbtn svg { width: 24px; height: 24px; }
+.qbtn.prev { left: 0; }
+.qbtn.next { right: 0; }
+.qstage { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 480px; margin-top: 48px; }
+.qghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; }
+.qghost.l { margin-left: -240px; }
+.qghost.r { margin-left: 240px; }
+.qghost .frame { opacity: 0.5; transform: scale(0.75) rotate(5deg); }
+.qghost.r .frame { transform: scale(0.75) rotate(-5deg); }
+.qmain { position: relative; z-index: 10; }
+
+.card {
+  background: #fff;
+  border: 3px solid var(--b5);
+  width: 400px;
+  height: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+}
+.card .date { font-size: 12px; color: var(--b60); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+.card .quote { font-size: 21px; line-height: 1.28; max-width: 320px; }
+.card .meta { display: flex; gap: 16px; padding-top: 24px; border-top: 1px solid var(--b10); }
+.card .avatar { width: 64px; height: 64px; flex-shrink: 0; background: var(--b5); overflow: hidden; position: relative; }
+.card .meta-text { display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
+.card .name { font-size: 16px; }
+.card .meta-bottom { display: flex; gap: 16px; align-items: flex-end; }
+.card .meta-tags { flex: 1; font-size: 12px; color: var(--b60); text-transform: uppercase; line-height: 1.4; }
+.card .rating { display: flex; gap: 4px; align-items: center; font-size: 14px; color: var(--b60); }
+.card .rating .star { color: var(--accent); }
+
+/* ── Contact ────────────────────────────────────────────────────────── */
+.contact-row { display: flex; gap: 24px; align-items: stretch; width: 100%; max-width: 1968px; margin-inline: auto; }
+.contact-col { flex: 1; min-height: 600px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.contact-col.left { background: var(--b5); padding: 32px 24px; justify-content: space-between; gap: 120px; }
+.contact-col.right { padding: 32px 24px; align-items: center; justify-content: flex-end; }
+.contact-lines { display: flex; flex-direction: column; gap: 16px; text-transform: uppercase; width: 100%; }
+.contact-line { display: flex; gap: 8px; align-items: flex-start; }
+.contact-line .n { font-family: var(--hand); color: var(--accent); font-size: 28px; width: 24px; flex-shrink: 0; }
+.contact-line p { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 3vw, 40px); line-height: 0.96; letter-spacing: -1.6px; }
+.studio-btn {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  color: #fff;
+  padding: 24px;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.48px;
+  text-transform: uppercase;
+  transition: opacity 0.2s;
+}
+.studio-btn:hover { opacity: 0.9; }
+.studio-btn svg { width: 18px; height: 18px; }
+
+/* ── Footer ─────────────────────────────────────────────────────────── */
+.footer { border-top: 1px solid var(--b10); padding: 24px var(--pad); margin-top: 48px; }
+.footer-in { display: flex; flex-direction: column; gap: clamp(80px, 12vw, 200px); max-width: 1968px; margin-inline: auto; width: 100%; }
+.footer-top { display: flex; gap: 24px; align-items: flex-start; width: 100%; }
+.footer-brand { flex: 1; display: flex; flex-direction: column; gap: 40px; min-width: 0; }
+.footer-cols { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.footer-cols div { display: flex; flex-direction: column; gap: 8px; }
+.footer-cols a, .footer-cols span { font-size: 14px; text-transform: uppercase; transition: opacity 0.2s; }
+.footer-cols a:hover { opacity: 0.6; }
+.footer-bottom { display: flex; gap: 24px; width: 100%; }
+.footer-bottom .spacer { flex: 1; min-width: 0; }
+.footer-bottom .legal { flex: 1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; min-width: 0; font-size: 14px; text-transform: uppercase; }
+.footer-rule { width: 64px; height: 1px; background: var(--b10); }
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .nav-links { display: none; }
+  .about-floats { display: none; }
+  .about-inner { max-width: 100%; }
+  .process-floats, .process-smalls { display: none; }
+  .qghost { display: none; }
+  .contact-row { flex-direction: column; }
+  .footer-top { flex-direction: column; gap: 48px; }
+  .svc-row > * { transform: none !important; margin: 0 !important; }
+}
+
+@media (max-width: 720px) {
+  :root { --pad: 18px; }
+  .hero-meta.tl, .hero-meta.tr, .hero-meta.bl, .hero-meta.br { position: static; text-align: left; align-items: flex-start; }
+  .hero-metas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+  .hero-word { padding-inline: 0; }
+  .card { width: min(400px, calc(100vw - 48px)); }
+  .run-row { flex-wrap: wrap; }
+  .run { min-width: 45%; max-width: none !important; padding-top: 0 !important; }
+  .footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .ticker-track { animation: none; }
+  .goo .inner { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- the gooey filter every composition runs through -->
+<svg width="0" height="0" aria-hidden="true" style="position: absolute">
+  <defs>
+    <filter id="goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
+      <feColorMatrix in="blur" mode="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+      <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+    </filter>
+    <filter id="goo-sm">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+      <feColorMatrix in="blur" mode="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+      <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+    </filter>
+  </defs>
+</svg>
+
+<nav class="nav" data-anim="nav">
+  <div class="nav-in">
+    <p class="wordmark">Prism</p>
+    <div class="nav-links">
+      <a href="#runs">Runs</a>
+      <a href="#platform">Platform</a>
+      <a href="#about">About</a>
+      <a href="#start">Pricing</a>
+    </div>
+    <a class="linkr" href="#start">Start free
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-metas">
+    <div class="hero-meta tl" data-anim="hero-info"><small>Layer</small><strong>Evals</strong></div>
+    <div class="hero-meta tr" data-anim="hero-info"><small>p95 verdict</small><strong>240 ms</strong></div>
+    <div class="hero-meta bl" data-anim="hero-info"><small>Coverage</small><strong>Prompt &amp; Agent</strong></div>
+    <div class="hero-meta br" data-anim="hero-info"><small>Compliance</small><strong>SOC 2 Type II</strong></div>
+  </div>
+
+  <div class="hero-word">
+    <div>
+      <h1 data-anim="hero-h1">Prism</h1>
+      <span class="hero-deco" data-anim="hero-deco" style="top:50%;left:50%;transform:translate(-42%,-50%);font-size:0.5em;">Evals</span>
+      <span class="hero-deco" data-anim="hero-deco" style="top:-0.04em;left:30%;transform:translateX(-50%) rotate(-35deg);font-size:0.09em;">Ship</span>
+      <span class="hero-deco" data-anim="hero-deco" style="bottom:0.06em;left:0.18em;transform:rotate(-72deg);transform-origin:left bottom;font-size:0.1em;">v4</span>
+      <span class="hero-deco" data-anim="hero-deco" style="top:-0.01em;right:0.02em;font-size:0.06em;color:#000;font-family:var(--sans);">©</span>
+      <span class="hero-deco" data-anim="hero-deco" style="bottom:-0.04em;right:0.04em;font-size:0.08em;">'26</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TICKER ============ -->
+<div class="ticker"><div class="ticker-track" id="topTicker"></div></div>
+
+<!-- ============ HERO ART ============ -->
+<section class="sec" style="padding-top: 24px">
+  <div class="art" style="aspect-ratio: 1 / 1" data-goo="hero" data-cols="12" data-rows="12">
+    <div class="art-grid" data-anim="art-grid" id="artGrid"></div>
+    <span class="art-note">Run 4,182 · click to resample</span>
+  </div>
+
+  <div data-anim="reveal">
+    <a class="bar" href="#start">
+      <span>Start free</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section class="sec sec-tall" id="about">
+  <div class="row-between">
+    <p class="micro" data-anim="reveal" style="max-width: 130px; line-height: 1.28">Evals for<br>shipping teams</p>
+    <p class="hand" data-anim="hand">Evidence</p>
+  </div>
+
+  <div class="about-mid">
+    <div class="about-floats" aria-hidden="true">
+      <div class="float-card a" data-anim="parallax" data-speed="0.5">
+        <div style="transform: rotate(10deg)"><div class="tile" data-goo="tile" data-cols="4" data-rows="5"></div></div>
+      </div>
+      <div class="float-card b" data-anim="parallax" data-speed="0.2">
+        <div style="transform: rotate(-2deg)"><div class="tile" data-goo="tile" data-cols="4" data-rows="5"></div></div>
+      </div>
+      <div class="float-card c" data-anim="parallax" data-speed="0.6">
+        <div style="transform: rotate(-8deg)"><div class="tile" data-goo="tile" data-cols="4" data-rows="5"></div></div>
+      </div>
+    </div>
+
+    <div class="about-inner">
+      <h2 class="display h-sec" data-anim="reveal">An eval suite your model has to pass before it reaches anyone</h2>
+      <span class="hand" data-anim="hand" style="position:absolute;top:-32px;right:15%;white-space:nowrap">Why it exists</span>
+      <span class="hand" data-anim="hand" style="position:absolute;left:-48px;top:calc(50% - 83px)">Proof</span>
+      <span class="hand" data-anim="hand" style="position:absolute;bottom:-32px;left:200px;white-space:nowrap">Since 2024</span>
+    </div>
+  </div>
+
+  <div class="row-between" style="align-items: flex-end">
+    <p class="micro" data-anim="reveal" style="max-width: 140px">Graded, not vibed</p>
+    <div data-anim="reveal" style="display:flex;flex-direction:column;gap:16px;max-width:330px">
+      <p class="body-lg" style="max-width: 260px">Every release runs the same graded suite, on the same fixtures, with the diff attached.</p>
+      <a class="linkr" href="#platform">Read the method
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RUNS ============ -->
+<section class="sec" id="runs" style="padding-top: 96px; padding-bottom: 200px">
+  <div class="wrap" style="display:flex;flex-direction:column;gap:96px;align-items:center">
+    <div style="position:relative;padding-top:32px;max-width:440px;width:100%;text-align:center">
+      <span class="hand" data-anim="hand" style="position:absolute;top:0;left:50%;transform:translateX(-50%);white-space:nowrap">Latest</span>
+      <h2 class="display h-mid" data-anim="reveal">Run gallery</h2>
+    </div>
+    <div class="runs" id="runsGrid"></div>
+  </div>
+</section>
+
+<!-- ============ PLATFORM ============ -->
+<section class="svc-band" id="platform">
+  <div class="wrap">
+    <h2 class="display h-sec" data-anim="reveal">What the platform does for your team</h2>
+    <div class="svc-row">
+      <div data-anim="card-pop" style="margin-right:-64px" class="svc-slot">
+        <div style="transform: rotate(-6deg)">
+          <article class="svc">
+            <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="#ff4081" stroke-width="1.5"><path d="M4 19V5m0 14h16"/><path d="M8 15l3.5-4.5L15 13l4-6"/></svg>
+            <div>
+              <h3>Graded evals</h3>
+              <p>Golden sets, rubric grading and model-as-judge, versioned with the prompt.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div data-anim="card-pop" style="margin-right:-64px;padding-top:24px;z-index:10" class="svc-slot">
+        <div style="transform: rotate(10deg)">
+          <article class="svc">
+            <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="#ff4081" stroke-width="1.5"><path d="M12 3l8 4v6c0 4.5-3.2 7.4-8 8-4.8-.6-8-3.5-8-8V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+            <div>
+              <h3>Guardrails</h3>
+              <p>Block a regression at the gate, with the failing case attached to the PR.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div data-anim="card-pop" style="z-index:20" class="svc-slot">
+        <div style="transform: rotate(3deg)">
+          <article class="svc">
+            <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="#ff4081" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <div>
+              <h3>Live traces</h3>
+              <p>Production traffic scored continuously, so drift shows up as a number.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WIDE BANNER ============ -->
+<section>
+  <div class="art" style="aspect-ratio: 1440 / 680; width: 100%" data-goo="banner" data-cols="20" data-rows="9"></div>
+</section>
+
+<!-- ============ BIG TICKER ============ -->
+<div class="ticker ticker--big"><div class="ticker-track" id="bigTicker"></div></div>
+
+<!-- ============ PROCESS ============ -->
+<section class="process">
+  <div class="process-floats" id="processFloats"></div>
+  <div class="process-smalls" id="processSmalls"></div>
+  <div class="process-core">
+    <span class="hand" data-anim="hand" style="white-space:nowrap">What shipping looks like</span>
+    <div class="steps" data-anim="steps">
+      <div class="step"><p class="n">01</p><p>Fixture</p></div>
+      <div class="step"><p class="n">02</p><p>Grade</p></div>
+      <div class="step"><p class="n">03</p><p>Gate</p></div>
+    </div>
+    <div data-anim="reveal">
+      <a class="linkr" href="#start">Start free
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUOTES ============ -->
+<section class="quotes">
+  <span class="hand hand-top" data-anim="hand">What teams say</span>
+  <button class="qbtn prev" id="prevBtn" data-anim="reveal" aria-label="Previous quote">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="qbtn next" id="nextBtn" data-anim="reveal" aria-label="Next quote">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div class="qstage">
+    <div class="qghost l"><div class="frame" id="leftFrame"><article class="card" id="leftCard"></article></div></div>
+    <div class="qghost r"><div class="frame" id="rightFrame"><article class="card" id="rightCard"></article></div></div>
+    <div class="qmain"><article class="card" id="centerCard"></article></div>
+  </div>
+</section>
+
+<!-- ============ BIG CTA ============ -->
+<section class="sec" style="padding-top: 48px">
+  <div data-anim="reveal">
+    <a class="bar" href="#start" style="padding-block: clamp(40px, 6vw, 72px)">
+      <span>Start free</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="sec" id="start" style="padding-top: 24px">
+  <div class="contact-row">
+    <div class="contact-col left">
+      <div style="display:flex;flex-direction:column;gap:24px;align-items:flex-start;width:100%">
+        <div style="position:relative;display:flex;max-width:440px;width:100%;padding-top:42px;text-transform:uppercase">
+          <p class="hand" data-anim="hand" style="position:absolute;left:0;top:0;white-space:nowrap">Get started</p>
+          <p class="display h-mid" data-anim="reveal" style="flex:1;max-width:440px">Run your first suite</p>
+        </div>
+        <div data-anim="reveal">
+          <a class="linkr" href="#">Create a workspace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="contact-lines" data-anim="stagger">
+        <div class="contact-line"><p class="n">01</p><p>npx prism init</p></div>
+        <div class="contact-line"><p class="n">02</p><p>docs.prism.dev</p></div>
+        <div class="contact-line"><p class="n">03</p><p>team@prism.dev</p></div>
+      </div>
+    </div>
+    <div class="contact-col right">
+      <div class="art" style="position:absolute;inset:0" data-goo="contact" data-cols="9" data-rows="12"></div>
+      <button class="studio-btn" data-anim="reveal">
+        <span>Book a walkthrough</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer-in">
+    <div class="footer-top" data-anim="reveal">
+      <div class="footer-brand">
+        <p class="wordmark">Prism</p>
+        <div style="display:flex;flex-direction:column;gap:16px;max-width:330px">
+          <p class="body-lg" style="max-width:260px">Pick a plan, run the suite, and keep the report your reviewer asked for.</p>
+          <a class="linkr" href="#start">Start free
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-cols">
+        <div>
+          <a href="#runs">Runs</a><a href="#platform">Platform</a><a href="#about">About</a><a href="#start">Pricing</a>
+        </div>
+        <div>
+          <a href="#">Changelog</a><a href="#">Docs</a><a href="#">Status</a><a href="#">GitHub</a>
+        </div>
+        <div>
+          <span>npx prism init</span><span>docs.prism.dev</span><span>team@prism.dev</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="spacer"></div>
+      <div class="legal">
+        <div style="display:flex;gap:24px;align-items:center">
+          <a href="#">Privacy policy</a>
+          <div class="footer-rule"></div>
+          <a href="#">Terms</a>
+        </div>
+        <span>Prism is a fictional product, built as a template — © <span id="year">2026</span></span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var PALETTE = ["#561ccd", "#a169e9", "#361bec", "#100091", "#fc7f0c", "#e51263"];
+  var SHAPES = ["", "s1", "s2", "s3", "s4", "s5"];
+
+  var rand = function (n) { return Math.floor(Math.random() * n); };
+  var pick = function (arr) { return arr[rand(arr.length)]; };
+
+  /* ── The generative composition ───────────────────────────────────────
+     Build once, resample on demand. Each cell gets two palette colours, a
+     size of 100% or 200% (the oversize is what makes shapes bleed into
+     their neighbours and fuse under the filter), a quarter-turn rotation,
+     either no corner radius or a huge one, and one of six shape classes.
+     ─────────────────────────────────────────────────────────────────── */
+  function buildGoo(host) {
+    var cols = +host.dataset.cols || 6;
+    var rows = +host.dataset.rows || 6;
+    var grid = document.createElement("div");
+    grid.className = "goo";
+    grid.style.setProperty("--cols", cols);
+    grid.style.setProperty("--rows", rows);
+    if (host.dataset.goo === "tile" || host.dataset.goo === "avatar") {
+      grid.style.filter = "url(#goo-sm)";
+    }
+
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < cols * rows; i++) {
+      var cell = document.createElement("div");
+      cell.className = "cell";
+      cell.appendChild(document.createElement("div")).className = "inner";
+      frag.appendChild(cell);
+    }
+    grid.appendChild(frag);
+    host.appendChild(grid);
+    sampleGoo(grid);
+
+    grid.addEventListener("click", function () { sampleGoo(grid); });
+    return grid;
+  }
+
+  function sampleGoo(grid) {
+    grid.style.background = pick(PALETTE);
+    var cells = grid.children;
+    for (var i = 0; i < cells.length; i++) {
+      var cell = cells[i];
+      var inner = cell.firstChild;
+      cell.style.setProperty("--c1", pick(PALETTE));
+      cell.style.setProperty("--c2", pick(PALETTE));
+      cell.style.setProperty("--size", (rand(2) + 1) * 100 + "%");
+      cell.style.setProperty("--angle", rand(4) * 90 + "deg");
+      cell.style.setProperty("--radius", rand(2) * 100 + "vw");
+      inner.className = "inner " + pick(SHAPES);
+    }
+  }
+
+  var goos = [];
+  Array.prototype.forEach.call(document.querySelectorAll("[data-goo]"), function (host) {
+    goos.push(buildGoo(host));
+  });
+
+  /* The hero composition resamples on a slow beat, and only while it is on
+     screen — a gooey filter over a 6x6 grid is not free. */
+  var heroGoo = document.querySelector('[data-goo="hero"] .goo');
+  if (heroGoo && !REDUCED) {
+    var beating = true;
+    setInterval(function () { if (beating && !document.hidden) sampleGoo(heroGoo); }, 5200);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        beating = entries[0].isIntersecting;
+      }, { threshold: 0 }).observe(heroGoo);
+    }
+  }
+
+  /* ── The rule grid over the hero art ─────────────────────────────── */
+  var artGrid = document.getElementById("artGrid");
+  if (artGrid) {
+    var lit = { 2: 1, 7: 1, 18: 1, 23: 1, 36: 1, 39: 1, 44: 1, 53: 1, 58: 1, 60: 1 };
+    var cells = "";
+    for (var g = 0; g < 64; g++) cells += '<div class="' + (lit[g] ? "lit" : "") + '"></div>';
+    artGrid.innerHTML = cells;
+  }
+
+  /* ── Tickers ──────────────────────────────────────────────────────── */
+  var TICKER = ["Golden sets", "Rubric grading", "Model-as-judge", "Regression gates",
+    "Trace scoring", "Drift alerts", "Prompt diffs", "Agent replays", "Cost per verdict"];
+
+  document.getElementById("topTicker").innerHTML = TICKER.concat(TICKER).map(function (t) {
+    return '<div class="ticker-item"><span class="micro">' + t + '</span><span class="ticker-rule"></span></div>';
+  }).join("");
+
+  var BIG = [
+    { type: "plain", text: "Ship on evidence" }, { type: "sep" },
+    { type: "block", text: "Not on vibes" }, { type: "sep" },
+    { type: "plain", text: "Every release graded" }, { type: "sep" },
+    { type: "block", text: "Drift in numbers" }, { type: "sep" }
+  ];
+  document.getElementById("bigTicker").innerHTML = BIG.concat(BIG).map(function (it) {
+    if (it.type === "sep") return '<span class="sep"></span>';
+    if (it.type === "block") {
+      return '<span style="display:flex;align-items:center;gap:12px;flex-shrink:0">' +
+        '<span class="swatch"></span><span class="word">' + it.text + "</span></span>";
+    }
+    return '<span class="word">' + it.text + "</span>";
+  }).join("");
+
+  /* ── The run gallery: the old photo grid, drawn instead of shot ───── */
+  var RUNS = [
+    ["3:4", "03'26", 330, 0], [null, null, 330, 0],
+    ["3:4", "02'26", 212, 0], [null, null, 94, 0],
+    ["1:1", "02'26", 330, 160], ["BR"],
+    ["1:1", "01'26", 212, 160], [null, null, 212, 0],
+    ["4:3", "01'26", 330, 0], [null, null, 94, 0],
+    ["3:4", "01'26", 212, 160], [null, null, 212, 0], ["BR"],
+    [null, null, 94, 0], ["3:4", "01'26", 330, 0],
+    [null, null, 212, 0], ["3:4", "12'25", 330, 160],
+    [null, null, 94, 0], ["1:1", "12'25", 212, 160]
+  ];
+
+  var ratio = function (r) { return r === "3:4" ? "3/4" : r === "1:1" ? "1/1" : "4/3"; };
+  var rows = [];
+  var row = [];
+  RUNS.forEach(function (r) {
+    if (r[0] === "BR") { rows.push(row); row = []; return; }
+    row.push(r);
+  });
+  rows.push(row);
+
+  document.getElementById("runsGrid").innerHTML = rows.map(function (r) {
+    return '<div class="run-row">' + r.map(function (item) {
+      var ar = item[0], cap = item[1], maxW = item[2], pad = item[3];
+      if (!ar) return '<div class="run" style="max-width:' + maxW + 'px"></div>';
+      return '<div class="run" data-anim="photo" style="max-width:' + maxW + "px;padding-top:" + pad + 'px">' +
+        '<div class="run-inner">' +
+          '<div class="run-art" style="aspect-ratio:' + ratio(ar) + '" data-goo="run" data-cols="5" data-rows="5"></div>' +
+          '<p class="run-cap">' + cap + "</p>" +
+        "</div></div>";
+    }).join("") + "</div>";
+  }).join("");
+
+  /* ── Floating compositions behind the process steps ───────────────── */
+  var floats = [
+    "top:40px;left:24px;width:212px;aspect-ratio:3/4;",
+    "top:200px;right:24px;width:212px;aspect-ratio:3/4;",
+    "bottom:120px;left:18%;width:212px;aspect-ratio:4/3;",
+    "bottom:40px;right:20%;width:180px;aspect-ratio:3/4;"
+  ];
+  document.getElementById("processFloats").innerHTML = floats.map(function (pos) {
+    return '<div class="art" data-anim="float" style="position:absolute;' + pos + '" data-goo="tile" data-cols="4" data-rows="4"></div>';
+  }).join("");
+
+  var smalls = ["top:80px;left:28%;", "top:140px;left:64%;", "top:280px;left:14%;",
+    "top:420px;right:14%;", "bottom:220px;left:8%;", "bottom:150px;left:42%;"];
+  document.getElementById("processSmalls").innerHTML = smalls.map(function (pos) {
+    return '<div class="art" style="position:absolute;' + pos + 'width:54px;height:54px" data-goo="avatar" data-cols="3" data-rows="3"></div>';
+  }).join("");
+
+  /* Everything built after the first pass still needs its composition. */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-goo]:empty"), function (host) {
+    goos.push(buildGoo(host));
+  });
+
+  /* ── Quotes ───────────────────────────────────────────────────────── */
+  var QUOTES = [
+    { date: "6 Feb, 2026", quote: "We stopped arguing about whether the new prompt was better. The suite runs on every PR and the diff is right there in the check — it turned a taste debate into a number.", name: "Martina Bianchi", role: "Staff engineer", tag: "Series B · fintech", rating: 4.9 },
+    { date: "19 Dec, 2025", quote: "Guardrails caught a regression an hour before we would have shipped it. The failing case was attached to the PR, so the fix took twenty minutes instead of a week of user reports.", name: "Valentina Greco", role: "Head of ML", tag: "Marketplace", rating: 5.0 },
+    { date: "1 Feb, 2026", quote: "Trace scoring is the part I did not expect to care about. Watching drift show up as a line instead of a support ticket changed how we plan releases entirely.", name: "Chiara Ferrari", role: "Platform lead", tag: "Healthtech", rating: 5.0 },
+    { date: "22 Nov, 2025", quote: "Setup was a command and a config file. We had our own golden set graded the same afternoon, against three models, without writing a harness first.", name: "Giulia Romano", role: "Founding engineer", tag: "Seed · devtools", rating: 5.0 },
+    { date: "8 Oct, 2025", quote: "Our reviewer asked how we evaluate the model. We exported the run and that was the whole conversation. No slide deck, no hand-waving about benchmarks.", name: "Beatrice Conti", role: "VP Engineering", tag: "Enterprise", rating: 4.8 }
+  ];
+
+  var qi = 0;
+  var qdir = 1;
+  var N = QUOTES.length;
+  var center = document.getElementById("centerCard");
+  var leftCard = document.getElementById("leftCard");
+  var rightCard = document.getElementById("rightCard");
+  var leftFrame = document.getElementById("leftFrame");
+  var rightFrame = document.getElementById("rightFrame");
+
+  function cardHTML(q) {
+    return '<p class="date">' + q.date + "</p>" +
+      '<p class="quote">' + q.quote + "</p>" +
+      '<div class="meta">' +
+        '<div class="avatar" data-goo="avatar" data-cols="3" data-rows="3"></div>' +
+        '<div class="meta-text">' +
+          '<p class="name">' + q.name + "</p>" +
+          '<div class="meta-bottom">' +
+            '<div class="meta-tags"><p>' + q.role + "</p><p>" + q.tag + "</p></div>" +
+            '<div class="rating"><span class="star">★</span><span>' + q.rating.toFixed(1) + "</span></div>" +
+          "</div>" +
+        "</div>" +
+      "</div>";
+  }
+
+  function renderSlider() {
+    var p = (qi - 1 + N) % N;
+    var n = (qi + 1) % N;
+    center.innerHTML = cardHTML(QUOTES[qi]);
+    leftCard.innerHTML = cardHTML(QUOTES[p]);
+    rightCard.innerHTML = cardHTML(QUOTES[n]);
+    // the avatars are compositions too, so each rerender gets fresh ones
+    Array.prototype.forEach.call(document.querySelectorAll(".card [data-goo]:empty"), buildGoo);
+  }
+
+  function swapAnimate() {
+    if (REDUCED || !window.gsap) return;
+    var d = qdir;
+    var tl = gsap.timeline();
+    tl.fromTo(center, { opacity: 0, scale: 0.92, x: d * 30, y: 12 },
+      { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.5, ease: "power3.out" }, 0);
+    tl.fromTo(leftFrame, { opacity: 0 }, { opacity: 0.5, duration: 0.5, ease: "power2.out" }, 0.05);
+    tl.fromTo(rightFrame, { opacity: 0 }, { opacity: 0.5, duration: 0.5, ease: "power2.out" }, 0.05);
+  }
+
+  document.getElementById("prevBtn").addEventListener("click", function () {
+    qdir = -1; qi = (qi - 1 + N) % N; renderSlider(); swapAnimate();
+  });
+  document.getElementById("nextBtn").addEventListener("click", function () {
+    qdir = 1; qi = (qi + 1) % N; renderSlider(); swapAnimate();
+  });
+  renderSlider();
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* ── Motion ───────────────────────────────────────────────────────── */
+  if (!window.gsap || REDUCED) return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.from("[data-anim='nav']", { yPercent: -100, duration: 0.9, ease: "power3.out" });
+
+  gsap.timeline({ defaults: { ease: "power3.out" } })
+    .from("[data-anim='hero-h1']", { opacity: 0, y: 40, duration: 1.2 })
+    .from("[data-anim='hero-deco']", { opacity: 0, scale: 0.6, duration: 0.8, stagger: 0.1, transformOrigin: "center" }, "-=0.6")
+    .from("[data-anim='hero-info']", { opacity: 0, y: 20, duration: 0.6, stagger: 0.05 }, "-=0.7");
+
+  gsap.from("[data-anim='art-grid'] > div", {
+    opacity: 0, scale: 0.9, duration: 0.4,
+    stagger: { amount: 0.6, from: "random" },
+    scrollTrigger: { trigger: "[data-anim='art-grid']", start: "top 80%" }
+  });
+
+  var batch = function (sel, vars) {
+    gsap.utils.toArray(sel).forEach(function (el) {
+      gsap.from(el, Object.assign({ scrollTrigger: { trigger: el, start: "top 85%" } }, vars));
+    });
+  };
+
+  batch("[data-anim='reveal']", { opacity: 0, y: 60, duration: 1, ease: "power3.out" });
+  batch("[data-anim='photo']", { opacity: 0, scale: 0.85, duration: 1, ease: "power3.out" });
+  batch("[data-anim='hand']", { opacity: 0, scale: 0.4, rotate: -8, duration: 0.7, ease: "back.out(1.8)", transformOrigin: "center" });
+
+  gsap.utils.toArray("[data-anim='stagger'], [data-anim='steps']").forEach(function (el) {
+    gsap.from(el.children, {
+      opacity: 0, y: 40, duration: 0.8, stagger: 0.12, ease: "power3.out",
+      scrollTrigger: { trigger: el, start: "top 85%" }
+    });
+  });
+
+  gsap.utils.toArray("[data-anim='card-pop']").forEach(function (el, i) {
+    gsap.from(el, {
+      opacity: 0, scale: 0.7, y: 60, duration: 0.9, delay: (i % 3) * 0.12,
+      ease: "back.out(1.6)", scrollTrigger: { trigger: el, start: "top 85%" }
+    });
+  });
+
+  /* Floats and parallax each own their own wrapper, so no two tweens ever
+     write to the same element's transform. */
+  gsap.utils.toArray("[data-anim='float']").forEach(function (el, i) {
+    gsap.from(el, { opacity: 0, y: 30, duration: 0.8, delay: (i % 4) * 0.08, ease: "power3.out",
+      scrollTrigger: { trigger: el, start: "top 95%" } });
+    gsap.to(el, { y: "+=12", duration: 3 + (i % 3), repeat: -1, yoyo: true, ease: "sine.inOut" });
+  });
+
+  gsap.utils.toArray("[data-anim='parallax']").forEach(function (el) {
+    gsap.to(el, {
+      yPercent: -50 * parseFloat(el.dataset.speed || "0.3"), ease: "none",
+      scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true }
+    });
+  });
+
+  window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+})();
+</script>
+</body>
+</html>
