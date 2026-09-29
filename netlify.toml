@@ -1,0 +1,25 @@
+# Netlify build. The redirects and headers are NOT here on purpose: they live
+# in public/_redirects and public/_headers, Vite copies them into dist/, and
+# Netlify reads them from there. Declaring them in both places means one of
+# them silently wins later.
+#
+# NODE_VERSION is pinned because the build runs plugins/library-endpoints.mjs,
+# which evaluates src/data/prompts.ts to emit prompts.json, llms.txt and the
+# /p/* endpoints. An unpinned default moves under you on somebody else's
+# schedule, and that file is the one that would break.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--no-audit --no-fund"
+
+# Deploy previews and branch builds get the same treatment as production, so a
+# preview is worth looking at.
+[context.deploy-preview]
+  command = "npm run build"
+
+[context.branch-deploy]
+  command = "npm run build"
