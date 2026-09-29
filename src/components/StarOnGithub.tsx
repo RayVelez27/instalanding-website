@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Github, Star } from "lucide-react";
 
 /** owner/repo for the library itself. One place to change after the repo is public. */
-export const GITHUB_REPO = "RayVelez27/instalanding";
+export const GITHUB_REPO = "RayVelez27/instalanding-website";
 
 const CACHE_KEY = `stars:${GITHUB_REPO}`;
 

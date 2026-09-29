@@ -34,9 +34,31 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+/**
+ * createClient throws outright when the URL is missing, and this module is
+ * imported at the app root by AuthProvider. One unset environment variable
+ * therefore takes the ENTIRE site down with a blank page — including every
+ * page that never touches auth — and the build that produced it succeeds with
+ * no warning, so the first sign of trouble is a white screen in production.
+ *
+ * Fall back to a syntactically valid placeholder so the module loads, and
+ * expose a flag the auth layer can check. Auth degrades; the library renders.
+ */
+export const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+
+if (!supabaseConfigured && typeof console !== "undefined") {
+  console.warn(
+    "[supabase] VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY are not set. " +
+      "Sign-in and subscribe are disabled; the rest of the site is unaffected."
+  );
+}
+
+const RESOLVED_URL = SUPABASE_URL || "https://unconfigured.invalid";
+const RESOLVED_KEY = SUPABASE_PUBLISHABLE_KEY || "unconfigured";
+
+export const supabase = createClient<Database>(RESOLVED_URL, RESOLVED_KEY, {
   global: {
-    fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
+    fetch: createSupabaseFetch(RESOLVED_KEY),
   },
   auth: {
     storage: brokeredPreviewStorage(),
