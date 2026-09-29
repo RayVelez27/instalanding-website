@@ -15,6 +15,14 @@ export interface PromptEntry {
   demo?: string;
   /** Screenshot of the real component; replaces the CSS wireframe mock when present. */
   thumbnail?: string;
+  /**
+   * Whether the component itself is dark-ground or light-ground. Read off the
+   * screenshot's mean Rec.709 luminance rather than by eye, so the call is the
+   * same every time: the two populations here sit at 13-97 and 141-243, a gap
+   * wide enough that nothing is a judgement call. Drives the badge on the
+   * detail page and the alternation in the feed.
+   */
+  theme?: "dark" | "light";
   /** Third-party work the component is built on, credited on the detail page. */
   credits?: PromptCredit[];
   /**
@@ -114,6 +122,7 @@ A starfield placed once from a seeded generator - nothing here needs to move to 
     added: "Sep 27, 2026",
     demo: "/demos/proxima-edge.html",
     thumbnail: "/thumbs/proxima-edge.jpg",
+    theme: "dark",
   },
   {
     title: "Speech Console Dashboard",
@@ -151,6 +160,7 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     added: "Sep 26, 2026",
     demo: "/demos/timbre-console.html",
     thumbnail: "/thumbs/timbre-console.jpg",
+    theme: "light",
   },
   {
     title: "Highlighter Markup Page",
@@ -191,6 +201,7 @@ Every layer but the nearest moves, and a layer that has drifted up shows its own
     added: "Sep 26, 2026",
     demo: "/demos/footnote-grounding.html",
     thumbnail: "/thumbs/footnote-grounding.jpg",
+    theme: "light",
     credits: [
       {
         label: "Nice <mark> by Christian Alder",
@@ -242,6 +253,7 @@ Under prefers-reduced-motion the aperture is already open, the pills are parked 
     added: "Sep 26, 2026",
     demo: "/demos/mnemo-context-window.html",
     thumbnail: "/thumbs/mnemo-context-window.jpg",
+    theme: "dark",
     credits: [
       {
         label: "Parallax 404 by Rafaela Lucas",
@@ -324,6 +336,7 @@ Keep the background to the frame and the light. A drifting particle field and a 
     added: "Sep 25, 2026",
     demo: "/demos/umbra-eclipse.html",
     thumbnail: "/thumbs/umbra-eclipse.jpg",
+    theme: "dark",
     credits: [
       {
         label: "Eclipx by RAFA3L",
@@ -366,6 +379,7 @@ Run the frame loop only while the panel is on screen and stop it once the machin
     added: "Sep 25, 2026",
     demo: "/demos/kiln-panel.html",
     thumbnail: "/thumbs/kiln-panel.jpg",
+    theme: "dark",
   },
   {
     title: "Model Capture Console",
@@ -412,6 +426,7 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     added: "Sep 25, 2026",
     demo: "/demos/maverick-console.html",
     thumbnail: "/thumbs/maverick-console.jpg",
+    theme: "dark",
     credits: [
       {
         label: "VHS case-file layout by mahri",
@@ -465,6 +480,7 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     added: "Sep 25, 2026",
     demo: "/demos/drive-cluster.html",
     thumbnail: "/thumbs/drive-cluster.jpg",
+    theme: "dark",
   },
   {
     title: "Live Phone Feature Tour Page",
@@ -505,6 +521,7 @@ The demo row is 340px + 1fr above 800px and stacks below it; the rail hides unde
     added: "Sep 24, 2026",
     demo: "/demos/mise-ai-kitchen.html",
     thumbnail: "/thumbs/mise-ai-kitchen.jpg",
+    theme: "dark",
   },
   {
     title: "Grain Motion System Page",
@@ -577,6 +594,7 @@ Lay the walls out on a grid, not wrapping flex. The captions are wider than the 
     added: "Sep 24, 2026",
     demo: "/demos/grain-motion-system.html",
     thumbnail: "/thumbs/grain-motion-system.jpg",
+    theme: "light",
     credits: [
       {
         label: "Animated Button — Uiverse",
@@ -667,6 +685,7 @@ Under 640px the snake and the slab are hidden and the cards centre in one column
     added: "Sep 23, 2026",
     demo: "/demos/throughline-scroll-stack.html",
     thumbnail: "/thumbs/throughline-scroll-stack.jpg",
+    theme: "dark",
   },
   {
     title: "Agent Run Transcript Page",
@@ -753,6 +772,7 @@ Two columns collapse to one at 860px, the rate card at 760px, the meta strip to 
     added: "Sep 23, 2026",
     demo: "/demos/spool-run-transcript.html",
     thumbnail: "/thumbs/spool-run-transcript.jpg",
+    theme: "light",
   },
   {
     title: "Notched Panel Catalog Page",
@@ -798,6 +818,7 @@ One column of cards under 480px, two to 768px, three above. The interlocking foo
     added: "Sep 23, 2026",
     demo: "/demos/modelyard-router.html",
     thumbnail: "/thumbs/modelyard-router.jpg",
+    theme: "light",
   },
   {
     title: "Squircle Keycap Product Page",
@@ -846,6 +867,7 @@ DETAILS THAT MATTER
     added: "Sep 23, 2026",
     demo: "/demos/bigred-runbooks.html",
     thumbnail: "/thumbs/bigred-runbooks.jpg",
+    theme: "light",
   },
   {
     title: "Generative Editorial Product Page",
@@ -891,6 +913,7 @@ At 1024px the centre nav, the about cards, the process floats and the ghost quot
     added: "Sep 22, 2026",
     demo: "/demos/prism-evals-editorial.html",
     thumbnail: "/thumbs/prism-evals-editorial.jpg",
+    theme: "light",
   },
   {
     title: "Wind Field Routing Page",
@@ -961,6 +984,7 @@ Under 62rem the grids go to two columns and the readout wraps. Under 46rem the n
     ],
     demo: "/demos/drift-wind-routing.html",
     thumbnail: "/thumbs/drift-wind-routing.jpg",
+    theme: "dark",
   },
   {
     title: "Clay Constellation SaaS Hero",
@@ -1038,6 +1062,7 @@ One thing to re-check after a palette swap: any button shaded with a flat black 
       },
     ],
     thumbnail: "/thumbs/traffo-constellation.jpg",
+    theme: "light",
   },
   {
     title: "SmartCare Clinical AI Landing Page",
@@ -1115,6 +1140,7 @@ DETAILS
     added: "Sep 22, 2026",
     demo: "/demos/smartcare-ai.html",
     thumbnail: "/thumbs/smartcare-ai.jpg",
+    theme: "dark",
   },
   {
     title: "CRAFT Studio WebGL Landing Page",
@@ -1158,6 +1184,7 @@ At 900px grids collapse to one column and the services rows reflow. At 640px, 22
     added: "Sep 22, 2026",
     demo: "/demos/craft-studio.html",
     thumbnail: "/thumbs/craft-studio.jpg",
+    theme: "light",
   },
   {
     title: "Launch Form Onboarding Flow",
@@ -1201,6 +1228,7 @@ Attributes: mode="signup|login", domain, simulate="normal|slow|fail". Events (bu
     added: "Sep 21, 2026",
     demo: "/demos/launch-form.html",
     thumbnail: "/thumbs/launch-form.jpg",
+    theme: "dark",
   },
   {
     title: "Canvas Fire Button",
@@ -1255,6 +1283,7 @@ SHOWCASE PAGE (dark, Bricolage Grotesque + Instrument Serif italic accents + Jet
       },
     ],
     thumbnail: "/thumbs/fire-button.jpg",
+    theme: "dark",
   },
   {
     title: "Monax Analytics Landing Page",
@@ -1302,6 +1331,7 @@ At 1000px columns stack and the bento goes to 2 columns. At 700px everything is 
     added: "Sep 21, 2026",
     demo: "/demos/monax-analytics.html",
     thumbnail: "/thumbs/monax-analytics.jpg",
+    theme: "light",
   },
   {
     title: "Clay SaaS Platform Page",
@@ -1360,6 +1390,7 @@ At 1100px the hero stacks and drops its fixed height. At 1024px grids go to 2 co
     ],
     demo: "/demos/dermexcel-clay-hero.html",
     thumbnail: "/thumbs/clay-pharma-landing-hero.jpg",
+    theme: "light",
   },
   {
     title: "Skewed Marquee Wall",
@@ -1405,6 +1436,7 @@ FALLBACKS AND DETAIL
     added: "Sep 22, 2026",
     demo: "/demos/marquee-wall.html",
     thumbnail: "/thumbs/marquee-wall.jpg",
+    theme: "dark",
   },
   {
     title: "Infinite Logo Marquee",
@@ -1465,6 +1497,7 @@ None in the repo, and none in the DOM: a frame scraper should never find a track
     videoAspect: "portrait",
     videoLoop: true,
     thumbnail: "/thumbs/you-can-see-code.jpg",
+    theme: "dark",
     hidden: true,
   },
   {
@@ -1625,6 +1658,41 @@ export const shuffle = <T>(list: readonly T[]): T[] => {
 };
 
 /**
+ * Deal two shuffled piles into one run so the two themes alternate instead of
+ * clumping.
+ *
+ * A plain shuffle of a 14/11 split puts four dark tiles together often enough
+ * to notice, and in a masonry grid that reads as a mistake — a black quadrant
+ * with the rest of the page around it. Strict A-B-A-B is no good either,
+ * because the piles are different sizes and the surplus then lands in a block
+ * at the end, which is the same fault moved to the bottom.
+ *
+ * So: walk the output positions and take from whichever pile is furthest
+ * behind the rate it is owed — Bresenham, essentially. The ratio holds at
+ * every point in the run, not just overall, so the extra darks are spread
+ * through the feed rather than pooled anywhere.
+ */
+const interleaveByTheme = (list: readonly PromptEntry[]): PromptEntry[] => {
+  const dark = shuffle(list.filter((p) => p.theme === "dark"));
+  const light = shuffle(list.filter((p) => p.theme === "light"));
+  // Anything untagged keeps its shuffled place at the end rather than being
+  // dropped: a missing screenshot should not cost an entry its slot.
+  const untagged = shuffle(list.filter((p) => p.theme !== "dark" && p.theme !== "light"));
+
+  const out: PromptEntry[] = [];
+  let d = 0, l = 0;
+  const total = dark.length + light.length;
+  for (let i = 0; i < total; i++) {
+    // Which pile is further behind the share of the run it has been dealt?
+    const dOwed = dark.length ? (d + 0.5) / dark.length : Infinity;
+    const lOwed = light.length ? (l + 0.5) / light.length : Infinity;
+    if (dOwed <= lOwed) out.push(dark[d++]);
+    else out.push(light[l++]);
+  }
+  return out.concat(untagged);
+};
+
+/**
  * What the feed, the category pages and the pager walk.
  *
  * An entry earns its place by shipping something runnable — a demo in
@@ -1632,15 +1700,40 @@ export const shuffle = <T>(list: readonly T[]): T[] => {
  * /prompt/:slug, but a CSS wireframe standing in for a screenshot is not
  * something to put in front of anyone.
  *
- * Shuffled once per page load, not per render, so the order holds still while
- * you browse and changes when you come back.
+ * Ordered once per page load, not per render, so it holds still while you
+ * browse and changes when you come back.
  */
-export const visiblePrompts: PromptEntry[] = shuffle(
-  prompts.filter((p) => !p.hidden && (p.demo || p.repoUrl))
+const runnable = prompts.filter((p) => !p.hidden && (p.demo || p.repoUrl));
+
+export const visiblePrompts: PromptEntry[] = interleaveByTheme(runnable);
+
+/**
+ * The main feed. Section-only entries are reachable from their section.
+ *
+ * Interleaved from the filtered list rather than filtered from the interleaved
+ * one — which is a real distinction, not a tidy-up. Taking four entries out of
+ * an alternating run closes the gaps they leave and their neighbours end up
+ * side by side, so the feed came out with pairs and triples in it even though
+ * the order it was cut from alternated perfectly.
+ */
+export const feedPrompts: PromptEntry[] = interleaveByTheme(
+  runnable.filter((p) => !p.sectionOnly)
 );
 
-/** The main feed. Section-only entries are reachable from their section. */
-export const feedPrompts: PromptEntry[] = visiblePrompts.filter((p) => !p.sectionOnly);
+/**
+ * A category's run, alternating within that category — same reason.
+ *
+ * Memoised so the order is fixed for the life of the page: recomputing per
+ * render would reshuffle the grid underneath anyone who scrolled it.
+ */
+const categoryRuns = new Map<string, PromptEntry[]>();
+export const promptsInCategory = (category: string): PromptEntry[] => {
+  const cached = categoryRuns.get(category);
+  if (cached) return cached;
+  const run = interleaveByTheme(runnable.filter((p) => p.category === category));
+  categoryRuns.set(category, run);
+  return run;
+};
 
 /**
  * Product has a top-level section of its own, so it lives at /product rather
@@ -1654,6 +1747,6 @@ export const getPromptBySlug = (slug?: string) =>
 
 /** Other prompts in the same category, for the "more like this" rail. */
 export const getRelatedPrompts = (entry: PromptEntry, limit = 4) =>
-  visiblePrompts
-    .filter((p) => p.category === entry.category && p.slug !== entry.slug)
+  promptsInCategory(entry.category)
+    .filter((p) => p.slug !== entry.slug)
     .slice(0, limit);

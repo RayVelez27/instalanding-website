@@ -127,6 +127,12 @@ const PromptModal = () => {
             <div className="pmodal-headings">
               <p className="pmodal-kicker">
                 {entry.categoryLabel} · ADDED {entry.added.toUpperCase()}
+                {entry.theme && (
+                  <span className={`pmodal-theme pmodal-theme--${entry.theme}`}>
+                    <span className="pmodal-theme-dot" aria-hidden="true" />
+                    {entry.theme === "dark" ? "DARK" : "LIGHT"}
+                  </span>
+                )}
               </p>
               <Dialog.Title className="pmodal-title">{entry.title}</Dialog.Title>
               <Dialog.Description className="pmodal-desc" id="pmodal-desc">

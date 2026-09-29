@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Copy, Check, ArrowRight, ExternalLink } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { feedPrompts, visiblePrompts, type PromptEntry } from "@/data/prompts";
+import { feedPrompts, promptsInCategory, type PromptEntry } from "@/data/prompts";
 import PromptThumb from "@/components/PromptThumb";
 import { copyText } from "@/lib/copyText";
 
@@ -72,9 +72,9 @@ const GridTile = (entry: TileProps) => {
 const PromptGrid = ({ category }: { category?: string }) => {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
-  const items = category
-    ? visiblePrompts.filter((p) => p.category === category)
-    : feedPrompts;
+  // promptsInCategory, not a filter over the interleaved list: filtering an
+  // alternating run closes the gaps and the themes clump again.
+  const items = category ? promptsInCategory(category) : feedPrompts;
 
   const handleCopy = async (entry: PromptEntry) => {
     await copyText(entry.prompt);

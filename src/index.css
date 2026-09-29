@@ -1904,6 +1904,21 @@ html {
 }
 .pmodal-headings { min-width: 0; }
 .pmodal-kicker { font-size: 9px; letter-spacing: 0.18em; color: #999; margin: 0 0 6px; }
+/* Dark/light badge. The swatch carries the meaning and the word repeats it,
+   because a colour alone is not readable to everyone and this sits in a row
+   of otherwise plain text. */
+.pmodal-theme {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-left: 10px; padding: 2px 7px 2px 5px;
+  border: 1px solid #2a2a2a; border-radius: 999px;
+  vertical-align: baseline;
+}
+.pmodal-theme-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  border: 1px solid #555; flex: 0 0 auto;
+}
+.pmodal-theme--dark .pmodal-theme-dot { background: #101014; }
+.pmodal-theme--light .pmodal-theme-dot { background: #f2f0e8; }
 .pmodal-title {
   margin: 0;
   font-size: 20px;
