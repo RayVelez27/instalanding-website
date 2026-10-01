@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Traffo — Convert traffic, get better conversions</title>
-<meta name="description" content="Single-file analytics landing page: a constellation of floating clay tiles wired with drawn SVG lines, a 3D-tilting cluster, GSAP entrance and scroll reveals, on warm paper." />
+<title>Traffo Landing Page</title>
+<meta name="description" content="Traffo AI landing page: an AI analyst you ask about your traffic, shown in a live chat demo, with GSAP entrance and scroll reveals on warm paper." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,6 +12,7 @@
 
 <style>
 :root {
+  color-scheme: light;
   /* Warm grey ground, cream cards, near-black ink and ONE yellow. The
      yellow used to be an acid #e5ff00, which is a signal colour: it reads
      as a highlighter wherever it lands and it turns any shadow tinted with
@@ -47,6 +48,7 @@
   --purple: #dcd0ee;
   --purple-light: #ece2f8;
   --purple-deep: #ab9bd0;
+  --cream-deep: #ddd5bf;
   --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -102,6 +104,11 @@ svg { display: block; }
   border-radius: 8px;
 }
 
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
 .skip {
   position: absolute;
   left: 16px; top: -60px;
@@ -133,14 +140,30 @@ svg { display: block; }
 .site-header {
   position: fixed; top: 14px; left: 0; right: 0; z-index: 55;
   display: flex; justify-content: center;
-  padding: 18px clamp(14px, 3vw, 40px);
+  /* 18px less the frame's own 14px, so the bar sits where it always did */
+  padding: 4px clamp(14px, 3vw, 40px);
   pointer-events: none;
+}
+/* The hero button's measuring frame, drawn around the whole bar when its
+   "Start for free" is hovered: the same dashed guides and corner dots, on
+   the paper outside the black where they can be seen. */
+.nav-frame {
+  position: relative;
+  display: inline-flex;
+  padding: var(--line-distance);
+  max-width: 100%;
 }
 .nav-pill {
   pointer-events: auto;
   display: inline-flex; align-items: center; gap: 4px;
   padding: 6px;
-  border-radius: 100px;
+  /* The hero button's squish is 30% / 200%, which only looks right at a
+     button's proportions: on a bar four times wider the same percentages
+     shrink the side curve to ~4px and the ends turn to wedges. This is the
+     same shape as the button renders it, a corner a little over half as
+     wide as it is tall, written in px so it holds at any width. */
+  border-radius: 17px / 50%;
+  transition: border-radius 0.3s ease-in-out;
   background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
   /* the pill's own relief: a lit top edge, a dark inner foot, a hard
      bottom lip and two spreads of cast — not a glow, a moulding */
@@ -162,6 +185,16 @@ svg { display: block; }
   display: flex; align-items: center; gap: 9px;
   white-space: nowrap;
 }
+.logo-ai {
+  margin-left: 6px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  color: var(--ink);
+  background: var(--yellow);
+  padding: 2px 6px 1px;
+  border-radius: 5px / 50%;
+  vertical-align: 2px;
+}
 .logo-cube { width: 20px; height: 20px; display: grid; place-items: center; }
 .logo-cube svg { width: 20px; height: 20px; }
 .header-nav {
@@ -171,7 +204,7 @@ svg { display: block; }
 .header-nav a {
   color: #ccc;
   padding: 10px 15px 11px;
-  border-radius: 100px;
+  border-radius: 11px / 50%;
   display: flex; align-items: center; gap: 4px;
   letter-spacing: -0.005em;
   transition: color 0.2s, background 0.2s;
@@ -183,7 +216,8 @@ svg { display: block; }
 .book-cta {
   margin-left: 6px;
   padding: 10px 20px 11px;
-  border-radius: 100px;
+  /* nested inside the bar's 6px padding: its corner is the bar's, less 6px */
+  border-radius: 11px / 50%;
   border: 1px solid var(--yellow-line);
   background: linear-gradient(180deg, var(--yellow-light) 0%, var(--yellow) 55%, var(--yellow-deep) 100%);
   color: var(--ink);
@@ -193,9 +227,15 @@ svg { display: block; }
     inset 0 1px 0 rgba(255, 255, 255, 0.6),
     inset 0 -1px 2px rgba(180, 140, 30, 0.3),
     0 2px 4px rgba(200, 160, 30, 0.3);
-  transition: transform 0.15s ease;
+  transition: transform 0.2s ease-in-out, border-radius 0.3s ease-in-out;
 }
-.book-cta:hover { transform: translateY(-1px); }
+.book-cta:hover, .book-cta:focus-visible { border-radius: 4px / 50%; }
+.book-cta:active { transform: scale(0.98); border-radius: 8px / 50%; }
+/* The button does not grow; it and the bar around it squish together,
+   in the same proportions the hero button uses on hover and press. */
+.nav-pill:has(.book-cta:hover),
+.nav-pill:has(.book-cta:focus-visible) { border-radius: 6px / 50%; }
+.nav-pill:has(.book-cta:active) { border-radius: 11px / 50%; }
 
 /* header-btn retired: the header now uses the same framed button, small. */
 
@@ -204,8 +244,8 @@ svg { display: block; }
    ════════════════════════════════════════════════ */
 .hero {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
   padding: 40px clamp(20px, 4vw, 56px);
   align-items: center;
   position: relative;
@@ -218,19 +258,20 @@ svg { display: block; }
 .hero-title {
   font-family: "Funnel Display", system-ui, sans-serif;
   font-weight: 800;
-  font-size: clamp(48px, 5.8vw, 84px);
-  line-height: 1.02;
-  letter-spacing: -0.045em;
-  margin-bottom: 32px;
+  /* sized so "conversions", the longest line, fills the column without
+     wrapping: each line is one phrase and should read as one block */
+  font-size: clamp(40px, 6vw, 96px);
+  line-height: 0.96;
+  letter-spacing: -0.042em;
+  margin-bottom: 36px;
 }
-.title-line { display: block; overflow: hidden; padding-bottom: 0.08em; }
+.title-line { display: block; overflow: hidden; padding-bottom: 0.1em; white-space: nowrap; }
 .title-inner { display: inline-block; will-change: transform; }
 .hero-desc {
   font-size: 16px;
   line-height: 1.55;
   color: var(--ink-soft);
   max-width: 380px;
-  margin-bottom: 40px;
 }
 
 /* ════════════════════════════════════════════════
@@ -262,14 +303,7 @@ svg { display: block; }
      face — a wedge straight through the constellation. Percentages of an
      axis do not survive a change of scale: pushed to 93-97% the band clips
      the corner the way it does on the small card. */
-  background: linear-gradient(
-    35deg,
-    #ffffff 0%,
-    #ffffff 92.8%,
-    var(--yellow) 93%,
-    var(--yellow) 96.6%,
-    #ffffff 96.9%
-  );
+  background: #ffffff;
   /* The clay recipe says a coloured cast rather than a grey one, and with
      this accent that came out as an acid halo ringing the whole slab —
      legible as a glow rather than as a shadow, which is not what a shadow
@@ -337,12 +371,16 @@ svg { display: block; }
    but a coloured drop shadow, which works at 34pt on a 400px card and turns
    into a ghost at 84px — the outline is too thin a fraction of the letter to
    read. A stroke does the holding and the acid does the depth. */
+/* Filled with the brand yellow and cast in ink, the line reads as a
+   sticker pressed onto the slab rather than as a hollow outline. The mask
+   gets extra room right and below so the cast is not clipped. */
+.title-line.sticker { padding: 0.02em 0.12em 0.16em 0; margin-bottom: -0.1em; }
 .title-line.sticker .title-inner {
-  color: #ffffff;
-  -webkit-text-stroke: 2px var(--ink);
-  text-stroke: 2px var(--ink);
+  color: var(--yellow);
+  -webkit-text-stroke: 0.045em var(--ink);
+  text-stroke: 0.045em var(--ink);
   paint-order: stroke fill;
-  text-shadow: 5px 6px 0 var(--yellow);
+  text-shadow: 0.05em 0.06em 0 var(--ink);
   /* the title runs at -0.035em; a stroke that wide closes the gaps between
      letters at that tracking, so this line breathes a little more */
   letter-spacing: -0.012em;
@@ -355,10 +393,11 @@ svg { display: block; }
   z-index: -1;
   left: -0.06em;
   right: -0.06em;
-  bottom: 0.1em;
-  height: 0.26em;
+  bottom: 0.06em;
+  height: 0.36em;
   background: var(--yellow);
-  border-radius: 2px;
+  border-radius: 0.06em;
+  transform: rotate(-1.2deg);
 }
 
 @media (max-width: 900px) {
@@ -391,7 +430,9 @@ svg { display: block; }
   user-select: none;
 }
 .btn-wrapper:has(.btn:hover),
-.btn-wrapper:focus-within {
+.btn-wrapper:focus-within,
+.nav-frame:has(.book-cta:hover),
+.nav-frame:has(.book-cta:focus-visible) {
   animation: frame-wash calc(var(--animation-speed) * 4) ease-in-out forwards;
 }
 @keyframes frame-wash {
@@ -463,7 +504,9 @@ svg { display: block; }
   opacity: 0;
 }
 .btn-wrapper:has(.btn:hover) .dot.top.left,
-.btn-wrapper:focus-within .dot.top.left {
+.btn-wrapper:focus-within .dot.top.left,
+.nav-frame:has(.book-cta:hover) .dot.top.left,
+.nav-frame:has(.book-cta:focus-visible) .dot.top.left {
   top: 50%; left: 20%;
   animation: move-top-left var(--animation-speed) ease-in-out forwards;
 }
@@ -472,7 +515,9 @@ svg { display: block; }
   100% { top: calc(var(--dot-size) * -0.5); left: calc(var(--dot-size) * -0.5); opacity: 1; }
 }
 .btn-wrapper:has(.btn:hover) .dot.top.right,
-.btn-wrapper:focus-within .dot.top.right {
+.btn-wrapper:focus-within .dot.top.right,
+.nav-frame:has(.book-cta:hover) .dot.top.right,
+.nav-frame:has(.book-cta:focus-visible) .dot.top.right {
   top: 50%; right: 20%;
   animation: move-top-right var(--animation-speed) ease-in-out forwards;
   animation-delay: calc(var(--animation-speed) * 0.6);
@@ -482,7 +527,9 @@ svg { display: block; }
   100% { top: calc(var(--dot-size) * -0.5); right: calc(var(--dot-size) * -0.5); opacity: 1; }
 }
 .btn-wrapper:has(.btn:hover) .dot.bottom.right,
-.btn-wrapper:focus-within .dot.bottom.right {
+.btn-wrapper:focus-within .dot.bottom.right,
+.nav-frame:has(.book-cta:hover) .dot.bottom.right,
+.nav-frame:has(.book-cta:focus-visible) .dot.bottom.right {
   bottom: 50%; right: 20%;
   animation: move-bottom-right var(--animation-speed) ease-in-out forwards;
   animation-delay: calc(var(--animation-speed) * 1.2);
@@ -492,7 +539,9 @@ svg { display: block; }
   100% { bottom: calc(var(--dot-size) * -0.5); right: calc(var(--dot-size) * -0.5); opacity: 1; }
 }
 .btn-wrapper:has(.btn:hover) .dot.bottom.left,
-.btn-wrapper:focus-within .dot.bottom.left {
+.btn-wrapper:focus-within .dot.bottom.left,
+.nav-frame:has(.book-cta:hover) .dot.bottom.left,
+.nav-frame:has(.book-cta:focus-visible) .dot.bottom.left {
   bottom: 50%; left: 20%;
   animation: move-bottom-left var(--animation-speed) ease-in-out forwards;
   animation-delay: calc(var(--animation-speed) * 1.8);
@@ -525,22 +574,30 @@ svg { display: block; }
 .line.right { right: calc(var(--line-weight) * -0.5); transform-origin: top right; transform: rotate(5deg) scaleY(0); }
 
 .btn-wrapper:has(.btn:hover) .line.top,
-.btn-wrapper:focus-within .line.top {
+.btn-wrapper:focus-within .line.top,
+.nav-frame:has(.book-cta:hover) .line.top,
+.nav-frame:has(.book-cta:focus-visible) .line.top {
   animation: draw-x var(--animation-speed) ease-in-out forwards;
   animation-delay: calc(var(--animation-speed) * 0.8);
 }
 .btn-wrapper:has(.btn:hover) .line.right,
-.btn-wrapper:focus-within .line.right {
+.btn-wrapper:focus-within .line.right,
+.nav-frame:has(.book-cta:hover) .line.right,
+.nav-frame:has(.book-cta:focus-visible) .line.right {
   animation: draw-y var(--animation-speed) ease-in-out forwards;
   animation-delay: calc(var(--animation-speed) * 1.4);
 }
 .btn-wrapper:has(.btn:hover) .line.bottom,
-.btn-wrapper:focus-within .line.bottom {
+.btn-wrapper:focus-within .line.bottom,
+.nav-frame:has(.book-cta:hover) .line.bottom,
+.nav-frame:has(.book-cta:focus-visible) .line.bottom {
   animation: draw-x var(--animation-speed) ease-in-out forwards;
   animation-delay: calc(var(--animation-speed) * 2);
 }
 .btn-wrapper:has(.btn:hover) .line.left,
-.btn-wrapper:focus-within .line.left {
+.btn-wrapper:focus-within .line.left,
+.nav-frame:has(.book-cta:hover) .line.left,
+.nav-frame:has(.book-cta:focus-visible) .line.left {
   animation: draw-y var(--animation-speed) ease-in-out forwards;
   animation-delay: calc(var(--animation-speed) * 2.4);
 }
@@ -578,185 +635,254 @@ svg { display: block; }
 .framed:hover::after { opacity: 1; transition-delay: calc(var(--animation-speed) * 0.8); }
 
 /* ════════════════════════════════════════════════
-   THE CONSTELLATION
-   Tiles are absolutely placed in a 600x660 field. Below that width the
-   whole field SCALES rather than the tiles resizing — px positions and
-   smaller tiles drift apart and the drawn lines stop meeting them.
+   THE CHAT
+   The product, shown working: a scripted conversation with the Traffo
+   assistant that plays on load, then answers whatever the visitor types
+   from a small set of canned demo replies. Built from the page's own
+   parts: a cream clay card, a head cut from the same black moulding as
+   the nav bar, assistant bubbles in white clay and the visitor's in the
+   yellow of the buttons.
    ════════════════════════════════════════════════ */
-.hero-right { display: grid; place-items: center; position: relative; }
+.hero-right { display: grid; place-items: center; position: relative; min-width: 0; }
 
-/* A transform scales pixels, not the layout box: the field still reserves
-   600x660 and the page overflows. The negative margins reclaim exactly what
-   the scale gives back — 600*(1-s)/2 each side, 660*(1-s) at the bottom. */
-.constellation-scale { width: 600px; height: 660px; transform-origin: center top; }
+.chat-stage { width: 100%; max-width: 470px; position: relative; }
 
-.constellation {
+.chat {
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 34px;
+  background: linear-gradient(180deg, var(--cream) 0%, var(--cream-2) 100%);
+  border: 1px solid var(--cream-line);
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -10px 22px -8px rgba(92, 82, 30, 0.14),
+    0 22px 50px -18px rgba(92, 82, 24, 0.3),
+    0 50px 90px -50px rgba(15, 15, 15, 0.35);
+  overflow: hidden;
   position: relative;
-  width: 600px;
-  height: 660px;
-  perspective: 1500px;
-  transform-style: preserve-3d;
-}
-.constellation-inner {
-  position: relative;
-  width: 100%; height: 100%;
-  transform-style: preserve-3d;
-  will-change: transform;
-  z-index: 1;
-}
-.constellation-lines {
-  position: absolute;
-  inset: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-.constellation-lines path {
-  fill: none;
-  stroke: rgba(15, 15, 15, 0.85);
-  stroke-width: 1.6;
-  stroke-linecap: round;
 }
 
-.tile { position: absolute; z-index: 2; transform-style: preserve-3d; }
-
-/* Three layers, one job each: GSAP owns .tile (entrance), the CSS
-   keyframe owns .tile-float, and hover owns .tile-inner. Put the float
-   on .tile and the entrance tween fights the keyframe for `transform`
-   — the elastic pop is what loses. */
-.tile-float {
-  width: 100%; height: 100%;
-  animation: tile-float var(--dur, 5s) ease-in-out infinite var(--delay, 0s);
-}
-@keyframes tile-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(var(--float, -8px)); }
-}
-
-.tile-inner {
-  width: 100%; height: 100%;
-  border-radius: 36px;
-  display: grid;
-  place-items: center;
-  position: relative;
-  transition: transform 0.4s var(--spring);
-  will-change: transform;
-}
-.tile:hover .tile-inner { transform: translateY(-10px) scale(1.06); }
-
-.tile-icon {
-  width: 50%; height: 50%;
-  display: grid;
-  place-items: center;
-  transition: transform 0.5s var(--spring);
-}
-.tile:hover .tile-icon { transform: scale(1.12) rotate(-4deg); }
-.tile-icon svg { width: 100%; height: 100%; }
-
-.tile.mint .tile-inner {
-  background: linear-gradient(165deg, var(--mint-light) 0%, var(--mint) 50%, var(--mint-deep) 100%);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 0 rgba(0, 0, 0, 0.08),
-    inset 0 0 30px rgba(255, 255, 255, 0.4), 0 12px 24px rgba(149, 197, 152, 0.4),
-    0 24px 48px rgba(0, 0, 0, 0.08);
-}
-.tile.yellow .tile-inner {
-  background: linear-gradient(165deg, var(--yellow-light) 0%, var(--yellow) 50%, var(--yellow-deep) 100%);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.6), inset 0 -4px 0 rgba(0, 0, 0, 0.12),
-    inset 0 0 30px rgba(255, 255, 255, 0.3), 0 12px 24px rgba(185, 204, 0, 0.35),
-    0 24px 48px rgba(0, 0, 0, 0.1);
-}
-.tile.purple .tile-inner {
-  background: linear-gradient(165deg, var(--purple-light) 0%, var(--purple) 50%, var(--purple-deep) 100%);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.7), inset 0 -4px 0 rgba(0, 0, 0, 0.08),
-    inset 0 0 30px rgba(255, 255, 255, 0.4), 0 12px 24px rgba(171, 155, 208, 0.4),
-    0 24px 48px rgba(0, 0, 0, 0.08);
-}
-.tile.black .tile-inner {
-  background: linear-gradient(165deg, #3a3a3a 0%, #1a1a1a 50%, #050505 100%);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2), inset 0 -3px 0 rgba(0, 0, 0, 0.5),
-    inset 0 0 30px rgba(255, 255, 255, 0.05), 0 12px 24px rgba(0, 0, 0, 0.3),
-    0 24px 48px rgba(0, 0, 0, 0.18);
-  color: #fff;
-}
-
-.tile.size-main { width: 142px; height: 118px; }
-.tile.size-big { width: 156px; height: 132px; }
-.tile.size-pill { width: 64px; height: 64px; }
-.tile.size-pill .tile-inner { border-radius: 50%; }
-
-.tile-lock      { top: 0;    left: calc(50% - 32px); --dur: 4s;   --delay: 0s;   --float: -6px; }
-.tile-expand    { top: 95px; left: 95px;             --dur: 5.5s; --delay: .4s;  --float: -10px; }
-.tile-chart     { top: 95px; left: 365px;            --dur: 5s;   --delay: .8s;  --float: -8px; }
-.tile-cloud     { top: 245px; left: 5px;             --dur: 6s;   --delay: 1.2s; --float: -12px; }
-.tile-db        { top: 240px; left: 222px;           --dur: 4.5s; --delay: .2s;  --float: -7px; }
-.tile-thumb     { top: 245px; left: 455px;           --dur: 5.5s; --delay: .6s;  --float: -10px; }
-.tile-cursor    { top: 405px; left: 45px;            --dur: 4s;   --delay: 1s;   --float: -8px; }
-.tile-person    { top: 395px; left: 145px;           --dur: 5s;   --delay: .3s;  --float: -9px; }
-.tile-globe     { top: 395px; left: 315px;           --dur: 5.5s; --delay: .7s;  --float: -11px; }
-.tile-thumbpill { top: 405px; left: 495px;           --dur: 4.5s; --delay: .5s;  --float: -7px; }
-.tile-hex       { top: 545px; left: 230px;           --dur: 6s;   --delay: .9s;  --float: -10px; }
-
-.sparkle {
-  position: absolute;
-  width: 32px; height: 32px;
-  bottom: 30px; right: 30px;
-  color: var(--ink);
-  animation: spin 8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ════════════════════════════════════════════════
-   WORKSPACE BAR
-   ════════════════════════════════════════════════ */
-.workspace {
-  padding: 20px clamp(20px, 4vw, 56px) 80px;
+/* head: the nav bar's moulding, as a strip */
+.chat-head {
+  margin: 10px 10px 0;
+  padding: 10px 14px 10px 10px;
   display: flex;
   align-items: center;
-  gap: 40px;
-  flex-wrap: wrap;
+  gap: 12px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5),
+    0 2px 0 #000,
+    0 8px 16px -6px rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+.chat-avatar {
+  flex: none;
+  width: 38px; height: 38px;
+  border-radius: 13px;
+  display: grid; place-items: center;
+  background: linear-gradient(180deg, var(--yellow-light) 0%, var(--yellow) 55%, var(--yellow-deep) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -2px 3px rgba(180, 140, 30, 0.35);
+  color: var(--ink);
+}
+.chat-avatar svg { width: 20px; height: 20px; }
+.chat-who { min-width: 0; flex: 1; }
+.chat-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+.chat-status {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: #a9a9a2;
+  display: flex; align-items: center; gap: 6px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chat-status::before {
+  content: "";
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0 3px rgba(200, 236, 200, 0.18);
+  flex: none;
+}
+.chat-tag {
+  flex: none;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+  background: var(--cream);
+  padding: 5px 9px 4px;
+  border-radius: 8px / 50%;
+}
+
+/* the conversation */
+.chat-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 22px 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22px);
+  mask-image: linear-gradient(180deg, transparent 0, #000 22px);
+}
+.chat-log::-webkit-scrollbar { display: none; }
+
+.msg { display: flex; align-items: flex-end; gap: 9px; max-width: 88%; }
+.msg.from-ai { align-self: flex-start; }
+.msg.from-you { align-self: flex-end; flex-direction: row-reverse; }
+.msg .chat-avatar { width: 28px; height: 28px; border-radius: 10px; margin-bottom: 18px; }
+.msg .chat-avatar svg { width: 16px; height: 16px; }
+
+.bubble-wrap { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.from-you .bubble-wrap { align-items: flex-end; }
+.bubble {
+  padding: 11px 14px 12px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.from-ai .bubble {
+  background: #fff;
+  border-radius: 18px 18px 18px 6px;
+  box-shadow: inset 0 -2px 0 rgba(92, 82, 30, 0.07), 0 2px 8px -2px rgba(92, 82, 30, 0.12);
+}
+.from-you .bubble {
+  background: linear-gradient(180deg, var(--yellow-light) 0%, var(--yellow) 60%, var(--yellow-deep) 100%);
+  border-radius: 18px 18px 6px 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -2px 2px rgba(180, 140, 30, 0.3), 0 2px 6px -2px rgba(200, 160, 30, 0.35);
+}
+.bubble strong { font-weight: 700; }
+.stamp {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  padding-inline: 4px;
+}
+
+/* a message arrives with the source's bounce, from its own corner */
+.msg.is-new .bubble { animation: bubble-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.from-ai.is-new .bubble { transform-origin: 0 100%; }
+.from-you.is-new .bubble { transform-origin: 100% 100%; }
+@keyframes bubble-pop {
+  0% { transform: scale(0); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* typing: three ink dots bouncing in turn */
+.typing { display: flex; gap: 5px; padding: 15px 16px; }
+.typing i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ink);
+  opacity: 0.55;
+  animation: dot 0.45s cubic-bezier(0, 0, 0.15, 1) alternate infinite;
+}
+.typing i:nth-child(2) { animation-delay: 0.15s; }
+.typing i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes dot { from { transform: translateY(2px) scaleY(0.8); } to { transform: translateY(-5px); } }
+
+/* the answer card inside a reply: last 7 days of signups, drawn to scale */
+.mini-chart {
+  margin-top: 10px;
+  padding: 12px 12px 10px;
+  border-radius: 14px;
+  background: var(--cream);
+  border: 1px solid var(--cream-line);
+}
+.mini-chart-head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+.mini-chart-head b { color: #b3261e; font-weight: 600; font-variant-numeric: tabular-nums; }
+.bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; height: 72px; align-items: end; }
+.bar {
+  height: var(--h);
+  border-radius: 5px 5px 2px 2px;
+  background: var(--ink);
   position: relative;
-  z-index: 5;
 }
-.workspace-label {
-  font-family: "Funnel Display", system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: -0.01em;
-  flex-shrink: 0;
+.bar.after { background: var(--yellow-deep); }
+.bar.deploy::after {
+  content: "";
+  position: absolute; left: calc(100% + 2px); bottom: 0;
+  height: 72px; width: 0;
+  border-left: 1.5px dashed var(--ink-soft);
 }
-.feature-pills { display: flex; gap: 14px; }
-.fpill {
-  display: grid;
-  place-items: center;
-  border-radius: 100px;
-  transition: transform 0.4s var(--spring);
+.bar-days {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+  margin-top: 6px;
+  font-family: "JetBrains Mono", monospace; font-size: 9.5px; color: var(--ink-soft);
+  text-align: center;
 }
-.fpill:hover { transform: translateY(-4px) rotate(-3deg); }
-.fpill.round {
-  width: 64px; height: 64px;
-  background: linear-gradient(165deg, var(--mint-light) 0%, var(--mint) 100%);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), inset 0 -3px 0 rgba(0, 0, 0, 0.08),
-    0 10px 20px rgba(149, 197, 152, 0.4);
+
+/* suggestions + composer */
+.chat-suggest {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 4px 14px 8px;
 }
-.fpill.wide-yellow {
-  width: 130px; height: 64px;
-  background: linear-gradient(165deg, var(--yellow-light) 0%, var(--yellow) 100%);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -3px 0 rgba(0, 0, 0, 0.12),
-    0 10px 20px rgba(185, 204, 0, 0.35);
+.chip {
+  font: inherit;
+  font-size: 12.5px; font-weight: 500;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--cream-line);
+  padding: 6px 11px 7px;
+  border-radius: 9px / 50%;
+  cursor: pointer;
+  box-shadow: inset 0 -1.5px 0 rgba(92, 82, 30, 0.08);
+  transition: border-radius 0.3s ease-in-out, background 0.2s;
 }
-.fpill.wide-purple {
-  width: 130px; height: 64px;
-  background: linear-gradient(165deg, var(--purple-light) 0%, var(--purple) 100%);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), inset 0 -3px 0 rgba(0, 0, 0, 0.08),
-    0 10px 20px rgba(171, 155, 208, 0.4);
+.chip:hover { border-radius: 4px / 50%; background: var(--yellow-light); }
+
+.composer {
+  margin: 0 10px 10px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 6px 6px 16px;
+  background: #fff;
+  border: 1px solid var(--cream-line);
+  border-radius: 17px / 50%;
+  box-shadow: inset 0 2px 3px rgba(92, 82, 30, 0.06);
+  transition: border-radius 0.3s ease-in-out;
 }
-.learn-more {
-  margin-left: auto;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+.composer:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+.composer:has(.send:hover) { border-radius: 6px / 50%; }
+.composer textarea {
+  flex: 1; min-width: 0;
+  border: 0; outline: 0; resize: none; background: transparent;
+  font: inherit; font-size: 14.5px; line-height: 1.4;
+  color: var(--ink);
+  height: 21px;
+  padding: 0;
 }
+.composer textarea::placeholder { color: #8d8b82; }
+.send {
+  flex: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 14px 10px 16px;
+  font: inherit; font-size: 14px; font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  border: 1px solid var(--yellow-line);
+  border-radius: 11px / 50%;
+  background: linear-gradient(180deg, var(--yellow-light) 0%, var(--yellow) 55%, var(--yellow-deep) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 2px rgba(180, 140, 30, 0.3);
+  transition: border-radius 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+.send:hover { border-radius: 4px / 50%; }
+.send:active { transform: scale(0.97); border-radius: 8px / 50%; }
+.send svg { width: 16px; height: 16px; }
 
 /* ════════════════════════════════════════════════
    STATS
@@ -765,7 +891,7 @@ svg { display: block; }
   padding: 80px clamp(20px, 4vw, 56px);
   background: var(--bg-warm);
   border-radius: 48px 48px 0 0;
-  margin-top: 40px;
+  margin-top: 88px;
   position: relative;
   z-index: 5;
 }
@@ -1014,22 +1140,17 @@ svg { display: block; }
   .footer-top { flex-direction: column; gap: 40px; }
 }
 
-/* Scale the whole field instead of resizing tiles: the positions are in
-   px and the drawn lines are in the same coordinate space, so shrinking
-   the parts pulls them away from the wires. */
 @media (max-width: 700px) {
   .header-nav { display: none; }
-  /* Scale the WRAPPER. GSAP animates .constellation's transform on scroll,
-     and an inline transform beats a media query every time — put the
-     responsive scale anywhere GSAP is not writing. */
-  .constellation-scale { transform: scale(0.62); margin: 0 -114px -251px; }
+  .chat { height: 540px; border-radius: 28px; }
   .stats-grid { grid-template-columns: 1fr; }
   .stat { border-right: none; border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
   .stat:last-child { border-bottom: none; }
   .quote-section { padding-block: 80px; }
 }
 @media (max-width: 480px) {
-  .constellation-scale { transform: scale(0.46); margin: 0 -162px -356px; }
+  .chat-tag { display: none; }
+  .msg { max-width: 94%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1038,7 +1159,6 @@ svg { display: block; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  .tile-float, .sparkle { animation: none; }
 }
 </style>
 </head>
@@ -1051,6 +1171,15 @@ svg { display: block; }
 <div class="top-rule" aria-hidden="true"></div>
 
 <header class="site-header">
+  <div class="nav-frame">
+    <div class="line horizontal top" aria-hidden="true"></div>
+    <div class="line vertical right" aria-hidden="true"></div>
+    <div class="line horizontal bottom" aria-hidden="true"></div>
+    <div class="line vertical left" aria-hidden="true"></div>
+    <div class="dot top left" aria-hidden="true"></div>
+    <div class="dot top right" aria-hidden="true"></div>
+    <div class="dot bottom right" aria-hidden="true"></div>
+    <div class="dot bottom left" aria-hidden="true"></div>
   <div class="nav-pill">
   <div class="logo">
     <span class="logo-cube" aria-hidden="true">
@@ -1066,10 +1195,10 @@ svg { display: block; }
         <path d="M17 3 L29 9 L17 15 L5 9 Z" fill="#444" stroke="#000" stroke-width="0.5" />
       </svg>
     </span>
-    <span>TRAFFO</span>
+    <span>TRAFFO<span class="logo-ai">AI</span></span>
   </div>
   <nav class="header-nav" aria-label="Primary">
-    <a href="#features">Analytics</a>
+    <a href="#main">Assistant</a>
     <a href="#features">Features
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="6 9 12 15 18 9" />
@@ -1080,185 +1209,66 @@ svg { display: block; }
   </nav>
   <a class="book-cta" href="#start">Start for free</a>
   </div>
+  </div>
 </header>
 
 <main class="hero" id="main">
-  <span class="glass glass--tab" aria-hidden="true">Claymorphism<br />+ glassmorphism</span>
   <span class="glass glass--disc" aria-hidden="true"></span>
   <div class="hero-left">
     <h1 class="hero-title">
-      <span class="title-line"><span class="title-inner">Convert traffic</span></span>
-      <span class="title-line sticker"><span class="title-inner">and get better</span></span>
-      <span class="title-line"><span class="title-inner"><span class="title-mark">conversions</span></span></span>
+      <span class="title-line"><span class="title-inner">An AI analyst</span></span>
+      <span class="title-line sticker"><span class="title-inner">for every</span></span>
+      <span class="title-line"><span class="title-inner"><span class="title-mark">conversion</span></span></span>
     </h1>
-    <p class="hero-desc">No more lost data. From now you can get the best output of your traffic and maximize every conversion rate.</p>
-    <span class="btn-wrapper">
-      <div class="line horizontal top" aria-hidden="true"></div>
-      <div class="line vertical right" aria-hidden="true"></div>
-      <div class="line horizontal bottom" aria-hidden="true"></div>
-      <div class="line vertical left" aria-hidden="true"></div>
-      <div class="dot top left" aria-hidden="true"></div>
-      <div class="dot top right" aria-hidden="true"></div>
-      <div class="dot bottom right" aria-hidden="true"></div>
-      <div class="dot bottom left" aria-hidden="true"></div>
-      <a class="btn" href="#start"><span class="btn-text">start for free</span><svg class="btn-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
-    </span>
+    <p class="hero-desc">Ask Traffo why visitors leave. It reads every session, finds where your funnel leaks and drafts the test that fixes it, all in plain English.</p>
   </div>
 
   <div class="hero-right">
-    <div class="constellation-scale">
-    <div class="constellation" id="constellation" role="img" aria-label="A cluster of connected product capabilities: security, expansion, reporting, cloud, database, engagement, targeting, audience, global reach, approval and network.">
-      <svg class="constellation-lines" viewBox="0 0 600 660" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <path d="M 295 64 C 270 90, 220 110, 166 152" />
-        <path d="M 305 64 C 330 90, 380 110, 434 152" />
-        <path d="M 166 200 C 175 230, 230 260, 280 285" />
-        <path d="M 434 200 C 425 230, 370 260, 320 285" />
-        <path d="M 76 305 C 130 305, 200 305, 248 302" />
-        <path d="M 524 305 C 470 305, 400 305, 352 302" />
-        <path d="M 285 372 C 270 405, 240 440, 214 452" />
-        <path d="M 315 372 C 330 405, 360 440, 386 452" />
-        <path d="M 110 437 C 145 442, 175 448, 214 452" />
-        <path d="M 490 437 C 455 442, 425 448, 386 452" />
-        <path d="M 214 502 C 235 540, 270 575, 300 603" />
-        <path d="M 386 502 C 365 540, 330 575, 300 603" />
-      </svg>
-
-      <div class="constellation-inner" id="constellationInner" aria-hidden="true">
-        <div class="tile size-pill black tile-lock"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-main mint tile-expand"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="28" cy="28" r="22" stroke-opacity="0.15" />
-            <path d="M14 14 L24 24 M14 14 L14 21 M14 14 L21 14" />
-            <path d="M42 14 L32 24 M42 14 L42 21 M42 14 L35 14" />
-            <path d="M14 42 L24 32 M14 42 L14 35 M14 42 L21 42" />
-            <path d="M42 42 L32 32 M42 42 L42 35 M42 42 L35 42" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-main yellow tile-chart"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="8" y="12" width="40" height="28" rx="2" />
-            <line x1="28" y1="40" x2="28" y2="48" /><line x1="22" y1="48" x2="34" y2="48" />
-            <line x1="16" y1="32" x2="16" y2="36" /><line x1="22" y1="26" x2="22" y2="36" />
-            <line x1="28" y1="22" x2="28" y2="36" /><line x1="34" y1="28" x2="34" y2="36" />
-            <line x1="40" y1="18" x2="40" y2="36" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-main purple tile-cloud"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 30 a8 8 0 0 1 4-15 a10 10 0 0 1 19 4 a6 6 0 0 1 0 11 Z" />
-            <circle cx="18" cy="42" r="1.4" fill="currentColor" /><circle cx="26" cy="44" r="1.4" fill="currentColor" />
-            <circle cx="34" cy="42" r="1.4" fill="currentColor" /><circle cx="22" cy="48" r="1.2" fill="currentColor" />
-            <circle cx="30" cy="48" r="1.2" fill="currentColor" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-big black tile-db"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <ellipse cx="28" cy="14" rx="14" ry="5" />
-            <path d="M14 14 v14 a14 5 0 0 0 28 0 v-14" />
-            <path d="M14 28 v14 a14 5 0 0 0 28 0 v-14" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-main mint tile-thumb"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 28 L14 46 L20 46 L20 28 Z" />
-            <path d="M20 30 L26 18 a3 3 0 0 1 5.5 2.5 L29 28 L40 28 a4 4 0 0 1 4 4.5 L42 42 a4 4 0 0 1 -4 4 L24 46" />
-            <path d="M30 12 L32 16 M36 14 L36 18 M40 18 L37 20" stroke-width="1.6" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-pill black tile-cursor"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round">
-            <path d="M7 4 L7 18 L11 14 L14 20 L17 19 L14 13 L18 13 Z" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-main yellow tile-person"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="28" cy="28" r="20" stroke-dasharray="6 4" />
-            <circle cx="28" cy="22" r="6" /><path d="M16 40 a12 10 0 0 1 24 0" />
-            <path d="M44 18 L48 18 L48 14" /><path d="M12 38 L8 38 L8 42" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-main purple tile-globe"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="28" cy="28" r="18" /><ellipse cx="28" cy="28" rx="18" ry="7" />
-            <ellipse cx="28" cy="28" rx="7" ry="18" /><path d="M10 28 L46 28" /><path d="M28 10 L28 46" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-pill black tile-thumbpill"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 11v9a1 1 0 0 0 1 1h2v-10z" />
-            <path d="M10 11l3-7a2 2 0 0 1 3.5 1.5L15.5 10H19a2 2 0 0 1 2 2.3l-1 6a2 2 0 0 1-2 1.7H10" />
-          </svg></div></div></div></div>
-
-        <div class="tile size-main mint tile-hex"><div class="tile-float"><div class="tile-inner"><div class="tile-icon">
-          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M28 6 L46 16 L46 38 L28 48 L10 38 L10 16 Z" />
-            <circle cx="28" cy="6" r="2.5" fill="currentColor" /><circle cx="46" cy="16" r="2.5" fill="currentColor" />
-            <circle cx="46" cy="38" r="2.5" fill="currentColor" /><circle cx="28" cy="48" r="2.5" fill="currentColor" />
-            <circle cx="10" cy="38" r="2.5" fill="currentColor" /><circle cx="10" cy="16" r="2.5" fill="currentColor" />
-            <circle cx="28" cy="27" r="3.5" fill="currentColor" />
-            <path d="M28 27 L28 6 M28 27 L46 16 M28 27 L46 38 M28 27 L28 48 M28 27 L10 38 M28 27 L10 16" stroke-width="1.3" />
-          </svg></div></div></div></div>
-      </div>
-
-      <div class="sparkle" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" />
-        </svg>
-      </div>
-    </div>
+    <div class="chat-stage">
+      <section class="chat" aria-label="Demo chat with the Traffo assistant">
+        <header class="chat-head">
+          <span class="chat-avatar"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" /></svg></span>
+          <div class="chat-who">
+            <div class="chat-name">Traffo AI</div>
+            <div class="chat-status">Online · reading 2.4B events</div>
+          </div>
+          <span class="chat-tag">Demo</span>
+        </header>
+        <div class="chat-log" id="chatLog" role="log" aria-live="polite"></div>
+        <div class="chat-suggest" id="chatSuggest" hidden>
+          <button class="chip" type="button">Show funnel</button>
+          <button class="chip" type="button">Bounce rate?</button>
+          <button class="chip" type="button">Top revenue source</button>
+        </div>
+        <form class="composer" id="chatForm" autocomplete="off">
+          <label for="chatInput" class="sr-only">Ask Traffo a question</label>
+          <textarea id="chatInput" rows="1" placeholder="Ask about your traffic…"></textarea>
+          <button class="send" type="submit">Send
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </button>
+        </form>
+      </section>
     </div>
   </div>
 </main>
-
-<section class="workspace">
-  <h2 class="workspace-label">Workspace features</h2>
-  <div class="feature-pills" aria-hidden="true">
-    <div class="fpill round">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M7 17L17 7M17 7H7M17 7V17" />
-      </svg>
-    </div>
-    <div class="fpill wide-yellow">
-      <svg width="64" height="40" viewBox="0 0 64 40" fill="none" stroke="#0f0f0f" stroke-width="2" stroke-linejoin="round">
-        <circle cx="22" cy="20" r="10" fill="rgba(0,0,0,0.6)" stroke="none" />
-        <path d="M38 30 L48 12 L58 30 Z" fill="#0f0f0f" />
-      </svg>
-    </div>
-    <div class="fpill wide-purple">
-      <svg width="64" height="40" viewBox="0 0 64 40" fill="none" stroke="#0f0f0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="6" y="10" width="22" height="22" />
-        <line x1="6" y1="17" x2="28" y2="17" /><line x1="6" y1="24" x2="28" y2="24" />
-        <line x1="13" y1="10" x2="13" y2="32" /><line x1="20" y1="10" x2="20" y2="32" />
-        <g transform="translate(42 21)">
-          <path d="M0 -8 L1.5 -1.5 L8 0 L1.5 1.5 L0 8 L-1.5 1.5 L-8 0 L-1.5 -1.5 Z" fill="#0f0f0f" stroke="none" />
-        </g>
-      </svg>
-    </div>
-  </div>
-  <a href="#features" class="learn-more">Learn more</a>
-</section>
 
 <section class="stats-bar">
   <div class="stats-grid">
     <div class="stat">
       <div class="stat-num" data-num="546" data-prefix="+" data-suffix="k">+546<span class="accent">k</span></div>
-      <div class="stat-label">Active customers</div>
+      <div class="stat-label">Questions answered daily</div>
     </div>
     <div class="stat">
-      <div class="stat-num" data-num="99.9" data-decimals="1" data-suffix="%">99.9<span class="accent">%</span></div>
-      <div class="stat-label">Uptime guarantee</div>
+      <div class="stat-num" data-num="1.8" data-decimals="1" data-suffix="s">1.8<span class="accent">s</span></div>
+      <div class="stat-label">Median time to answer</div>
     </div>
     <div class="stat">
       <div class="stat-num" data-num="2.4" data-decimals="1" data-suffix="B">2.4<span class="accent">B</span></div>
-      <div class="stat-label">Events tracked daily</div>
+      <div class="stat-label">Events read daily</div>
     </div>
     <div class="stat">
       <div class="stat-num" data-num="42" data-suffix="×">42<span class="accent">×</span></div>
-      <div class="stat-label">Faster than the rest</div>
+      <div class="stat-label">Faster than building a report</div>
     </div>
   </div>
 </section>
@@ -1266,11 +1276,11 @@ svg { display: block; }
 <section class="features" id="features">
   <div class="features-head">
     <div>
-      <div class="section-eyebrow">02 / Built for teams</div>
-      <h2 class="features-title">Three pillars. One platform. Zero busywork.</h2>
+      <div class="section-eyebrow">How Traffo works</div>
+      <h2 class="features-title">Ask. Understand. Ship. No dashboards required.</h2>
     </div>
     <div class="features-meta">
-      VERSION 4.2<br />
+      ASSISTANT 4.2<br />
       SHIPPED MAY 2026<br />
       24 INTEGRATIONS
     </div>
@@ -1278,9 +1288,9 @@ svg { display: block; }
 
   <div class="feature-cards">
     <article class="feature-card framed fc-mint">
-      <div class="fc-num">01 — Capture</div>
-      <h3>Every click. Every scroll. Every form.</h3>
-      <p>Drop the snippet, walk away. We capture every meaningful event automatically — no manual tagging, no missed data.</p>
+      <div class="fc-num">01 — Ask</div>
+      <h3>Plain questions. Real answers.</h3>
+      <p>Type “why did signups dip on Tuesday?” and get the answer with the chart behind it. No SQL, no tagging, no waiting on the data team.</p>
       <div class="fc-icon" aria-hidden="true">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3" />
@@ -1291,8 +1301,8 @@ svg { display: block; }
 
     <article class="feature-card framed fc-yellow">
       <div class="fc-num">02 — Understand</div>
-      <h3>Funnels, cohorts, attribution — visual.</h3>
-      <p>Drag-and-drop reports that don't require a PhD in SQL. See where users drop off, why, and what to fix first.</p>
+      <h3>It finds the leak before you do.</h3>
+      <p>Traffo watches every funnel around the clock and flags drop-offs, broken forms and slow pages the moment they start costing you conversions.</p>
       <div class="fc-icon" aria-hidden="true">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 3v18h18" /><path d="M7 14l4-4 4 4 6-6" />
@@ -1302,8 +1312,8 @@ svg { display: block; }
 
     <article class="feature-card framed fc-purple">
       <div class="fc-num">03 — Convert</div>
-      <h3>Ship experiments. Watch numbers move.</h3>
-      <p>Native A/B testing with statistical confidence baked in. Stop guessing, start shipping changes that actually compound.</p>
+      <h3>From answer to experiment in one message.</h3>
+      <p>Ask for a fix and Traffo drafts the A/B test, sizes the audience and tells you when the result is significant.</p>
       <div class="fc-icon" aria-hidden="true">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
@@ -1315,7 +1325,7 @@ svg { display: block; }
 
 <section class="quote-section" id="quote">
   <span class="quote-mark" aria-hidden="true">"</span>
-  <blockquote class="quote-text">We replaced four tools with Traffo and our conversion rate went up 38% in a quarter. The data finally tells a story we can act on.</blockquote>
+  <blockquote class="quote-text">We stopped building dashboards and started asking Traffo. Our conversion rate went up 38% in a quarter.</blockquote>
   <div class="quote-author">— Trinette Eckard, Head of Growth at Makebelief</div>
 </section>
 
@@ -1323,8 +1333,8 @@ svg { display: block; }
   <div class="final-cta-card">
     <span class="orb orb-1" aria-hidden="true"></span>
     <span class="orb orb-2" aria-hidden="true"></span>
-    <h2 class="final-cta-h2">Stop losing the <span class="accent">good ones.</span></h2>
-    <p>Free for the first 10,000 events a month. No credit card. No sales call. Just better data, today.</p>
+    <h2 class="final-cta-h2">Stop guessing. <span class="accent">Start asking.</span></h2>
+    <p>Free for the first 10,000 events a month. Connect your site in two minutes and ask your first question today.</p>
     <span class="btn-wrapper">
       <div class="line horizontal top" aria-hidden="true"></div>
       <div class="line vertical right" aria-hidden="true"></div>
@@ -1343,12 +1353,12 @@ svg { display: block; }
   <div class="footer-top">
     <div class="footer-brand">
       <h3>Traffo</h3>
-      <p>The analytics platform for teams who'd rather ship than spreadsheet.</p>
+      <p>The AI analyst for teams who'd rather ship than spreadsheet.</p>
     </div>
     <div class="footer-cols">
       <div class="footer-col">
         <h4>Product</h4>
-        <a href="#features">Analytics</a><a href="#features">Experiments</a>
+        <a href="#main">Assistant</a><a href="#features">Experiments</a>
         <a href="#features">Sessions</a><a href="#features">Integrations</a>
       </div>
       <div class="footer-col">
@@ -1369,6 +1379,156 @@ svg { display: block; }
   </div>
 </footer>
 
+<script>
+/* The chat demo. Plays a scripted exchange once, then answers whatever the
+   visitor types from canned demo replies. Kept apart from the GSAP script
+   so it runs even if the CDN does not load. */
+(function () {
+  "use strict";
+  var log = document.getElementById("chatLog");
+  var form = document.getElementById("chatForm");
+  var input = document.getElementById("chatInput");
+  var suggest = document.getElementById("chatSuggest");
+  if (!log || !form) return;
+
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SPARK = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" /></svg>';
+  var busy = false, lastStamp = "";
+
+  var SIGNUP_CHART =
+    '<div class="mini-chart" role="img" aria-label="Signups over the last seven days: 412 on Monday, 398 on Tuesday, then 301, 296, 310, 288 and 305 after the Tuesday deploy.">' +
+      '<div class="mini-chart-head"><span>Signups · last 7 days</span><b>−18%</b></div>' +
+      '<div class="bars">' +
+        [412, 398, 301, 296, 310, 288, 305].map(function (v, i) {
+          return '<span class="bar' + (i > 1 ? " after" : "") + (i === 1 ? " deploy" : "") + '" style="--h:' + (v / 412 * 100).toFixed(1) + '%"></span>';
+        }).join("") +
+      '</div>' +
+      '<div class="bar-days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>' +
+    '</div>';
+
+  /* the opening exchange, played once */
+  var script = [
+    { who: "ai", html: "Hi, I’m Traffo. Ask me anything about your traffic and I’ll answer from your real events." },
+    { who: "you", text: "Why did signups drop last week?" },
+    { who: "ai", html: "Signups fell <strong>18%</strong> after Tuesday’s deploy. 72% of the drop is mobile Safari: the email field on /signup stopped validating." + SIGNUP_CHART },
+    { who: "you", text: "Can you fix it?" },
+    { who: "ai", html: "I drafted a rollback test: 50/50 on mobile Safari, about <strong>3,200 visitors</strong> to reach 95% confidence. Say “launch” and it goes live." }
+  ];
+
+  /* canned replies for whatever the visitor types */
+  var rules = [
+    [/launch|go ahead|yes|ship/i, "Test is live. At current traffic it should reach 95% confidence by Thursday, and I’ll message you the moment it does."],
+    [/funnel/i, "Mobile Safari this week: landing <strong>100%</strong> → pricing <strong>61%</strong> → signup form <strong>34%</strong> → confirmed <strong>9%</strong>. Form to confirmed was 22% before Tuesday, so that step is the leak."],
+    [/bounce/i, "Bounce rate is <strong>41%</strong> this week, down 3 points. The worst page is /blog/pricing-guide at 78%, and it takes 4.1s to load on mobile."],
+    [/revenue|money|mrr|sales|source/i, "Newsletter traffic converts best at <strong>6.2%</strong>, three times the site average. Paid social spend rose 20% but brought 4% fewer paying customers."],
+    [/^(hi|hello|hey)\b/i, "Hey! Try asking why a page underperforms, or what changed since last week."]
+  ];
+  var fallback = [
+    "Over the last 30 days, returning visitors converted at <strong>4.8%</strong> and first-time visitors at <strong>1.1%</strong>. Want me to break that down by channel?",
+    "Your fastest-growing page is /pricing, up <strong>34%</strong> in visits this month. Most of that is from one comparison article linking to you.",
+    "This is a demo workspace, so my answers here come from sample data. Connect your site and I’ll answer from yours."
+  ];
+  var f = 0;
+
+  function reply(q) {
+    for (var k = 0; k < rules.length; k++) if (rules[k][0].test(q)) return rules[k][1];
+    return fallback[f++ % fallback.length];
+  }
+
+  function scrollDown() { log.scrollTop = log.scrollHeight; }
+
+  function stamp() {
+    var d = new Date();
+    var t = d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0");
+    if (t === lastStamp) return "";
+    lastStamp = t;
+    return t;
+  }
+
+  function add(who, content, isHtml) {
+    var row = document.createElement("div");
+    row.className = "msg from-" + who + (REDUCED ? "" : " is-new");
+    var wrap = document.createElement("div");
+    wrap.className = "bubble-wrap";
+    var b = document.createElement("div");
+    b.className = "bubble";
+    if (isHtml) b.innerHTML = content; else b.textContent = content;
+    wrap.appendChild(b);
+    var t = stamp();
+    if (t) {
+      var s = document.createElement("span");
+      s.className = "stamp";
+      s.textContent = (who === "ai" ? "Traffo · " : "You · ") + t;
+      wrap.appendChild(s);
+    }
+    if (who === "ai") {
+      var av = document.createElement("span");
+      av.className = "chat-avatar";
+      av.innerHTML = SPARK;
+      row.appendChild(av);
+    }
+    row.appendChild(wrap);
+    log.appendChild(row);
+    scrollDown();
+    return row;
+  }
+
+  function typing() {
+    var row = document.createElement("div");
+    row.className = "msg from-ai";
+    row.innerHTML = '<span class="chat-avatar">' + SPARK + '</span><div class="bubble-wrap"><div class="bubble typing" aria-label="Traffo is typing"><i></i><i></i><i></i></div></div>';
+    log.appendChild(row);
+    scrollDown();
+    return row;
+  }
+
+  function aiSays(html, then) {
+    var t = typing();
+    setTimeout(function () {
+      t.remove();
+      add("ai", html, true);
+      if (then) then();
+    }, 900 + Math.random() * 700);
+  }
+
+  function ask(text) {
+    text = text.trim();
+    if (!text || busy) return;
+    busy = true;
+    add("you", text, false);
+    setTimeout(function () {
+      aiSays(reply(text), function () { busy = false; });
+    }, 350);
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var v = input.value;
+    input.value = "";
+    ask(v);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event("submit", { cancelable: true }));
+    }
+  });
+  suggest.addEventListener("click", function (e) {
+    var chip = e.target.closest(".chip");
+    if (chip) ask(chip.textContent);
+  });
+
+  /* play the opening, one line at a time */
+  function play(n) {
+    if (n >= script.length) { busy = false; suggest.hidden = false; return; }
+    var line = script[n];
+    if (line.who === "ai") aiSays(line.html, function () { setTimeout(function () { play(n + 1); }, 700); });
+    else { add("you", line.text, false); setTimeout(function () { play(n + 1); }, 450); }
+  }
+  busy = true;
+  setTimeout(function () { play(0); }, REDUCED ? 0 : 1300);
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
@@ -1383,65 +1543,23 @@ svg { display: block; }
   /* ════════ SET-UP ════════
      Initial states live in JS, not CSS: if the script fails to load the
      page still renders complete instead of an invisible hero. */
-  var lines = [].slice.call(document.querySelectorAll(".constellation-lines path"));
-  lines.forEach(function (path) {
-    var len = path.getTotalLength();
-    path.style.strokeDasharray = len;
-    path.style.strokeDashoffset = REDUCED ? 0 : len;
-  });
-
   if (!REDUCED) {
     gsap.set(".title-inner", { yPercent: 110 });
-    gsap.set([".hero-desc", ".hero .btn-wrapper", ".site-header", ".workspace"], { opacity: 0 });
-    gsap.set(".tile", { opacity: 0, scale: 0.4 });
+    gsap.set([".hero-desc", ".site-header"], { opacity: 0 });
+    gsap.set(".chat-stage", { opacity: 0, y: 40, scale: 0.97 });
 
     var tl = gsap.timeline({ defaults: { ease: "power3.out" } });
     tl.to(".site-header", { opacity: 1, duration: 0.8 }, 0)
       .to(".title-inner", { yPercent: 0, duration: 1.1, stagger: 0.08, ease: "power4.out" }, 0.2)
       .to(".hero-desc", { opacity: 1, y: 0, duration: 0.8 }, 0.9)
       .from(".hero-desc", { y: 20, duration: 0.8 }, 0.9)
-      .to(".hero .btn-wrapper", { opacity: 1, duration: 0.7 }, 1)
-      .from(".hero .btn-wrapper", { y: 20, duration: 0.7 }, 1)
-      /* One tween, not a .to and a .from fighting over the same props. */
-      .to(".tile", {
-        opacity: 1,
-        scale: 1,
-        duration: 1.2,
-        stagger: { each: 0.07, from: "center" },
-        ease: "elastic.out(1, 0.6)",
-        /* Hand `transform` back to CSS afterwards, or the inline matrix
-           GSAP leaves behind pins the tile and the float never runs. */
-        clearProps: "transform"
-      }, 0.5)
-      .to(".constellation-lines path", { strokeDashoffset: 0, duration: 1.4, stagger: 0.06, ease: "power2.inOut" }, 0.8)
-      .to(".workspace", { opacity: 1, duration: 0.8 }, 1.6)
-      .from(".fpill", { y: 30, scale: 0.5, opacity: 0, duration: 0.8, stagger: 0.1, ease: "back.out(1.6)" }, 1.6)
-      .from(".workspace-label, .learn-more", { y: 20, opacity: 0, duration: 0.6, stagger: 0.1 }, 1.6);
-  }
-
-  /* ════════ CONSTELLATION TILT ════════ */
-  var field = document.getElementById("constellation");
-  var inner = document.getElementById("constellationInner");
-  if (!REDUCED && !window.matchMedia("(pointer: coarse)").matches) {
-    field.addEventListener("pointermove", function (e) {
-      var r = field.getBoundingClientRect();
-      gsap.to(inner, {
-        rotationY: ((e.clientX - r.left) / r.width - 0.5) * 12,
-        rotationX: -((e.clientY - r.top) / r.height - 0.5) * 8,
-        duration: 0.8,
-        transformPerspective: 1500,
-        ease: "power2.out"
-      });
-    });
-    field.addEventListener("pointerleave", function () {
-      gsap.to(inner, { rotationY: 0, rotationX: 0, duration: 1, ease: "elastic.out(1, 0.5)" });
-    });
+      .to(".chat-stage", { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power3.out", clearProps: "transform" }, 0.5);
   }
 
   /* ════════ SCROLL ════════ */
   if (!REDUCED) {
-    gsap.to(".constellation", {
-      y: 100, scale: 0.92,
+    gsap.to(".chat-stage", {
+      y: 70,
       scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1 }
     });
     gsap.to(".hero-left", {

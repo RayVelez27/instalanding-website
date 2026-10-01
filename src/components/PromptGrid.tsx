@@ -67,9 +67,50 @@ const GridTile = (entry: TileProps) => {
   );
 };
 
+/* ── The last tile ──
+   Not a PromptEntry: it reuses the grid's chrome, but it is a different kind
+   of thing and pretending otherwise would put it in the manifest, the sitemap
+   and /prompts.json.
+
+   Opt-in, not "whenever there is no category": BuilderPage also renders the
+   uncategorised feed, and it has its own closing section underneath. Only the
+   home page asks for this.
+
+   Four saturated squircles under one sheet of frosted glass. The blobs are
+   never drawn sharp — the glass's backdrop-filter is what turns them into a
+   soft gradient mesh, so the blur is load-bearing, not decoration. */
+
+const WORK_WITH_ME_HREF = "/about";
+
+const InviteTile = () => (
+  <div className="grid-item grid-item--invite">
+    <div className="inner inner--invite">
+      <div className="invite-blobs" aria-hidden="true">
+        <span className="invite-blob" />
+        <span className="invite-blob" />
+        <span className="invite-blob" />
+        <span className="invite-blob" />
+      </div>
+      <div className="invite-glass" aria-hidden="true" />
+      <div className="invite-body">
+        <p className="invite-kicker">STILL HERE?</p>
+        <h3 className="invite-title">Let&rsquo;s make something</h3>
+        <p className="invite-copy">
+          I&rsquo;m Ray. I design and build everything in this library. If you have
+          something that deserves this kind of attention, I&rsquo;d like to hear
+          about it.
+        </p>
+        <Link className="invite-btn" to={WORK_WITH_ME_HREF}>
+          WORK WITH ME <ArrowRight size={12} />
+        </Link>
+      </div>
+    </div>
+  </div>
+);
+
 /* ── Grid ── */
 
-const PromptGrid = ({ category }: { category?: string }) => {
+const PromptGrid = ({ category, invite }: { category?: string; invite?: boolean }) => {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
   // promptsInCategory, not a filter over the interleaved list: filtering an
@@ -88,6 +129,7 @@ const PromptGrid = ({ category }: { category?: string }) => {
         {items.map((p) => (
           <GridTile key={p.slug} {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} />
         ))}
+        {invite && !category && <InviteTile />}
       </div>
     </div>
   );

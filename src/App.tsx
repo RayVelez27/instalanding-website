@@ -42,7 +42,13 @@ const AppRoutes = () => {
           path="/systems"
           element={<ComingSoon title="Systems" blurb="Whole design systems — tokens, components and the rules that hold them together — as one-shot prompts with a reference build." />}
         />
-        <Route path="/product" element={<Category slug="product" />} />
+        {/* PRODUCT-PARKED: the section is announced but its entries are
+            parked, so it serves the same ComingSoon page /systems does.
+            Restoring it is one command — see memory/product-parked.md. */}
+        <Route
+          path="/product"
+          element={<ComingSoon title="Product" blurb="Dashboards, consoles and in-app flows — the screens people use after they sign up — as one-shot prompts with a reference build." />}
+        />
         <Route path="/builders" element={<Builders />} />
         {/* One route per builder, at the search term rather than under /builders/. */}
         {builders.map((b) => (

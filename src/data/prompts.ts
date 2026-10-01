@@ -127,6 +127,7 @@ A starfield placed once from a seeded generator - nothing here needs to move to 
   {
     title: "Speech Console Dashboard",
     category: "product",
+    hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     sectionOnly: true,
     description: "A moulded player deck for synthesised speech: a lit waveform, a dotted gain knob, stereo tick meters and a transcript that reads along",
@@ -384,6 +385,7 @@ Run the frame loop only while the panel is on screen and stop it once the machin
   {
     title: "Model Capture Console",
     category: "product",
+    hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     sectionOnly: true,
     description: "A VHS case-file shell wrapped around a light inspector: one viewport, tabbed layers, hotspot anatomy, a scrubable trace and a live capture log",
@@ -438,6 +440,7 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
   {
     title: "Driving Cluster Dashboard",
     category: "product",
+    hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     sectionOnly: true,
     description: "A live instrument cluster filling one viewport: hold to accelerate, switch drive modes, and watch the route beside it",
@@ -483,44 +486,55 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     theme: "dark",
   },
   {
-    title: "Live Phone Feature Tour Page",
+    title: "Neon Glass App Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Six numbered sections, each a working app screen running inside a phone frame instead of a screenshot",
-    prompt: `Build a single-file HTML landing page for "Mise", a fictional consumer AI cooking app that reads what is in your fridge and puts dinner on the table. The format is a feature tour where every screen is the real interface running in the page: six numbered sections, each a phone frame you can actually tap, with the argument for that feature beside it. Space Grotesk and JetBrains Mono from Google Fonts, everything else inline, no images, no libraries. Say in a legal line that the app, the company, the ratings, the reviews and every number are invented.
+    description: "Frosted panels lit by a comet that races their border, and a chat bar that opens into a breathing voice orb",
+    prompt: `Build a single-file HTML landing page for "Arcline", a fictional platform that connects a company's tools and answers questions from its own data. Dark, blue-black and glassy. Everything inline - no CDN, no webfont, no image file, not one network request - and say in the footer that the company and every figure are invented.
 
-THE DESIGN SYSTEM
-Near-black and one periwinkle: #0d0f13 ground, #15181e raised, #1b1f27 lifted, #24272e hairlines, #e7e8ec text, #83879a secondary text, #7c93ff accent, #e4634f for heat. Space Grotesk carries everything a person reads; JetBrains Mono carries everything a machine would print — labels, counts, timers, confidences — at 11px, uppercase, 0.08em tracking. Section titles are numbered in mono, and a 104px ghost numeral in the hairline colour sits behind each notes column. Pill tags in accent-at-8% under every note. The whole page is 1120px wide with 64px gutters.
+THE GROUND
+Near-black with blue in it rather than grey: --gray900 hsl(226 45% 3.5%) up to --gray50 hsl(214 45% 97%), on a hue ramp that warms slightly as it lightens (226 down to 214), so the neutrals never read as flat charcoal. One accent family: --blue hsl(218 95% 56%) with a lighter --blue-hi and a --blue-tint at 12% alpha for chips. Wash the page with two enormous off-centre radial gradients pinned behind everything at z-index -2 - one blue at 88% 12%, one cyan at 8% 78% - because a backdrop-filter has nothing to catch on flat colour. That wash is what makes the glass read as glass.
+Set every panel's own background as three stacked gradients: a hue1 wash from the top-left corner, a hue2 wash from the bottom-right, and a near-opaque dark base underneath. Two corners lit in different hues is the whole trick; one flat tint looks like a grey box.
 
-A sticky rail across the top: wordmark, six numbered links, and a CTA. An IntersectionObserver with rootMargin "-20% 0px -70% 0px" lights the link for whichever section is in the reading position.
+THE EDGE LIGHT - four layers, and they have to be separate elements
+Each panel carries nine absolutely positioned spans, and they are not decoration you can collapse into pseudo-elements: a sheen, a sweep, a sweep bloom, two shines and four glows. They stack because each does one thing the others cannot.
+- shine: a conic-gradient clipped to a 1px border box by the mask-composite trick - mask: linear-gradient(transparent), linear-gradient(black) with mask-clip: padding-box, border-box and mask-composite: subtract. That subtract is what leaves only the border ring. Give it border-top-right-radius: inherit and border-bottom-left-radius: inherit and place one at the top-right and one at the bottom-left, so each lights one corner of the panel rather than ringing the whole thing.
+- glow: the same conic ring at 22px of border width, blurred 12px, in mix-blend-mode: plus-lighter, masked by an inline SVG feTurbulence so the bleed is grainy rather than a clean halo. Plus-lighter is the one that adds light; screen and lighten both go milky over a dark panel.
+- glow-bright: a sharper 5px ring hugging the shine, blur 2px, no noise mask.
+- sweep: one comet of light that races around the border. Register --sweep with @property as an <angle> with an initial value, or the conic-gradient will not interpolate and you get a jump cut instead of motion. Animate it -60deg to 300deg over about 1.7s, with a 6px blurred copy behind it in plus-lighter.
+- sheen: a single diagonal glint travelling across the face, background-size 260% and background-position going 130% to -30%.
+Order the arrival: the sweep runs first, then the corner lights ignite as it passes them - hold the shine and glow animations back by a --corner-lead of 0.65s on top of the panel's own --fx-base delay. Give each of the nine a slightly different --fx-d so they do not all snap on together.
 
-THE PHONE
-300x610, 38px radius, 1px hairline border, 10px bezel, a notch, and a 40px/80px drop shadow. Inside: a rounded 28px screen, a mono status bar, and an app body whose background is a 44px repeating line grid so an empty screen still reads as a screen. Every demo lives inside that frame and nothing overflows it.
+THE HERO INPUT
+A chat bar that rearranges itself. Three states driven by CSS alone:
+- Idle: four attachment icons sit to the left of the field, and the field is indented past them with margin-inline-start on a --gap-closed of 7.75rem.
+- Typing: :focus and :valid pull the field left to --gap-open, blur the icons away, slide in a round plus button, and swap the microphone for a send button. Use :valid with a required input - that is what makes "has text" a CSS state rather than a JS one. Put the transition on a cubic-bezier(0.175, 0.885, 0.32, 1.05) so it overshoots.
+- Voice: a hidden checkbox expands the microphone button into a 19rem panel and reveals an orb. The orb is four radial-gradient circles orbiting inside an overflow-hidden core on different durations (4.8s to 6s, deliberately coprime so the pattern does not repeat), a backdrop-blurred glass cap over the top, and two conic rings rotating in 3D under perspective. Two more blurred rings pulse outward from the centre on a 1.5s loop. The "listening" label gets a moving gradient text clip.
 
-THE SIX SCREENS, ALL LIVE
-01 Scan — a camera view with a dashed reticle and corner marks. The shutter runs a real sequence: a sweep animates twice, then seven ingredient chips land one at a time with a confidence percentage each (one deliberately at 62% and named "Shallot?"), then a verdict card. Pressing it again resets, so it can be watched twice.
-02 Ask — a chat log with three suggested questions along the bottom. Tapping one appends the question, then types the answer in character by character with a blinking caret, then slides a recipe card in under it. Disable the questions while it streams.
-03 Plan — a two-option segmented control with a sliding thumb, five day rows built from a meal pool, and a swap button per row that re-rolls that night, flashes the row's border and re-counts the missing items and the estimated spend.
-04 Cook — one step at a time in 17px type, a progress dot per step, and a real countdown on an SVG ring (r=56, circumference 351.86, drive stroke-dashoffset). Start, pause, reset; stepping forward loads that step's own timer.
-05 List — nine items in three aisles, each a button that checks off with a scale-in tick, strikes the label through and updates a running count and total.
-06 Taste — allergen chips, a three-way heat selector, two switches, and a summary line that recomposes itself from all of them on every change.
+THE PAGE
+Sticky header, a hero with three entering widgets, then blocks: features, a three-step how-it-works, stats, a developer section with a fake code window, pricing with a monthly/yearly switch, an FAQ built from native details/summary, and a closing CTA. Reveal each on scroll with an IntersectionObserver that disconnects after firing once, and drive the panel's light show off the same is-visible class.
+The three step cards each get their own inline-SVG illustration, animated with SMIL and CSS: dotted flow lines with animateMotion dots running along them, a document being scanned into a point cloud, and an agent run log with a spinner and a progress bar that grows on reveal. Draw the point cloud from a seeded PRNG rather than Math.random so the layout is the same on every load.
 
-WHAT TO WATCH FOR
-- Inline spans do not stack. A card built as <span class="t"> plus <span class="m"> inside one wrapper prints "Leek & spinach rice18 min" until both are display:block. It happened twice on this page, in the chat card and the plan rows.
-- The nudge hint at the bottom of each phone has to clear whatever that screen parks down there — a shutter, a totals bar, a summary card — so give it a per-screen offset rather than one global bottom.
-- Each hint hides itself on the first interaction with that screen, and never comes back.
-- Every JS-driven delay collapses to zero under prefers-reduced-motion — the chip stagger, the typing, the sweep — so the end state is identical and nothing animates.
-
-THE REST OF THE PAGE
-A hero with a mono eyebrow, a two-tone headline where the second half is the accent, a three-stat row, and a pair of CTAs. Then the six sections, three App Store style reviews with star rows, two pricing plans where free genuinely does the job, four questions as native details/summary with the last one admitting the product is fiction, a footer with the one-line thesis, and the legal block.
-
-RESPONSIVE AND A11Y FLOOR
-The demo row is 340px + 1fr above 800px and stacks below it; the rail hides under 900px. No horizontal scroll at 390 or 1512 — the phone is a fixed 300px and must never push the page wider. Every control is a real button with a focus ring, toggles carry aria-pressed, and the tab strip and timer controls are reachable by keyboard.`,
+TWO THINGS THAT WILL BITE
+Set text-transform: lowercase on html, body, inputs and svg text to match the wordmark - then exempt the code block and its title, or the sample turns into unreadable all-lowercase JavaScript.
+Every animation in the edge-light system and the orb needs a prefers-reduced-motion branch. Do not just stop them: the sweep and sheen must be display: none and the corner lights must be set to opacity 1, or a reduced-motion visitor gets panels with no edges at all.`,
     preview: "hero",
     variant: "large",
-    added: "Sep 24, 2026",
-    demo: "/demos/mise-ai-kitchen.html",
-    thumbnail: "/thumbs/mise-ai-kitchen.jpg",
+    added: "Sep 29, 2026",
+    demo: "/demos/arcline-neon-glass.html",
+    credits: [
+      {
+        label: "Neon Glass Context Menu by Simey",
+        href: "https://codepen.io/",
+        note: "The shine/glow edge-light technique the panels are built from, retuned to this palette",
+      },
+      {
+        label: "Chat input by Cobp on Uiverse.io",
+        href: "https://uiverse.io/",
+        note: "The hero's expanding chat bar and its voice-panel state",
+      },
+    ],
+    thumbnail: "/thumbs/arcline-neon-glass.jpg",
     theme: "dark",
   },
   {
@@ -772,6 +786,56 @@ Two columns collapse to one at 860px, the rate card at 760px, the meta strip to 
     added: "Sep 23, 2026",
     demo: "/demos/spool-run-transcript.html",
     thumbnail: "/thumbs/spool-run-transcript.jpg",
+    theme: "light",
+    // Parked for now. `hidden` rather than deleting: /prompt/:slug still
+    // resolves and the endpoints still serve it, so any link already shared
+    // keeps working.
+    hidden: true,
+  },
+  {
+    title: "Holographic Ticket Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A WebGL agent swarm you can shove out of the way, and die-cut holographic tickets masked out of one conic gradient",
+    prompt: `Build a single-file HTML landing page for "Murmur Labs", a fictional applied AI research lab whose product is a multi-agent platform called Swarm. Two ideas carry the whole page: a hero made of a hundred soft spheres you can push around, and every card on the page cut out to look like a holographic admission ticket. Oswald from Google Fonts, three.js r128 and GSAP + ScrollTrigger from a CDN, everything else inline. No image files and NO ICON FONT - draw the four social marks as inline SVG, because pulling a hundred kilobytes of icon CSS plus a woff2 for four glyphs is the one asset this page does not need. Say in the footer that the lab, the platform, the models and every figure are invented.
+
+THE PALETTE
+Cool paper and one dusty rose family, nothing else: --paper #fbfaff, --black #101117, --petal #f2c4c4, --albedo #c7a5a5, --rose #b76e79, and a single --gold-grad of #f7dccf to #dca79c to #b76e79 at 135deg. The gold gradient is the only accent: it fills the word-mark text clip, the button wipe, the rule that draws across a process step on hover, and the footer social hovers. Give the body a very slight left-to-right wash toward #ecf0fb so the page is not flat white.
+
+THE HERO - A SWARM OF AGENTS
+About a hundred spheres in one three.js group, hand-placed in three clusters (a dense core, a left wing, a right wing) with radii from 0.15 to 1. MeshLambertMaterial in --albedo with a red emissive, one ambient light, one spotlight high and to the right, one weak directional from below. The camera is a 25deg perspective at z 24.
+- On load they fly in: every sphere starts 25 units below, and a GSAP timeline per sphere staggered by 0.02s arcs it up, overshoots, and settles on its own position, pushing z out and back with a sine of the tween progress so the arc has depth. Until that finishes the page chrome is at opacity 0 and a single huge word sits behind the cluster; when it finishes the chrome fades in and the word fades out.
+- After that they breathe: every frame each sphere lerps at 0.018 toward its original position plus a small sine on y and cosine on z, offset by index so the cluster undulates rather than pulsing as one.
+- Hovering pushes them. Raycast on mousemove, take the first hit, and store a force vector along the hit normal that is applied and damped by 0.95 each frame until it is negligible. Then resolve collisions pairwise: if two spheres are closer than 1.2x the sum of their radii, push both apart along the line between them. That pairwise pass is O(n squared) on a hundred spheres, which is fine at this count and is the reason not to raise it much.
+- Three things to get right or the page fights the reader. Attach OrbitControls but turn OFF zoom and pan, or the wheel stops scrolling the page. On coarse pointers disable the controls entirely and set touch-action pan-y on the canvas, or the hero traps the first swipe. And gate the whole rAF behind an IntersectionObserver on the hero, because there is no reason to raycast and resolve ten thousand sphere pairs for a section nobody is looking at.
+- Only push while the pointer is actually over the hero: compare clientY against the canvas rect, since the mousemove listener is on window.
+
+THE TICKET - one mask recipe, used five ways
+Every card is a die-cut ticket, and the die is a CSS mask rather than a background image. The paper is a conic-gradient of eight or ten pale iridescent stops over a soft vertical wash, with a second layer of repeating-radial rings in color-burn at low opacity drifting on a nine-second alternate loop, and a cursor-tracking radial white sheen in soft-light. Then cut it:
+- Build the shape out of four mask layers composited with INTERSECT, not add: two repeating radial gradients along opposite edges for the perforations, and two single radial gradients for the notches where the stub tears off. Add would union the holes and you would get a rectangle back. Write both the -webkit-mask-composite: source-in and the standard mask-composite: intersect - they are different keywords for the same result and Chromium still wants the prefixed one.
+- Keep the vertical and horizontal recipes in two custom properties on the same element, --mask-v and --mask-h, and switch between them by reassigning mask. The wide CTA ticket uses --mask-h; at narrow widths it flips back to --mask-v when the layout stacks, and the only thing that changes is which variable is assigned.
+- The perforated edge is the mask, but the TEAR line is a separate dashed border inset by the notch radius, and the notch positions are driven off the same --stub variable the stub height uses, so the notches always sit exactly where the tear is.
+- Float them: a 4.5s ease-in-out translate loop with animation-delay set from a per-card --i so they do not bob in unison. Use the individual translate property, not transform, because the pointer tilt writes transform and two owners of one property is how a card ends up stuck mid-air.
+- On pointermove write a perspective rotateX/rotateY from the cursor position and set --mx/--my for the sheen; reset both on pointerleave. Guard it behind pointer: fine.
+
+THE FIVE USES
+1. A marquee strip: the ticket mask stretched across a rotated band, two copies of six words translating -50% on a linear loop, with a slow light sweep in soft-light over the top and the whole track pausing on hover.
+2. Six product cards in a three-column grid, every second one dropped 90px, each holding a little constellation of CSS radial-gradient orbs that drift apart on hover.
+3. Six model cards in a flex row that expand on hover - flex 1 to flex 2.4 - revealing a description and a barcode that were collapsed to zero height and width. Below 1200px this has to become a grid with everything already open, because a hover-to-expand row is unusable the moment hovering stops being a thing.
+4. A wide admission ticket for the CTA, stub on the right, with a barcode scaled 1.6x on its x axis.
+5. One dark variant for the embeddings model, which needs its own holographic stops, an inverted barcode and a screen blend instead of color-burn.
+Draw the barcode with a single pseudo-element and a long box-shadow list rather than twenty spans.
+
+TYPE AND SECTIONS
+Oswald throughout, 200 to 700. A 160px hero numeral, 104px section titles, a 132px CTA headline with one word in -webkit-text-stroke outline. Sections are numbered 02 to 06 with an uppercase label and a rule. Between them: a statement paragraph with three stats, a four-step process row where a gold rule draws across the top border on hover, and a centred 68px quote. The footer ends with the word-mark at 19.5vw, the disclaimer, and a three-part bottom bar.
+
+RESPONSIVE AND MOTION
+Breakpoints at 1499, 1199, 991, 767. The work grid goes 3 to 2 to 1, the process grid 4 to 2 to 1, the model row to a 3-up then 2-up then 1-up grid with everything expanded, and the wide CTA ticket stacks with its stub underneath. Hide the hero nav under 767 and leave the hamburger. No horizontal scroll at 390 - the marquee band is deliberately wider than the viewport, so the overflow has to be clipped on html and body, not just on the band. Under prefers-reduced-motion drop the ticket float, the holographic drift and the marquee sweep.`,
+    preview: "hero",
+    variant: "large",
+    added: "Sep 29, 2026",
+    demo: "/demos/murmur-swarm-tickets.html",
+    thumbnail: "/thumbs/murmur-swarm-tickets.jpg",
     theme: "light",
   },
   {
@@ -1189,6 +1253,7 @@ At 900px grids collapse to one column and the services rows reflow. At 640px, 22
   {
     title: "Launch Form Onboarding Flow",
     category: "product",
+    hidden: true, // PRODUCT-PARKED
     sectionOnly: true,
     categoryLabel: "PRODUCT",
     description: "100vh sign-up + onboarding web component that ends with a rocket publish button",
@@ -1290,7 +1355,7 @@ SHOWCASE PAGE (dark, Bricolage Grotesque + Instrument Serif italic accents + Jet
     category: "web",
     categoryLabel: "WEB",
     description: "Dithered WebGL halftone panels, glossy 3D orbs, tabbed product demo, bento + pricing",
-    prompt: `Build a single-file HTML landing page for "Monax", an analytics platform for business teams. Inter 300–900 from Google Fonts, GSAP 3.12 + ScrollTrigger from CDN, everything else inline. Every visual is CSS or inline SVG, so no image assets except a few avatar photos.
+    prompt: `Build a single-file HTML landing page for "Monax", an analytics platform for business teams. Inter 300–900 from Google Fonts, GSAP 3.12 + ScrollTrigger from CDN, everything else inline. Every visual is CSS, inline SVG or a WebGL shader, so the page fetches no image assets at all — draw the avatars too, as gradient discs with an inline person glyph.
 
 DESIGN SYSTEM
 - Warm paper palette: --bg #efede8, --bg-2 #e5e2da, --ink #0d0d10, --ink-soft #2a2a2d, --mute #8a8780, --line #dad6c9, --green #bfd58f, --green-dark #5c7838. Body is a radial gradient from #f4f1ec to #dfdbcf, with a fixed SVG fractal-noise grain overlay at 5% opacity, multiply blend.
@@ -1301,27 +1366,29 @@ DESIGN SYSTEM
 
 SECTIONS
 1. Fixed blurred nav: wordmark, centered links with chevrons (anchors to sections), a black "Contact us" pill.
-2. Hero: a 3-line 8vw headline, "Business Teams / Around / Analytical Work". Each word sits in an overflow-hidden mask and slides up from 105%. Line 2 has a gradient "coiled tube" pill image before the word and a green "Behind every great idea" pill with a spinning glossy leaf after it.
-3. Below-hero 3-column: text + mini card left; a big gradient canvas with 7 floating spheres, a play button and a "Try for free" pill in the center; avatar stack, a 120+ counter and a figurine card on the right.
-4. Logo marquee of text wordmarks in mixed weights, CSS loop, edge mask.
-5. Features: 3 white cards with glossy icon tiles.
-6. Product demo: a tablist (Connect / Ask / Share) beside a mock app window. Connect shows 6 source chips wired to a pulsing "M" hub with animated dashed SVG lines. Ask shows a chat question, an AI answer and 4 bars that grow. Share shows KPI tiles and an area line chart revealed with a clip-path wipe, plus live viewer avatars. Tabs auto-advance every 6s with a progress bar, pause on hover or offscreen, and stop for good once the user picks one. Arrow keys work.
-7. Bento: a dark 2×2 tile with an isometric stack of three glossy slabs (Sources / Models / Metrics) that slowly rotates and fans apart on hover (GSAP tweening CSS variables); a 200+ connector counter; "Governed by default" with a lock tile; and a Slack-style alert feed that reorders itself every few seconds with a manual FLIP animation.
-8. Customer stories: an orb art panel that crossfades colors per slide beside a quote card with author, metric chip, a 01 / 03 counter and prev/next round buttons.
-9. Pricing: Starter / Team (dark, "Most popular") / Enterprise, with a monthly/annual switch that tweens the price 49 → 39 and green check bullets.
-10. Resources: 3 cards with orb-art thumbnails that zoom on hover and tag pills.
-11. Dark CTA card with green and gold blurred glows and a gradient italic em, then a footer with a newsletter input pill, 3 link columns, a giant fading wordmark and a live "All systems normal" status.
+2. Hero: a 3-line 8vw headline, "Business Teams / Around / Analytical Work". Each word sits in an overflow-hidden mask and slides up from 105%. Line 2 has a dithered pill image before the word and a green "Behind every great idea" pill with a spinning glossy leaf after it.
+3. Fanned card stack, directly under the headline and the centrepiece of the page. Eight cards of different sizes sit on a stage as absolutely positioned slots, each carrying its own --w, --h, --y, --z plus data-rot and data-depth, overlapping like a hand of cards held out: a coral "Freshness / Live" chip, a green "$4.2M Revenue" KPI, a dark "Connect / 6 sources synced" card holding the holographic M hub, a gold "Regions / EMEA up 32%" bar card, a tall dithered "Live dashboard / 3 viewing" panel, a blue "2.3% Churn" donut, a sand "Ask Monax / answered in 0.8s" card with a question bubble and an avatar row, and a red "Alerts / 3 new today" card. Behind the whole stack the words "real answers" sit as huge letterspaced ghost type. A "Try for free" pill closes the section.
+4. Logo marquee of text wordmarks in mixed weights with small glossy orbs, CSS loop, edge mask.
+5. Product demo: a tablist (Connect / Ask / Share) beside a mock app window. Connect shows 6 source chips wired to a pulsing "M" hub with animated dashed SVG lines. Ask shows a chat question, an AI answer and 4 bars that grow. Share shows KPI tiles and an area line chart revealed with a clip-path wipe, plus live viewer avatars. Tabs auto-advance every 6s with a progress bar, pause on hover or offscreen, and stop for good once the user picks one. Arrow keys work.
+6. Bento: a dark 2×2 tile with an isometric stack of three glossy slabs (Sources / Models / Metrics) that slowly rotates and fans apart on hover (GSAP tweening CSS variables); a 200+ connector counter; "Governed by default" with a lock tile; and a Slack-style alert feed that reorders itself every few seconds with a manual FLIP animation.
+7. Customer stories: a holographic art panel beside a quote card with author, metric chip, a 01 / 03 counter and prev/next round buttons. Moving slides swaps the panel's glyph to the new company's initial behind a quick scale-out / back.out scale-in.
+8. Pricing: Starter / Team (dark, "Most popular") / Enterprise, with a monthly/annual switch that tweens the price 49 → 39 and green check bullets.
+9. Resources: 3 cards whose thumbnails are small holographic scenes - a stepped stack, a question glyph, a talk bubble with a waveform - that zoom on hover.
+10. Footer with a newsletter input pill, 4 link columns, a giant fading wordmark, the fictional-product disclaimer and a live "All systems normal" status.
 
 DITHERED FIELD (a material, not a background)
-The page background stays the paper gradient. What gets replaced is the fill of a few colored surfaces: the hero product panel the "Try for free" pill sits on, the two small art cards either side of it, and the customer-stories panel. Each one gets a WebGL canvas laid into it, written in plain WebGL in a script tag -- no framework, no npm, no ogl. One full-screen triangle, one fragment shader, driven per element by data attributes (data-fx-ink, data-fx-paper, data-fx-coverage, data-fx-scale, data-fx-density):
+The page background stays the paper gradient. What gets replaced is the fill of three surfaces: the pill image inline in the headline, the tall "Live dashboard" card in the fan, and the sand "Ask Monax" card next to it. Each one gets a WebGL canvas laid into it, written in plain WebGL in a script tag -- no framework, no npm, no ogl. One full-screen triangle, one fragment shader, driven per element by data attributes (data-fx-ink, data-fx-paper, data-fx-coverage, data-fx-scale, data-fx-density):
 - Rotated fbm noise drives a dot grid; each cell prints a 5x5 dot whose radius falls off from its center, so the field reads as a printed halftone rather than pixels. Add a scanline bar, a rare horizontal glitch displacement, a flicker term and a slight barrel curvature.
-- Do not tint it one color. Mix four inks along a slow diagonal that drifts with time, taken from the gradient that element used to have -- violet #8163c6, amber #f2a03b, red #e83a4d and blue #7bafce on the hero panel; the three story orb colors on the stories panel; the coral pair on the small cards. Print them onto that element's own base gradient, rebuilt in shader, and dither last in paper space so the banding goes with the dot edges.
+- Do not tint it one color. Mix four inks along a slow diagonal that drifts with time, taken from the gradient that element used to have -- violet #8163c6, amber #f2a03b, red #e83a4d and blue #7bafce on the headline pill and the dashboard card, over paper #f2ece0 / #e8e0ce / #c8b89e; tan #c99368, gold #e0a82e, umber #8a7050 and cream #f8d6a6 on the sand card. Give each host its own coverage and density through data-fx-coverage and data-fx-density, so the small inline pill prints coarser than the card it sits beside. Print them onto that element's own base gradient, rebuilt in shader, and dither last in paper space so the banding goes with the dot edges.
 - Compute the cell grid from the element's aspect (aspect x 15 columns, 15 rows) so dots stay square in a wide card and a tall one alike. The pointer nudges intensity through an exponential falloff with a ripple, smoothed at 0.08.
 Wiring: the canvas is the host's first child at z-index -1, and the host gets position relative plus isolation isolate -- that gives it a stacking context of its own, so the layer sits above the element's background and below its ::before/::after gloss and every child, spheres and orbs included, with no way to escape behind the section. The element keeps its CSS gradient, which is then the automatic fallback when WebGL is missing or the shader fails to compile. Cap DPR at 1.5, skip offscreen panels with an IntersectionObserver, skip frames while document.hidden, and under prefers-reduced-motion render a fully formed field at a fixed time then stop.
 
+HOLOGRAPHIC SCENES (the other material)
+Where the dithered field is print, this is glass. One recipe, reused three times: a dark rounded panel, a 1px green outline, and a glyph drawn three times at different depths -- a back, a mid and a front layer sharing a --gap that sets how far apart they sit in Z, each outlined with -webkit-text-stroke and filled with a clipped gradient rather than a solid color, the whole group on a slow CSS wobble in 3D. It fills the "Connect" card in the fan (an M), the customer-stories art panel (the current company's initial), and the three resource thumbnails (a stepped stack, a question mark, a talk bubble with a waveform). Hovering the bento's layers tile tweens --gap from 36px out to 64px on back.out and back on elastic.out, so the depth spreads under the pointer.
+
 MOTION
-- Intro timeline: nav drops, words slide up line by line, pills pop with back.out, the canvas and spheres scale in, side columns stagger.
-- Infinite sine yoyo bobs on the pills and spheres; mouse parallax on the spheres via the CSS translate property; scroll scales the canvas.
+- Intro timeline: nav drops, words slide up line by line, pills pop with back.out. Then the ghost letters rise and the fan cards drop in from above, centre card first and outward, and only once every card has landed does the idle float start - otherwise the drop and the float fight over the same transform.
+- Infinite sine yoyo bobs on the pills and the fan cards; mouse parallax on the fan slots through the CSS translate property, kept off GSAP's transform so the two never collide; hovering a card tilts its face toward the pointer and lifts it above its neighbours; on scroll the outer cards fan further out, the ghost phrase swells and fades, and the headline letters spread slightly.
 - Sections reveal with ScrollTrigger.batch (y 40 → 0, once) using clearProps: "transform" so CSS hover lifts keep working. Never put two ScrollTriggered tweens on the same element's transform, and give scroll-driven sphere motion yPercent so it doesn't fight the y bob.
 
 RESPONSIVE
@@ -1503,6 +1570,7 @@ None in the repo, and none in the DOM: a frame scraper should never find a track
   {
     title: "Three-Tier Pricing Table",
     category: "product",
+    hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     description: "Highlighted middle tier with feature checklist",
     prompt:
@@ -1580,6 +1648,7 @@ None in the repo, and none in the DOM: a frame scraper should never find a track
   {
     title: "Testimonial Cards",
     category: "product",
+    hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     description: "Quote cards with avatar and star rating",
     prompt:
@@ -1591,6 +1660,7 @@ None in the repo, and none in the DOM: a frame scraper should never find a track
   {
     title: "Stats Dashboard Card",
     category: "product",
+    hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     description: "Metric tiles with mini bar chart",
     prompt:

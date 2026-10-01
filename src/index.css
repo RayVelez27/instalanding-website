@@ -1058,6 +1058,142 @@ html {
   border: 1px solid #e4e4e4;
 }
 
+/* ── The invite tile ──
+   Borrows the card's box and gutter so it sits in the run, then drops the
+   hover machinery: there is no artwork under it to reveal, so the copy is
+   simply always on. */
+/* Spans the whole row. As the 21st item in a 20-item run it would otherwise
+   orphan a gap beside itself at 2 columns, and a full-width band reads as a
+   deliberate end-cap rather than a card that failed to load. Because it is no
+   longer a 2:1 box, the inner has to leave the absolute-fill the cards use or
+   the row would collapse to zero height. */
+.grid-item--invite {
+  cursor: default;
+  grid-column: 1 / -1;
+  aspect-ratio: auto;
+}
+/* Scoped `.grid-item .inner--invite`, and placed after `.grid-item .inner`,
+   because it ties that rule on specificity (0,2,0) and only wins on order. */
+.grid-item .inner--invite {
+  position: relative;
+  inset: auto;
+  background: #d6d5da;
+  /* Clips the blobs, which are deliberately larger than the card, AND gives
+     the backdrop-filter something to sample inside. */
+  overflow: hidden;
+  /* The source's violet cast. It draws outside the element, so the
+     overflow: hidden above does not touch it, and the tile is the last row
+     so there is nothing below for it to land on. */
+  box-shadow: #d11bff42 0 15px 40px -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(210px, 20vw, 270px);
+  padding: clamp(26px, 3.4vw, 46px);
+}
+/* ── Layers ──
+   blobs (0) → glass (1) → copy (2).
+
+   The source is written for a 190x254 card with 200px blobs at fixed pixel
+   offsets. None of that survives the jump to a 1168x291 band: the same four
+   discs would sit in the left sixth and leave the rest bare. So the blobs
+   are sized off the CARD HEIGHT (aspect-ratio keeps them square) and placed
+   at percentages of the width, which is the one thing that does scale. */
+.invite-blobs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* Where the four discs do not reach. The source used `lightgrey`. */
+  background: #d6d5da;
+}
+.invite-blob {
+  position: absolute;
+  /* 5em on a 200px square is a squircle, not a circle — that soft-cornered
+     square is what gives the mesh its shape once it is blurred. */
+  border-radius: 5em;
+  height: 132%;
+  aspect-ratio: 1;
+  top: -16%;
+}
+/* Same four colours, same reading order as the source (warm, violet, pink,
+   blue), dealt left to right with the vertical stagger it had. */
+.invite-blob:nth-child(1) { left: -4%;  background: #ff930f; }
+.invite-blob:nth-child(2) { left: 24%;  background: #bf0fff; top: -34%; }
+.invite-blob:nth-child(3) { left: 51%;  background: #ff1b6b; top: 2%; }
+.invite-blob:nth-child(4) { left: 78%;  background: #0061ff; top: -28%; }
+
+/* The sheet of glass. The backdrop-filter is the effect — without it this is
+   four hard-edged squares under a white wash. The source blurs 20px on a
+   190px card; on a band six times wider the discs scale up with it, so the
+   blur has to as well or the edges stay legible as edges. */
+.invite-glass {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(rgba(255, 255, 255, 0.473), rgba(150, 150, 150, 0.25));
+  -webkit-backdrop-filter: blur(60px);
+  backdrop-filter: blur(60px);
+}
+
+.invite-body {
+  position: relative;
+  z-index: 2;
+  max-width: 46ch;
+  text-align: center;
+}
+/* Ink, not white: this background is a pale frosted pastel, and the white
+   the shader version needed would be unreadable on it. */
+.invite-kicker {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  /* 0.62 was lifted from the dark version's proportions and is too faint at
+     9px over the pink; this measures 4.5:1 against the worst pixel under it. */
+  font-size: 9px; letter-spacing: 0.18em; color: rgba(10, 10, 14, 0.82); margin: 0 0 10px;
+}
+.invite-title {
+  font-size: clamp(22px, 2.6vw, 34px); font-weight: 600; letter-spacing: -0.02em;
+  color: #0a0a0a; margin: 0 0 10px; line-height: 1.15;
+}
+.invite-copy {
+  font-size: 14.5px; line-height: 1.65; color: #16161a; margin: 0 0 22px;
+}
+.invite-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px; letter-spacing: 0.14em;
+  color: #f4f2ec; background: #101014;
+  padding: 9px 14px; border-radius: 999px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.invite-btn:hover { background: #000; transform: translateY(-1px); }
+.invite-btn:focus-visible { outline: 2px solid #101014; outline-offset: 3px; }
+
+/* At three columns the 21st item fills the last row exactly, so there is no
+   gap to close and the band would only interrupt the run. Back to a card:
+   same 2:1 box, same absolute fill, tighter type to fit it. Keyed to the same
+   1600px breakpoint as the third column, and placed after the base rules so
+   it wins the tie on order the way `.inner--invite` does. */
+@media (min-width: 1600px) {
+  .grid-item--invite {
+    grid-column: auto;
+    aspect-ratio: 2 / 1;
+  }
+  .grid-item .inner--invite {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+    /* 1.4vw, not 1.6: at exactly 1600px the card is only 458x229 and the
+       copy cleared the padding box by 4px, which is inside the margin a font
+       fallback can move. This leaves ~10px. */
+    padding: clamp(18px, 1.4vw, 30px);
+  }
+  .invite-body { max-width: 32ch; }
+  .invite-kicker { margin-bottom: 7px; }
+  .invite-title { font-size: 21px; margin-bottom: 7px; }
+  .invite-copy { font-size: 12.5px; line-height: 1.55; margin-bottom: 14px; }
+  .invite-btn { padding: 8px 12px; }
+}
+
 .grid-item .overview--prompt {
   /* Frosted glass instead of a flat wash: the art stays visible, blurred.
      The veil ramps to solid at the bottom so the text reads over dark tiles too. */
@@ -2000,6 +2136,192 @@ html {
   box-shadow: 0 0 0 1px #d8d8d8;
 }
 .pmodal-fallback { position: absolute; inset: 0; }
+
+/* ============================================================
+   CODE view. One colour story for the whole strip: black-and-white
+   controls like the rest of the site, and the site's four-colour
+   spectrum (orange, pink, violet, blue) reserved for the one call to
+   action, BUILD WITH, and echoed in the editor's top rule and the
+   syntax colours, so the button and the code read as one thing.
+   ============================================================ */
+.pmodal-stage--code { background: #0d0d10; border-color: #000; display: grid; }
+.pcode-wrap { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
+.pcode-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  background: #16161b;
+  border-bottom: 1px solid #24242b;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.pcode-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, #ff930f, #ff1b6b 36%, #bf0fff 66%, #0061ff);
+}
+.pcode-dots { display: inline-flex; gap: 6px; }
+.pcode-dots i { width: 9px; height: 9px; border-radius: 50%; }
+.pcode-dots i:nth-child(1) { background: #ff930f; }
+.pcode-dots i:nth-child(2) { background: #ff1b6b; }
+.pcode-dots i:nth-child(3) { background: #0061ff; }
+.pcode-file { color: #f2f2f5; font-weight: 600; letter-spacing: 0.04em; }
+.pcode-meta { margin-left: auto; color: #6e6e7a; white-space: nowrap; }
+.pcode {
+  margin: 0;
+  overflow: auto;
+  min-height: 0;
+  padding: 14px 0 20px;
+  color: #e4e4e8;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.65;
+  tab-size: 2;
+  counter-reset: pline;
+  scrollbar-color: #33333d #0d0d10;
+}
+.pcode:focus-visible { outline: 2px solid #bf0fff; outline-offset: -2px; }
+.pcode code { display: block; min-width: max-content; }
+.pcode-line { display: block; padding-right: 24px; white-space: pre; }
+.pcode-line:hover { background: rgba(255, 255, 255, 0.035); }
+/* Numbers are generated content, so a selection never picks them up. */
+.pcode-line::before {
+  counter-increment: pline;
+  content: counter(pline);
+  display: inline-block;
+  width: 5ch;
+  margin-right: 18px;
+  padding-right: 12px;
+  text-align: right;
+  color: #45454f;
+  border-right: 1px solid #22222a;
+  user-select: none;
+}
+.pcode-line:hover::before { color: #8a8a96; }
+.pcode ::selection { background: rgba(191, 15, 255, 0.45); color: #fff; }
+/* Syntax: the spectrum, lifted for contrast on near-black. */
+.hl-t { color: #ff6b9a; }                     /* tags, selectors */
+.hl-a { color: #ffb057; }                     /* attributes, properties, --vars */
+.hl-s { color: #a6e3a1; }                     /* strings */
+.hl-k { color: #d18bff; }                     /* keywords, at-rules, doctype */
+.hl-n { color: #ffd66b; }                     /* numbers, colours, entities */
+.hl-f { color: #6cb6ff; }                     /* function calls */
+.hl-r { color: #ff9e7a; }                     /* regex literals */
+.hl-v { color: #c3b5ff; }                     /* CSS keyword values */
+.hl-c { color: #62626e; font-style: italic; } /* comments */
+.hl-p { color: #8b8b98; }                     /* punctuation */
+.pcode-status {
+  margin: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8b8b98;
+}
+
+/* Toolbar actions */
+.pmodal-btn--tight { padding: 7px 12px; }
+.pmodal-btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+.pmodal-btn[data-done] { background: #000; color: #fff; }
+.pmodal-flash {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #000;
+  font-weight: 600;
+  animation: pmodal-flash-in 200ms ease-out;
+}
+.pmodal-flash a { color: #000; }
+@keyframes pmodal-flash-in { from { opacity: 0; transform: translateY(3px); } }
+
+.pmodal-build-wrap { position: relative; }
+.pmodal-build {
+  position: relative;
+  color: #fff;
+  border-color: #000;
+  background: linear-gradient(100deg, #ff930f, #ff1b6b 38%, #bf0fff 68%, #0061ff);
+  background-size: 140% 100%;
+  box-shadow: 3px 3px 0 #000;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  transition: transform 120ms ease, box-shadow 120ms ease, background-position 400ms ease;
+}
+.pmodal-build:hover {
+  color: #fff;
+  background: linear-gradient(100deg, #ff930f, #ff1b6b 38%, #bf0fff 68%, #0061ff);
+  background-size: 140% 100%;
+  background-position: 100% 0;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #000;
+}
+.pmodal-build:active,
+.pmodal-build[aria-expanded="true"] { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
+.pmodal-build-chev { transition: transform 160ms ease; }
+.pmodal-build[aria-expanded="true"] .pmodal-build-chev { transform: rotate(180deg); }
+
+.pmodal-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  width: 252px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 5px 5px 0 #000;
+  font-family: 'IBM Plex Mono', monospace;
+  animation: pmodal-menu-in 140ms ease-out;
+}
+@keyframes pmodal-menu-in { from { opacity: 0; transform: translateY(-4px); } }
+.pmodal-menu-head {
+  margin: 0;
+  padding: 6px 8px 8px;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: #999;
+}
+.pmodal-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 8px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #000;
+  outline: none;
+}
+.pmodal-menu-item:hover,
+.pmodal-menu-item:focus-visible { background: #000; color: #fff; }
+.pmodal-menu-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15); }
+.pmodal-menu-item:hover .pmodal-menu-dot,
+.pmodal-menu-item:focus-visible .pmodal-menu-dot { box-shadow: 0 0 0 1px #fff; }
+.pmodal-menu-go { margin-left: auto; opacity: 0.35; }
+.pmodal-menu-item:hover .pmodal-menu-go,
+.pmodal-menu-item:focus-visible .pmodal-menu-go { opacity: 1; }
+.pmodal-menu-note {
+  margin: 6px 0 0;
+  padding: 9px 8px 4px;
+  border-top: 1px solid #e4e4e4;
+  font-size: 9.5px;
+  line-height: 1.55;
+  color: #888;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pmodal-menu, .pmodal-flash { animation: none; }
+  .pmodal-build, .pmodal-build:hover, .pmodal-build:active { transition: none; transform: none; }
+}
 
 /* Prompt column */
 .pmodal-side { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 10px; min-height: 0; }

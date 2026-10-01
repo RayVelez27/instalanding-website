@@ -15,7 +15,7 @@ import SignupField from "@/components/SignupField";
 const NAV_LINKS: { to: string; label: string; soon?: boolean }[] = [
   { to: "/", label: "PAGES" },
   { to: "/systems", label: "SYSTEMS", soon: true },
-  { to: "/product", label: "PRODUCT" },
+  { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED
   { to: "/about", label: "ABOUT" },
   { to: "/builders", label: "BUILDERS" },
 ];

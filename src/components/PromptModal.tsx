@@ -5,14 +5,21 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  ChevronDown,
+  Code2,
   Copy,
+  Eye,
   ExternalLink,
   Maximize2,
   Monitor,
   Smartphone,
+  Sparkles,
   X,
 } from "lucide-react";
 import PromptThumb from "@/components/PromptThumb";
+import DemoCode from "@/components/DemoCode";
+import { useDemoSource } from "@/lib/demoSource";
+import { BUILD_TARGETS, buildPrompt, type BuildTarget } from "@/lib/buildWith";
 import { copyText } from "@/lib/copyText";
 import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/data/prompts";
 
@@ -42,6 +49,16 @@ const PromptModal = () => {
 
   const [copied, setCopied] = useState(false);
   const [view, setView] = useState<ViewportKey>("desktop");
+  const [mode, setMode] = useState<"preview" | "code">("preview");
+  /* What the CODE toolbar last did, e.g. "CODE COPIED", plus a fallback link
+     when the browser blocked the new tab. */
+  const [codeNote, setCodeNote] = useState<{ text: string; href?: string } | null>(null);
+  const noteTimer = useRef<number>();
+  /* BUILD WITH is a plain disclosure rendered inside the dialog, not a Radix
+     menu: the dialog traps focus, so a menu portalled outside it lost focus the
+     moment it opened and closed itself again before it was ever seen. */
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState({ width: 0, height: 0 });
   const observer = useRef<ResizeObserver>();
 
@@ -75,7 +92,31 @@ const PromptModal = () => {
   useEffect(() => {
     setCopied(false);
     setView("desktop");
+    setMode("preview");
+    setCodeNote(null);
+    setMenuOpen(false);
   }, [slug]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDown = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    // Land on the first tool so the menu works from the keyboard straight away.
+    menuRef.current?.querySelector<HTMLElement>(".pmodal-menu-item")?.focus();
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [menuOpen]);
+
+  useEffect(() => () => window.clearTimeout(noteTimer.current), []);
+
+  const source = useDemoSource(entry?.demo, mode === "code");
+
+  const flash = (text: string, href?: string) => {
+    window.clearTimeout(noteTimer.current);
+    setCodeNote({ text, href });
+    noteTimer.current = window.setTimeout(() => setCodeNote(null), href ? 8000 : 3200);
+  };
 
   /* The preview is a real page scaled to fit, so the stage has to be measured.
      This is a callback ref rather than an effect on purpose: the dialog mounts
@@ -97,7 +138,7 @@ const PromptModal = () => {
   /* Arrow keys walk the library without closing. */
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLElement && event.target.closest("input, textarea")) return;
+      if (event.target instanceof HTMLElement && event.target.closest("input, textarea, .pmodal-menu")) return;
       if (event.key === "ArrowLeft" && prev) go(prev.slug);
       if (event.key === "ArrowRight" && next) go(next.slug);
     };
@@ -113,6 +154,33 @@ const PromptModal = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const code = source.status === "ready" ? source.code : null;
+  const demoUrl = entry.demo ? new URL(entry.demo, window.location.origin).toString() : "";
+
+  const handleCopyCode = async () => {
+    if (!code) return;
+    await copyText(code);
+    flash("CODE COPIED");
+  };
+
+  /* The code goes on the clipboard first, then the tool opens with a short
+     prompt pointing at the demo. Opened without "noopener" in the feature
+     string so a blocked popup can be detected (it returns null) and offered as
+     a plain link instead; the opener is cut by hand. */
+  const handleBuild = async (target: BuildTarget) => {
+    setMenuOpen(false);
+    if (!code) return;
+    const href = target.url(buildPrompt(entry.title, demoUrl), demoUrl);
+    await copyText(code);
+    const win = window.open(href, "_blank");
+    if (win) {
+      win.opener = null;
+      flash(`CODE COPIED — PASTE IT INTO ${target.name.toUpperCase()}`);
+    } else {
+      flash("CODE COPIED", href);
+    }
+  };
+
   const logical = VIEWPORTS[view].width;
   // Never scale up: at mobile width the frame sits at 1:1 and is centred.
   const scale = stage.width ? Math.min(1, stage.width / logical) : 1;
@@ -122,7 +190,18 @@ const PromptModal = () => {
     <Dialog.Root open onOpenChange={(open) => !open && close()}>
       <Dialog.Portal>
         <Dialog.Overlay className="pmodal-overlay" />
-        <Dialog.Content className="pmodal-dialog" aria-describedby="pmodal-desc">
+        <Dialog.Content
+          className="pmodal-dialog"
+          aria-describedby="pmodal-desc"
+          onEscapeKeyDown={(event) => {
+            // Esc closes the open menu first, and only then the dialog.
+            if (menuOpen) {
+              event.preventDefault();
+              setMenuOpen(false);
+              menuRef.current?.querySelector<HTMLElement>(".pmodal-build")?.focus();
+            }
+          }}
+        >
           <header className="pmodal-head">
             <div className="pmodal-headings">
               <p className="pmodal-kicker">
@@ -147,7 +226,94 @@ const PromptModal = () => {
           <div className="pmodal-main">
             <section className="pmodal-stage-col" aria-label="Preview">
               <div className="pmodal-toolbar">
-                {entry.demo ? (
+                {entry.demo && (
+                  <div className="pmodal-views" role="group" aria-label="Show">
+                    <button className="pmodal-view" aria-pressed={mode === "preview"} onClick={() => setMode("preview")}>
+                      <Eye size={13} />
+                      Preview
+                    </button>
+                    <button className="pmodal-view" aria-pressed={mode === "code"} onClick={() => setMode("code")}>
+                      <Code2 size={13} />
+                      Code
+                    </button>
+                  </div>
+                )}
+                {entry.demo && mode === "code" ? (
+                  <>
+                    <span className="pmodal-note" role="status">
+                      {codeNote && (
+                        <span className="pmodal-flash">
+                          <Check size={11} />
+                          {codeNote.text}
+                          {codeNote.href && (
+                            <>
+                              {" · "}
+                              <a href={codeNote.href} target="_blank" rel="noreferrer">
+                                OPEN IT ↗
+                              </a>
+                            </>
+                          )}
+                        </span>
+                      )}
+                    </span>
+                    <button
+                      className="pmodal-btn pmodal-btn--tight"
+                      onClick={handleCopyCode}
+                      disabled={!code}
+                      data-done={codeNote?.text === "CODE COPIED" || undefined}
+                    >
+                      {codeNote?.text === "CODE COPIED" ? <Check size={12} /> : <Copy size={12} />}
+                      {codeNote?.text === "CODE COPIED" ? "COPIED" : "COPY CODE"}
+                    </button>
+                    <div className="pmodal-build-wrap" ref={menuRef}>
+                      <button
+                        className="pmodal-btn pmodal-btn--tight pmodal-build"
+                        aria-haspopup="menu"
+                        aria-expanded={menuOpen}
+                        disabled={!code}
+                        onClick={() => setMenuOpen((open) => !open)}
+                      >
+                        <Sparkles size={12} />
+                        BUILD WITH
+                        <ChevronDown size={12} className="pmodal-build-chev" />
+                      </button>
+                      {menuOpen && (
+                        <div
+                          className="pmodal-menu"
+                          role="menu"
+                          aria-label="Build with"
+                          onKeyDown={(event) => {
+                            if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+                            event.preventDefault();
+                            const items = Array.from(
+                              event.currentTarget.querySelectorAll<HTMLElement>(".pmodal-menu-item"),
+                            );
+                            const at = items.indexOf(document.activeElement as HTMLElement);
+                            const step = event.key === "ArrowDown" ? 1 : -1;
+                            items[(at + step + items.length) % items.length]?.focus();
+                          }}
+                        >
+                          <p className="pmodal-menu-head">OPEN THIS CODE IN</p>
+                          {BUILD_TARGETS.map((target) => (
+                            <button
+                              key={target.id}
+                              className="pmodal-menu-item"
+                              role="menuitem"
+                              onClick={() => handleBuild(target)}
+                            >
+                              <span className="pmodal-menu-dot" style={{ background: target.dot }} aria-hidden="true" />
+                              {target.label}
+                              <ExternalLink size={11} className="pmodal-menu-go" />
+                            </button>
+                          ))}
+                          <p className="pmodal-menu-note">
+                            Copies the full code, then opens the tool with a starter prompt. Paste to finish.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : entry.demo ? (
                   <div className="pmodal-views" role="group" aria-label="Preview width">
                     {(Object.keys(VIEWPORTS) as ViewportKey[]).map((key) => {
                       const Icon = VIEWPORTS[key].icon;
@@ -167,13 +333,24 @@ const PromptModal = () => {
                 ) : (
                   <span className="pmodal-note">WIREFRAME PREVIEW</span>
                 )}
-                {entry.demo && (
+                {entry.demo && mode === "preview" && (
                   <span className="pmodal-note">{logical}px · scroll inside the frame</span>
                 )}
               </div>
 
-              <div className={`pmodal-stage pmodal-stage--${view}`} ref={attachStage}>
-                {entry.demo ? (
+              <div
+                className={`pmodal-stage pmodal-stage--${mode === "code" ? "code" : view}`}
+                ref={attachStage}
+              >
+                {entry.demo && mode === "code" ? (
+                  code ? (
+                    <DemoCode code={code} file={entry.demo.split("/").pop() ?? "index.html"} />
+                  ) : (
+                    <p className="pcode-status">
+                      {source.status === "error" ? "Couldn't load the source. Try NEW TAB instead." : "Loading source…"}
+                    </p>
+                  )
+                ) : entry.demo ? (
                   <iframe
                     /* Keyed by view so the demo re-runs anything it measured on load. */
                     key={`${entry.slug}-${view}`}

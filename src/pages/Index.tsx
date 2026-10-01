@@ -16,7 +16,7 @@ const Index = () => (
         </div>
         <StarOnGithub />
       </div>
-      <PromptGrid />
+      <PromptGrid invite />
     </main>
   </div>
 );
