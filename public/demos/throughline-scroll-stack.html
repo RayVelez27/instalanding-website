@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Throughline</title>
 <meta name="description" content="THROUGHLINE is a fictional AI delivery platform: route between models, ground them in your corpus, gate releases on evals and ship behind a canary." />
 <script>document.documentElement.className += " js";</script>
@@ -62,8 +58,6 @@ body{
   overscroll-behavior-y:none;
   -webkit-font-smoothing:antialiased;
 }
-img{ max-width:100%; }
-[hidden]:not([hidden=until-found i]){ display:none !important; }
 button{ font:inherit; color:inherit; }
 a{ color:inherit; }
 ::selection{ background:var(--cyan); color:var(--ink); }
@@ -167,14 +161,12 @@ a{ color:inherit; }
   margin-top:calc(-1 * var(--nav-h));
   /* room under the meta row for the wave band, which is absolute */
   padding:calc(clamp(70px,9vw,120px) + var(--nav-h)) 0 calc(clamp(52px,6vw,86px) + var(--wave-h) * .62);
-  /* The fall of colour now runs the other way below the poster: the ground
-     gets lighter as it nears the water, and the wave bands take it back down
-     to the page. The last stop matches #wv1's first stop exactly or a seam
-     shows along the highest crest. */
+  /* Flat navy all the way down to the water: no lighter blend at the
+     bottom. The wave bodies step down from this navy to the page, darker
+     band by band, so the water reads as depth rather than a glow. */
   background:
     radial-gradient(120% 90% at 18% 0%, #27365a 0%, transparent 58%),
-    radial-gradient(90% 46% at 50% 100%, rgba(15,191,250,.13) 0%, transparent 72%),
-    linear-gradient(180deg, var(--navy) 0%, #202c4d 46%, #37507f 74%, #4a63a8 100%);
+    var(--navy);
 }
 .hero-copy{ position:relative; z-index:2; text-align:left; }
 
@@ -319,12 +311,175 @@ a{ color:inherit; }
 }
 .ex-meta span.cite{ border-color:rgba(15,191,250,.35); color:#bfe9ff; }
 .ex-meta span.gate-no{ border-color:rgba(247,209,82,.45); color:var(--amber); }
+/* Phones: the suggestions become a short list, one per row, icon first */
+@media (max-width:640px){
+  .ask-slot{ min-height:0; }
+  .sugs{ flex-direction:column; gap:8px; overflow:visible; scroll-snap-type:none; }
+  .sug{
+    flex:none; width:100%; min-height:0;
+    flex-direction:row-reverse; justify-content:flex-end; align-items:center; gap:12px;
+    padding:10px 14px 10px 10px; border-radius:12px;
+  }
+  .sug .ic{ align-self:center; flex-shrink:0; width:32px; height:32px; }
+  .sug > span:first-child{ min-width:0; }
+  .sug:hover{ transform:none; }
+}
 @media (max-width:560px){
   .ask-pill, .ask-input{ height:54px; }
   .ask-clear{ width:54px; height:54px; }
   .ask-send{ top:5px; }
   .ex-a{ padding:14px; gap:12px; }
 }
+/* ==========================================================
+   HERO, DESKTOP PASS (after the reference comp)
+   The headline keeps its three lines; the support copy sits as a narrow
+   column to the right of PROMPT; a floating terminal (the Route card's
+   glyph, drawn large) holds the space beside TO PRODUCTION; the prompt
+   box and its four suggestions run the full width of the column, with a
+   spark at the start of the field and a ringed send key that is always
+   there. A hairline in the nav sets Start free apart.
+   ========================================================== */
+.poster h1 i:not(.spec){ text-shadow:0 0 26px rgba(241,252,255,.1); }
+.poster h1 i.spec{
+  background-image:linear-gradient(90deg,
+    #2cff84 0%, #06e4ff 12.5%, #ff54ff 25%, #ffe13a 37.5%,
+    #2cff84 50%, #06e4ff 62.5%, #ff54ff 75%, #ffe13a 87.5%, #2cff84 100%) !important;
+  filter:brightness(1.12) drop-shadow(0 0 22px rgba(120,200,255,.18)) !important;
+}
+.hero-float{ display:none; }
+@media (min-width:900px){
+  .hero{ padding-top:calc(clamp(56px,6.5vw,92px) + var(--nav-h)) !important; }
+  .poster-note{
+    left:auto !important; right:0; top:.6em !important; width:clamp(260px,26vw,340px); max-width:none !important;
+    font-size:clamp(13px,1.1vw,15px) !important; font-weight:500 !important; line-height:1.6 !important;
+    color:rgba(241,252,255,.82) !important;
+  }
+  .poster h1{ font-size:clamp(46px, 10.4vw, 142px) !important; }
+  .hero-float{
+    display:block; position:absolute; z-index:2; right:clamp(0px,2vw,30px);
+    top:44%; width:clamp(190px,19vw,250px); pointer-events:none;
+    animation:hfBob 6s ease-in-out infinite;
+  }
+  .ask{ max-width:none !important; }
+  .sugs{ display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)); overflow:visible; }
+  .sug{ flex:none !important; min-height:150px; }
+  .nav-links{ padding-right:24px; margin-right:4px; border-right:1px solid rgba(255,255,255,.14); }
+}
+.hf{ width:100%; height:auto; display:block; overflow:visible; fill:none; stroke-linecap:round; stroke-linejoin:round;
+     filter:drop-shadow(0 18px 40px rgba(0,0,0,.45)); }
+.hf .hf-body{ fill:rgba(12,14,22,.72); stroke:none; }
+.hf .hf-w{ stroke:#f1fcff; stroke-width:7; }
+.hf .hf-dim{ stroke:rgba(241,252,255,.22); stroke-width:6; }
+.hf .hf-dot{ fill:rgba(241,252,255,.35); stroke:none; }
+.hf .hf-ghost{ stroke:rgba(241,252,255,.28); stroke-width:5; animation:hfGhost 6s ease-in-out infinite; }
+.hf .hf-cmd{ stroke:#ff54ff; stroke-width:7; filter:drop-shadow(0 0 7px #ff54ff);
+  stroke-dasharray:58; stroke-dashoffset:58; animation:hfType 4s steps(9,end) infinite; }
+.hf .hf-cursor{ fill:#ff54ff; filter:drop-shadow(0 0 8px #ff54ff);
+  animation:hfCur 4s steps(9,end) infinite, cxBlink .8s steps(1,end) infinite; }
+.hf .hf-tag rect{ fill:rgba(12,14,22,.9); stroke:#06ffff; stroke-width:2.5; filter:drop-shadow(0 0 6px rgba(6,255,255,.6)); }
+.hf .hf-tag text{ fill:#bff9ff; stroke:none; font:600 13px/1 var(--f-mono); text-anchor:middle; letter-spacing:.04em; }
+.hf .hf-tag{ animation:hfTag 4s ease-in-out infinite; }
+@keyframes hfBob{ 0%,100%{ transform:translateY(0) rotate(-2deg); } 50%{ transform:translateY(-12px) rotate(1deg); } }
+@keyframes hfGhost{ 0%,100%{ transform:translate(0,0); opacity:.5; } 50%{ transform:translate(6px,-6px); opacity:.9; } }
+@keyframes hfType{ 0%{ stroke-dashoffset:58; } 55%,85%{ stroke-dashoffset:0; } 100%{ stroke-dashoffset:58; } }
+@keyframes hfCur{ 0%{ transform:translateX(-66px); } 55%,85%{ transform:translateX(0); } 100%{ transform:translateX(-66px); } }
+@keyframes hfTag{ 0%,50%{ opacity:0; transform:translateY(8px); } 60%,88%{ opacity:1; transform:translateY(0); } 100%{ opacity:0; transform:translateY(-4px); } }
+
+/* the prompt box: spark first, send key always on */
+.ask-spark{ position:absolute; left:22px; top:50%; width:20px; height:20px; margin-top:-10px; z-index:1; pointer-events:none;
+  fill:url(#spectrum); filter:brightness(1.8) drop-shadow(0 0 6px rgba(255,120,255,.5)); }
+.ask-input{ padding-left:56px !important; padding-right:72px !important; }
+.ask-send{
+  transform:none !important; width:46px; height:46px; top:7px; right:7px;
+  background:rgba(12,14,22,.95) !important; color:#fff !important;
+  box-shadow:inset 0 0 0 2px transparent;
+}
+.ask-send::before{
+  content:""; position:absolute; inset:0; border-radius:50%; padding:2px;
+  background:linear-gradient(135deg,#2cff84,#06e4ff,#ff54ff);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor;
+          mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  filter:drop-shadow(0 0 5px rgba(6,228,255,.6));
+}
+.ask-input:invalid ~ .ask-send{ opacity:.75; }
+.ask-send:hover{ filter:brightness(1.2); }
+@media (max-width:560px){ .ask-send{ top:4px !important; right:4px; } }
+@media (prefers-reduced-motion: reduce){ .hero-float, .hf *{ animation:none !important; } .hf .hf-cmd{ stroke-dashoffset:0; } .hf .hf-tag{ opacity:1; } }
+
+
+/* ---- suggestion icons, in the stage-icon hand ----
+   Thick white rounded strokes, one neon element doing the work, a faded
+   ghost. Each card takes one stop of the headline's spectrum, in order. */
+.sug .ic{ width:46px; height:46px; background:none !important; }
+.sug .ic svg.sx{ width:46px; height:46px; display:block; overflow:visible; fill:none !important;
+  stroke:none; stroke-linecap:round; stroke-linejoin:round; }
+.sugs li:nth-child(1) .sx{ --hot:#ff54ff; } .sugs li:nth-child(2) .sx{ --hot:#ffe13a; }
+.sugs li:nth-child(3) .sx{ --hot:#2cff84; } .sugs li:nth-child(4) .sx{ --hot:#06ffff; }
+.sx .sx-w{ stroke:#f1fcff; stroke-width:3; }
+.sx .sx-dim{ stroke:rgba(241,252,255,.3); stroke-width:3; }
+.sx .sx-hot{ stroke:var(--hot); stroke-width:3; filter:drop-shadow(0 0 3px var(--hot)); }
+.sx .sx-ghost, .sx .sx-ghost *{ stroke:rgba(241,252,255,.28); stroke-width:2.5; }
+/* refund: the return arrow draws round, holds, clears; the copy behind drifts */
+.sx-refund .sx-ret{ stroke-dasharray:0 100; animation:sxRet 3.2s ease-in-out infinite; }
+.sx-refund .sx-head{ animation:sxHead 3.2s ease-in-out infinite; }
+.sx-refund .sx-ghost{ animation:wxGhost 4s ease-in-out infinite; }
+@keyframes sxRet{ 0%,8%{ stroke-dasharray:0 100; opacity:1; } 45%,80%{ stroke-dasharray:100 0; opacity:1; } 95%,100%{ stroke-dasharray:100 0; opacity:0; } }
+@keyframes sxHead{ 0%,40%{ opacity:0; } 48%,80%{ opacity:1; } 95%,100%{ opacity:0; } }
+/* latency: the needle swings into the red and back, a ghost lags behind it */
+.sx-latency .sx-needle, .sx-latency .sx-needle-ghost{ transform-origin:24px 34px; }
+.sx-latency .sx-needle path{ stroke:var(--hot); stroke-width:3.2; filter:drop-shadow(0 0 3px var(--hot)); }
+.sx-latency .sx-needle-ghost path{ stroke:rgba(241,252,255,.25); stroke-width:3; }
+.sx-latency .sx-needle{ animation:sxSwing 2.8s cubic-bezier(.5,0,.3,1.4) infinite; }
+.sx-latency .sx-needle-ghost{ animation:sxSwing 2.8s cubic-bezier(.5,0,.3,1.4) infinite; animation-delay:.18s; }
+.sx-latency .sx-hub{ fill:#f1fcff; }
+@keyframes sxSwing{ 0%,100%{ transform:rotate(-95deg); } 45%,60%{ transform:rotate(8deg); } }
+/* key: the rotate arrow circles the key; a ghost key turns behind */
+.sx-key .sx-rot{ transform-origin:24px 24px; animation:wxSpin 4s linear infinite; }
+.sx-key .sx-kg{ animation:wxGhost 4s ease-in-out infinite; }
+@keyframes sxKey{ 0%,100%{ transform:rotate(0); opacity:.35; } 50%{ transform:rotate(-14deg); opacity:.8; } }
+/* on call: the mic pulses and the call rings out in two waves */
+.sx-oncall .sx-mic{ fill:var(--hot); filter:drop-shadow(0 0 4px var(--hot)); animation:sxMic 1.6s ease-in-out infinite; }
+.sx-oncall .sx-ring{ stroke:var(--hot); stroke-width:2; transform-box:fill-box; transform-origin:center; animation:sxPing 1.6s ease-out infinite; }
+@keyframes sxPing{ 0%{ transform:scale(1); opacity:.9; } 100%{ transform:scale(3); opacity:0; } }
+@keyframes sxMic{ 0%,100%{ opacity:1; } 50%{ opacity:.45; } }
+@keyframes sxWave{ 0%{ opacity:0; } 25%{ opacity:1; } 100%{ opacity:0; } }
+@media (max-width:899px){ .sug .ic, .sug .ic svg.sx{ width:38px; height:38px; } }
+@media (prefers-reduced-motion: reduce){ .sx *{ animation:none !important; } .sx-refund .sx-ret{ stroke-dasharray:100 0; } }
+
+/* ---- tablet, 641-899px ----
+   Between the phone stack and the desktop comp. The headline is sized so
+   TO PRODUCTION spans the column; the floating terminal comes back, smaller,
+   in the space PROMPT leaves on the first line; the support copy sits flush
+   left under the headline; the suggestions go two by two, icon first. */
+@media (min-width:641px) and (max-width:899px){
+  .hero{ padding-top:calc(clamp(44px,6vw,64px) + var(--nav-h)) !important; }
+  .poster h1{ font-size:clamp(80px, 13.4vw, 118px) !important; line-height:1 !important; }
+  .poster-note{
+    position:relative !important; left:0 !important; top:auto !important;
+    margin:26px 0 0 !important; max-width:52ch !important;
+    font-size:15px !important; font-weight:500 !important; line-height:1.6 !important;
+    color:rgba(241,252,255,.82) !important;
+  }
+  /* sized off the headline so it never grows taller than the PROMPT line
+     and cannot reach down into TO PRODUCTION */
+  .poster{ --hs:clamp(80px, 13.4vw, 118px); }
+  .hero-float{
+    display:block; position:absolute; z-index:2; right:0; top:calc(var(--hs) * -.06);
+    width:calc(var(--hs) * 1.3); pointer-events:none;
+    animation:hfBob 6s ease-in-out infinite;
+  }
+  .ask{ max-width:none !important; margin-top:32px; }
+  .sugs{ display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; overflow:visible; }
+  .sug{
+    flex:none !important; width:auto; min-height:0 !important;
+    flex-direction:row-reverse; justify-content:flex-end; align-items:center; gap:14px;
+    padding:14px 16px 14px 12px; border-radius:14px;
+  }
+  .sug .ic{ align-self:center; flex-shrink:0; }
+  .sug > span:first-child{ min-width:0; }
+  .ask-slot{ min-height:0; }
+}
+
 /* the support line, tucked into the gap the short first line leaves */
 .poster-note{
   position:absolute; z-index:3; left:46%; top:2%;
@@ -668,6 +823,93 @@ a{ color:inherit; }
   .info-num{ font-size:56px; }
 }
 
+
+/* ---- desktop: scale the walkthrough up to fill the column ----
+   The rows were built with the card and its copy pushed to opposite edges
+   so the snake could run between them. With the snake gone that left a
+   ~500px hole. On desktop the card grows by a quarter (zoom, so its code,
+   icon and neon edge all scale together and the layout sees the real
+   size), the copy steps up a size, and the copy column takes everything
+   between the card and the far edge of the column, minus a fixed gap. */
+@media (min-width:1000px){
+  .cards{ --cz:1.27; }
+  .cardw{ zoom:var(--cz); }
+  .row{ grid-template-columns:calc(300px * var(--cz)) minmax(0,1fr) !important;
+        column-gap:clamp(96px,10vw,140px) !important; margin-bottom:clamp(72px,8vw,120px) !important; }
+  .row.flip{ grid-template-columns:minmax(0,1fr) calc(300px * var(--cz)) !important; }
+  .row .info, .row.flip .info{ justify-self:stretch !important; max-width:none !important; gap:14px; }
+  .info-num{ font-size:clamp(96px,9vw,136px) !important; }
+  .info-name{ font-size:13px !important; letter-spacing:.3em !important; }
+  .info p{ font-size:clamp(17px,1.45vw,19px) !important; line-height:1.7 !important; max-width:none; }
+  .info-kv{ font-size:12.5px !important; padding-top:16px !important; }
+}
+
+/* ==========================================================
+   THE CARD EDGES — the snake is retired
+   The scrolling throughlines are gone. What they did (carry the
+   headline's neon down through the cards) now lives on each card's
+   own outline: a ring of the spectrum that turns around the card and
+   keeps re-mixing, the way the closer's colour pools do, with a soft
+   halo of the same colours behind it.
+     .edge          reveal mask: a conic sweep that draws the ring on
+       .halo > i    the ring again, wider, blurred into a glow
+       i            the ring itself, 2px, masked to the border only
+   ========================================================== */
+@property --ang  { syntax:"<angle>";      inherits:true; initial-value:0deg; }
+@property --p1   { syntax:"<percentage>"; inherits:true; initial-value:25%; }
+@property --p2   { syntax:"<percentage>"; inherits:true; initial-value:55%; }
+@property --sweep{ syntax:"<percentage>"; inherits:true; initial-value:100%; }
+#snake{ display:none !important; }
+.cardw{ position:relative; perspective:1100px; }
+.edge{
+  position:absolute; inset:-26px; z-index:3; pointer-events:none; border-radius:46px;
+  -webkit-mask-image:conic-gradient(from -90deg at 50% 50%, #000 var(--sweep), transparent 0);
+          mask-image:conic-gradient(from -90deg at 50% 50%, #000 var(--sweep), transparent 0);
+  animation:edgeTurn 7s linear infinite, edgeMix 9s ease-in-out infinite alternate;
+}
+.edge i{
+  position:absolute; inset:26px; border-radius:20px; padding:2px;
+  background:conic-gradient(from var(--ang),
+    #ff54ff 0%, #ffe13a var(--p1), #2cff84 var(--p2), #06ffff 80%, #ff54ff 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+          mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.edge .halo{ position:absolute; inset:0; filter:blur(14px); opacity:.55; }
+.edge .halo i{ padding:6px; }
+@keyframes edgeTurn{ to{ --ang:360deg; } }
+@keyframes edgeMix{
+  0%  { --p1:18%; --p2:40%; }
+  50% { --p1:38%; --p2:52%; }
+  100%{ --p1:26%; --p2:66%; }
+}
+
+/* ---- the entrance ----
+   Each row arrives as one move: the card rises out of a tilt and a blur,
+   its neon edge draws itself round from the top, the icon settles in,
+   the copy slides in from the open side, and then the card types. */
+.js .row.rv .card{
+  opacity:0; transform:translateY(90px) rotateX(18deg) scale(.9); filter:blur(8px);
+  transform-origin:50% 100%;
+}
+.js .row.rv .edge{ --sweep:0%; }
+.js .row.rv .cx{ opacity:0; transform:translateY(14px) scale(.85); }
+.js .row.rv .info > *{ opacity:0; transform:translateX(-36px); }
+.js .row.flip.rv .info > *{ transform:translateX(36px); }
+.js .row .card{ transition:opacity .9s ease, transform 1.1s cubic-bezier(.2,.85,.25,1), filter .9s ease; }
+.js .row .edge{ transition:--sweep 1.5s cubic-bezier(.6,0,.2,1) .25s; }
+.js .row .cx{ transition:opacity .6s ease .8s, transform .8s cubic-bezier(.2,.9,.3,1.3) .8s; }
+.js .row .info > *{ transition:opacity .7s ease, transform .9s cubic-bezier(.2,.85,.25,1); }
+.js .row .info > :nth-child(1){ transition-delay:.3s; }
+.js .row .info > :nth-child(2){ transition-delay:.4s; }
+.js .row .info > :nth-child(3){ transition-delay:.5s; }
+.js .row .info > :nth-child(4){ transition-delay:.6s; }
+@media (prefers-reduced-motion: reduce){
+  .edge{ animation:none; }
+  .js .row.rv .card, .js .row.rv .cx, .js .row.rv .info > *{ opacity:1; transform:none; filter:none; }
+  .js .row.rv .edge{ --sweep:100%; }
+}
+
 /* ==========================================================
    THE BANDS — everything after the stage. Same two surfaces
    all the way down: #131417 and a 1px white-at-9% hairline.
@@ -694,8 +936,67 @@ a{ color:inherit; }
   transition:border-color .25s ease, transform .25s ease;
 }
 .stage-card:hover{ border-color:var(--line-2); transform:translateY(-3px); }
-.stage-card .ico{ width:46px; height:46px; display:block; margin-bottom:20px; }
-.stage-card .ico use{ fill:url(#spectrum); }
+/* ---- the stage icons ----
+   After the weather-widget set: chunky white rounded strokes, one element
+   in colour doing the work, and a faded ghost that drifts. Each stage takes
+   one stop of the headline's neon, in order. The motion is the stage's own
+   job: Route fails over from one branch to the other, Ground lights the
+   passages it cites one by one, Gate draws its check inside a turning
+   dial, and Ship sends a copy of the package up and out. */
+.wx{ width:64px; height:64px; display:block; margin:-6px 0 16px -8px; overflow:visible;
+     fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.stage-card:nth-child(1) .wx{ --hot:#ff54ff; }
+.stage-card:nth-child(2) .wx{ --hot:#ffe13a; }
+.stage-card:nth-child(3) .wx{ --hot:#2cff84; }
+.stage-card:nth-child(4) .wx{ --hot:#06ffff; }
+.wx .wx-w{ stroke:#f1fcff; stroke-width:3.5; }
+.wx .wx-dim{ stroke:rgba(241,252,255,.2); stroke-width:3.5; }
+.wx .wx-hot{ stroke:var(--hot); stroke-width:3.5; filter:drop-shadow(0 0 4px var(--hot)); }
+
+/* Route: the call leaves the node on the top branch; half way through the
+   loop that branch goes dark and the call fails over to the bottom one */
+.wx-route .wx-hot{ stroke-dasharray:0 100; }
+.wx-route .wx-a{ animation:wxRouteA 3.2s ease-in-out infinite; }
+.wx-route .wx-b{ animation:wxRouteB 3.2s ease-in-out infinite; }
+.wx-route .wx-end{ stroke:#f1fcff; stroke-width:3; fill:var(--card, #17181c); }
+.wx-route .wx-ea{ animation:wxEndA 3.2s ease-in-out infinite; }
+.wx-route .wx-eb{ animation:wxEndB 3.2s ease-in-out infinite; }
+@keyframes wxRouteA{ 0%{ stroke-dasharray:0 100; opacity:1; } 30%{ stroke-dasharray:100 0; opacity:1; } 45%,100%{ stroke-dasharray:100 0; opacity:0; } }
+@keyframes wxRouteB{ 0%,50%{ stroke-dasharray:0 100; opacity:1; } 80%{ stroke-dasharray:100 0; opacity:1; } 95%,100%{ stroke-dasharray:100 0; opacity:0; } }
+@keyframes wxEndA{ 0%,25%{ stroke:#f1fcff; } 30%,40%{ stroke:var(--hot); } 50%,100%{ stroke:#f1fcff; } }
+@keyframes wxEndB{ 0%,75%{ stroke:#f1fcff; } 80%,90%{ stroke:var(--hot); } 100%{ stroke:#f1fcff; } }
+
+/* Ground: a second page drifts behind, and the cited passage lights up
+   line by line, the way the rain cycles through its drops */
+.wx-ground .wx-ghost{ stroke:rgba(241,252,255,.3); stroke-width:3; animation:wxGhost 4s ease-in-out infinite; }
+.wx-ground .wx-ln{ stroke:rgba(241,252,255,.28); stroke-width:3.5; animation:wxCite 3s linear infinite; }
+.wx-ground .wx-l2{ animation-delay:1s; }
+.wx-ground .wx-l3{ animation-delay:2s; }
+@keyframes wxCite{ 0%,30%{ stroke:var(--hot); filter:drop-shadow(0 0 4px var(--hot)); } 36%,100%{ stroke:rgba(241,252,255,.28); filter:none; } }
+@keyframes wxGhost{ 0%,100%{ transform:translate(0,0); opacity:.3; } 50%{ transform:translate(3px,-3px); opacity:.6; } }
+
+/* Gate: the dial turns like the sun's rays; the check draws, holds, clears */
+.wx-gate .wx-rays{ transform-origin:32px 32px; animation:wxSpin 12s linear infinite; }
+.wx-gate .wx-rays path{ stroke:rgba(241,252,255,.5); stroke-width:3.5; }
+.wx-gate .wx-check{ stroke-dasharray:0 100; animation:wxCheck 3s ease-in-out infinite; }
+@keyframes wxSpin{ to{ transform:rotate(360deg); } }
+@keyframes wxCheck{ 0%,10%{ stroke-dasharray:0 100; opacity:1; } 40%,80%{ stroke-dasharray:100 0; opacity:1; } 95%,100%{ stroke-dasharray:100 0; opacity:0; } }
+
+/* Ship: a copy of the package lifts off in colour and fades, like the
+   second cloud drifting out of the frame; the lid seam holds the colour */
+.wx-ship .wx-fly path{ stroke:var(--hot); stroke-width:3; }
+.wx-ship .wx-fly{ transform-origin:32px 32px; animation:wxShip 3.4s ease-out infinite; }
+.wx-ship .wx-lid{ filter:none; }
+@keyframes wxShip{
+  0%  { transform:translate(0,6px) scale(.8); opacity:0; }
+  20% { opacity:.85; }
+  100%{ transform:translate(14px,-16px) scale(.55); opacity:0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .wx *{ animation:none !important; }
+  .wx-route .wx-a, .wx-gate .wx-check{ stroke-dasharray:100 0; }
+  .wx-ship .wx-fly{ opacity:0; }
+}
 .stage-card .n{ font-size:11px; letter-spacing:.24em; color:var(--fg-faint); }
 .stage-card h3{ margin:8px 0 10px; font-size:19px; font-weight:600; letter-spacing:-.01em; }
 .stage-card p{ margin:0 0 16px; font-size:13.5px; color:var(--fg-dim); line-height:1.6; }
@@ -834,7 +1135,71 @@ a{ color:inherit; }
   .sug:hover{ transform:none; }
 }
 
-/* ---- the five cut-outs, one per card ---- */
+/* ---- the five card glyphs ----
+   The cut-outs below are retired: each card now carries a drawn, animated
+   glyph in the same hand as the stage icons further down (thick white
+   rounded strokes, one element in colour doing the work, a faded ghost).
+   The rules stay in the file but the mask is switched off here. */
+.card{ -webkit-mask-image:none !important; mask-image:none !important; }
+.card::before{ display:none; }
+.cx{
+  position:absolute; left:50%; bottom:22px; z-index:2; width:170px; height:128px; margin-left:-85px;
+  overflow:visible; fill:none; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;
+}
+#c-route .cx{ --hot:#ff54ff; } #c-ground .cx{ --hot:#ffe13a; }
+#c-gate .cx{ --hot:#2cff84; }  #c-ship .cx{ --hot:#06ffff; }
+.cx .cx-w{ stroke:#f1fcff; stroke-width:6; }
+.cx .cx-dim{ stroke:rgba(241,252,255,.22); stroke-width:6; }
+.cx .cx-hot{ stroke:var(--hot); stroke-width:6; filter:drop-shadow(0 0 6px var(--hot)); }
+.cx .cx-ghost{ stroke:rgba(241,252,255,.3); stroke-width:5; }
+
+/* 00: the line runs round the ring through every colour; a copy of the
+   ring breathes out and fades */
+.cx-brand .cx-orbit{ stroke:url(#cxSpec); stroke-width:6.5; stroke-dasharray:22 78; filter:drop-shadow(0 0 6px #b98cff);
+  transform-origin:80px 60px; animation:cxOrbit 3.6s linear infinite; }
+.cx-brand .cx-ghost{ transform-origin:80px 60px; animation:cxBreathe 3.6s ease-out infinite; }
+.cx-brand .cx-core{ fill:url(#cxSpec); stroke:none; animation:cxCore 1.8s ease-in-out infinite; transform-origin:80px 60px; }
+@keyframes cxOrbit{ to{ transform:rotate(360deg); } }
+@keyframes cxBreathe{ 0%{ transform:scale(1); opacity:.5; } 100%{ transform:scale(1.28); opacity:0; } }
+@keyframes cxCore{ 0%,100%{ transform:scale(.85); } 50%{ transform:scale(1.1); } }
+
+/* 01: the command types out in colour, the cursor rides its end and blinks */
+.cx-route .cx-dot{ fill:rgba(241,252,255,.3); stroke:none; }
+.cx-route .cx-cmd{ stroke-dasharray:52; stroke-dashoffset:52; animation:cxType 3.2s steps(8,end) infinite; }
+.cx-route .cx-cursor{ fill:var(--hot); stroke:none; filter:drop-shadow(0 0 6px var(--hot)); animation:cxCursor 3.2s steps(8,end) infinite, cxBlink .8s steps(1,end) infinite; }
+@keyframes cxType{ 0%{ stroke-dashoffset:52; } 55%,85%{ stroke-dashoffset:0; } 100%{ stroke-dashoffset:52; } }
+@keyframes cxCursor{ 0%{ transform:translateX(-58px); } 55%,85%{ transform:translateX(0); } 100%{ transform:translateX(-58px); } }
+@keyframes cxBlink{ 50%{ opacity:0; } }
+
+/* 02: the lookup travels down the stack disc by disc, and a new record
+   lifts off the top and fades, the way the rain cycles its drops */
+.cx-ground .cx-disc{ stroke:#f1fcff; stroke-width:6; animation:cxHit 3s linear infinite; }
+.cx-ground .cx-d2{ animation-delay:1s; } .cx-ground .cx-d3{ animation-delay:2s; }
+.cx-ground .cx-rise{ animation:cxRise 3s ease-out infinite; }
+@keyframes cxHit{ 0%,28%{ stroke:var(--hot); filter:drop-shadow(0 0 6px var(--hot)); } 34%,100%{ stroke:#f1fcff; filter:none; } }
+@keyframes cxRise{ 0%{ transform:translateY(12px); opacity:0; } 30%{ opacity:.55; } 100%{ transform:translateY(-16px); opacity:0; } }
+
+/* 03: each eval bar fills up past the threshold in turn, then all clear */
+.cx-gate .cx-fill{ fill:var(--hot); stroke:none; opacity:.9; transform-box:fill-box; transform-origin:50% 100%;
+  transform:scaleY(0); filter:drop-shadow(0 0 6px var(--hot)); animation:cxFill 3.6s ease-out infinite; }
+.cx-gate .cx-f2{ animation-delay:.35s; } .cx-gate .cx-f3{ animation-delay:.7s; }
+.cx-gate .cx-f1{ --h:.33; } .cx-gate .cx-f2{ --h:.6; } .cx-gate .cx-f3{ --h:.9; }
+.cx-gate .cx-line{ stroke:rgba(241,252,255,.55); stroke-width:3; stroke-dasharray:6 8; animation:cxMarch 1.2s linear infinite; }
+@keyframes cxFill{ 0%{ transform:scaleY(0); } 30%,75%{ transform:scaleY(var(--h)); } 90%,100%{ transform:scaleY(0); } }
+@keyframes cxMarch{ to{ stroke-dashoffset:-14; } }
+
+/* 04: a copy of the arrow launches up and right in colour and fades out */
+.cx-ship .cx-launch{ animation:cxLaunch 2.6s ease-out infinite; }
+@keyframes cxLaunch{ 0%{ transform:translate(0,0); opacity:0; } 15%{ opacity:1; } 100%{ transform:translate(26px,-26px); opacity:0; } }
+
+@media (prefers-reduced-motion: reduce){
+  .cx *{ animation:none !important; }
+  .cx-route .cx-cmd{ stroke-dashoffset:0; }
+  .cx-gate .cx-fill{ transform:scaleY(var(--h)); }
+  .cx-ship .cx-launch, .cx .cx-ghost{ opacity:0; }
+}
+
+/* ---- the five cut-outs, one per card (retired, see above) ---- */
 #c-brand{ --cut:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Cmask id='m'%3E%3Crect width='300' height='450' fill='%23fff'/%3E%3Cg fill='%23000'%3E%3Cpath fill-rule='evenodd' d='M86 366a64 64 0 1 1 128 0a64 64 0 1 1-128 0z M120 366a30 30 0 1 1 60 0a30 30 0 1 1-60 0z M138 366a12 12 0 1 1 24 0a12 12 0 1 1-24 0z'/%3E%3C/g%3E%3C/mask%3E%3Crect width='300' height='450' fill='%23fff' mask='url(%23m)'/%3E%3C/svg%3E"); --rim:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Cg stroke='%23fff' stroke-width='7' stroke-linejoin='round'%3E%3Cpath fill='none' fill-rule='evenodd' d='M86 366a64 64 0 1 1 128 0a64 64 0 1 1-128 0z M120 366a30 30 0 1 1 60 0a30 30 0 1 1-60 0z M138 366a12 12 0 1 1 24 0a12 12 0 1 1-24 0z'/%3E%3C/g%3E%3C/svg%3E"); }
 #c-route{ --cut:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Cmask id='m'%3E%3Crect width='300' height='450' fill='%23fff'/%3E%3Cg fill='%23000'%3E%3Cpath fill-rule='evenodd' d='M56 306h188a18 18 0 0 1 18 18v84a18 18 0 0 1-18 18H56a18 18 0 0 1-18-18v-84a18 18 0 0 1 18-18z M78 336l26 30-26 30h18l26-30-26-30z M134 386h54v16h-54z'/%3E%3C/g%3E%3C/mask%3E%3Crect width='300' height='450' fill='%23fff' mask='url(%23m)'/%3E%3C/svg%3E"); --rim:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Cg stroke='%23fff' stroke-width='7' stroke-linejoin='round'%3E%3Cpath fill='none' fill-rule='evenodd' d='M56 306h188a18 18 0 0 1 18 18v84a18 18 0 0 1-18 18H56a18 18 0 0 1-18-18v-84a18 18 0 0 1 18-18z M78 336l26 30-26 30h18l26-30-26-30z M134 386h54v16h-54z'/%3E%3C/g%3E%3C/svg%3E"); }
 #c-ground{ --cut:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Cmask id='m'%3E%3Crect width='300' height='450' fill='%23fff'/%3E%3Cg fill='%23000'%3E%3Cpath d='M80 316a70 19 0 1 1 140 0a70 19 0 1 1-140 0z'/%3E%3Cpath d='M80 362a70 19 0 1 1 140 0a70 19 0 1 1-140 0z'/%3E%3Cpath d='M80 408a70 19 0 1 1 140 0a70 19 0 1 1-140 0z'/%3E%3C/g%3E%3C/mask%3E%3Crect width='300' height='450' fill='%23fff' mask='url(%23m)'/%3E%3C/svg%3E"); --rim:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Cg stroke='%23fff' stroke-width='7' stroke-linejoin='round'%3E%3Cpath fill='none' d='M80 316a70 19 0 1 1 140 0a70 19 0 1 1-140 0z'/%3E%3Cpath fill='none' d='M80 362a70 19 0 1 1 140 0a70 19 0 1 1-140 0z'/%3E%3Cpath fill='none' d='M80 408a70 19 0 1 1 140 0a70 19 0 1 1-140 0z'/%3E%3C/g%3E%3C/svg%3E"); }
@@ -842,7 +1207,6 @@ a{ color:inherit; }
 #c-ship{ --cut:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Cmask id='m'%3E%3Crect width='300' height='450' fill='%23fff'/%3E%3Cg fill='%23000'%3E%3Cpath d='M100 404 L172 332 H132 V308 H214 V390 H190 V350 L118 422 Z'/%3E%3C/g%3E%3C/mask%3E%3Crect width='300' height='450' fill='%23fff' mask='url(%23m)'/%3E%3C/svg%3E"); --rim:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Cg stroke='%23fff' stroke-width='7' stroke-linejoin='round'%3E%3Cpath fill='none' d='M100 404 L172 332 H132 V308 H214 V390 H190 V350 L118 422 Z'/%3E%3C/g%3E%3C/svg%3E"); }
 
 </style>
-</head>
 <body>
 
 <!-- ======================= NAV ======================= -->
@@ -882,6 +1246,19 @@ a{ color:inherit; }
     <div class="poster">
       <h1><i>Prompt</i><i>to production</i><i class="spec">one pipeline</i></h1>
       <p class="poster-note">Route between models, ground them in your own corpus, gate every release on evals, and ship behind a canary.</p>
+      <div class="hero-float" aria-hidden="true">
+        <svg class="hf" viewBox="0 0 200 150">
+          <g class="hf-ghost"><rect x="40" y="6" width="150" height="108" rx="18"/><path d="M40 32 h150"/></g>
+          <rect class="hf-body" x="14" y="28" width="164" height="114" rx="20"/>
+          <rect class="hf-w" x="14" y="28" width="164" height="114" rx="20"/>
+          <path class="hf-dim" d="M14 56 h164"/>
+          <circle class="hf-dot" cx="32" cy="42" r="4"/><circle class="hf-dot" cx="46" cy="42" r="4"/><circle class="hf-dot" cx="60" cy="42" r="4"/>
+          <path class="hf-w" d="M40 80 l17 16 l-17 16"/>
+          <path class="hf-cmd" d="M72 112 h58"/>
+          <rect class="hf-cursor" x="138" y="86" width="12" height="28" rx="2.5"/>
+          <g class="hf-tag"><rect x="106" y="126" width="84" height="26" rx="13"/><text x="148" y="143.5">atlas-2</text></g>
+        </svg>
+      </div>
     </div>
 
 
@@ -889,13 +1266,14 @@ a{ color:inherit; }
       <form class="ask-form" id="ask-form" autocomplete="off">
         <div class="ask-pill">
           <label for="ask-input" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ask the demo runbooks</label>
+          <svg class="ask-spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c.6 4.6 2.4 6.8 7 7.5-4.6.7-6.4 2.9-7 7.5-.6-4.6-2.4-6.8-7-7.5 4.6-.7 6.4-2.9 7-7.5z"/><path d="M19 15.5c.25 1.9 1 2.8 2.9 3.1-1.9.3-2.65 1.2-2.9 3.1-.25-1.9-1-2.8-2.9-3.1 1.9-.3 2.65-1.2 2.9-3.1z"/></svg>
           <input id="ask-input" class="ask-input" type="text" required maxlength="240" placeholder="Ask your runbooks anything…" />
           <button type="submit" class="ask-send" aria-label="Send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </div>
         <button type="button" class="ask-clear" id="ask-clear" aria-label="Clear the answer" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </form>
       <div class="ask-slot" id="ask-slot">
-        <ul class="sugs" id="ask-sugs"><li><button type="button" class="sug" data-q="refund"><span>Can a customer get a refund on day 31?</span><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span></button></li><li><button type="button" class="sug" data-q="latency"><span>p95 latency just doubled. What do I check first?</span><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-6"/></svg></span></button></li><li><button type="button" class="sug" data-q="key"><span>How do I rotate the production API key?</span><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l3 3M14 9l2 2"/></svg></span></button></li><li><button type="button" class="sug" data-q="oncall"><span>Who is on call for the eval pipeline this week?</span><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg></span></button></li></ul>
+        <ul class="sugs" id="ask-sugs"><li><button type="button" class="sug" data-q="refund"><span>Can a customer get a refund on day 31?</span><span class="ic"><svg class="sx sx-refund" viewBox="0 0 48 48" aria-hidden="true"><path class="sx-ghost" d="M19 5h17v26"/><path class="sx-w" d="M12 9h18v31l-3-2-3 2-3-2-3 2-3-2-3 2z"/><path class="sx-dim" d="M16 17h10M16 23h10M16 29h6"/><path class="sx-hot sx-ret" pathLength="100" d="M44 30a8 8 0 1 1-8-8h4"/><path class="sx-hot sx-head" d="M37 19l3 3-3 3"/></svg></span></button></li><li><button type="button" class="sug" data-q="latency"><span>p95 latency just doubled. What do I check first?</span><span class="ic"><svg class="sx sx-latency" viewBox="0 0 48 48" aria-hidden="true"><path class="sx-w" d="M7 34a17 17 0 1 1 34 0"/><path class="sx-dim" d="M11 22l3 2M24 13v4M37 22l-3 2"/><g class="sx-needle-ghost"><path d="M24 34l9-11"/></g><g class="sx-needle"><path d="M24 34l9-11"/></g><circle class="sx-hub" cx="24" cy="34" r="3.5"/></svg></span></button></li><li><button type="button" class="sug" data-q="key"><span>How do I rotate the production API key?</span><span class="ic"><svg class="sx sx-key" viewBox="0 0 48 48" aria-hidden="true"><g class="sx-rot"><path class="sx-hot" d="M24 5a19 19 0 1 1-17.2 11"/><path class="sx-hot" d="M3.5 13l3.3 3 3.7-2.6"/></g><circle class="sx-ghost sx-kg" cx="20" cy="28" r="5"/><circle class="sx-w" cx="19" cy="29" r="5"/><path class="sx-w" d="M22.5 25.5l9-9M27.5 20.5l3 3M30.5 17.5l2.5 2.5"/></svg></span></button></li><li><button type="button" class="sug" data-q="oncall"><span>Who is on call for the eval pipeline this week?</span><span class="ic"><svg class="sx sx-oncall" viewBox="0 0 48 48" aria-hidden="true"><path class="sx-w" d="M9 27v-4a15 15 0 0 1 30 0v4"/><rect class="sx-w" x="7" y="26" width="7" height="11" rx="3"/><rect class="sx-w" x="34" y="26" width="7" height="11" rx="3"/><path class="sx-w" d="M37.5 37c0 4-4 6-9 6"/><circle class="sx-ring" cx="25" cy="43" r="3"/><circle class="sx-mic" cx="25" cy="43" r="3"/></svg></span></button></li></ul>
         <div class="ex" id="ask-ex" hidden></div>
       </div>
     </div>
@@ -915,13 +1293,13 @@ a{ color:inherit; }
              each crest actually sits, and each one starts a step darker than
              the band above it, which is what stacks them. -->
         <linearGradient id="wv1" gradientUnits="userSpaceOnUse" x1="0" y1="38" x2="0" y2="252">
-          <stop offset="0%" stop-color="#4a63a8"/><stop offset="100%" stop-color="#2a3350"/>
+          <stop offset="0%" stop-color="#1b2539"/><stop offset="100%" stop-color="#181f30"/>
         </linearGradient>
         <linearGradient id="wv2" gradientUnits="userSpaceOnUse" x1="0" y1="80" x2="0" y2="256">
-          <stop offset="0%" stop-color="#3a5090"/><stop offset="100%" stop-color="#212a42"/>
+          <stop offset="0%" stop-color="#182032"/><stop offset="100%" stop-color="#161b28"/>
         </linearGradient>
         <linearGradient id="wv3" gradientUnits="userSpaceOnUse" x1="0" y1="120" x2="0" y2="258">
-          <stop offset="0%" stop-color="#2a3b72"/><stop offset="100%" stop-color="#191f31"/>
+          <stop offset="0%" stop-color="#151b2a"/><stop offset="100%" stop-color="#14171f"/>
         </linearGradient>
       </defs>
     </svg>
@@ -939,6 +1317,14 @@ a{ color:inherit; }
 
       <div class="row">
         <div class="cardw"><div class="card" id="c-brand">
+        <svg class="cx cx-brand" viewBox="0 0 160 120" aria-hidden="true">
+          <defs><linearGradient id="cxSpec" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff54ff"/><stop offset=".36" stop-color="#ffe13a"/><stop offset=".64" stop-color="#2cff84"/><stop offset="1" stop-color="#06ffff"/></linearGradient></defs>
+          <circle class="cx-ghost" cx="80" cy="60" r="44"/>
+          <circle class="cx-w" cx="80" cy="60" r="44"/>
+          <circle class="cx-dim" cx="80" cy="60" r="26"/>
+          <circle class="cx-orbit" cx="80" cy="60" r="44" pathLength="100"/>
+          <circle class="cx-core" cx="80" cy="60" r="9"/>
+        </svg>
         <div class="type lede"><span class="tp">One line from the prompt you wrote to the release you can defend.</span></div>
       </div></div>
         <div class="info">
@@ -951,6 +1337,14 @@ a{ color:inherit; }
 
       <div class="row flip">
         <div class="cardw"><div class="card" id="c-route">
+        <svg class="cx cx-route" viewBox="0 0 160 120" aria-hidden="true">
+          <rect class="cx-w" x="14" y="12" width="132" height="96" rx="16"/>
+          <path class="cx-dim" d="M14 34 h132"/>
+          <circle class="cx-dot" cx="28" cy="23" r="3"/><circle class="cx-dot" cx="39" cy="23" r="3"/><circle class="cx-dot" cx="50" cy="23" r="3"/>
+          <path class="cx-w" d="M34 56 l14 14 l-14 14"/>
+          <path class="cx-hot cx-cmd" d="M60 84 h52"/>
+          <rect class="cx-cursor" x="118" y="62" width="10" height="24" rx="2"/>
+        </svg>
         <div class="type code"><dl>
           <dt><span class="tp">route:</span></dt>
           <dd>
@@ -973,6 +1367,12 @@ a{ color:inherit; }
 
       <div class="row">
         <div class="cardw"><div class="card" id="c-ground">
+        <svg class="cx cx-ground" viewBox="0 0 160 120" aria-hidden="true">
+          <ellipse class="cx-ghost cx-rise" cx="80" cy="30" rx="46" ry="11"/>
+          <ellipse class="cx-disc cx-d1" cx="80" cy="44" rx="46" ry="11"/>
+          <ellipse class="cx-disc cx-d2" cx="80" cy="70" rx="46" ry="11"/>
+          <ellipse class="cx-disc cx-d3" cx="80" cy="96" rx="46" ry="11"/>
+        </svg>
         <div class="type code"><dl>
           <dt><span class="tp">index = tl.load("runbooks")</span></dt>
           <span class="sp"></span>
@@ -995,6 +1395,15 @@ a{ color:inherit; }
 
       <div class="row flip">
         <div class="cardw"><div class="card" id="c-gate">
+        <svg class="cx cx-gate" viewBox="0 0 160 120" aria-hidden="true">
+          <rect class="cx-fill cx-f1" x="30" y="30" width="24" height="80" rx="5"/>
+          <rect class="cx-fill cx-f2" x="68" y="30" width="24" height="80" rx="5"/>
+          <rect class="cx-fill cx-f3" x="106" y="30" width="24" height="80" rx="5"/>
+          <rect class="cx-w" x="30" y="84" width="24" height="26" rx="5"/>
+          <rect class="cx-w" x="68" y="62" width="24" height="48" rx="5"/>
+          <rect class="cx-w" x="106" y="38" width="24" height="72" rx="5"/>
+          <path class="cx-line" d="M18 56 h124"/>
+        </svg>
         <div class="type code"><dl>
           <dt><span class="tp">const gate = await evals.run({</span></dt>
           <dd>
@@ -1017,6 +1426,11 @@ a{ color:inherit; }
 
       <div class="row">
         <div class="cardw"><div class="card" id="c-ship">
+        <svg class="cx cx-ship" viewBox="0 0 160 120" aria-hidden="true">
+          <path class="cx-hot cx-launch" d="M62 88 L100 50 M76 50 H100 V74"/>
+          <path class="cx-dim" d="M40 104 h80"/>
+          <path class="cx-w" d="M62 88 L100 50 M76 50 H100 V74"/>
+        </svg>
         <div class="type code"><dl>
           <dt><span class="tp">$ tl deploy --canary 5</span></dt>
           <span class="sp"></span>
@@ -1050,28 +1464,56 @@ a{ color:inherit; }
     </div>
     <div class="stages">
       <div class="stage-card">
-        <svg class="ico" aria-hidden="true"><use href="#ico-route"/></svg>
+        <svg class="wx wx-route" viewBox="0 0 64 64" aria-hidden="true">
+          <path class="wx-dim" d="M20 32 C 32 32, 34 17, 49 17"/>
+          <path class="wx-dim" d="M20 32 C 32 32, 34 47, 49 47"/>
+          <path class="wx-hot wx-a" pathLength="100" d="M20 32 C 32 32, 34 17, 49 17"/>
+          <path class="wx-hot wx-b" pathLength="100" d="M20 32 C 32 32, 34 47, 49 47"/>
+          <circle class="wx-w" cx="14" cy="32" r="6.5"/>
+          <circle class="wx-end wx-ea" cx="52" cy="17" r="3.5"/>
+          <circle class="wx-end wx-eb" cx="52" cy="47" r="3.5"/>
+        </svg>
         <div class="n">01</div>
         <h3>Route</h3>
         <p>One endpoint in front of every model you use. Per-route budgets, automatic failover on 429 and 529, and a blended cost that updates as you change the mix.</p>
         <div class="kv">p95 overhead — 41ms</div>
       </div>
       <div class="stage-card">
-        <svg class="ico" aria-hidden="true"><use href="#ico-ground"/></svg>
+        <svg class="wx wx-ground" viewBox="0 0 64 64" aria-hidden="true">
+          <path class="wx-ghost" d="M26 8 h18 l7 7 v27 a3 3 0 0 1 -3 3"/>
+          <path class="wx-w" d="M16 14 h19 l8 8 v28 a3 3 0 0 1 -3 3 h-24 a3 3 0 0 1 -3 -3 v-33 a3 3 0 0 1 3 -3 z"/>
+          <path class="wx-w" d="M35 14 v8 h8"/>
+          <path class="wx-ln wx-l1" d="M20 29 h16"/>
+          <path class="wx-ln wx-l2" d="M20 36 h18"/>
+          <path class="wx-ln wx-l3" d="M20 43 h11"/>
+        </svg>
         <div class="n">02</div>
         <h3>Ground</h3>
         <p>Your corpus, chunked and embedded on ingest, queried with a floor you set. Every answer carries citations that resolve, or the answer does not leave the run.</p>
         <div class="kv">Re-embed on write — no nightly job</div>
       </div>
       <div class="stage-card">
-        <svg class="ico" aria-hidden="true"><use href="#ico-gate"/></svg>
+        <svg class="wx wx-gate" viewBox="0 0 64 64" aria-hidden="true">
+          <g class="wx-rays">
+            <path d="M32 6v7M32 51v7M9.5 19l6 3.5M48.5 41.5l6 3.5M9.5 45l6-3.5M48.5 22.5l6-3.5"/>
+          </g>
+          <circle class="wx-w" cx="32" cy="32" r="13"/>
+          <path class="wx-hot wx-check" pathLength="100" d="M25.5 32.5 l4.5 4.5 l8.5 -9"/>
+        </svg>
         <div class="n">03</div>
         <h3>Gate</h3>
         <p>An eval suite that runs on the diff, not on a schedule. Faithfulness, refusal rate, latency and cost, each with a threshold that blocks the deploy when it is missed.</p>
         <div class="kv">240 cases — 3m 40s to green</div>
       </div>
       <div class="stage-card">
-        <svg class="ico" aria-hidden="true"><use href="#ico-ship"/></svg>
+        <svg class="wx wx-ship" viewBox="0 0 64 64" aria-hidden="true">
+          <g class="wx-fly">
+            <path d="M32 12 l14 7 v15 l-14 7 l-14 -7 v-15 z M18 19 l14 7 l14 -7 M32 26 v15"/>
+          </g>
+          <path class="wx-w" d="M32 19 l15 7.5 v16 l-15 7.5 l-15 -7.5 v-16 z"/>
+          <path class="wx-w" d="M17 26.5 l15 7.5 l15 -7.5 M32 34 v16"/>
+          <path class="wx-hot wx-lid" d="M24.5 22.75 l15 7.5"/>
+        </svg>
         <div class="n">04</div>
         <h3>Ship</h3>
         <p>Canary a percentage, watch the same four numbers in production, promote or roll back in one command. The rollback is a config change, so it takes seconds.</p>
@@ -1746,10 +2188,10 @@ a{ color:inherit; }
     gsap.set(cs, { opacity: 0 });
     ScrollTrigger.create({
       trigger: card,
-      start: "top bottom-=120",
+      start: "top bottom-=180",
       once: true,
       onEnter: function () {
-        gsap.to(cs, { opacity: 1, duration: 0.01, stagger: 0.012, ease: "none" });
+        gsap.to(cs, { opacity: 1, duration: 0.01, stagger: 0.012, ease: "none", delay: 0.7 });
       }
     });
   });
@@ -1861,10 +2303,39 @@ a{ color:inherit; }
 })();
 
 </script>
+<script>
+/* Card edges and the row entrance. Rows already on screen at load are
+   left alone (visible from the first frame); rows further down are armed
+   and play once as they come up into view. */
+(function () {
+  "use strict";
+  var rows = Array.prototype.slice.call(document.querySelectorAll(".cards .row"));
+  rows.forEach(function (row) {
+    var w = row.querySelector(".cardw");
+    if (!w || w.querySelector(".edge")) return;
+    var e = document.createElement("span");
+    e.className = "edge"; e.setAttribute("aria-hidden", "true");
+    e.innerHTML = '<span class="halo"><i></i></span><i></i>';
+    w.appendChild(e);
+  });
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+  var vh = window.innerHeight;
+  rows.forEach(function (row) {
+    if (row.getBoundingClientRect().top > vh * 0.92) row.classList.add("rv");
+  });
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      en.target.classList.remove("rv");
+      io.unobserve(en.target);
+    });
+  }, { rootMargin: "0px 0px -12% 0px", threshold: 0.12 });
+  rows.forEach(function (row) { if (row.classList.contains("rv")) io.observe(row); });
+})();
+</script>
 <!-- The rig is an enhancement, so the library loads deferred and behind the
      page's own script: a slow CDN must never hold up the copy or the nav. -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-</body>
-</html>
+</body></html>

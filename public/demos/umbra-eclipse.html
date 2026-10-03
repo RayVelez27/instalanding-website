@@ -9,17 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-/* ============================================================
-   UMBRA · a stage-lit launch page
-   Conic spotlights, a rising particle field, a hairline grid and
-   a wordmark with a light sweep running through it.
-   One file, no images, no libraries.
-   ============================================================ */
-
-/* the sweep position, animated through the wordmark's gradient */
 @property --p {
   syntax: "<percentage>";
-  inherits: false;
+  inherits: true;
   initial-value: 0%;
 }
 
@@ -31,21 +23,12 @@
   --steel: #9dc3f7;
   --edge: #c2ccff;
   --hair: rgba(186, 215, 247, 0.18);
-  /* the frame's second weight. Not a color-mix of --hair: a single
-     percentage over 100% is clamped, so mixing 190% of it with transparent
-     returns --hair unchanged and every 'brighter' line comes out identical. */
   --hair-2: rgba(186, 215, 247, 0.36);
-
-  /* the flare palette, swapped by the stage light */
   --flare: #bad6f7;
   --flare-2: #98c0ef;
-
   --display: "Archivo", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-
-  /* everything on the stage is sized off this, so the whole
-     composition scales as one object rather than as parts */
   --factor: min(600px, 80vh);
   --size: min(var(--factor), 80vw);
 }
@@ -72,27 +55,22 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 a { color: inherit; text-decoration: none; }
 .sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* ============================================================
-   STAGE — everything above the fold lives in here
-   ============================================================ */
-/* svh, not vh: on a phone the URL bar collapsing mid-scroll would otherwise
-   resize the stage and shunt the whole composition. min-height keeps the
-   ridge and the wordmark from crushing into each other on a short window. */
-.stage { position: relative; height: 100svh; min-height: 34em; overflow: hidden; isolation: isolate; }
+/* The stage is pinned for the extra 80svh of its wrapper: the hero holds
+   still while it comes apart. The negative margin lets the page below start
+   rising behind it while the pieces are still falling, so there is no
+   empty screen between the exit and the content. Everything in the stage
+   reads one value, --out, which runs 0 → 1 across that pin. */
+.stage-pin { position: relative; height: 180svh; margin-bottom: -60svh; }
+.stage { position: sticky; top: 0; height: 100svh; min-height: 34em; overflow: hidden; isolation: isolate; }
 
-/* ---------- conic spotlights ----------
-   The drift lives on the wrapper and the blur lives on the cone inside it,
-   so the blurred cone rasterises once and the sway is a compositor
-   transform of that cached texture. Keyframing scale() on the blurred
-   element itself re-blurs a 30em layer every frame — measured here at
-   33fps that way against 45fps this way, on the same software raster. */
-/* Fixed, and sitting on z-index 0 with the field — so the cones fall over
-   the drafting frame and the lower page's panel, and under the content of
-   whatever section is on screen. Light behind the words, not washing them. */
 .spotlight {
   position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
   transition: opacity 0.8s ease-in-out;
+  /* on the way out the beams retract up into the bulb */
+  --t: clamp(0, calc((var(--out, 0) - 0.1) / 0.6), 1);
+  opacity: calc(1 - var(--t));
 }
+.spotlight span { scale: 1 calc(1 - var(--t) * 0.9); }
 .spotlight span {
   position: absolute; inset: 0; display: block; transform-origin: 50% 0;
   animation: drift 19s ease-in-out infinite;
@@ -127,14 +105,8 @@ a { color: inherit; text-decoration: none; }
   0%, 100% { opacity: 0.5; } 20% { opacity: 0.64; } 40% { opacity: 0.4; }
   60% { opacity: 0.64; } 80% { opacity: 0.42; }
 }
-
-/* ---------- particle field ---------- */
 @keyframes fade { to { opacity: 1; } }
 
-
-/* ============================================================
-   HEADER
-   ============================================================ */
 .top {
   position: fixed; inset: 0 0 auto; z-index: 60;
   display: flex; align-items: center; justify-content: center;
@@ -143,10 +115,6 @@ a { color: inherit; text-decoration: none; }
   animation: fade 2s ease-in 2s forwards, rise 1.4s var(--ease) 2s forwards;
 }
 @keyframes rise { to { translate: 0; } }
-/* The two ends of the bar are the same object at opposite insets: same size,
-   same weight, same resting opacity, same hover. A pill on one side and a
-   wordmark on the other do not sit on the same line however carefully you
-   nudge them, because one has a box and the other does not. */
 .wordmark, .topcta {
   position: absolute; font-size: 1em; font-weight: 800; letter-spacing: 0.02em;
   color: inherit; background: none; border: 0; padding: 0;
@@ -156,7 +124,6 @@ a { color: inherit; text-decoration: none; }
 .topcta { right: 2em; font-weight: 600; }
 .wordmark:hover, .topcta:hover { opacity: 1; text-shadow: 0 2px 16px color-mix(in srgb, var(--flare) 60%, transparent); }
 .topcta:focus-visible, .wordmark:focus-visible { outline: 2px solid var(--flare); outline-offset: 5px; }
-/* the stage light: clicking it swaps the whole palette */
 .lamp {
   width: 1.8em; height: 1.8em; border-radius: 50%; background: #000;
   box-shadow: 0 0 1em 0 var(--flare-2);
@@ -164,9 +131,23 @@ a { color: inherit; text-decoration: none; }
 }
 .lamp:hover { box-shadow: -0.3em 0.1em 0.3em 0 var(--flare-2), 0 0 1.6em 0 var(--flare-2); }
 .lamp:focus-visible { outline: 2px solid var(--flare); outline-offset: 6px; }
-/* Third state: out. The cones go, the bulb stops glowing and keeps only a
-   cold rim, and the frame's own lines are all that is left holding the page
-   together — which is the point of having drawn them. */
+/* the bulb follows its light out: rises, shrinks, goes dark */
+.lamp {
+  --t: clamp(0, calc((var(--out, 0) - 0.3) / 0.45), 1);
+  translate: 0 calc(var(--t) * -2.2em);
+  scale: calc(1 - var(--t) * 0.7);
+  opacity: calc(1 - var(--t));
+}
+.top.lampgone .lamp { visibility: hidden; }
+/* past the hero the bar stays put, on a backdrop so copy can pass under it */
+.top::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: color-mix(in srgb, var(--void) 72%, transparent);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hair);
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.top.past::before { opacity: 1; }
 body.out .spotlight { opacity: 0; }
 body.out .lamp {
   box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.22);
@@ -174,7 +155,6 @@ body.out .lamp {
 }
 body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 
-/* the travelling-glow pill, straight off the reference */
 .pill {
   position: absolute; right: 2em;
   width: 9.4em; height: 2.4em; border-radius: 20em;
@@ -214,16 +194,37 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 }
 .pill .glow::before { animation-delay: calc(var(--loop) / -2); }
 .pill:hover .glow::before, .pill:hover .glow::after { opacity: 0.7; }
-.pill--cta { position: relative; right: auto; margin: 0 auto; display: inline-block; }
+.pill--cta {
+  position: relative; right: auto; margin: 0 auto;
+  width: auto; padding: 0 1.5em;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.pill:focus-visible { outline: 2px solid var(--flare); outline-offset: 4px; }
+
+/* ---------- hero actions ---------- */
+.hero-cta {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 1.2em 1.8em;
+  opacity: 0; translate: 0 1em;
+  animation: fade 2s ease-out 2.4s forwards, rise 1.4s var(--ease) 2.4s forwards;
+}
+.hero-cta .ghost {
+  font-family: var(--mono); font-size: max(0.78em, 12px); letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--steel); opacity: 0.75; transition: opacity 0.2s ease;
+}
+.hero-cta .ghost:hover { opacity: 1; }
+.hero-cta .ghost:focus-visible { outline: 2px solid var(--flare); outline-offset: 5px; }
+/* the actions drop away: the pill sinks and shrinks, the link slides off */
+.hero-cta > * { --t: clamp(0, calc((var(--out, 0) - 0.12) / 0.4), 1); }
+.hero-cta .pill {
+  translate: 0 calc(var(--t) * 3em);
+  scale: calc(1 - var(--t) * 0.3);
+  opacity: calc(1 - var(--t));
+  filter: blur(calc(var(--t) * 4px));
+}
+.hero-cta .ghost { translate: calc(var(--t) * 6em) 0; opacity: calc((1 - var(--t)) * 0.75); }
+.stage.gone .hero-cta { visibility: hidden; }
 @keyframes loop { to { offset-distance: 100%; } }
 
-/* ============================================================
-   HERO TYPE
-   ============================================================ */
-/* Everything on the stage is placed as a percentage of the stage rather
-   than in em. `top` in em resolves against the element's OWN font-size,
-   so the 1.15em tagline was landing 15% further down than the 1em rules
-   around it — which is exactly how it ended up sitting on the peaks. */
 .intro {
   position: absolute; left: 0; right: 0; top: 28%; z-index: 20;
   margin: auto; width: fit-content;
@@ -244,6 +245,15 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 @keyframes rule-soft { to { opacity: 0.35; } }
 .intro p::before { right: 130%; background: linear-gradient(-90deg, var(--steel), transparent); }
 .intro p::after { left: 130%; background: linear-gradient(90deg, var(--steel), transparent); }
+/* the kicker tracks out and its rules shoot apart */
+.intro p {
+  --t: clamp(0, calc(var(--out, 0) / 0.45), 1);
+  letter-spacing: calc(0.24em + var(--t) * 0.9em);
+  opacity: calc(1 - var(--t));
+  filter: blur(calc(var(--t) * 4px));
+}
+.intro p::before { translate: calc(var(--t) * -8em) 0; }
+.intro p::after { translate: calc(var(--t) * 8em) 0; }
 
 .hero { position: absolute; left: 0; right: 0; top: 34%; z-index: 20; height: 8em; }
 .hero h1 {
@@ -252,8 +262,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   color: var(--steel);
   opacity: 0;
   animation: fade 2s var(--ease) 0.6s forwards;
-  /* a 2em-wide light sweep travelling across the letterforms, driven by
-     the registered --p property so it can be animated at all */
   background:
     radial-gradient(2em 2em at 50% 50%,
       transparent calc(var(--p) - 2em),
@@ -265,7 +273,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   text-shadow: 0 2px 16px color-mix(in srgb, var(--flare) 24%, transparent);
 }
 .hero h1 + h1 {
-  /* the same sweep again, blurred, so the light bleeds past the glyphs */
   background:
     radial-gradient(2em 2em at 50% 50%,
       transparent calc(var(--p) - 2em),
@@ -281,27 +288,74 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 .sweeping h1 { animation: fade 2s var(--ease) 0.6s forwards, sweep 10s linear 1.4s infinite; }
 @keyframes sweep { 0% { --p: 0%; } 50%, 100% { --p: 300%; } }
 
-.tagline {
-  position: absolute; left: 0; right: 0; top: 55%; z-index: 20;
-  margin: auto; width: fit-content; text-align: center;
-  font-size: 1.15em; line-height: 1.5;
-  opacity: 0; translate: 0 1em;
-  animation: fade 2s ease-out 2s forwards, rise 1.4s var(--ease) 2s forwards;
-  background: linear-gradient(0deg, var(--ice), var(--flare-2));
+/* ---------- the wordmark, split for the exit ----------
+   Script wraps each letter in a .ch and the h1 drops its own background.
+   Each letter carries the same gradients, sized to the whole word and
+   shifted by its own offset (--bw, --ox), so at rest the word reads
+   exactly as one piece, sweep included; --p inherits so the sweep still
+   runs through every letter. Then they scatter from the centre out. */
+.hero h1.split { background: none; }
+.hero h1 .ch {
+  display: inline-block;
+  background:
+    radial-gradient(2em 2em at 50% 50%,
+      transparent calc(var(--p) - 2em),
+      #fff calc(var(--p) - 1em),
+      #fff calc(var(--p) - 0.4em),
+      transparent var(--p)),
+    linear-gradient(0deg, var(--flare) 30%, var(--steel) 100%);
+  background-size: var(--bw, 100%) 100%;
+  background-position: calc(-1 * var(--ox, 0px)) 0;
+  background-repeat: no-repeat;
   background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  --t: clamp(0, calc((var(--out, 0) - 0.04 - var(--da, 0) * 0.07) / 0.5), 1);
+  translate: calc(var(--d, 0) * var(--t) * 0.9em) calc(var(--s, 1) * var(--t) * 1.1em);
+  rotate: calc(var(--s, 1) * var(--t) * 28deg);
+  scale: calc(1 + var(--t) * 0.35);
+  opacity: calc(1 - var(--t));
+}
+.hero h1:first-child .ch { filter: blur(calc(var(--t) * 10px)); }
+.hero h1 + h1 .ch {
+  background:
+    radial-gradient(2em 2em at 50% 50%,
+      transparent calc(var(--p) - 2em),
+      transparent calc(var(--p) - 1em),
+      #fff calc(var(--p) - 1em),
+      #fff calc(var(--p) - 0.4em),
+      transparent calc(var(--p) - 0.4em),
+      transparent var(--p));
+  background-size: var(--bw, 100%) 100%;
+  background-position: calc(-1 * var(--ox, 0px)) 0;
+  background-repeat: no-repeat;
+  background-clip: text; -webkit-background-clip: text;
 }
 
-/* ============================================================
-   RIDGE — rotated squares reading as a lit horizon
-   ============================================================ */
-/* Anchored to the stage's foot rather than floated at 72% of it: the peaks
-   come up out of the bottom edge and the viewport cuts their bases, which
-   is what a range on a horizon does anyway. No ground line and no mask —
-   the fold IS the ground — and at z-index 10 inside the stage they cross
-   the background frame's rules rather than stopping short of them.
-   --out still runs 0 to 1 over the first half-screen of scroll, written by
-   the rig onto the stage rather than :root, where a per-frame custom
-   property write would invalidate the whole document. */
+/* tagline and the hero's actions stack in one positioned block, so a
+   tagline that wraps on a phone pushes the buttons down instead of
+   running into them */
+.lead {
+  position: absolute; left: 0; right: 0; top: 55%; z-index: 20;
+  display: flex; flex-direction: column; align-items: center; gap: 1.8em;
+  padding: 0 20px;
+}
+.tagline {
+  margin: auto; width: fit-content; text-align: center;
+  font-size: 1.15em; line-height: 1.5; text-wrap: balance;
+  opacity: 0; translate: 0 1em;
+  animation: fade 2s ease-out 2s forwards, rise 1.4s var(--ease) 2s forwards;
+}
+/* each line carries its own gradient so the two can part company */
+.tagline .ln {
+  display: block; text-wrap: balance;
+  background: linear-gradient(0deg, var(--ice), var(--flare-2));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  --t: clamp(0, calc((var(--out, 0) - 0.08) / 0.45), 1);
+  opacity: calc(1 - var(--t));
+  filter: blur(calc(var(--t) * 6px));
+}
+.tagline .ln:first-child { translate: calc(var(--t) * -7em) 0; }
+.tagline .ln:last-child { translate: calc(var(--t) * 7em) 0; }
+
 .ridge {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
   margin: auto; height: 10em; width: 100%; pointer-events: none;
@@ -323,117 +377,101 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   width: 12em; height: 12em; border-bottom-right-radius: 100%;
   background: repeating-radial-gradient(at 100% 100%, transparent 0%, rgba(194, 204, 255, 0.13) 2px, transparent 4px);
 }
-/* The entrance animates `bottom`, so the `translate` property is free for
-   the disassembly and the two never fight over a channel. Each peak has a
-   resting offset and a direction to leave in. */
 .ridge i {
   translate:
     calc(var(--bx) + var(--ox) * var(--out, 0))
     calc(var(--by) + var(--oy) * var(--out, 0));
 }
-.ridge i:nth-child(1) { --bx: -6em; --by: 2em; --ox: -9em; --oy: 5em; animation: ridge-a 2s var(--ease) 2.4s forwards; }
-.ridge i:nth-child(2) { --bx: -2em; --by: 0em; --ox: 0em;  --oy: 8em; width: 14em; animation: ridge-b 2s var(--ease) 2.2s forwards; }
-.ridge i:nth-child(3) { --bx: 6em;  --by: 3em; --ox: 9em;  --oy: 5em; animation: ridge-a 2s var(--ease) 2s forwards; }
+/* on the way out the outer peaks splay and tip away, the centre one sinks */
+.ridge i { rotate: calc(45deg + var(--or, 0deg) * var(--out, 0)); }
+.ridge i:nth-child(1) { --bx: -6em; --by: 2em; --ox: -18em; --oy: 9em;  --or: -24deg; animation: ridge-a 2s var(--ease) 2.4s forwards; }
+.ridge i:nth-child(2) { --bx: -2em; --by: 0em; --ox: 0em;   --oy: 15em; --or: 0deg; width: 14em; animation: ridge-b 2s var(--ease) 2.2s forwards; }
+.ridge i:nth-child(3) { --bx: 6em;  --by: 3em; --ox: 18em;  --oy: 9em;  --or: 24deg; animation: ridge-a 2s var(--ease) 2s forwards; }
 @keyframes ridge-a { to { bottom: -140%; } }
 @keyframes ridge-b { to { bottom: -108%; } }
 
-/* ============================================================
-   PAGE BELOW
-   ============================================================ */
 .wrap { width: min(1120px, 100% - 40px); margin: 0 auto; }
 .band { position: relative; z-index: 20; background: var(--panel); }
 
 /* ============================================================
-   THE FIELD
-   One drafting frame for the whole page, fixed to the viewport,
-   so the page slides past it instead of each section carrying a
-   few rules of its own. No ruled grid and no ruler: corner
-   brackets and a depth axis, both on the same inset, so what is
-   left is the margin notation of a drawing and none of it ever
-   crosses the page set on top of it.
-
-   Everything is drawn in --hair, which the stage light swaps, so
-   the frame changes colour with the lamp.
-
-   Layering is the whole trick and it is worth stating: the lower
-   half of this page used to sit on an opaque panel at z-index 20,
-   which would bury anything fixed behind it. So the panel becomes
-   a ::before backdrop at z-index -1 — outside .band's own stacking
-   context, since .band no longer makes one — and the sections lift
-   to z-index 1. Backdrop, then field, then content.
+   THE FRAME — belongs to the hero now, not the viewport.
+   It sits inside the stage and comes apart on the same --out
+   (0 → 1 over the first half-screen of scroll) that takes the
+   ridge down, so the whole stage leaves as one composition.
+   Every piece computes its own local progress --t from --out,
+   starting at --at and taking --len to finish: that is the
+   stagger, with no timeline library behind it.
    ============================================================ */
 .field {
-  position: fixed; inset: 0; z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+  position: absolute; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+  --frame: 20px;
+}
+.field .br, .field .tk {
+  --t: clamp(0, calc((var(--out, 0) - var(--at, 0)) / var(--len, 0.6)), 1);
 }
 
-/* ---- corner brackets ---- */
-.field { --frame: 20px; }
+/* corner brackets: each corner splits into its two arms, which slide
+   apart along their own lines while the corner fades */
 .field .br {
   position: absolute; width: 26px; height: 26px;
-  border: 1px solid var(--hair-2);
+  --at: 0.04; --len: 0.75;
+  opacity: calc(1 - var(--t));
 }
-.field .br--tl { top: var(--frame); left: var(--frame); border-right: 0; border-bottom: 0; }
-.field .br--tr { top: var(--frame); right: var(--frame); border-left: 0; border-bottom: 0; }
-.field .br--bl { bottom: var(--frame); left: var(--frame); border-right: 0; border-top: 0; }
-.field .br--br { bottom: var(--frame); right: var(--frame); border-left: 0; border-top: 0; }
+.field .br::before, .field .br::after { content: ""; position: absolute; background: var(--hair-2); }
+.field .br::before {
+  width: 26px; height: 1px;
+  translate: calc(var(--sx) * var(--t) * 90px) calc(var(--sy) * var(--t) * 14px);
+  rotate: calc(var(--sx) * var(--sy) * var(--t) * 12deg);
+}
+.field .br::after {
+  width: 1px; height: 26px;
+  translate: calc(var(--sx) * var(--t) * 14px) calc(var(--sy) * var(--t) * 70px);
+  rotate: calc(var(--sx) * var(--sy) * var(--t) * -12deg);
+}
+.field .br--tl { top: var(--frame); left: var(--frame); --sx: -1; --sy: -1; }
+.field .br--tr { top: var(--frame); right: var(--frame); --sx: 1; --sy: -1; }
+.field .br--bl { bottom: var(--frame); left: var(--frame); --sx: -1; --sy: 1; }
+.field .br--br { bottom: var(--frame); right: var(--frame); --sx: 1; --sy: 1; }
+.field .br--tl::before, .field .br--tl::after { top: 0; left: 0; }
+.field .br--tr::before, .field .br--tr::after { top: 0; right: 0; }
+.field .br--bl::before, .field .br--bl::after { bottom: 0; left: 0; }
+.field .br--br::before, .field .br--br::after { bottom: 0; right: 0; }
 
-/* ---- the depth axis ----
-   Pinned to the same inset as the corner brackets and spanning the whole
-   frame, top-left bracket to bottom-left: out at the page's edge it is
-   clear of the measure the content is set in, so nothing runs into it on
-   the way down. Sitting it at 8% put it inside the column instead. */
+/* the depth axis: peels off top to bottom, ticks sliding out to the
+   edge, labels drifting in and fanning apart as they blur away */
 .field .axis {
-  position: absolute; top: var(--frame, 20px); left: var(--frame, 20px);
-  height: calc(100% - var(--frame, 20px) * 2); width: 74px;
+  position: absolute; top: var(--frame); left: var(--frame);
+  height: calc(100% - var(--frame) * 2); width: 74px;
 }
-.field .axis i {
-  position: absolute; left: 0; width: 9px; height: 1px; background: var(--hair-2);
+.field .tk { position: absolute; left: 0; height: 0; --at: calc(var(--k) * 0.07); --len: 0.5; }
+.field .tk i {
+  position: absolute; left: 0; top: 0; width: 9px; height: 1px; background: var(--hair-2);
+  transform-origin: left;
+  translate: calc(var(--t) * -40px) 0;
+  scale: calc(1 + var(--t) * 2) 1;
+  opacity: calc(1 - var(--t));
 }
-.field .axis span {
-  /* past the corner bracket's 26px arm: the scale runs corner to corner, so
-     its first and last labels land right on the brackets otherwise */
-  position: absolute; left: 34px;
+.field .tk span {
+  position: absolute; left: 34px; top: 0;
   font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.14em;
-  color: var(--hair-2); transform: translateY(-50%); white-space: nowrap;
+  color: var(--hair-2); white-space: nowrap;
+  translate: calc(var(--t) * 60px) calc(-50% + (var(--k) - 2.5) * var(--t) * 18px);
+  rotate: calc((var(--k) - 2.5) * var(--t) * 6deg);
+  opacity: calc(1 - var(--t));
+  filter: blur(calc(var(--t) * 3px));
 }
-/* the travelling cursor: a mark that rides the axis with the scroll, which
-   is what stops a fixed frame reading as wallpaper */
-.field .cursor {
-  position: absolute; top: var(--frame, 20px); left: var(--frame, 20px);
-  width: 100%; height: 0;
-  /* the axis now runs the full frame, so the cursor's travel has to as well */
-  translate: 0 calc(var(--scan, 0) * (100svh - var(--frame, 20px) * 2));
-  will-change: translate;
-}
-.field .cursor::before {
-  content: ""; position: absolute; left: -5px; top: -4px;
-  border: 4px solid transparent; border-left-color: var(--steel);
-  opacity: 0.55;
-}
-
-
-
-@media (prefers-reduced-motion: reduce) {
-  .field .cursor { translate: 0 0; }
-}
-/* Below the measure the axis labels and the instrument crowd the copy;
-   the orthogonals and the brackets carry the idea on their own. */
 @media (max-width: 860px) {
-  .field .axis span, .field .cursor span { display: none; }
+  .field .tk span { display: none; }
 }
 
-/* the lower page's panel becomes a backdrop so the field shows over it */
 .band { z-index: auto; background: transparent; }
 .band::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
-  background: var(--panel);
+  /* feathered top: the panel rises into the emptied stage without an edge */
+  background: linear-gradient(to bottom, transparent 0, var(--panel) 40svh);
 }
 .band > section { position: relative; z-index: 1; }
-
-
-
 
 .pitch { position: relative; overflow: hidden; padding: 10em 0 7em; text-align: center; }
 .pitch-acc { position: absolute; left: 0; right: 0; top: 22%; margin: auto; display: flex; justify-content: center; pointer-events: none; }
@@ -475,14 +513,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 .cards { position: relative; padding: 0 0 7em; }
 .specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4em; }
 
-/* ============================================================
-   GLASS CARDS
-   A tinted plate whose dark inner face pulls away from two corners,
-   a gradient disc turning slowly behind it, and frosted panels
-   floating over the top. The plate is opaque on purpose: the
-   drafting frame runs in the gutters between cards, never through
-   the face of one, so nothing crosses the copy.
-   ============================================================ */
 .gcard {
   position: relative; display: flex; overflow: hidden; isolation: isolate;
   min-height: 21em; border-radius: 1em;
@@ -494,9 +524,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   transform: translateY(-4px);
   box-shadow: 0 0 44px -18px var(--flare-2);
 }
-
-/* the tint reads as a crescent: it only shows where the inner face's
-   radius pulls back off the corner */
 .gcard-plate {
   position: absolute; inset: 0; z-index: 0; padding: 3px;
   background: linear-gradient(150deg, var(--flare), color-mix(in srgb, var(--flare-2) 58%, #11141e) 72%);
@@ -506,7 +533,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   border-radius: 0.75em 5.5em 2.2em 0.75em;
   background: #181b28;
 }
-
 .gcard-orb { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center end; padding-right: 0.5em; }
 .gcard-orb::before {
   content: ""; display: block; width: 8.5em; height: 8.5em; border-radius: 50%;
@@ -515,12 +541,46 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
     color-mix(in srgb, var(--flare) 72%, #ffffff) 88%);
   animation: turn 12s linear infinite; animation-play-state: paused;
 }
-/* a disc only turns while its card is on screen — every frosted panel
-   over one has to re-read and re-blur its backdrop when it moves */
 .gcard.live .gcard-orb::before { animation-play-state: running; }
+/* each spec card gets its own shape, read off its claim:
+   01 resident — the solid disc (above)
+   02 portable — a rounded die, a piece of silicon turning over
+   03 idle     — a ring, the disc with nothing left in the middle */
+.specs .gcard:nth-child(2) .gcard-orb::before {
+  /* sized so its diagonal matches the disc: it turns without its
+     corners running off the card's edge */
+  width: 6.2em; height: 6.2em; border-radius: 1.5em;
+}
+.specs .gcard:nth-child(3) .gcard-orb::before {
+  -webkit-mask: radial-gradient(circle, transparent 40%, #000 41%);
+  mask: radial-gradient(circle, transparent 40%, #000 41%);
+}
+/* and the rest of the page's cards, none repeating:
+   04 quickstart — a hexagon, a compiled graph node
+   8 ms          — a triangle, an arrowhead for speed
+   3.2 GB        — a capsule, a memory stick
+   comparison    — a half disc, a gauge
+   The polygons are inscribed in a square on their own centre, so they
+   turn in place at whatever size a breakpoint gives them. */
+.how .gcard-orb::before {
+  border-radius: 0;
+  clip-path: polygon(50% 0, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+}
+.stats .gcard:nth-child(1) .gcard-orb::before {
+  border-radius: 0;
+  clip-path: polygon(50% 0, 93.3% 75%, 6.7% 75%);
+}
+.stats .gcard:nth-child(2) .gcard-orb::before {
+  width: 6.4em; height: 2.9em; border-radius: 2em;
+}
+.stats .gcard--compare .gcard-orb::before {
+  width: 6.6em; height: 3.3em; border-radius: 3.3em 3.3em 0 0;
+}
 @keyframes turn { to { rotate: 1turn; } }
 
-.gcard-body { position: relative; z-index: 2; flex: 1; display: flex; gap: 0.5em; padding: 0.55em; }
+/* min-width: 0 so a long code line scrolls inside its panel instead of
+   stretching the whole card past its frame */
+.gcard-body { position: relative; z-index: 2; flex: 1; min-width: 0; display: flex; gap: 0.5em; padding: 0.55em; }
 .gcard-panel {
   flex: 1; display: flex; flex-direction: column; padding: 1.1em 1em 0.9em;
   border-radius: 0.75em; border: 1px solid rgba(255, 255, 255, 0.08);
@@ -548,7 +608,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 .gcard:hover .gcard-go { background: rgba(248, 250, 252, 0.32); }
 .gcard-go svg { display: block; width: 1.4em; height: 1.4em; }
 
-/* ---------- the wide one ---------- */
 .surface { position: relative; padding: 0 0 7em; }
 .gcard--wide { min-height: 17em; }
 .gcard--wide .gcard-rail { margin-left: auto; }
@@ -566,13 +625,10 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   color: rgba(233, 240, 252, 0.7);
 }
 
-/* ---------- the stat strip ---------- */
 .figures { position: relative; padding: 0 0 7em; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; }
 .gcard--stat { min-height: 11.5em; }
 .gcard--stat .gcard-plate::before { border-radius: 0.75em 3.4em 1.4em 0.75em; }
-/* no rail on a stat card, so reserve the same strip by hand — otherwise the
-   disc is trapped entirely behind the glass and reads as a smudge */
 .gcard--stat .gcard-body { padding-right: 2.4em; }
 .gcard--stat .gcard-orb { padding-right: 0.45em; }
 .gcard--stat .gcard-orb::before { width: 6em; height: 6em; animation-duration: 16s; }
@@ -593,6 +649,137 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   color: color-mix(in srgb, var(--ice) 38%, transparent);
 }
 
+/* anchored sections clear the fixed header when jumped to */
+.pitch, .how, .figures, .faq, .close { scroll-margin-top: 4.5em; }
+
+/* ---------- quickstart ---------- */
+.how { position: relative; padding: 0 0 7em; }
+.how .gcard--wide .gcard-panel.how-text { flex: 0 1 22em; }
+.how .gcard--wide .gcard-panel.how-text h3 { font-size: 1.5em; }
+.code-panel {
+  flex: 1 1 26em; min-width: 0; padding: 0; overflow: hidden;
+  font-family: var(--mono); font-size: max(0.74em, 12px); line-height: 1.75;
+  background: rgba(6, 8, 16, 0.62);
+}
+.code-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1em;
+  padding: 0.7em 1.1em; border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(233, 240, 252, 0.5); letter-spacing: 0.08em;
+}
+.code-run {
+  font-family: var(--mono); font-size: 1em; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--steel); padding: 0.2em 0.7em; border-radius: 10em;
+  border: 1px solid color-mix(in srgb, var(--steel) 35%, transparent);
+  transition: background 0.2s ease;
+}
+.code-run:hover { background: color-mix(in srgb, var(--steel) 14%, transparent); }
+.code-run:focus-visible { outline: 2px solid var(--flare); outline-offset: 3px; }
+.code-panel pre { margin: 0; padding: 1em 1.1em 0.6em; overflow-x: auto; color: rgba(233, 240, 252, 0.88); }
+.code-panel code { font: inherit; }
+.code-panel .sh { color: rgba(233, 240, 252, 0.5); }
+.code-panel .k { color: var(--flare); }
+.code-panel .s { color: var(--steel); }
+.code-panel .c { color: rgba(233, 240, 252, 0.38); font-style: italic; }
+.code-out {
+  margin: 0 1.1em; padding: 0.8em 0 0.4em; border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  color: var(--ice); min-height: 2.6em;
+}
+.code-out .prompt { color: var(--flare); margin-right: 0.5em; }
+.code-out .caret {
+  display: inline-block; width: 0.55em; height: 1.1em; vertical-align: -0.2em; margin-left: 0.1em;
+  background: var(--flare); opacity: 0.7; animation: blink 1s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.code-meta {
+  padding: 0.2em 1.1em 1em; min-height: 2.4em;
+  color: rgba(233, 240, 252, 0.5); letter-spacing: 0.08em; font-size: 0.9em;
+}
+
+/* ---------- figures: two stats and a comparison ---------- */
+.stats { grid-template-columns: 1fr 1fr 2fr; }
+.gcard--compare .gcard-panel h3 {
+  font-family: var(--mono); font-size: max(0.66em, 10px); font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(233, 240, 252, 0.6); margin-bottom: 1.1em;
+}
+.bars { display: grid; gap: 0.75em; margin-top: auto; }
+.bar {
+  display: grid; grid-template-columns: 9.5em 1fr 4.2em; align-items: center; gap: 0.8em;
+  font-family: var(--mono); font-size: max(0.66em, 10px); letter-spacing: 0.06em;
+  color: rgba(233, 240, 252, 0.7);
+}
+.bar-val { text-align: right; white-space: nowrap; color: rgba(233, 240, 252, 0.85); }
+.bar-track { height: 0.55em; border-radius: 1em; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
+.bar-track i {
+  display: block; height: 100%; border-radius: inherit;
+  width: max(4px, calc(var(--v) * 100%));
+  background: color-mix(in srgb, var(--ice) 45%, transparent);
+  transform-origin: left; scale: 0 1; transition: scale 1.4s var(--ease);
+}
+.bar:nth-child(2) .bar-track i { transition-delay: 0.15s; }
+.bar:nth-child(3) .bar-track i { transition-delay: 0.3s; }
+.drawn .bar-track i { scale: 1 1; }
+.bar--us { color: var(--flare); }
+.bar--us .bar-val { color: var(--flare); font-weight: 500; }
+.bar--us .bar-track i { background: var(--flare); box-shadow: 0 0 10px var(--flare); }
+
+/* ---------- FAQ ---------- */
+.faq { position: relative; padding: 0 0 7em; text-align: center; }
+.faq h2 {
+  margin: 0.5em 0 1.2em; font-size: clamp(1.7em, 5.2vw, 2.2em); font-weight: 700; letter-spacing: -0.03em;
+  background: linear-gradient(0deg, var(--ice), var(--flare-2));
+  background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.qs {
+  max-width: 44em; margin: 0 auto; text-align: left;
+  border-radius: 1em; border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 13, 24, 0.45);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+}
+.qs details + details { border-top: 1px solid rgba(255, 255, 255, 0.07); }
+.qs summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1em;
+  padding: 1.1em 1.3em; font-weight: 600; font-size: 1em;
+}
+.qs summary::-webkit-details-marker { display: none; }
+.qs summary::after {
+  content: "+"; font-family: var(--mono); font-weight: 400; font-size: 1.2em; color: var(--steel);
+  transition: rotate 0.3s var(--ease);
+}
+.qs details[open] summary::after { rotate: 45deg; }
+.qs summary:hover { color: var(--flare); }
+.qs summary:focus-visible { outline: 2px solid var(--flare); outline-offset: -2px; border-radius: 0.6em; }
+.qs details p {
+  padding: 0 1.3em 1.2em; max-width: 38em;
+  font-size: 0.92em; line-height: 1.65; color: rgba(233, 240, 252, 0.72);
+}
+
+/* ---------- request access ---------- */
+.access { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6em; max-width: 30em; margin: 0 auto; }
+.access[hidden] { display: none; }
+.access input {
+  flex: 1 1 15em; height: 2.4em; padding: 0 1.2em; border-radius: 20em;
+  border: 1px solid rgba(194, 204, 255, 0.25); background: rgba(10, 13, 24, 0.55);
+  color: var(--ice); font: inherit; font-size: 1em;
+}
+.access input::placeholder { color: color-mix(in srgb, var(--ice) 40%, transparent); }
+.access input:focus-visible { outline: 2px solid var(--flare); outline-offset: 2px; }
+.access .pill { flex: none; margin: 0; }
+.access-done { font-size: 1.05em; color: var(--steel); }
+.access-done:focus { outline: none; }
+.access-fine {
+  margin-top: 1.2em; font-family: var(--mono); font-size: max(0.68em, 11px); letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--ice) 45%, transparent);
+}
+
+/* ---------- footer nav ---------- */
+.foot-nav {
+  flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 0.6em 1.8em;
+  padding-bottom: 1.6em; border-bottom: 1px solid var(--hair);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.foot .foot-nav a { color: color-mix(in srgb, var(--ice) 70%, transparent); border-bottom: 0; }
+.foot .foot-nav a:hover { color: var(--flare); }
+
 .close { position: relative; text-align: center; padding: 0 0 6em; }
 .close h2 { font-size: 2em; font-weight: 700; margin-bottom: 0.5em; letter-spacing: -0.03em; }
 .close p { max-width: 28em; margin: 0 auto 2em; font-size: 1em; line-height: 1.6; color: color-mix(in srgb, var(--ice) 70%, transparent); }
@@ -607,9 +794,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 .foot a { color: var(--steel); border-bottom: 1px solid color-mix(in srgb, var(--steel) 50%, transparent); }
 .foot a:hover { color: var(--ice); }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
 @media (max-width: 900px) {
   .specs { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
@@ -617,11 +801,15 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   .gcard--wide .gcard-orb { padding-right: 2em; }
   .gcard--wide .gcard-panel { flex: 0 1 24em; }
   .pitch-acc i { translate: -11em; } .pitch-acc i:nth-child(2) { translate: 11em 12em; }
+  .gcard--compare { grid-column: span 2; }
+  .how .gcard--wide .gcard-body { flex-wrap: wrap; }
+  .how .gcard--wide .gcard-panel.how-text, .code-panel { flex: 1 1 100%; }
+  .how .gcard-rail { display: none; }
 }
 @media (max-width: 620px) {
-  /* only the bar's CTA — this used to hit .pill, which also took the
-     closer's call to action off every small screen */
-  .topcta { display: none; }
+  .topcta { font-size: 0.92em; right: 1.4em; }
+  .wordmark { left: 1.4em; }
+  .bar { grid-template-columns: 7.5em 1fr 3.8em; }
   .hero h1 { font-size: 4.6em; }
   .pitch-acc { display: none; }
   .gcard { min-height: 0; }
@@ -633,44 +821,26 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  /* no pin and no exit: the hero is a normal first screen */
+  .stage-pin { height: auto; margin-bottom: 0; }
+  .stage { position: relative; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  /* the stage still arrives, it just arrives already assembled */
   .spotlight i { opacity: 0.5; scale: 1; }
   .ridge i:nth-child(1), .ridge i:nth-child(3) { bottom: -140%; }
   .ridge i:nth-child(2) { bottom: -108%; }
-  /* the field is static anyway; the cursor simply parks at the top */
   .gcard-orb::before { animation: none; }
-  .top, .intro, .tagline { opacity: 1; translate: 0; }
+  .top, .intro, .tagline, .hero-cta { opacity: 1; translate: 0; }
+  .code-out .caret { animation: none; }
   .hero h1 { opacity: 1; }
 }
 </style>
 </head>
 <body>
 
-<!-- ============ THE FIELD ============
-     Fixed to the viewport: the page scrolls past it. -->
-<div class="field" aria-hidden="true">
-  <b class="br br--tl"></b><b class="br br--tr"></b><b class="br br--bl"></b><b class="br br--br"></b>
-
-  <div class="axis">
-    <i style="top:0"></i><span style="top:0">000</span>
-    <i style="top:20%"></i><span style="top:20%">020</span>
-    <i style="top:40%"></i><span style="top:40%">040</span>
-    <i style="top:60%"></i><span style="top:60%">060</span>
-    <i style="top:80%"></i><span style="top:80%">080</span>
-    <i style="top:100%"></i><span style="top:100%">100</span>
-  </div>
-  <div class="cursor" id="fieldCursor"></div>
-
-</div>
-
-<!-- The light and the bar live outside the stage and are fixed to the
-     viewport: the lamp stays put while the page runs underneath it, so
-     whatever section you are on is the one being lit. -->
 <div class="spotlight" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span></div>
 
 <header class="top">
@@ -678,28 +848,42 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   <button class="lamp" type="button" id="lamp" aria-pressed="true">
     <span class="sr" id="lampLabel">Stage light: cool. Press to warm it.</span>
   </button>
-  <button class="topcta" type="button">Request access</button>
+  <a class="topcta" href="#access">Request access</a>
 </header>
 
+<div class="stage-pin">
 <div class="stage">
-
+  <div class="field" aria-hidden="true">
+    <b class="br br--tl"></b><b class="br br--tr"></b><b class="br br--bl"></b><b class="br br--br"></b>
+    <div class="axis">
+      <b class="tk" style="top:20%;--k:1"><i></i><span>020</span></b>
+      <b class="tk" style="top:40%;--k:2"><i></i><span>040</span></b>
+      <b class="tk" style="top:60%;--k:3"><i></i><span>060</span></b>
+      <b class="tk" style="top:80%;--k:4"><i></i><span>080</span></b>
+    </div>
+  </div>
   <div class="intro"><p>Introducing</p></div>
-
   <div class="hero" id="hero">
     <h1>Umbra</h1>
     <h1 aria-hidden="true">Umbra</h1>
   </div>
-
-  <p class="tagline">The inference runtime that gets out of the way.<br />Models in, tokens out, nothing left running.</p>
-
+  <div class="lead">
+    <p class="tagline"><span class="ln">The inference runtime that gets out of the way.</span> <span class="ln">Models in, tokens out, nothing left running.</span></p>
+    <div class="hero-cta">
+      <a class="pill pill--cta" href="#access">
+        <span class="glow" aria-hidden="true"></span>
+        <span class="label">Request access</span>
+      </a>
+      <a class="ghost" href="#how">See how it works ↓</a>
+    </div>
+  </div>
   <div class="ridge" aria-hidden="true"><i></i><i></i><i></i></div>
+</div>
 </div>
 
 <main class="band">
   <section class="pitch" id="pitch">
-    <div class="pitch-acc" aria-hidden="true"><i></i><i></i></div>
     <div class="wrap">
-      <p class="kicker">Built to disappear</p>
       <h2>Load once. Serve everywhere.<br />Pay for none of the waiting.</h2>
       <p class="lede">
         Umbra keeps weights resident and cold-starts in the time it takes to parse the request,
@@ -723,7 +907,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
             <div class="gcard-rail" aria-hidden="true">
               <span>01</span>
               <span>spec</span>
-              <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
             </div>
           </div>
         </article>
@@ -739,7 +922,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
             <div class="gcard-rail" aria-hidden="true">
               <span>02</span>
               <span>spec</span>
-              <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
             </div>
           </div>
         </article>
@@ -755,7 +937,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
             <div class="gcard-rail" aria-hidden="true">
               <span>03</span>
               <span>spec</span>
-              <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
             </div>
           </div>
         </article>
@@ -763,25 +944,37 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
     </div>
   </section>
 
-  <section class="surface">
+  <section class="how" id="how">
     <div class="wrap">
-      <article class="gcard gcard--wide">
+      <article class="gcard gcard--wide" id="howCard">
         <span class="gcard-plate" aria-hidden="true"></span>
         <span class="gcard-orb" aria-hidden="true"></span>
         <div class="gcard-body">
-          <div class="gcard-panel">
-            <h3>It runs where you already are.</h3>
-            <p>Umbra picks its backend when the model loads and never asks you to rebuild for the box in front of it. Develop on the laptop, ship the same artifact to the rack.</p>
-            <div class="chips">
-              <span class="chip">Apple silicon</span>
-              <span class="chip">Consumer GPU</span>
-              <span class="chip">Datacentre GPU</span>
-              <span class="chip">Plain CPU</span>
+          <div class="gcard-panel how-text">
+            <h3>From weights to first token in four lines.</h3>
+            <p>Point Umbra at a model file. It picks the backend for the machine it's on, compiles the graph once and keeps it warm. There is no server process to stand up and no container to keep alive.</p>
+            <span class="gcard-tag">quickstart</span>
+          </div>
+          <div class="gcard-panel code-panel">
+            <div class="code-bar">
+              <span>quickstart.py</span>
+              <button class="code-run" type="button" id="runAgain">▶ Run</button>
             </div>
+<pre><code><span class="sh">$ pip install umbra</span>
+
+<span class="k">import</span> umbra
+
+model = umbra.load(<span class="s">"./weights/7b-instruct"</span>)
+<span class="c"># backend picked here, once. graph stays warm.</span>
+
+<span class="k">for</span> tok <span class="k">in</span> model.stream(<span class="s">"Say hello"</span>):
+    print(tok, end=<span class="s">""</span>)</code></pre>
+            <div class="code-out"><span class="prompt" aria-hidden="true">›</span><span id="streamOut">Hello! The weights were already warm.</span><span class="caret" aria-hidden="true"></span></div>
+            <div class="code-meta" id="streamMeta">first token 8 ms · 8 tokens · released when idle</div>
           </div>
           <div class="gcard-rail" aria-hidden="true">
             <span>04</span>
-            <span>surfaces</span>
+            <span>how</span>
             <span class="gcard-go"><svg viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4.646 2.146a.5.5 0 0 0 0 .708L7.793 6L4.646 9.146a.5.5 0 1 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg></span>
           </div>
         </div>
@@ -789,7 +982,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
     </div>
   </section>
 
-  <section class="figures">
+  <section class="figures" id="figures">
     <div class="wrap">
       <div class="stats">
         <article class="gcard gcard--stat">
@@ -807,28 +1000,22 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
           <span class="gcard-orb" aria-hidden="true"></span>
           <div class="gcard-body">
             <div class="gcard-panel">
-              <span class="stat-num">1&times;</span>
-              <span class="stat-lab">build, whatever the target</span>
-            </div>
-          </div>
-        </article>
-        <article class="gcard gcard--stat">
-          <span class="gcard-plate" aria-hidden="true"></span>
-          <span class="gcard-orb" aria-hidden="true"></span>
-          <div class="gcard-body">
-            <div class="gcard-panel">
-              <span class="stat-num">0</span>
-              <span class="stat-lab">processes left when traffic stops</span>
-            </div>
-          </div>
-        </article>
-        <article class="gcard gcard--stat">
-          <span class="gcard-plate" aria-hidden="true"></span>
-          <span class="gcard-orb" aria-hidden="true"></span>
-          <div class="gcard-body">
-            <div class="gcard-panel">
               <span class="stat-num">3.2 GB</span>
               <span class="stat-lab">resident for a 7B model</span>
+            </div>
+          </div>
+        </article>
+        <article class="gcard gcard--stat gcard--compare">
+          <span class="gcard-plate" aria-hidden="true"></span>
+          <span class="gcard-orb" aria-hidden="true"></span>
+          <div class="gcard-body">
+            <div class="gcard-panel">
+              <h3>Time to first token, after an idle hour</h3>
+              <div class="bars">
+                <div class="bar bar--us"><span>Umbra</span><span class="bar-track" aria-hidden="true"><i style="--v:0.0019"></i></span><span class="bar-val">8 ms</span></div>
+                <div class="bar"><span>Warm container</span><span class="bar-track" aria-hidden="true"><i style="--v:0.043"></i></span><span class="bar-val">180 ms</span></div>
+                <div class="bar"><span>Serverless GPU, cold</span><span class="bar-track" aria-hidden="true"><i style="--v:1"></i></span><span class="bar-val">4.2 s</span></div>
+              </div>
             </div>
           </div>
         </article>
@@ -837,19 +1024,58 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
     </div>
   </section>
 
-  <section class="close">
+  <section class="faq" id="faq">
+    <div class="wrap">
+      <h2>Questions</h2>
+      <div class="qs">
+        <details>
+          <summary>Which model formats does it load?</summary>
+          <p>GGUF, safetensors and ONNX, quantised or not. Umbra reads the file as it is, so there is no conversion step and no exported copy to keep in sync.</p>
+        </details>
+        <details>
+          <summary>What hardware does it run on?</summary>
+          <p>Apple silicon, consumer and datacentre GPUs, and plain CPU. The backend is chosen when the model loads, so the same artifact moves between them unchanged.</p>
+        </details>
+        <details>
+          <summary>How is it priced?</summary>
+          <p>Per second of active serving. When traffic stops the runtime releases and the meter stops with it, so you never pay for capacity sitting idle.</p>
+        </details>
+        <details>
+          <summary>Can we self-host it?</summary>
+          <p>Yes. The runtime ships as a single binary you can run on your own machines. The hosted service is that same binary running on ours.</p>
+        </details>
+        <details>
+          <summary>What happens to our prompts and outputs?</summary>
+          <p>On the hosted service, requests are processed in memory and not retained. Self-hosted, nothing leaves your machines at all.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="close" id="access">
     <div class="wrap">
       <h2>Come and watch it do nothing.</h2>
       <p>The interesting part of a runtime is what it stops doing. Put a model in front of it and see how little is left between the request and the first token.</p>
-      <button class="pill pill--cta" type="button">
-        <span class="glow" aria-hidden="true"></span>
-        <span class="label">Request access</span>
-      </button>
+      <form class="access" id="accessForm">
+        <label class="sr" for="accessEmail">Work email</label>
+        <input id="accessEmail" name="email" type="email" required autocomplete="email" placeholder="you@company.com" />
+        <button class="pill pill--cta" type="submit">
+          <span class="glow" aria-hidden="true"></span>
+          <span class="label">Request access</span>
+        </button>
+      </form>
+      <p class="access-done" id="accessDone" role="status" tabindex="-1" hidden>You're on the list. We'll be in touch when a seat opens.</p>
     </div>
   </section>
 
   <footer class="foot">
     <div class="wrap">
+      <nav class="foot-nav" aria-label="Page">
+        <a href="#how">How it works</a>
+        <a href="#figures">Figures</a>
+        <a href="#faq">FAQ</a>
+        <a href="#access">Request access</a>
+      </nav>
       <span>
         Umbra is a fictional product and this page is a design demo — the platform,<br />
         the claims and every figure are invented. Nothing here is real.
@@ -868,17 +1094,6 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 "use strict";
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ============================================================
-   STAGE LIGHT — swaps the palette rather than inverting the page.
-   The reference does this with filter: invert(1) on everything,
-   which also inverts the photography-free gradients into mud; a
-   handful of custom properties gets the same trick cleanly.
-   ============================================================ */
-/* Three states on one control, cycling cool → warm → out → cool. The two
-   lit states are a palette swap on <body>; the third kills the cones and
-   unlights the bulb. aria-pressed only has two values and cannot describe
-   three, so it tracks lit/unlit and the real state goes in the label the
-   screen reader actually reads. */
 const lamp = document.getElementById("lamp");
 const lampLabel = document.getElementById("lampLabel");
 const LAMP = [
@@ -896,11 +1111,6 @@ lamp.addEventListener("click", () => {
   lampLabel.textContent = st.say;
 });
 
-/* ============================================================
-   THE SWEEP
-   An @property animation on a 7em wordmark is cheap, but there is
-   no reason to run it while the hero is off screen.
-   ============================================================ */
 const hero = document.getElementById("hero");
 if (!REDUCED) {
   new IntersectionObserver((es) => {
@@ -908,30 +1118,65 @@ if (!REDUCED) {
   }, { threshold: 0 }).observe(hero);
 }
 
-/* ============================================================
-   THE FIELD
-   The frame is fixed and the page moves behind it, so there is
-   nothing to draw in on arrival any more. What is left is the
-   cursor riding the depth axis: one custom property per frame,
-   written from a rAF off a passive scroll listener, and nothing
-   that touches layout.
-   ============================================================ */
+/* the stage's exit. --out runs 0 → 1 across the pinned stretch and is
+   written on the three things that read it: the stage, the bar (for the
+   lamp) and the spotlights. The bar's backdrop switches on once the hero
+   has scrolled away, with or without motion. */
 (() => {
-  const cur = document.getElementById("fieldCursor");
-  if (!cur || REDUCED) return;
-  let queued = false;
+  const pin = document.querySelector(".stage-pin");
   const stageEl = document.querySelector(".stage");
+  const bar = document.querySelector(".top");
+  const spot = document.querySelector(".spotlight");
+  if (!pin || !stageEl || !bar) return;
+
+  /* split the wordmark into letters, both the face and its glow copy */
+  if (!REDUCED) {
+    const hs = [...document.querySelectorAll(".hero h1")];
+    for (const [hi, h] of hs.entries()) {
+      const word = h.textContent.trim();
+      h.textContent = "";
+      if (hi === 0) {
+        const sr = document.createElement("span");
+        sr.className = "sr"; sr.textContent = word; h.appendChild(sr);
+      }
+      const n = word.length;
+      [...word].forEach((c, i) => {
+        const s = document.createElement("span");
+        const d = i - (n - 1) / 2;
+        s.className = "ch"; s.textContent = c; s.setAttribute("aria-hidden", "true");
+        s.style.setProperty("--d", d);
+        s.style.setProperty("--da", Math.abs(d));
+        s.style.setProperty("--s", i % 2 ? 1 : -1);
+        h.appendChild(s);
+      });
+      h.classList.add("split");
+    }
+    /* each letter's gradient is the word's gradient, offset to where the
+       letter sits — measured again once the webfont lands */
+    const measure = () => {
+      for (const h of hs) {
+        h.style.setProperty("--bw", h.clientWidth + "px");
+        for (const s of h.querySelectorAll(".ch")) s.style.setProperty("--ox", s.offsetLeft + "px");
+      }
+    };
+    measure();
+    if (document.fonts) document.fonts.ready.then(measure);
+    addEventListener("resize", measure);
+  }
+
+  let queued = false;
   const paint = () => {
     queued = false;
-    const max = document.documentElement.scrollHeight - innerHeight;
-    const t = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
-    cur.style.setProperty("--scan", t.toFixed(4));
-    /* the ridge comes apart over the first half-screen and is gone well
-       before the stage is */
-    if (stageEl) {
-      const o = Math.min(1, Math.max(0, scrollY / (innerHeight * 0.5)));
-      stageEl.style.setProperty("--out", o.toFixed(3));
-    }
+    const D = Math.max(1, pin.offsetHeight - innerHeight);
+    bar.classList.toggle("past", scrollY > D * 0.95);
+    if (REDUCED) return;
+    const o = Math.min(1, Math.max(0, scrollY / (D * 0.9)));
+    const v = o.toFixed(3);
+    stageEl.style.setProperty("--out", v);
+    bar.style.setProperty("--out", v);
+    if (spot) spot.style.setProperty("--out", v);
+    stageEl.classList.toggle("gone", o > 0.6);
+    bar.classList.toggle("lampgone", o > 0.75);
   };
   const req = () => { if (!queued) { queued = true; requestAnimationFrame(paint); } };
   addEventListener("scroll", req, { passive: true });
@@ -939,18 +1184,9 @@ if (!REDUCED) {
   paint();
 })();
 
-/* ============================================================
-   THE DISCS
-   Each card's disc turns only while that card is on screen. Every
-   frosted panel sitting over one has to re-read and re-blur its
-   backdrop whenever it moves, so an offscreen card that keeps
-   spinning is paying full price for nothing.
-   ============================================================ */
 (() => {
   if (REDUCED) return;
   const cards = document.querySelectorAll(".gcard");
-  /* keep the on-screen set, so coming back to the tab can restore exactly
-     those cards — an observer fires on change, and returning is not one */
   const onScreen = new Set();
   const apply = () => {
     for (const c of cards) c.classList.toggle("live", !document.hidden && onScreen.has(c));
@@ -963,6 +1199,62 @@ if (!REDUCED) {
   document.addEventListener("visibilitychange", apply);
 })();
 
+/* REQUEST ACCESS — a demo form: validates, then swaps to a confirmation */
+(() => {
+  const form = document.getElementById("accessForm");
+  const done = document.getElementById("accessDone");
+  if (!form || !done) return;
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    form.hidden = true;
+    done.hidden = false;
+    done.focus();
+  });
+})();
+
+/* QUICKSTART — streams the output in when the card first comes into view,
+   and again whenever Run is pressed. The finished text is in the HTML, so
+   without script (or with reduced motion) the card still reads complete. */
+(() => {
+  const out = document.getElementById("streamOut");
+  const meta = document.getElementById("streamMeta");
+  const run = document.getElementById("runAgain");
+  const card = document.getElementById("howCard");
+  if (!out || !meta || !run || !card) return;
+  const TOKENS = ["Hello", "!", " The", " weights", " were", " already", " warm", "."];
+  const FINAL = "first token 8 ms · " + TOKENS.length + " tokens · released when idle";
+  let timer = 0;
+  const play = () => {
+    clearTimeout(timer);
+    if (REDUCED) { out.textContent = TOKENS.join(""); meta.textContent = FINAL; return; }
+    out.textContent = ""; meta.textContent = "";
+    let i = 0;
+    const step = () => {
+      out.textContent += TOKENS[i++];
+      if (i === 1) meta.textContent = "first token 8 ms";
+      if (i < TOKENS.length) timer = setTimeout(step, 70 + Math.random() * 70);
+      else meta.textContent = FINAL;
+    };
+    /* effectively instant: the point is that nothing visibly waits */
+    timer = setTimeout(step, 30);
+  };
+  run.addEventListener("click", play);
+  if (!REDUCED) {
+    new IntersectionObserver((es, io) => {
+      if (es[0].isIntersecting) { io.disconnect(); play(); }
+    }, { threshold: 0.4 }).observe(card);
+  }
+})();
+
+/* COMPARISON — bars draw in once, the first time the card is on screen */
+(() => {
+  const cmp = document.querySelector(".gcard--compare");
+  if (!cmp) return;
+  if (REDUCED || !("IntersectionObserver" in window)) { cmp.classList.add("drawn"); return; }
+  new IntersectionObserver((es, io) => {
+    if (es[0].isIntersecting) { cmp.classList.add("drawn"); io.disconnect(); }
+  }, { threshold: 0.4 }).observe(cmp);
+})();
 
 })();
 </script>
