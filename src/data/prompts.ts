@@ -215,7 +215,7 @@ Every layer but the nearest moves, and a layer that has drifted up shows its own
     title: "Recessed Aperture Hero Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Soft UI in a violet palette: an aperture sunk into the page, tokens drifting across it, and a working control panel of wells and knobs below",
+    description: "Soft UI in a violet palette: an aperture sunk into the page, tokens drifting across it, and a working run dial below",
     prompt: `Build a single-file HTML landing page for "Mnemo", a fictional context layer for agents, where the hero is an aperture cut into the page. Barlow and Barlow Condensed from Google Fonts, everything else inline. No images at all - every disc, pill and badge is CSS. Say in a legal line that the product and every figure are invented, and label the figures on the page as invented too, not only in the footer.
 
 THE MATERIAL: SOFT UI, DONE PROPERLY
@@ -541,7 +541,7 @@ Every animation in the edge-light system and the orb needs a prefers-reduced-mot
     title: "Grain Motion System Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A warm-paper component system where a noise-displaced gradient picks the accent and re-themes every control at once",
+    description: "An autumn lake painted in pure CSS, die-cut sticker type, and a live agent run that stops for a human checkpoint",
     prompt: `Build a single-file HTML landing page for "Grain", a fictional motion and surface system sold as plain CSS. Two halves have to agree with each other: a micro-transition token set (four easing curves, five durations) and a grainy radial gradient that is the only artwork on the page — and the gradient's middle stop is also the accent colour, so switching colourway re-themes every component in the same frame. Space Grotesk, Inter and JetBrains Mono from Google Fonts, everything else inline, no image files, no libraries. Say in the footer that the product and every number are invented.
 
 THE MOTION HALF — nine numbers, and nothing outside them
@@ -1054,7 +1054,7 @@ Under 62rem the grids go to two columns and the readout wraps. Under 46rem the n
     title: "Clay Constellation SaaS Hero",
     category: "web",
     categoryLabel: "WEB",
-    description: "Floating clay tiles wired with drawn SVG lines, and a button that measures itself with dashed guides and corner dots",
+    description: "A tilted live chat demo in a cloud of clay stat cards, pixel-type accents, and buttons that measure themselves",
     prompt: `Build a single-file HTML landing page for "Traffo", a fictional product analytics platform. Plus Jakarta Sans, Manrope and JetBrains Mono from Google Fonts; GSAP 3.12 with ScrollTrigger from a CDN. Every graphic is inline SVG — no image requests.
 
 DESIGN SYSTEM
@@ -1210,7 +1210,7 @@ DETAILS
     title: "CRAFT Studio WebGL Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Glass torus knot refracting giant type, scroll-lit statement, Swiss monochrome studio site",
+    description: "Glass torus knot refracting giant type, scroll-lit statement, Swiss monochrome AI platform site",
     prompt: `Build a single-file HTML landing page for "CRAFT®", an independent design studio in Milano. Use Inter Tight 400–900 from Google Fonts and Three.js 0.170 through an import map from jsDelivr. Everything else is inline.
 
 DESIGN SYSTEM
@@ -1404,7 +1404,7 @@ At 1000px columns stack and the bento goes to 2 columns. At 700px everything is 
     title: "Clay SaaS Platform Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Neumorphic dev-platform page, 10 sections, glossy generate button, GSAP reveals",
+    description: "Liquid-glass agent platform with a three-theme switcher, dark terminal cards and circuit-trace module graphics",
     prompt: `Build a single-file HTML landing page for a developer platform — a dermatology imaging API — in a soft 3D "clay" / neumorphic style. Inter and JetBrains Mono from Google Fonts, GSAP 3.12 + ScrollTrigger from CDN, everything else inline. No image files at all: every visual is CSS or inline SVG.
 
 DESIGN SYSTEM
@@ -1463,7 +1463,7 @@ At 1100px the hero stacks and drops its fixed height. At 1024px grids go to 2 co
     title: "Skewed Marquee Wall",
     category: "web",
     categoryLabel: "WEB",
-    description: "Reels running behind the hero, thrown by a Rive slot-machine button, in a machine-room system sampled from it",
+    description: "Skewed marquee lanes of agent runs behind a working run console, with approval gates and a fleet kill switch",
     prompt: `Build a single-file HTML template called "SKEWSHOP": infinite marquee bands with no JavaScript in the animation, thrown by one physical-looking spin button. The button is a Rive artboard, inlined as base64, loaded from @rive-app/canvas on jsDelivr. Inter Tight and JetBrains Mono from Google Fonts. Every poster is inline SVG — nothing is fetched.
 
 PROBE THE BUTTON FIRST

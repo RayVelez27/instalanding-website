@@ -1074,99 +1074,57 @@ html {
 }
 /* Scoped `.grid-item .inner--invite`, and placed after `.grid-item .inner`,
    because it ties that rule on specificity (0,2,0) and only wins on order. */
+/* The shell's own vocabulary, not artwork: a hairline black frame, square
+   corners, the 45deg hatch behind the About portrait, black mono type, and
+   the flat black button the detail page uses, inverting on hover. The hatch
+   is #ededed on #fafafa, light enough that #555 body copy still reads at
+   about 6:1 where it crosses a line. */
 .grid-item .inner--invite {
   position: relative;
   inset: auto;
-  background: #d6d5da;
-  /* Clips the blobs, which are deliberately larger than the card, AND gives
-     the backdrop-filter something to sample inside. */
-  overflow: hidden;
-  /* The source's violet cast. It draws outside the element, so the
-     overflow: hidden above does not touch it, and the tile is the last row
-     so there is nothing below for it to land on. */
-  box-shadow: #d11bff42 0 15px 40px -5px;
+  border: 1px solid #000;
+  background:
+    repeating-linear-gradient(45deg, #ededed 0 2px, transparent 2px 9px),
+    #fafafa;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: clamp(210px, 20vw, 270px);
   padding: clamp(26px, 3.4vw, 46px);
 }
-/* ── Layers ──
-   blobs (0) → glass (1) → copy (2).
-
-   The source is written for a 190x254 card with 200px blobs at fixed pixel
-   offsets. None of that survives the jump to a 1168x291 band: the same four
-   discs would sit in the left sixth and leave the rest bare. So the blobs
-   are sized off the CARD HEIGHT (aspect-ratio keeps them square) and placed
-   at percentages of the width, which is the one thing that does scale. */
-.invite-blobs {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  /* Where the four discs do not reach. The source used `lightgrey`. */
-  background: #d6d5da;
-}
-.invite-blob {
-  position: absolute;
-  /* 5em on a 200px square is a squircle, not a circle — that soft-cornered
-     square is what gives the mesh its shape once it is blurred. */
-  border-radius: 5em;
-  height: 132%;
-  aspect-ratio: 1;
-  top: -16%;
-}
-/* Same four colours, same reading order as the source (warm, violet, pink,
-   blue), dealt left to right with the vertical stagger it had. */
-.invite-blob:nth-child(1) { left: -4%;  background: #ff930f; }
-.invite-blob:nth-child(2) { left: 24%;  background: #bf0fff; top: -34%; }
-.invite-blob:nth-child(3) { left: 51%;  background: #ff1b6b; top: 2%; }
-.invite-blob:nth-child(4) { left: 78%;  background: #0061ff; top: -28%; }
-
-/* The sheet of glass. The backdrop-filter is the effect — without it this is
-   four hard-edged squares under a white wash. The source blurs 20px on a
-   190px card; on a band six times wider the discs scale up with it, so the
-   blur has to as well or the edges stay legible as edges. */
-.invite-glass {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(rgba(255, 255, 255, 0.473), rgba(150, 150, 150, 0.25));
-  -webkit-backdrop-filter: blur(60px);
-  backdrop-filter: blur(60px);
-}
 
 .invite-body {
   position: relative;
-  z-index: 2;
   max-width: 46ch;
   text-align: center;
 }
-/* Ink, not white: this background is a pale frosted pastel, and the white
-   the shader version needed would be unreadable on it. */
+/* #666 rather than the shell's #999 kicker grey: #999 drops under 3:1 where
+   it crosses a hatch line. */
 .invite-kicker {
-  font-family: var(--font-mono, ui-monospace, monospace);
-  /* 0.62 was lifted from the dark version's proportions and is too faint at
-     9px over the pink; this measures 4.5:1 against the worst pixel under it. */
-  font-size: 9px; letter-spacing: 0.18em; color: rgba(10, 10, 14, 0.82); margin: 0 0 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.22em;
+  color: #666; margin: 0 0 12px;
 }
 .invite-title {
-  font-size: clamp(22px, 2.6vw, 34px); font-weight: 600; letter-spacing: -0.02em;
-  color: #0a0a0a; margin: 0 0 10px; line-height: 1.15;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(22px, 2.6vw, 34px); font-weight: 600; letter-spacing: -0.03em;
+  color: #000; margin: 0 0 12px; line-height: 1.12;
 }
 .invite-copy {
-  font-size: 14.5px; line-height: 1.65; color: #16161a; margin: 0 0 22px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13.5px; line-height: 1.85; color: #555; margin: 0 0 22px;
 }
 .invite-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 10px; letter-spacing: 0.14em;
-  color: #f4f2ec; background: #101014;
-  padding: 9px 14px; border-radius: 999px;
-  transition: transform 0.15s ease, background 0.15s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+  color: #fff; background: #000; border: 1px solid #000;
+  padding: 10px 16px;
+  text-decoration: none;
+  transition: background 200ms ease, color 200ms ease;
 }
-.invite-btn:hover { background: #000; transform: translateY(-1px); }
-.invite-btn:focus-visible { outline: 2px solid #101014; outline-offset: 3px; }
+.invite-btn:hover { background: #fff; color: #000; }
+.invite-btn:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
 
 /* At three columns the 21st item fills the last row exactly, so there is no
    gap to close and the band would only interrupt the run. Back to a card:
@@ -1191,7 +1149,7 @@ html {
   .invite-kicker { margin-bottom: 7px; }
   .invite-title { font-size: 21px; margin-bottom: 7px; }
   .invite-copy { font-size: 12.5px; line-height: 1.55; margin-bottom: 14px; }
-  .invite-btn { padding: 8px 12px; }
+  .invite-btn { padding: 8px 13px; }
 }
 /* Below 1600px the card is under 458x229 (about 330x165 at 1024), and the
    paragraph only just cleared the padding at 1600. Kicker, title and button
