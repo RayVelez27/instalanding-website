@@ -704,9 +704,9 @@ html {
   width: 100%;
 }
 
-/* Wide screens get a third column so a 20+ item library is not an
-   eleven-row scroll. */
-@media (min-width: 1600px) {
+/* Every desktop width gets three columns, so a 20+ item library is not an
+   eleven-row scroll. Two columns stay for tablets. */
+@media (min-width: 1024px) {
   .media-grid .grid-container { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
@@ -1171,9 +1171,9 @@ html {
 /* At three columns the 21st item fills the last row exactly, so there is no
    gap to close and the band would only interrupt the run. Back to a card:
    same 2:1 box, same absolute fill, tighter type to fit it. Keyed to the same
-   1600px breakpoint as the third column, and placed after the base rules so
+   1024px breakpoint as the third column, and placed after the base rules so
    it wins the tie on order the way `.inner--invite` does. */
-@media (min-width: 1600px) {
+@media (min-width: 1024px) {
   .grid-item--invite {
     grid-column: auto;
     aspect-ratio: 2 / 1;
@@ -1192,6 +1192,13 @@ html {
   .invite-title { font-size: 21px; margin-bottom: 7px; }
   .invite-copy { font-size: 12.5px; line-height: 1.55; margin-bottom: 14px; }
   .invite-btn { padding: 8px 12px; }
+}
+/* Below 1600px the card is under 458x229 (about 330x165 at 1024), and the
+   paragraph only just cleared the padding at 1600. Kicker, title and button
+   still fit, so the paragraph is what goes. */
+@media (min-width: 1024px) and (max-width: 1599px) {
+  .invite-copy { display: none; }
+  .invite-title { margin-bottom: 14px; }
 }
 
 .grid-item .overview--prompt {

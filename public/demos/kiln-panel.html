@@ -4,32 +4,30 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Kiln — inference that never leaves the building</title>
-<meta name="description" content="The landing page is the front panel: throw the power, spin the turbine, push it into turbo and watch the thermals. Every screw, dial and LED is CSS and inline SVG." />
+<meta name="description" content="The landing page is the front panel: throw the power, spin the turbine, push it into turbo and watch the thermals." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
 /* ============================================================
-   KILN · front panel
-   The page is the machine. Every section is a rusted plate held
-   down by four screws; the fan, the dial, the arc gauge and the
-   heat window all read from one machine state.
-   One file, no images, no libraries.
+   KILN · front panel · v2
+   One material, done properly: bead-blasted, hard-anodised
+   aluminium with machined pockets, chamfered edges and engraved
+   legends. Motion is physical: the turbine has inertia, the needle
+   is a damped spring, the counters roll.
    ============================================================ */
 
 :root {
-  --void: #0a0a0c;
-  --iron: #17181c;
-  --iron-2: #1f2126;
-  --iron-3: #292c32;
-  --seam: #0c0d10;
+  --void: #08090b;
+  --alu-hi: #2a2d33;
+  --alu: #1e2025;
+  --alu-lo: #16171b;
+  --seam: #07080a;
 
-  --steel: #5f646c;
-  --steel-hi: #b9c0c8;
-
-  --text: #cdd2d9;
-  --mute: #767c86;
-  --dim: #4b515a;
+  --text: #d4d8de;
+  --mute: #7c828c;
+  --dim: #4d535c;
+  --engrave: #5f656e;
 
   --amber: #ff9426;
   --ember: #ff4f14;
@@ -37,10 +35,10 @@
   --red: #ff3b3b;
   --cyan: #35e6de;
 
-  --rpm: 2.4s;      /* fan period, driven by the machine state */
-  --heat: 0;        /* 0..1 */
+  --heat: 0;
 
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.7, 0.5, 1);
   --display: "Archivo", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
 }
@@ -50,7 +48,7 @@ html { scroll-behavior: smooth; }
 body {
   min-height: 100vh;
   background:
-    radial-gradient(90% 60% at 50% -10%, #16171b, transparent 60%),
+    radial-gradient(80% 55% at 50% -10%, #17181c, transparent 62%),
     var(--void);
   color: var(--text);
   font-family: var(--display);
@@ -58,87 +56,91 @@ body {
   overflow-x: hidden;
 }
 button, input { font: inherit; color: inherit; }
-button { background: none; border: 0; cursor: pointer; }
+button { background: none; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-decoration: none; }
 .sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .wrap { width: min(1160px, 100% - 36px); margin: 0 auto; }
 
 /* ============================================================
-   PLATE — the one surface everything is bolted to
+   PLATE — anodised aluminium
    ============================================================ */
 .plate {
   position: relative;
   border-radius: 14px;
-  border: 1px solid var(--seam);
-  background:
-    radial-gradient(70% 50% at 18% 8%, rgba(255, 255, 255, 0.045), transparent 60%),
-    linear-gradient(162deg, var(--iron-2) 0%, var(--iron) 52%, #131418 100%);
+  background: linear-gradient(178deg, var(--alu-hi) 0%, var(--alu) 38%, var(--alu-lo) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    inset 0 -3px 9px rgba(0, 0, 0, 0.72),
-    0 24px 46px -20px #000;
+    /* the chamfer: a lit top edge, a dark lower edge, a hairline seam */
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 2px 0 rgba(255, 255, 255, 0.03),
+    inset 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset -1px 0 0 rgba(0, 0, 0, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.65),
+    0 0 0 1px var(--seam),
+    0 30px 60px -28px #000,
+    0 8px 16px -10px rgba(0, 0, 0, 0.8);
 }
-/* rust and wear, three soft patches and a diagonal weave */
+/* one soft specular band across the face, like a studio softbox */
 .plate::before {
   content: "";
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   background:
-    radial-gradient(38% 30% at 12% 84%, rgba(120, 72, 32, 0.16), transparent 70%),
-    radial-gradient(30% 26% at 88% 16%, rgba(110, 66, 30, 0.13), transparent 72%),
-    radial-gradient(24% 40% at 62% 96%, rgba(90, 54, 26, 0.1), transparent 70%),
-    repeating-linear-gradient(118deg, transparent 0 7px, rgba(0, 0, 0, 0.12) 8px);
-  opacity: 0.85;
+    linear-gradient(104deg, transparent 22%, rgba(255, 255, 255, 0.035) 40%, rgba(255, 255, 255, 0.012) 52%, transparent 64%),
+    radial-gradient(80% 60% at 20% 0%, rgba(255, 255, 255, 0.03), transparent 70%);
 }
-/* The grain belongs on the metal, not on the viewport. A fixed full-screen
-   layer with mix-blend-mode forces the whole page through an extra
-   compositing pass on every animated frame; scoped to the plates it costs
-   almost nothing and is more accurate anyway. */
+/* directional brushing: noise stretched hard along the x axis */
 .plate::after {
   content: "";
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.5'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='220'><filter id='b'><feTurbulence type='fractalNoise' baseFrequency='0.005 0.95' numOctaves='2' seed='4'/><feColorMatrix type='saturate' values='0'/></filter><rect width='420' height='220' filter='url(%23b)' opacity='0.55'/></svg>");
   mix-blend-mode: overlay;
-  opacity: 0.5;
+  opacity: 0.32;
 }
 .plate > * { position: relative; z-index: 2; }
 
-/* screws, one per corner */
+/* hex socket cap screws */
 .screw {
   position: absolute; z-index: 5;
-  width: 15px; height: 15px; border-radius: 50%;
-  background: radial-gradient(circle at 34% 28%, #949aa3, #565b63 44%, #2b2e34 72%, #1a1c21);
-  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.85), 0 1px 1px rgba(255, 255, 255, 0.07);
+  width: 14px; height: 14px; border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #a3a9b2, #646a73 40%, #33363d 70%, #1c1e22);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), 0 1px 0 1px rgba(255, 255, 255, 0.05), inset 0 -1px 1px rgba(0, 0, 0, 0.6);
 }
 .screw::after {
-  content: ""; position: absolute; inset: 3px; border-radius: 50%;
-  background: linear-gradient(var(--a, 40deg), transparent 43%, #121418 43% 57%, transparent 57%);
+  content: ""; position: absolute; inset: 3.5px;
+  background: linear-gradient(180deg, #08090b, #1a1c20);
+  clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0 50%);
+  transform: rotate(var(--a, 0deg));
 }
-.screw.tl { left: 11px; top: 11px; --a: 34deg; }
-.screw.tr { right: 11px; top: 11px; --a: 118deg; }
-.screw.bl { left: 11px; bottom: 11px; --a: 72deg; }
-.screw.br { right: 11px; bottom: 11px; --a: 12deg; }
+.screw.tl { left: 12px; top: 12px; --a: 14deg; }
+.screw.tr { right: 12px; top: 12px; --a: 41deg; }
+.screw.bl { left: 12px; bottom: 12px; --a: 3deg; }
+.screw.br { right: 12px; bottom: 12px; --a: 27deg; }
 
-/* recessed inner wells and grilles */
+/* machined pockets */
 .well {
   border-radius: 12px;
-  background: linear-gradient(180deg, #0c0d10, #131418);
-  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, #0d0e11, #141519 70%, #16171b);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+    inset 0 3px 7px rgba(0, 0, 0, 0.85),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .grille { display: grid; gap: 3px; }
 .grille i {
   height: 3px; border-radius: 2px;
-  background: linear-gradient(180deg, #0a0b0d, #202329);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, #08090b, #1d2025);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* ============================================================
-   TYPE
+   TYPE — legends are engraved, not printed
    ============================================================ */
 .stencil {
   font-family: var(--mono); font-size: 9.5px; font-weight: 500;
-  letter-spacing: 0.34em; text-transform: uppercase; color: var(--mute);
+  letter-spacing: 0.34em; text-transform: uppercase; color: var(--engrave);
   text-indent: 0.34em;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .caption { font-family: var(--mono); font-size: 10px; line-height: 1.6; color: var(--dim); text-align: center; }
 h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-transform: uppercase; }
@@ -148,31 +150,31 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
    ============================================================ */
 .topbar {
   position: sticky; top: 0; z-index: 70;
-  background: rgba(10, 10, 12, 0.86);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border-bottom: 1px solid #16171b;
+  background: rgba(8, 9, 11, 0.84);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border-bottom: 1px solid #15161a;
 }
 .topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; }
 .brand-mark { width: 22px; height: 22px; flex-shrink: 0; }
 .topnav { display: flex; gap: 22px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+.topnav a { transition: color 0.25s var(--ease); }
 .topnav a:hover { color: var(--amber); }
 .unit { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em; color: var(--dim); }
 
 /* ============================================================
-   NAMEPLATE — the headline is etched into the chassis, so the
-   machine itself starts inside the first screen instead of
-   underneath half a page of copy.
+   NAMEPLATE
    ============================================================ */
 .nameplate {
   grid-column: 1 / -1;
   display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 26px;
-  padding: 2px 6px 15px;
-  border-bottom: 1px solid var(--seam);
-  margin-bottom: 13px;
+  padding: 2px 6px 16px;
+  margin-bottom: 14px;
+  /* a machined groove rather than a printed rule */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.7);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
-/* no top margin now that the stencil line above it is gone */
 .nameplate h1 { font-size: clamp(27px, 3.6vw, 46px); margin: 0 0 9px; max-width: 24ch; }
 .nameplate h1 em {
   font-style: normal; color: var(--amber);
@@ -184,100 +186,159 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
 .plate-badge {
   display: grid; gap: 7px; padding: 11px 14px; border-radius: 10px;
   background: linear-gradient(180deg, #0c0d10, #131418);
-  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.7), inset 0 3px 7px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .plate-badge div { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
-.plate-badge b { width: 7px; height: 7px; border-radius: 50%; background: #26292f; flex-shrink: 0; transition: 0.45s var(--ease); }
-.machine:not(.off) .plate-badge .g { background: var(--green); box-shadow: 0 0 9px var(--green); }
-.machine:not(.off) .plate-badge .a { background: var(--amber); box-shadow: 0 0 9px var(--amber); }
+.plate-badge b { width: 7px; height: 7px; border-radius: 50%; background: #24272d; box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.8); flex-shrink: 0; transition: 0.45s var(--ease); }
+.machine:not(.off) .plate-badge .g { background: radial-gradient(circle at 35% 30%, #dcffe8, var(--green) 50%); box-shadow: 0 0 9px var(--green); }
+.machine:not(.off) .plate-badge .a { background: radial-gradient(circle at 35% 30%, #fff0dc, var(--amber) 50%); box-shadow: 0 0 9px var(--amber); }
 
 /* the power-on flash, one shot */
 .machine::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 6;
-  background: radial-gradient(70% 60% at 50% 40%, rgba(255, 170, 70, 0.28), transparent 70%);
+  background: radial-gradient(70% 60% at 50% 40%, rgba(255, 170, 70, 0.22), transparent 70%);
   opacity: 0;
 }
 .machine.flash::after { animation: flash 0.75s var(--ease); }
 @keyframes flash { 12% { opacity: 1; } 100% { opacity: 0; } }
 
+/* heat spilling onto the metal around the window */
+.machine > .spill {
+  position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none;
+  background:
+    radial-gradient(34% 40% at 77% 76%, rgba(255, 112, 30, 0.2), transparent 72%),
+    radial-gradient(60% 50% at 77% 80%, rgba(255, 90, 20, 0.06), transparent 75%);
+  opacity: var(--heat);
+  transition: opacity 0.5s linear;
+}
+
 /* ============================================================
-   THE FACE — the machine itself
+   THE FACE
    ============================================================ */
-/* Generous top and bottom: the nameplate spans both columns at the head of
-   this grid and the readout strip spans both at the foot, so the block
-   padding is what gives the headline air above it and the readings room to
-   breathe before the panel edge. */
 .face {
-  padding: clamp(34px, 4.4vw, 62px) 20px clamp(30px, 3.6vw, 50px);
+  padding: clamp(34px, 4.4vw, 62px) 22px clamp(30px, 3.6vw, 50px);
   display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px;
 }
 .bay { padding: 14px; border-radius: 12px; }
 
 /* ---------- turbine ---------- */
-.turbine { display: grid; place-items: center; gap: 11px; align-content: center; }
-.fan-well { position: relative; width: min(202px, 48vw); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; }
+.turbine { display: grid; place-items: center; gap: 12px; align-content: center; }
+.fan-well { position: relative; width: min(212px, 50vw); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; }
+/* a turned bezel ring around the shroud */
+.fan-well::before {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 200deg, #3a3e45, #1c1e22 18%, #34373e 34%, #17191c 52%, #3b3f46 70%, #1b1d21 86%, #3a3e45);
+  -webkit-mask: radial-gradient(circle, transparent calc(50% - 2px), #000 calc(50% - 1px));
+  mask: radial-gradient(circle, transparent calc(50% - 2px), #000 calc(50% - 1px));
+  opacity: 0.8;
+}
 .fan-well::after {
   content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-  box-shadow: inset 0 6px 16px rgba(0, 0, 0, 0.95), inset 0 -2px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 7px 18px rgba(0, 0, 0, 0.95), inset 0 -2px 0 rgba(255, 255, 255, 0.05);
 }
-.fan { width: 88%; height: 88%; animation: spin var(--rpm) linear infinite; transform-origin: 50% 50%; }
-.machine.off .fan { animation-play-state: paused; }
-@keyframes spin { to { rotate: 360deg; } }
-.fan .blade { fill: url(#bladeg); stroke: #2c3038; stroke-width: 0.45; }
+.fan { width: 88%; height: 88%; transform-origin: 50% 50%; will-change: transform; }
+.fan .blade { fill: url(#bladeg); stroke: #30343c; stroke-width: 0.45; }
+.fan .ghost .blade { fill: #2a2e35; stroke: none; }
+.fan .disc { fill: url(#discg); }
 .fan .hub { fill: url(#hubg); }
 .fan-cap {
   position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle at 36% 30%, #4a4e55, #24272c 60%, #15171a);
-  box-shadow: inset 0 -2px 5px rgba(0, 0, 0, 0.9), 0 3px 8px rgba(0, 0, 0, 0.8);
+  background:
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px),
+    radial-gradient(circle at 36% 30%, #50545b, #26292e 60%, #15171a);
+  box-shadow: inset 0 -2px 5px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 8px rgba(0, 0, 0, 0.8);
 }
 
 /* ---------- rocker switches ---------- */
-.rockers { display: flex; gap: 26px; justify-content: center; }
-.rocker { display: grid; justify-items: center; gap: 7px; }
+.rockers { display: flex; gap: 28px; justify-content: center; }
+.rocker { position: relative; display: grid; justify-items: center; gap: 7px; }
 .rocker .led {
+  position: relative;
   width: 9px; height: 9px; border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #4a4f57, #24272c);
+  background: radial-gradient(circle at 34% 30%, #4a4f57, #22252a);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.7);
   transition: 0.3s var(--ease);
 }
+/* the lamp lights the metal around it, not just itself */
+.rocker .led::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 64px; height: 64px;
+  translate: -50% -50%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(63, 217, 110, 0.16), transparent 65%);
+  opacity: 0; transition: opacity 0.35s var(--ease);
+}
+.rocker[data-hot="1"] .led::after { background: radial-gradient(circle, rgba(255, 59, 59, 0.18), transparent 65%); }
+.rocker[aria-pressed="true"] .led::after { opacity: 1; }
 .rocker[aria-pressed="true"] .led { background: radial-gradient(circle at 34% 30%, #d9ffe6, var(--green) 45%, #128c3a); box-shadow: 0 0 10px var(--green), 0 0 20px rgba(63, 217, 110, 0.5); }
 .rocker[aria-pressed="true"][data-hot="1"] .led { background: radial-gradient(circle at 34% 30%, #ffdede, var(--red) 45%, #8c1212); box-shadow: 0 0 10px var(--red), 0 0 20px rgba(255, 59, 59, 0.5); }
-.rocker .body {
-  position: relative; width: 27px; height: 40px; border-radius: 8px;
-  background: linear-gradient(180deg, #3b3f46, #23262b);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -2px 5px rgba(0, 0, 0, 0.8), 0 2px 5px rgba(0, 0, 0, 0.7);
-  overflow: hidden;
+.rocker .bezel {
+  padding: 3px; border-radius: 10px;
+  background: linear-gradient(180deg, #0b0c0e, #17191c);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.06);
 }
+.rocker .body {
+  position: relative; display: block; width: 27px; height: 40px; border-radius: 7px;
+  background: linear-gradient(180deg, #43474f, #2a2d33 48%, #1f2226 52%, #2b2e34);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -2px 5px rgba(0, 0, 0, 0.7), 0 2px 4px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  transform: perspective(70px) rotateX(9deg);
+  transition: transform 0.36s var(--spring), box-shadow 0.25s var(--ease);
+}
+.rocker[aria-pressed="true"] .body { transform: perspective(70px) rotateX(-9deg); }
+.rocker:active .body { transform: perspective(70px) rotateX(0deg) scale(0.96); transition-duration: 0.08s; }
 .rocker .body::after {
   content: ""; position: absolute; left: 0; right: 0; height: 50%;
-  top: 0; background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), transparent);
-  transition: top 0.22s var(--ease);
+  top: 0; background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent);
+  transition: top 0.36s var(--spring);
 }
 .rocker[aria-pressed="true"] .body::after { top: 50%; }
-.rocker:hover .body { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -2px 5px rgba(0, 0, 0, 0.8), 0 0 14px rgba(255, 148, 38, 0.35); }
+.rocker:hover .body { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -2px 5px rgba(0, 0, 0, 0.7), 0 0 14px rgba(255, 148, 38, 0.3); }
 .rocker:focus-visible { outline: 2px solid var(--amber); outline-offset: 5px; border-radius: 6px; }
 .rocker .grille { width: 22px; }
 
 /* ---------- the right stack ---------- */
 .stack { display: grid; gap: 14px; align-content: start; }
 
-/* arc gauge */
-.gauge { display: grid; justify-items: center; gap: 8px; }
-.gauge svg { width: 100%; max-width: 252px; height: auto; display: block; }
-.gauge .tick { stroke: #2b2e34; stroke-width: 3.2; stroke-linecap: round; transition: stroke 0.25s linear, filter 0.25s linear; }
-.gauge .tick.on { stroke: var(--cyan); filter: drop-shadow(0 0 4px var(--cyan)); }
-.gauge .tick.hot { stroke: var(--ember); filter: drop-shadow(0 0 5px var(--ember)); }
-.gauge-read { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--text); text-indent: 0.3em; }
-.gauge-read b { color: var(--cyan); font-weight: 500; }
+/* ---------- gauge ---------- */
+.gauge { display: grid; justify-items: center; gap: 6px; }
+.gauge svg { width: 100%; max-width: 280px; height: auto; display: block; overflow: visible; }
+.g-track { fill: none; stroke: #0a0b0d; stroke-width: 6; stroke-linecap: round; }
+.g-band {
+  fill: none; stroke: var(--cyan); stroke-width: 4; stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(53, 230, 222, 0.7));
+  transition: stroke 0.3s linear, filter 0.3s linear;
+}
+.gauge.hot .g-band { stroke: var(--ember); filter: drop-shadow(0 0 5px rgba(255, 79, 20, 0.8)); }
+.g-minor { stroke: #3a3f47; stroke-width: 1; }
+.g-major { stroke: #8a909a; stroke-width: 1.5; }
+.g-red { fill: none; stroke: var(--red); stroke-width: 2.6; opacity: 0.75; }
+.g-label { font-family: var(--mono); font-size: 7.5px; fill: #5c626b; text-anchor: middle; dominant-baseline: middle; letter-spacing: 0.04em; }
+.g-label.r { fill: #a5454a; }
+.g-needle line { stroke: #eef0f3; stroke-width: 1.7; stroke-linecap: round; }
+.g-needle .tip { stroke: var(--amber); stroke-width: 2.2; }
+.g-needle { filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.8)); }
+.g-pivot { fill: url(#pivotg); stroke: #0a0b0d; stroke-width: 1; }
+.gauge-read { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--mute); text-indent: 0.3em; display: flex; align-items: center; gap: 0.3em; }
+.gauge-read .roller { color: var(--cyan); letter-spacing: 0.12em; }
+.machine.off .gauge-read .roller { color: var(--dim); }
 
 /* slot */
-.slot-row { display: grid; justify-items: center; gap: 8px; }
-.slot { width: 190px; height: 9px; border-radius: 5px; background: linear-gradient(180deg, #08090b, #1b1e23); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 0 rgba(255, 255, 255, 0.05); }
+.slot-row { display: grid; justify-items: center; gap: 8px; margin-top: 2px; }
+.slot { width: 190px; height: 9px; border-radius: 5px; background: linear-gradient(180deg, #050607, #191b1f); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.95), 0 1px 0 rgba(255, 255, 255, 0.06); }
 
-/* heat window */
-.thermal { display: grid; gap: 8px; justify-items: center; padding: 12px; }
+/* ---------- heat window ---------- */
+.thermal {
+  display: grid; gap: 8px; justify-items: center; padding: 12px;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+    inset 0 3px 7px rgba(0, 0, 0, 0.85),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 calc(var(--heat) * 34px) rgba(255, 110, 30, calc(var(--heat) * 0.22));
+  transition: box-shadow 0.5s linear;
+}
 .window {
   position: relative; width: 100%; height: 96px; border-radius: 9px; overflow: hidden;
-  background: #070809;
+  background: #060708;
   box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.95), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 .coil { position: absolute; left: 14%; right: 14%; top: 50%; translate: 0 -50%; display: grid; gap: 7px; }
@@ -290,21 +351,36 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
 }
 .window::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(60% 70% at 50% 50%, rgba(255, 130, 30, calc(var(--heat) * 0.34)), transparent 72%);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.06), transparent 30%),
+    radial-gradient(60% 70% at 50% 50%, rgba(255, 130, 30, calc(var(--heat) * 0.34)), transparent 72%);
   transition: background 0.5s linear;
 }
 .window .bars { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 5px, rgba(0, 0, 0, 0.42) 6px); }
-
-/* the machine going dark */
 .machine.off .coil i { opacity: 0.08; box-shadow: none; }
-.machine.off .gauge .tick.on, .machine.off .gauge .tick.hot { stroke: #2b2e34; filter: none; }
 
-/* ---------- readout strip ---------- */
-.readout { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 14px; background: var(--seam); border: 1px solid var(--seam); border-radius: 10px; overflow: hidden; }
-.readout div { background: linear-gradient(180deg, #16171b, #101115); padding: 10px 14px; }
+/* ---------- readout strip with rolling counters ---------- */
+.readout {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 14px;
+  background: #050607; border-radius: 10px; overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.readout div { background: linear-gradient(180deg, #121316, #0d0e10); padding: 11px 14px; }
 .readout dt { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); }
-.readout dd { margin-top: 5px; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
-.readout dd small { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--mute); margin-left: 3px; }
+.readout dd { margin-top: 6px; font-family: var(--mono); font-size: 19px; font-weight: 500; display: flex; align-items: baseline; }
+.readout dd small { font-family: var(--mono); font-size: 10px; font-weight: 400; color: var(--mute); margin-left: 5px; }
+
+.roller { display: inline-flex; position: relative; }
+.roll {
+  display: inline-block; height: 1em; line-height: 1; overflow: hidden;
+  /* fade the digits rolling in and out at the window edges */
+  -webkit-mask: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+  mask: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+  transition: color 0.3s var(--ease);
+}
+.roll .strip { display: block; transition: transform 0.55s var(--ease); }
+.roll .strip span { display: block; height: 1em; text-align: center; width: 0.62em; }
+.roll.lz { color: #30343b; }
 
 /* ============================================================
    SECTIONS
@@ -315,7 +391,8 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
 .section-head p { font-size: 15px; line-height: 1.66; color: var(--mute); }
 
 .specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.spec { padding: 26px 24px 30px; }
+.spec { padding: 28px 26px 30px; transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease); }
+.spec:hover { transform: translateY(-2px); }
 .spec .dialsm { width: 54px; height: 54px; margin-bottom: 18px; }
 .spec h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.01em; }
 .spec p { font-size: 13.5px; line-height: 1.62; color: var(--mute); }
@@ -325,105 +402,160 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
 .cta p { max-width: 44ch; margin: 0 auto 26px; font-size: 15px; line-height: 1.6; color: var(--mute); }
 .btn {
   display: inline-block; padding: 13px 26px; border-radius: 8px;
-  border: 1px solid #3a3d44;
-  background: linear-gradient(180deg, #2c2f35, #1c1e22);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 8px rgba(0, 0, 0, 0.7);
+  background: linear-gradient(180deg, #33363d, #1f2125);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.5), 0 0 0 1px #08090b, 0 4px 10px rgba(0, 0, 0, 0.7);
   font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase;
   transition: 0.32s var(--ease);
 }
-.btn:hover { border-color: var(--amber); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 6px var(--amber), 0 0 22px rgba(255, 148, 38, 0.6); }
+.btn:hover { color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px var(--amber), 0 0 22px rgba(255, 148, 38, 0.45); }
 
 .footer {
   display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
-  margin-top: 40px; padding: 26px 0 42px; border-top: 1px solid #16171b;
+  margin-top: 40px; padding: 26px 0 42px; border-top: 1px solid #15161a;
   font-family: var(--mono); font-size: 10px; line-height: 1.85; color: var(--dim);
 }
 
 /* ============================================================
-   FRACTURE
-   Every module reads as a plate that has been broken out of its
-   frame: a handful of shards floating just clear of the edges,
-   dark and dead at rest. Put a pointer on one and the torn edges
-   light up along the break. Press it and the pieces fly home and
-   the module seals — rim lit, face warmed from the top.
-
-   Amber throughout, because the panel already has exactly one
-   colour and this is not the place to introduce a second.
+   INSIDE — a cutaway of the chassis, linked to a parts list
    ============================================================ */
-/* Clipped to the module, not floating outside it. The reference has empty
-   canvas all round its button; a panel does not — pieces thrown outward
-   landed on the headline and on the bay next door. Breaking the plate at
-   its OWN corners keeps every shard inside the thing that broke, and the
-   corner cutting half of each one off is what sells it as a piece snapped
-   from the edge rather than a pebble dropped on top. */
-.frac {
-  position: absolute; inset: 0;
-  z-index: 4; pointer-events: none;
-  overflow: hidden;
-  border-radius: inherit;
-}
-.frac svg { width: 100%; height: 100%; overflow: visible; display: block; }
-.frac path {
-  fill: #1b1d22;
-  stroke: #2b2e34;
-  stroke-width: 1.1;
-  stroke-linejoin: round;
-  transform-box: view-box;
-  transform-origin: 50% 50%;
-  /* the drift is its own animation on a wrapper so the hover transition
-     below never has to fight a keyframe for the transform channel */
-  transition: stroke 0.34s var(--ease), fill 0.34s var(--ease), filter 0.34s var(--ease);
-}
-.frac g {
-  transform-box: view-box;
-  transition: transform 0.55s var(--ease), opacity 0.55s var(--ease);
-}
+.inside { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; align-items: stretch; }
+.cutaway { padding: 30px 26px 24px; display: grid; gap: 14px; align-content: center; }
+.cutaway svg { width: 100%; height: auto; display: block; }
+.cutaway .caption { text-align: left; }
+.cp { transition: opacity 0.35s var(--ease); }
+.cp rect, .cp circle, .cp path, .cp line { transition: stroke 0.35s var(--ease), filter 0.35s var(--ease); }
+.badge circle { fill: #0c0d10; stroke: #3a3e46; stroke-width: 1; transition: stroke 0.35s var(--ease), fill 0.35s var(--ease); }
+.badge text { font-family: var(--mono); font-size: 10px; fill: var(--mute); text-anchor: middle; dominant-baseline: central; }
+.air { fill: none; stroke: rgba(53, 230, 222, 0.28); stroke-width: 1.2; stroke-dasharray: 3 9; animation: flow 1.4s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -24; } }
 
-/* HOVER — the break lights up */
-.bay:hover .frac path,
-.spec:hover .frac path,
-.bay:focus-within .frac path,
-.spec:focus-within .frac path {
-  stroke: var(--amber);
-  fill: #23211f;
-  filter: drop-shadow(0 0 6px rgba(255, 148, 38, 0.7));
+.inside[data-hl] .cp { opacity: 0.35; }
+.inside[data-hl="1"] .cp[data-part="1"], .inside[data-hl="2"] .cp[data-part="2"],
+.inside[data-hl="3"] .cp[data-part="3"], .inside[data-hl="4"] .cp[data-part="4"] { opacity: 1; }
+.inside[data-hl="1"] .cp[data-part="1"] :is(rect, circle, path, line),
+.inside[data-hl="2"] .cp[data-part="2"] :is(rect, circle, path, line),
+.inside[data-hl="3"] .cp[data-part="3"] :is(rect, circle, path, line),
+.inside[data-hl="4"] .cp[data-part="4"] :is(rect, circle, path, line) {
+  stroke: var(--amber); filter: drop-shadow(0 0 3px rgba(255, 148, 38, 0.55));
 }
-.bay:hover, .spec:hover,
-.bay:focus-within, .spec:focus-within {
-  box-shadow:
-    inset 0 3px 8px rgba(0, 0, 0, 0.9),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 0 0 1px rgba(255, 148, 38, 0.5);
-}
+.inside[data-hl="1"] .badge[data-part="1"] circle, .inside[data-hl="2"] .badge[data-part="2"] circle,
+.inside[data-hl="3"] .badge[data-part="3"] circle, .inside[data-hl="4"] .badge[data-part="4"] circle { stroke: var(--amber); fill: #2a1a0a; }
 
-/* PRESS — the pieces come home and the module seals */
-.bay:active .frac g,
-.spec:active .frac g {
-  transform: translate(var(--hx, 0), var(--hy, 0)) scale(0.2);
-  opacity: 0;
+.parts { display: grid; gap: 10px; align-content: start; list-style: none; }
+.part {
+  position: relative; padding: 16px 18px 16px 54px; border-radius: 12px; cursor: default; outline: none;
+  transition: box-shadow 0.35s var(--ease);
 }
-.bay:active, .spec:active {
-  box-shadow:
-    inset 0 30px 44px -34px rgba(255, 148, 38, 0.55),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 0 0 1.5px var(--amber),
-    0 0 34px -8px rgba(255, 148, 38, 0.6);
+.part .num {
+  position: absolute; left: 16px; top: 16px; width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center; font-family: var(--mono); font-size: 10px; color: var(--mute);
+  background: #0c0d10; box-shadow: inset 0 0 0 1px #3a3e46; transition: 0.35s var(--ease);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .frac g, .frac path { transition: none; }
+.part h3 { font-size: 14px; font-weight: 800; letter-spacing: -0.005em; margin-bottom: 4px; }
+.part p { font-size: 12.5px; line-height: 1.55; color: var(--mute); }
+.inside[data-hl="1"] .part[data-part="1"], .inside[data-hl="2"] .part[data-part="2"],
+.inside[data-hl="3"] .part[data-part="3"], .inside[data-hl="4"] .part[data-part="4"] {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.7), inset 0 3px 7px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 148, 38, 0.55);
+}
+.inside[data-hl="1"] .part[data-part="1"] .num, .inside[data-hl="2"] .part[data-part="2"] .num,
+.inside[data-hl="3"] .part[data-part="3"] .num, .inside[data-hl="4"] .part[data-part="4"] .num {
+  color: var(--amber); box-shadow: inset 0 0 0 1px var(--amber), 0 0 10px rgba(255, 148, 38, 0.4);
 }
 
 /* ============================================================
-   TYPE-ON
-   Headings and copy type themselves in when they reach the
-   viewport, with a run of glitch characters on the headings
-   before each letter settles. It suits a machine that is
-   printing its own labels.
+   SPEC SHEET
+   ============================================================ */
+.sheet-plate { padding: 30px 30px 26px; }
+.sheet { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; }
+.sheet div {
+  display: grid; grid-template-columns: 13ch 1fr; gap: 18px; padding: 13px 2px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.65); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+.sheet dt { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--engrave); padding-top: 3px;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.05); }
+.sheet dd { font-size: 14px; line-height: 1.45; color: var(--text); }
+.sheet dd small { display: block; font-family: var(--mono); font-size: 10px; color: var(--dim); margin-top: 2px; }
+.sheet-foot { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-top: 18px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
 
-   Characters are revealed with opacity, never display, so the
-   block occupies its final size from the first frame and
-   nothing below it moves while the line runs.
+/* ============================================================
+   COMPARE — endpoint vs box
+   ============================================================ */
+.compare { display: grid; grid-template-columns: 15ch 1fr 1fr; border-radius: 14px; overflow: hidden; }
+.compare > div { padding: 16px 20px; font-size: 13.5px; line-height: 1.5; border-bottom: 1px solid rgba(0, 0, 0, 0.6); }
+.compare .hd { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--engrave); padding-top: 20px; padding-bottom: 14px; }
+.compare .rl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); padding-top: 19px; }
+.compare .them { color: var(--mute); }
+.compare .us { color: var(--text); background: linear-gradient(90deg, rgba(255, 148, 38, 0.06), rgba(255, 148, 38, 0.02)); box-shadow: inset 1px 0 0 rgba(255, 148, 38, 0.35); }
+.compare .hd.us { color: var(--amber); }
+.compare > div:nth-last-child(-n + 3) { border-bottom: 0; }
+
+/* ============================================================
+   INSTALL — three steps on a machined rail
+   ============================================================ */
+.steps { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.steps::before {
+  content: ""; position: absolute; left: 8%; right: 8%; top: 49px; height: 4px; border-radius: 3px; z-index: 0;
+  background: linear-gradient(180deg, #050607, #17191c); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.step { padding: 26px 24px 28px; z-index: 1; }
+.step .idx {
+  width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 20px;
+  font-family: var(--mono); font-size: 13px; color: var(--amber);
+  background: radial-gradient(circle at 36% 30%, #2c2f35, #121316 70%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 4px #121316, 0 0 0 5px rgba(255, 255, 255, 0.05);
+}
+.step h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.01em; }
+.step p { font-size: 13.5px; line-height: 1.62; color: var(--mute); }
+.step .time { margin-top: 16px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); }
+
+/* ============================================================
+   CONFIGURATIONS
+   ============================================================ */
+.configs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+.config { display: flex; flex-direction: column; padding: 30px 26px 26px; }
+.config.featured { box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 148, 38, 0.55), 0 0 40px -12px rgba(255, 148, 38, 0.4), 0 30px 60px -28px #000; }
+.config .tag { align-self: flex-start; margin-bottom: 18px; padding: 4px 9px 4px 10px; border-radius: 4px; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); background: #0c0d10; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); }
+.config.featured .tag { color: var(--amber); box-shadow: inset 0 0 0 1px rgba(255, 148, 38, 0.4); }
+.config h3 { font-size: 30px; font-weight: 900; letter-spacing: -0.03em; text-transform: uppercase; }
+.config .sub { margin: 6px 0 20px; font-size: 13px; line-height: 1.55; color: var(--mute); }
+.config ul { list-style: none; display: grid; gap: 0; margin-bottom: 22px; }
+.config li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 13px; border-bottom: 1px solid rgba(0, 0, 0, 0.6); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03); }
+.config li span:first-child { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); padding-top: 2px; }
+.config .price { margin-top: auto; display: flex; align-items: baseline; gap: 8px; margin-bottom: 18px; }
+.config .price b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.config .price small { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
+.config .btn { text-align: center; }
+.config.featured .btn { color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px var(--amber), 0 4px 10px rgba(0, 0, 0, 0.7); }
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq { padding: 8px 30px; }
+.faq details { border-bottom: 1px solid rgba(0, 0, 0, 0.6); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.035); }
+.faq details:last-child { border-bottom: 0; box-shadow: none; }
+.faq summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px;
+  padding: 20px 2px; font-size: 15.5px; font-weight: 700; letter-spacing: -0.005em; transition: color 0.25s var(--ease);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary:hover { color: #fff; }
+.faq summary:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 4px; }
+.faq summary::after {
+  content: ""; flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background:
+    linear-gradient(var(--mute), var(--mute)) center / 9px 1.5px no-repeat,
+    linear-gradient(var(--mute), var(--mute)) center / 1.5px 9px no-repeat,
+    #0c0d10;
+  box-shadow: inset 0 0 0 1px #33373e;
+  transition: transform 0.35s var(--spring);
+}
+.faq details[open] summary::after { transform: rotate(45deg); box-shadow: inset 0 0 0 1px var(--amber); }
+.faq details p { padding: 0 52px 22px 2px; font-size: 14px; line-height: 1.68; color: var(--mute); max-width: 76ch; }
+
+/* ============================================================
+   TYPE-ON (unchanged from v1)
    ============================================================ */
 .type-char { opacity: 0; transition: opacity 0.18s ease-in; }
 .type-char.visible { opacity: 1; }
@@ -442,12 +574,31 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
   .face { grid-template-columns: 1fr; }
   .specs { grid-template-columns: 1fr; }
   .readout { grid-template-columns: repeat(2, 1fr); }
+  .inside, .configs { grid-template-columns: 1fr; }
+  .sheet { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .steps::before { left: 46px; right: auto; top: 40px; bottom: 40px; width: 4px; height: auto; }
+  .machine > .spill {
+    background:
+      radial-gradient(60% 18% at 50% 74%, rgba(255, 112, 30, 0.2), transparent 72%),
+      radial-gradient(90% 30% at 50% 76%, rgba(255, 90, 20, 0.06), transparent 75%);
+  }
 }
 @media (max-width: 600px) {
   .topnav, .unit { display: none; }
-  .face { padding: 30px 14px 26px; gap: 12px; }
-  .bay { padding: 14px; }
+  .face { padding: 30px 14px 26px; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+  /* the status badge drops under the headline in a 2×2 grid; side by side
+     they set a floor wider than a 320px screen */
+  .nameplate { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .plate-badge { justify-self: start; grid-template-columns: repeat(2, auto); column-gap: 22px; }
   .readout { grid-template-columns: 1fr; }
+  .sheet-plate, .faq { padding-left: 20px; padding-right: 20px; }
+  .sheet div { grid-template-columns: 1fr; gap: 4px; }
+  .compare { grid-template-columns: 1fr 1fr; }
+  .compare .rl { grid-column: 1 / -1; padding-bottom: 0; border-bottom: 0; }
+  .compare .hd:first-child { display: none; }
+  .compare > div { padding: 12px 14px; font-size: 13px; }
+  .faq details p { padding-right: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -457,10 +608,6 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  /* the turbine is the page's one continuous motion: stop it outright */
-  .fan { animation: none !important; }
-  /* the rig bails out in this mode, so nothing is ever split — this is
-     only here in case a preference flips mid-session */
   .type-char { opacity: 1 !important; }
   .typing-caret { display: none !important; }
 }
@@ -479,23 +626,22 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
       Kiln
     </span>
     <nav class="topnav" aria-label="Sections">
-      <a href="#panel">Panel</a><a href="#why">Why</a><a href="#order">Order</a>
+      <a href="#panel">Panel</a><a href="#why">Why</a><a href="#inside">Inside</a><a href="#specsheet">Specs</a><a href="#configs">Configs</a><a href="#faq">FAQ</a>
     </nav>
     <span class="unit">UNIT K-04 · BENCH</span>
   </div>
 </header>
 
 <main>
-  <!-- ============ THE MACHINE ============ -->
   <section id="panel" style="scroll-margin-top: 70px; padding-top: 26px">
     <div class="wrap">
       <div class="plate face machine off" id="machine">
+        <div class="spill" aria-hidden="true"></div>
         <span class="screw tl" aria-hidden="true"></span>
         <span class="screw tr" aria-hidden="true"></span>
         <span class="screw bl" aria-hidden="true"></span>
         <span class="screw br" aria-hidden="true"></span>
 
-        <!-- turbine bay -->
         <div class="nameplate">
           <div>
             <h1>Inference that never <em>leaves the building.</em></h1>
@@ -515,15 +661,23 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
         <div class="bay well turbine">
           <p class="stencil">Turbine · primary</p>
           <div class="fan-well well">
-            <svg class="fan" viewBox="0 0 100 100" aria-hidden="true">
+            <svg class="fan" id="fan" viewBox="0 0 100 100" aria-hidden="true">
               <defs>
                 <radialGradient id="hubg" cx="38%" cy="30%">
-                  <stop offset="0" stop-color="#4c5059" /><stop offset="0.6" stop-color="#26292f" /><stop offset="1" stop-color="#15171a" />
+                  <stop offset="0" stop-color="#50545c" /><stop offset="0.6" stop-color="#272a30" /><stop offset="1" stop-color="#15171a" />
                 </radialGradient>
                 <linearGradient id="bladeg" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#2b2f36" /><stop offset="0.55" stop-color="#1b1e23" /><stop offset="1" stop-color="#101216" />
+                  <stop offset="0" stop-color="#30343c" /><stop offset="0.55" stop-color="#1c1f24" /><stop offset="1" stop-color="#101216" />
                 </linearGradient>
+                <radialGradient id="discg">
+                  <stop offset="0.3" stop-color="#2a2e35" stop-opacity="0" />
+                  <stop offset="0.75" stop-color="#2a2e35" stop-opacity="0.9" />
+                  <stop offset="1" stop-color="#2a2e35" stop-opacity="0.3" />
+                </radialGradient>
               </defs>
+              <circle class="disc" id="disc" cx="50" cy="50" r="46" opacity="0" />
+              <g class="ghost" id="ghost2" opacity="0"></g>
+              <g class="ghost" id="ghost1" opacity="0"></g>
               <g id="blades"></g>
               <circle class="hub" cx="50" cy="50" r="16" />
             </svg>
@@ -532,25 +686,30 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
           <div class="rockers">
             <button class="rocker" type="button" id="pwr" aria-pressed="false">
               <span class="led" aria-hidden="true"></span>
-              <span class="body" aria-hidden="true"></span>
+              <span class="bezel" aria-hidden="true"><span class="body"></span></span>
               <span class="grille" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="stencil" style="font-size: 8px; letter-spacing: 0.2em">Power</span>
             </button>
             <button class="rocker" type="button" id="turbo" aria-pressed="false" data-hot="1">
               <span class="led" aria-hidden="true"></span>
-              <span class="body" aria-hidden="true"></span>
+              <span class="bezel" aria-hidden="true"><span class="body"></span></span>
               <span class="grille" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="stencil" style="font-size: 8px; letter-spacing: 0.2em">Turbo</span>
             </button>
           </div>
         </div>
 
-        <!-- instrument stack -->
         <div class="stack">
-          <div class="bay well gauge">
+          <div class="bay well gauge" id="gauge">
             <p class="stencil">Thermal load</p>
-            <svg viewBox="0 0 220 128" aria-hidden="true" id="arc"></svg>
-            <p class="gauge-read">LOAD <b id="loadv">000</b>%</p>
+            <svg viewBox="0 0 240 142" aria-hidden="true" id="arc">
+              <defs>
+                <radialGradient id="pivotg" cx="38%" cy="32%">
+                  <stop offset="0" stop-color="#7a8089" /><stop offset="0.6" stop-color="#33363c" /><stop offset="1" stop-color="#16181b" />
+                </radialGradient>
+              </defs>
+            </svg>
+            <p class="gauge-read">LOAD <b class="roller" id="loadv" data-n="3"></b>%</p>
             <div class="slot-row">
               <span class="slot" aria-hidden="true"></span>
               <span class="stencil" style="font-size: 8px">Insert key</span>
@@ -567,18 +726,16 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
           </div>
         </div>
 
-        <!-- readout -->
         <dl class="readout" style="grid-column: 1 / -1">
-          <div><dt>Tokens / sec</dt><dd><span id="r-tps">0</span></dd></div>
-          <div><dt>Core temp</dt><dd><span id="r-temp">21</span><small>°C</small></dd></div>
-          <div><dt>Draw</dt><dd><span id="r-draw">4</span><small>W</small></dd></div>
-          <div><dt>Queue</dt><dd><span id="r-q">0</span><small>jobs</small></dd></div>
+          <div><dt>Tokens / sec</dt><dd><span class="roller" id="r-tps" data-n="4"></span></dd></div>
+          <div><dt>Core temp</dt><dd><span class="roller" id="r-temp" data-n="2"></span><small>°C</small></dd></div>
+          <div><dt>Draw</dt><dd><span class="roller" id="r-draw" data-n="3"></span><small>W</small></dd></div>
+          <div><dt>Queue</dt><dd><span class="roller" id="r-q" data-n="1"></span><small>jobs</small></dd></div>
         </dl>
       </div>
     </div>
   </section>
 
-  <!-- ============ WHY ============ -->
   <section class="section" id="why">
     <div class="wrap">
       <div class="section-head">
@@ -620,7 +777,243 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
         </article>
       </div>
 
-      <div class="plate cta" id="order">
+    </div>
+  </section>
+
+  <!-- ============ INSIDE ============ -->
+  <section class="section" id="inside">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="stencil">Inside the box</p>
+        <h2>Four parts, no mystery.</h2>
+        <p>Point at a part to find it in the chassis. Everything that wears out is replaceable from the front panel or the top lid.</p>
+      </div>
+      <div class="inside" id="insideGrid">
+        <div class="plate cutaway">
+          <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+          <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <svg id="cut" viewBox="0 0 560 318" role="img" aria-label="Top-down cutaway of the K-04 chassis: four accelerator cards at the rear left, two power supplies at the rear right, a row of five fans along the front, and four storage sleds at the front right."></svg>
+          <p class="caption">K-04 · lid removed · air enters at the front and leaves at the rear</p>
+        </div>
+        <ol class="parts">
+          <li class="part well" tabindex="0" data-part="1">
+            <span class="num" aria-hidden="true">1</span>
+            <h3>Accelerators</h3>
+            <p>Four cards with 384 GB of memory between them. Enough to hold a large open-weight model whole, with room left for long contexts.</p>
+          </li>
+          <li class="part well" tabindex="0" data-part="2">
+            <span class="num" aria-hidden="true">2</span>
+            <h3>Storage sleds</h3>
+            <p>Four hot-swap NVMe sleds, 30 TB in all, encrypted at rest. Pull the sleds and the weights leave with you.</p>
+          </li>
+          <li class="part well" tabindex="0" data-part="3">
+            <span class="num" aria-hidden="true">3</span>
+            <h3>Turbine row</h3>
+            <p>Five fans pull air from front to rear. At normal load you hear the room, not the box.</p>
+          </li>
+          <li class="part well" tabindex="0" data-part="4">
+            <span class="num" aria-hidden="true">4</span>
+            <h3>Power</h3>
+            <p>Two redundant 1,600 W supplies. Lose one and the unit keeps serving while you swap it.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPEC SHEET ============ -->
+  <section class="section" id="specsheet">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="stencil">Spec sheet</p>
+        <h2>K-04, by the numbers.</h2>
+        <p>The unit on the panel above. Every reading it shows stays inside these limits.</p>
+      </div>
+      <div class="plate sheet-plate">
+        <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+        <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+        <dl class="sheet">
+          <div><dt>Form factor</dt><dd>2U, 19-inch rack<small>Sliding rails included</small></dd></div>
+          <div><dt>Accelerators</dt><dd>4 × K-class, 96 GB each</dd></div>
+          <div><dt>Dimensions</dt><dd>438 × 88 × 610 mm</dd></div>
+          <div><dt>Throughput</dt><dd>Up to 1,840 tokens/s<small>Turbo, mid-size model, batch of 8</small></dd></div>
+          <div><dt>Weight</dt><dd>24 kg</dd></div>
+          <div><dt>System memory</dt><dd>512 GB ECC DDR5</dd></div>
+          <div><dt>Power</dt><dd>2 × 1,600 W, redundant<small>80 PLUS Titanium</small></dd></div>
+          <div><dt>Storage</dt><dd>4 × 7.68 TB NVMe, hot-swap</dd></div>
+          <div><dt>Draw</dt><dd>284 W nominal · 694 W turbo</dd></div>
+          <div><dt>Network</dt><dd>2 × 100 GbE<small>Plus 1 × 1 GbE management port</small></dd></div>
+          <div><dt>Acoustics</dt><dd>38 dB(A) at 1 m, nominal</dd></div>
+          <div><dt>Environment</dt><dd>10–35 °C, front-to-rear airflow</dd></div>
+        </dl>
+        <div class="sheet-foot"><span>K-04 · Revision C</span><span>All figures are fictional</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARE ============ -->
+  <section class="section" id="compare">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="stencil">Box versus endpoint</p>
+        <h2>What changes when it's yours.</h2>
+        <p>A hosted endpoint is the right call for plenty of work. This is the list for when it isn't.</p>
+      </div>
+      <div class="plate compare" role="table" aria-label="Hosted endpoint compared with Kiln">
+        <div class="hd" role="columnheader">Concern</div>
+        <div class="hd them" role="columnheader">Hosted endpoint</div>
+        <div class="hd us" role="columnheader">Kiln</div>
+
+        <div class="rl" role="rowheader">Where data goes</div>
+        <div class="them" role="cell">Out to a provider's region, kept under their retention policy.</div>
+        <div class="us" role="cell">Nowhere. The network cable is the boundary.</div>
+
+        <div class="rl" role="rowheader">Cost</div>
+        <div class="them" role="cell">Metered per token, so the bill follows traffic.</div>
+        <div class="us" role="cell">Fixed. One unit, depreciated like any other server.</div>
+
+        <div class="rl" role="rowheader">Model changes</div>
+        <div class="them" role="cell">When the provider decides.</div>
+        <div class="us" role="cell">When you decide, and never silently.</div>
+
+        <div class="rl" role="rowheader">Outages</div>
+        <div class="them" role="cell">Their incident is your incident.</div>
+        <div class="us" role="cell">Your rack, your redundancy, your schedule.</div>
+
+        <div class="rl" role="rowheader">Latency floor</div>
+        <div class="them" role="cell">A round trip over the internet, plus their queue.</div>
+        <div class="us" role="cell">Your LAN.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTALL ============ -->
+  <section class="section" id="install">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="stencil">Install</p>
+        <h2>Live in an afternoon.</h2>
+        <p>No consultants and no onboarding call. If your team can rack a server, they can rack this.</p>
+      </div>
+      <div class="steps">
+        <article class="plate step">
+          <span class="screw tr" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <div class="idx">01</div>
+          <h3>Rack it</h3>
+          <p>Two rails, four screws, two power cords. It's a standard 2U box and it goes where your other servers go.</p>
+          <p class="time">About 20 minutes</p>
+        </article>
+        <article class="plate step">
+          <span class="screw tr" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <div class="idx">02</div>
+          <h3>Connect the network</h3>
+          <p>One 100 GbE link to your core switch. It never asks for an outbound route, because there's nothing for it to call.</p>
+          <p class="time">About 10 minutes</p>
+        </article>
+        <article class="plate step">
+          <span class="screw tr" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <div class="idx">03</div>
+          <h3>Load your weights</h3>
+          <p>Copy weights from a drive or an internal share and the panel goes live, serving a standard chat-completions endpoint on your network.</p>
+          <p class="time">About an hour</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONFIGURATIONS ============ -->
+  <section class="section" id="configs">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="stencil">Configurations</p>
+        <h2>Three sizes, same panel.</h2>
+        <p>Every unit ships with the same front panel and firmware. Prices are illustrative, like everything else here.</p>
+      </div>
+      <div class="configs">
+        <article class="plate config">
+          <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+          <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <span class="tag">Departmental</span>
+          <h3>K-02</h3>
+          <p class="sub">One team, one model, one shelf.</p>
+          <ul>
+            <li><span>Form</span><span>1U</span></li>
+            <li><span>Accelerators</span><span>2 × 96 GB</span></li>
+            <li><span>Storage</span><span>15 TB</span></li>
+            <li><span>Peak</span><span>820 tok/s</span></li>
+          </ul>
+          <div class="price"><b>$38,500</b><small>one-time</small></div>
+          <a class="btn" href="#order">Configure</a>
+        </article>
+        <article class="plate config featured">
+          <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+          <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <span class="tag">Shown above</span>
+          <h3>K-04</h3>
+          <p class="sub">The bench unit on this page. Most teams start here.</p>
+          <ul>
+            <li><span>Form</span><span>2U</span></li>
+            <li><span>Accelerators</span><span>4 × 96 GB</span></li>
+            <li><span>Storage</span><span>30 TB</span></li>
+            <li><span>Peak</span><span>1,840 tok/s</span></li>
+          </ul>
+          <div class="price"><b>$64,000</b><small>one-time</small></div>
+          <a class="btn" href="#order">Configure</a>
+        </article>
+        <article class="plate config">
+          <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
+          <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
+          <span class="tag">Datacentre</span>
+          <h3>K-08</h3>
+          <p class="sub">Several models at once, or one very large one.</p>
+          <ul>
+            <li><span>Form</span><span>4U</span></li>
+            <li><span>Accelerators</span><span>8 × 96 GB</span></li>
+            <li><span>Storage</span><span>61 TB</span></li>
+            <li><span>Peak</span><span>3,900 tok/s</span></li>
+          </ul>
+          <div class="price"><b>$119,000</b><small>one-time</small></div>
+          <a class="btn" href="#order">Configure</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section" id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="stencil">Questions</p>
+        <h2>Before you ask procurement.</h2>
+      </div>
+      <div class="plate faq">
+        <details>
+          <summary>Which models will it run?</summary>
+          <p>Any open-weight model you hold a licence for, up to roughly 380 GB at the precision you choose on a K-04. Larger models run quantised, or across the eight cards of a K-08.</p>
+        </details>
+        <details>
+          <summary>Does it ever need the internet?</summary>
+          <p>No. Updates arrive as signed offline bundles that you load from a drive, so the unit can spend its whole life on an air-gapped network.</p>
+        </details>
+        <details>
+          <summary>What happens when a part fails?</summary>
+          <p>Drives, fans and power supplies swap while it runs. If an accelerator fails, the unit drops to three cards and keeps serving at reduced throughput until the replacement arrives.</p>
+        </details>
+        <details>
+          <summary>Can several units work together?</summary>
+          <p>Yes. Units on the same network pool into a single endpoint and share requests between them, and a model too large for one unit can be split across two.</p>
+        </details>
+        <details>
+          <summary>How loud is it, really?</summary>
+          <p>About 38 dB(A) at a metre under normal load, which is roughly a quiet office. Turbo is louder, and the red lamp on the panel tells you when it's on.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="plate cta" id="order" style="margin-top: 0">
         <span class="screw tl" aria-hidden="true"></span><span class="screw tr" aria-hidden="true"></span>
         <span class="screw bl" aria-hidden="true"></span><span class="screw br" aria-hidden="true"></span>
         <p class="stencil">Nothing here is real</p>
@@ -644,15 +1037,15 @@ h1, h2 { font-weight: 900; letter-spacing: -0.035em; line-height: 0.98; text-tra
 (() => {
 "use strict";
 const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NS = "http://www.w3.org/2000/svg";
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 /* ============================================================
-   TURBINE — nine blades, drawn once
+   TURBINE — eleven swept blades, plus two ghost copies that
+   trail behind at speed as a cheap rotational motion blur
    ============================================================ */
 (() => {
-  /* Narrow swept blades rather than petals: each one runs from the hub to the
-     rim with a twist, so the disc reads as a turbine instead of a flower. */
   const N = 11, R_IN = 17.5, R_OUT = 46, W_IN = 9, W_OUT = 15, TWIST = 24;
   const P = (r, deg) => {
     const t = ((deg - 90) * Math.PI) / 180;
@@ -667,120 +1060,194 @@ const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
     d += `<path class="blade" d="${lead}${rim}${trail} Z"/>`;
   }
   $("#blades").innerHTML = d;
+  $("#ghost1").innerHTML = d;
+  $("#ghost2").innerHTML = d;
 })();
+const fan = $("#fan"), ghost1 = $("#ghost1"), ghost2 = $("#ghost2"), disc = $("#disc");
 
 /* ============================================================
-   ARC GAUGE — 34 radial ticks over a half circle
+   GAUGE — numbered scale, redline, damped needle
    ============================================================ */
-const TICKS = 34;
+const GX = 120, GY = 128;
+const polar = (v, r) => {
+  const a = Math.PI - (v / 100) * Math.PI;
+  return [GX + Math.cos(a) * r, GY - Math.sin(a) * r];
+};
+const REDLINE = 85;
+let needleEl, bandEl;
 (() => {
-  const cx = 110, cy = 116, r0 = 66, r1 = 96;
-  let d = "";
-  for (let i = 0; i < TICKS; i++) {
-    const a = Math.PI - (i / (TICKS - 1)) * Math.PI;
-    const x0 = cx + Math.cos(a) * r0, y0 = cy - Math.sin(a) * r0;
-    const x1 = cx + Math.cos(a) * r1, y1 = cy - Math.sin(a) * r1;
-    d += `<line class="tick" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
+  const svg = $("#arc");
+  let h = "";
+  const R = 92;
+  const [ax, ay] = polar(0, R), [bx, by] = polar(100, R);
+  h += `<path class="g-track" d="M${ax} ${ay} A${R} ${R} 0 0 1 ${bx} ${by}"/>`;
+  h += `<path class="g-band" id="gband" pathLength="100" stroke-dasharray="0 100" d="M${ax} ${ay} A${R} ${R} 0 0 1 ${bx} ${by}"/>`;
+  for (let v = 0; v <= 100; v += 2) {
+    const major = v % 10 === 0;
+    const [x0, y0] = polar(v, 100), [x1, y1] = polar(v, major ? 110 : 105);
+    h += `<line class="${major ? "g-major" : "g-minor"}" x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}"/>`;
+    if (major) {
+      const [lx, ly] = polar(v, 78);
+      h += `<text class="g-label${v > REDLINE ? " r" : ""}" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}">${v}</text>`;
+    }
   }
-  $("#arc").innerHTML = d;
+  const [rx0, ry0] = polar(REDLINE, 114), [rx1, ry1] = polar(100, 114);
+  h += `<path class="g-red" d="M${rx0.toFixed(1)} ${ry0.toFixed(1)} A114 114 0 0 1 ${rx1.toFixed(1)} ${ry1.toFixed(1)}"/>`;
+  h += `<g class="g-needle" id="needle"><line x1="${GX + 14}" y1="${GY}" x2="${GX - 84}" y2="${GY}"/><line class="tip" x1="${GX - 72}" y1="${GY}" x2="${GX - 86}" y2="${GY}"/></g>`;
+  h += `<circle class="g-pivot" cx="${GX}" cy="${GY}" r="7"/><circle cx="${GX}" cy="${GY}" r="2" fill="#0a0b0d"/>`;
+  svg.insertAdjacentHTML("beforeend", h);
+  needleEl = $("#needle"); bandEl = $("#gband");
 })();
-const tickEls = $$("#arc .tick");
+const gaugeEl = $("#gauge");
+
+/* ============================================================
+   ROLLING COUNTERS — a strip of 0-9 per digit, translated
+   ============================================================ */
+function roller(el) {
+  const n = +el.dataset.n;
+  const sr = document.createElement("span");
+  sr.className = "sr";
+  el.appendChild(sr);
+  const cells = [], strips = [];
+  for (let i = 0; i < n; i++) {
+    const cell = document.createElement("span");
+    cell.className = "roll";
+    cell.setAttribute("aria-hidden", "true");
+    const strip = document.createElement("span");
+    strip.className = "strip";
+    for (let d = 0; d < 10; d++) {
+      const s = document.createElement("span");
+      s.textContent = d;
+      strip.appendChild(s);
+    }
+    cell.appendChild(strip);
+    el.appendChild(cell);
+    cells.push(cell); strips.push(strip);
+  }
+  let last = null;
+  return function set(v) {
+    const s = String(Math.max(0, Math.round(v))).padStart(n, "0").slice(-n);
+    if (s === last) return;
+    last = s;
+    sr.textContent = String(+s);
+    let lead = true;
+    for (let i = 0; i < n; i++) {
+      const d = +s[i];
+      if (lead && d === 0 && i < n - 1) cells[i].classList.add("lz");
+      else { lead = false; cells[i].classList.remove("lz"); }
+      strips[i].style.transform = `translateY(${-d}em)`;
+    }
+  };
+}
+const R = {
+  load: roller($("#loadv")),
+  tps: roller($("#r-tps")),
+  temp: roller($("#r-temp")),
+  draw: roller($("#r-draw")),
+  q: roller($("#r-q")),
+};
 
 /* ============================================================
    MACHINE STATE
    ============================================================ */
 const machine = $("#machine");
-const state = { power: false, turbo: false, load: 0, tps: 0, temp: 21, draw: 4, queue: 0 };
-const shown = {};
-function write(el, v) {
-  const s = String(v);
-  if (shown[el.id] === s) return;
-  shown[el.id] = s;
-  el.textContent = s;
-}
+const state = { power: false, turbo: false, load: 0 };
 
-function setRocker(btn, on) {
-  btn.setAttribute("aria-pressed", String(on));
+function tick() {
+  if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
 }
+function setRocker(btn, on) { btn.setAttribute("aria-pressed", String(on)); }
 $("#pwr").addEventListener("click", () => {
+  tick();
   state.power = !state.power;
   setRocker($("#pwr"), state.power);
   if (!state.power) { state.turbo = false; setRocker($("#turbo"), false); }
   machine.classList.toggle("off", !state.power);
+  wake();
 });
 $("#turbo").addEventListener("click", () => {
   if (!state.power) {
-    /* turbo without power does nothing but blink the power light */
-    const l = $("#pwr");
-    l.animate([{ opacity: 1 }, { opacity: 0.25 }, { opacity: 1 }], { duration: 320, iterations: 2 });
+    $("#pwr .led").animate([{ opacity: 1 }, { opacity: 0.25 }, { opacity: 1 }], { duration: 320, iterations: 2 });
     return;
   }
+  tick();
   state.turbo = !state.turbo;
   setRocker($("#turbo"), state.turbo);
+  wake();
 });
 
 /* ============================================================
-   SIMULATION — one number drives the fan, gauge, coil and readout
+   SIMULATION
    ============================================================ */
-let last = performance.now() / 1000, running = false, visible = false, t = 0;
-/* Written on the machine element rather than :root, and only when the value
-   actually moves. Setting a custom property on the document every frame
-   invalidates style for the whole page, and re-timing the fan's animation
-   sixty times a second is worse than not animating it at all. */
+let t = 0;
+let angle = 0, omega = 0;          /* turbine, degrees and degrees/sec */
+let nx = 0, nv = 0;                /* needle position (0-100) and velocity */
+let readT = 0;
+const OMEGA_MAX = 820;             /* kept under the blade-spacing strobe point */
 const lastProp = {};
 function prop(name, value) {
   if (lastProp[name] === value) return;
   lastProp[name] = value;
   machine.style.setProperty(name, value);
 }
+
 function step(dt) {
   t += dt;
   const target = !state.power ? 0 : state.turbo ? 0.86 + Math.sin(t * 0.9) * 0.08 : 0.34 + Math.sin(t * 0.55) * 0.07;
   state.load += (target - state.load) * (1 - Math.exp(-dt / 1.1));
+  const L = clamp(state.load, 0, 1);
 
-  const L = Math.max(0, Math.min(1, state.load));
   prop("--heat", (state.power ? L : 0).toFixed(2));
-  /* the faster it spins the shorter the period; 2.4s idle down to 0.35s.
-     Quantised to 0.1s so the animation is retimed a handful of times per
-     spin-up instead of every frame. */
-  prop("--rpm", (Math.round((2.4 - L * 2.05) * 10) / 10).toFixed(1) + "s");
 
-  /* During the self-test the gauge answers to the sweep rather than to load,
-     which is what makes a cold machine feel like it is checking itself. */
+  /* turbine: spins up briskly, coasts down slowly, like a real rotor */
+  const wT = state.power ? 150 + L * (OMEGA_MAX - 150) : 0;
+  const tau = wT > omega ? 0.9 : 2.6;
+  omega += (wT - omega) * (1 - Math.exp(-dt / tau));
+  if (omega < 0.2 && !state.power) omega = 0;
+  if (!REDUCED) {
+    angle = (angle + omega * dt) % 360;
+    fan.style.transform = `rotate(${angle.toFixed(2)}deg)`;
+    const s = omega / OMEGA_MAX;
+    ghost1.setAttribute("transform", `rotate(${(-omega * 0.011).toFixed(2)} 50 50)`);
+    ghost2.setAttribute("transform", `rotate(${(-omega * 0.022).toFixed(2)} 50 50)`);
+    ghost1.setAttribute("opacity", (s * 0.5).toFixed(3));
+    ghost2.setAttribute("opacity", (s * 0.26).toFixed(3));
+    disc.setAttribute("opacity", (s * s * 0.45).toFixed(3));
+  }
+
+  /* needle: an underdamped spring, so it overshoots a touch and settles */
   const sweep = bootSweep(dt);
-  const lit = sweep === null ? Math.round(L * TICKS) : sweep;
-  tickEls.forEach((el, i) => {
-    const on = i < lit;
-    const hot = on && i > TICKS * 0.78;
-    if (el.dataset.s !== (on ? (hot ? "h" : "o") : "")) {
-      el.dataset.s = on ? (hot ? "h" : "o") : "";
-      el.classList.toggle("on", on && !hot);
-      el.classList.toggle("hot", hot);
-    }
-  });
+  const gT = sweep === null ? L * 100 : sweep * 100;
+  if (REDUCED) { nx = gT; nv = 0; }
+  else {
+    nv += (60 * (gT - nx) - 9 * nv) * dt;
+    nx += nv * dt;
+    if (nx < 0) { nx = 0; nv = Math.abs(nv) * 0.2; }      /* bounces off the stop pin */
+    if (nx > 101) { nx = 101; nv = -Math.abs(nv) * 0.2; }
+  }
+  needleEl.setAttribute("transform", `rotate(${(nx * 1.8).toFixed(2)} ${GX} ${GY})`);
+  bandEl.setAttribute("stroke-dasharray", `${Math.max(0, nx).toFixed(2)} 100`);
+  gaugeEl.classList.toggle("hot", nx > REDLINE);
 
-  state.tps = Math.round(L * (state.turbo ? 1840 : 900));
-  state.temp = Math.round(21 + L * (state.turbo ? 62 : 34));
-  state.draw = Math.round(4 + L * (state.turbo ? 690 : 280));
-  state.queue = state.power ? Math.max(0, Math.round(6 - L * 6 + Math.sin(t * 0.7) * 1.6)) : 0;
-
-  write($("#loadv"), String(Math.round(L * 100)).padStart(3, "0"));
-  write($("#r-tps"), state.tps.toLocaleString());
-  write($("#r-temp"), state.temp);
-  write($("#r-draw"), state.draw);
-  write($("#r-q"), state.queue);
+  /* counters update a few times a second so each roll can finish */
+  readT += dt;
+  if (readT >= 0.14) {
+    readT = 0;
+    R.load(nx < 0.5 ? 0 : nx);
+    R.tps(L * (state.turbo ? 1840 : 900));
+    R.temp(21 + L * (state.turbo ? 62 : 34));
+    R.draw(4 + L * (state.turbo ? 690 : 280));
+    R.q(state.power ? Math.max(0, 6 - L * 6 + Math.sin(t * 0.7) * 1.6) : 0);
+  }
 
   const msg = !state.power ? "Standby. Element cold."
     : state.turbo ? "Turbo. Element at working temperature — watch the draw."
     : "Running. Element warm, fans nominal.";
-  if ($("#thermMsg").textContent !== msg) $("#thermMsg").textContent = msg;
+  const tm = $("#thermMsg");
+  if (tm.textContent !== msg) tm.textContent = msg;
 }
 
-/* ============================================================
-   BOOT — the instrument self-test every machine does when it wakes:
-   lamps latch, the needle runs to the stop and back, then the gauge
-   hands over to the real load.
-   ============================================================ */
+/* the self-test: the needle runs to the stop and back on wake */
 let bootT = -1;
 const SWEEP_UP = 0.75, SWEEP_HOLD = 0.16, SWEEP_DOWN = 0.4;
 const SWEEP_END = SWEEP_UP + SWEEP_HOLD + SWEEP_DOWN;
@@ -788,169 +1255,170 @@ function bootSweep(dt) {
   if (bootT < 0) return null;
   bootT += dt;
   if (bootT >= SWEEP_END) { bootT = -1; return null; }
-  let f;
-  if (bootT < SWEEP_UP) f = bootT / SWEEP_UP;
-  else if (bootT < SWEEP_UP + SWEEP_HOLD) f = 1;
-  else f = 1 - (bootT - SWEEP_UP - SWEEP_HOLD) / SWEEP_DOWN;
-  return Math.round(f * TICKS);
+  if (bootT < SWEEP_UP) return bootT / SWEEP_UP;
+  if (bootT < SWEEP_UP + SWEEP_HOLD) return 1;
+  return 1 - (bootT - SWEEP_UP - SWEEP_HOLD) / SWEEP_DOWN;
 }
 
 function powerOn(theatrical) {
   state.power = true;
   setRocker($("#pwr"), true);
   machine.classList.remove("off");
+  wake();
   if (!theatrical) return;
   bootT = 0;
   machine.classList.remove("flash");
   void machine.offsetWidth;
   machine.classList.add("flash");
-  /* the lamp catches before it latches, the way a real one does */
   $("#pwr .led").animate(
     [{ opacity: 0.2 }, { opacity: 1 }, { opacity: 0.25 }, { opacity: 1 }, { opacity: 0.5 }, { opacity: 1 }],
     { duration: 480, easing: "steps(6, end)" }
   );
 }
 
-/* Wake on load so the first thing anyone sees is the machine coming up,
-   not a dead panel waiting to be clicked. Reduced motion skips straight to
-   running: no flash, no flicker, no needle sweep. */
-if (REDUCED) powerOn(false);
-else setTimeout(() => { if (!state.power) powerOn(true); }, 560);
-
-/* only run while the panel is on screen, and stop once it settles cold */
-new IntersectionObserver((es) => {
-  for (const e of es) visible = e.isIntersecting;
-  if (visible && !running) { running = true; last = performance.now() / 1000; requestAnimationFrame(frame); }
-}, { rootMargin: "140px 0px" }).observe(machine);
-
+/* run only while the panel is on screen */
+let running = false, visible = false, last = 0;
+function wake() {
+  if (running || !visible) return;
+  running = true;
+  last = performance.now() / 1000;
+  requestAnimationFrame(frame);
+}
 function frame() {
   const now = performance.now() / 1000;
   const dt = Math.min(0.05, now - last);
   last = now;
   step(dt);
-  if (!visible && !state.power && state.load < 0.005) { running = false; return; }
+  if (!visible) { running = false; return; }
   requestAnimationFrame(frame);
 }
+new IntersectionObserver((es) => {
+  for (const e of es) visible = e.isIntersecting;
+  wake();
+}, { rootMargin: "140px 0px" }).observe(machine);
+
 step(0.016);
-if (REDUCED) machine.style.setProperty("--rpm", "0s");
+readT = 1; step(0.001);
+
+if (REDUCED) powerOn(false);
+else setTimeout(() => { if (!state.power) powerOn(true); }, 560);
 })();
+
 /* ============================================================
-   FRACTURE — the shards around every module
-   ============================================================
-   One SVG per module, the size of the module, holding two or
-   three jagged chunks broken out of its corners. Each chunk is a
-   closed polygon of seven to nine vertices at jittered radii,
-   which is enough to read as something snapped off a plate
-   rather than a decorative blob.
-
-   Generated rather than authored so no two modules break the
-   same way, and so the page keeps six plain plates if the script
-   never runs — a module that is merely uncracked still looks
-   like a module.
-
-   Each shard carries --hx/--hy: the vector back to the middle of
-   its module. The CSS uses it on :active to fly the piece home.
+   CUTAWAY — drawn once, then linked to the parts list. It walks
+   through the four parts on its own while it is on screen, and
+   hands over to the reader the moment they point at anything.
    ============================================================ */
 (function () {
   "use strict";
-  var mods = document.querySelectorAll(".bay, .spec");
-  if (!mods.length) return;
+  var svg = document.getElementById("cut");
+  var grid = document.getElementById("insideGrid");
+  if (!svg || !grid) return;
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var S = "stroke='#3a3e46' stroke-width='1.2'";
+  var h = "";
 
-  function rand(a, b) { return a + Math.random() * (b - a); }
+  /* chassis, front bezel and labels */
+  h += "<rect x='20' y='26' width='520' height='258' rx='10' fill='#0f1013' stroke='#2e3238' stroke-width='1.5'/>";
+  h += "<rect x='20' y='262' width='520' height='22' rx='4' fill='#17191c' stroke='#2e3238'/>";
+  for (var g = 40; g < 360; g += 7) h += "<line x1='" + g + "' y1='268' x2='" + g + "' y2='278' stroke='#0a0b0d' stroke-width='3'/>";
+  h += "<text x='280' y='16' text-anchor='middle' font-family='JetBrains Mono, monospace' font-size='8.5' letter-spacing='3' fill='#4d535c'>REAR · AIR OUT</text>";
+  h += "<text x='280' y='306' text-anchor='middle' font-family='JetBrains Mono, monospace' font-size='8.5' letter-spacing='3' fill='#4d535c'>FRONT · AIR IN</text>";
 
-  function shard(cx, cy, r) {
-    /* Seven to nine vertices at 0.66-1 of the radius. More points and a
-       wider jitter than this and the polygon comes out a spiky star that
-       reads as a leaf; this stays a chunk. */
-    var n = Math.floor(rand(7, 10)), d = "";
-    for (var i = 0; i < n; i++) {
-      var a = (i / n) * Math.PI * 2 + rand(-0.12, 0.12);
-      var rr = r * rand(0.66, 1);
-      d += (i ? " L" : "M") + (cx + Math.cos(a) * rr).toFixed(1) +
-           "," + (cy + Math.sin(a) * rr).toFixed(1);
-    }
-    return d + " Z";
+  /* airflow, drawn under everything */
+  for (var a = 0; a < 5; a++) {
+    var ax = 62 + a * 68;
+    h += "<path class='air' d='M" + ax + " 256 L" + ax + " 34'/>";
   }
 
-  Array.prototype.forEach.call(mods, function (mod) {
-    var r = mod.getBoundingClientRect();
-    if (!r.width) return;
-    var W = Math.round(r.width), H = Math.round(r.height);
+  /* 1 · accelerators */
+  h += "<g class='cp' data-part='1'>";
+  for (var c = 0; c < 4; c++) {
+    var cx = 44 + c * 74;
+    h += "<rect x='" + cx + "' y='44' width='60' height='130' rx='4' fill='#16181c' " + S + "/>";
+    for (var f = 56; f < 166; f += 8) h += "<line x1='" + (cx + 9) + "' y1='" + f + "' x2='" + (cx + 51) + "' y2='" + f + "' stroke='#262a30' stroke-width='1'/>";
+    h += "<rect x='" + (cx + 18) + "' y='36' width='24' height='8' rx='1.5' fill='#1d2025' " + S + "/>";
+  }
+  h += "</g>";
 
-    var NS = "http://www.w3.org/2000/svg";
-    var svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
-    svg.setAttribute("preserveAspectRatio", "none");
-
-    /* The corners are the only part of these modules reliably free of
-       content — the bays centre their instrument and the spec cards run
-       their copy down the middle. */
-    var corners = [[0, 0], [W, 0], [0, H], [W, H]];
-    for (var k = corners.length - 1; k > 0; k--) {
-      var j2 = Math.floor(Math.random() * (k + 1));
-      var t = corners[k]; corners[k] = corners[j2]; corners[j2] = t;
-    }
-    var count = mod.classList.contains("spec") ? 2 : 3;
-
-    for (var i = 0; i < count; i++) {
-      var c = corners[i];
-      var size = Math.max(20, Math.min(46, Math.min(W, H) * 0.115)) * rand(0.8, 1.2);
-      /* pulled in off the corner by about a third of the piece, so the
-         module's own edge crops it */
-      var cx = c[0] + (c[0] === 0 ? 1 : -1) * size * rand(0.3, 0.62);
-      var cy = c[1] + (c[1] === 0 ? 1 : -1) * size * rand(0.3, 0.62);
-
-      var g = document.createElementNS(NS, "g");
-      g.style.setProperty("--hx", ((W / 2 - cx) * 0.55).toFixed(0) + "px");
-      g.style.setProperty("--hy", ((H / 2 - cy) * 0.55).toFixed(0) + "px");
-      g.style.transitionDelay = (Math.random() * 0.09).toFixed(3) + "s";
-
-      var p = document.createElementNS(NS, "path");
-      p.setAttribute("d", shard(cx, cy, size));
-      p.setAttribute("transform", "rotate(" + rand(-16, 16).toFixed(1) + " " + cx.toFixed(1) + " " + cy.toFixed(1) + ")");
-      g.appendChild(p);
-      svg.appendChild(g);
-    }
-
-    var box = document.createElement("span");
-    box.className = "frac";
-    box.setAttribute("aria-hidden", "true");
-    box.appendChild(svg);
-    mod.appendChild(box);
+  /* 4 · power supplies */
+  h += "<g class='cp' data-part='4'>";
+  [44, 112].forEach(function (y) {
+    h += "<rect x='366' y='" + y + "' width='150' height='60' rx='4' fill='#16181c' " + S + "/>";
+    for (var vy = y + 12; vy < y + 52; vy += 9)
+      for (var vx = 380; vx < 450; vx += 9) h += "<circle cx='" + vx + "' cy='" + vy + "' r='2.2' fill='#0a0b0d'/>";
+    h += "<rect x='470' y='" + (y + 18) + "' width='30' height='24' rx='3' fill='#0d0e11' " + S + "/>";
   });
+  h += "</g>";
+
+  /* 3 · fans */
+  h += "<g class='cp' data-part='3'>";
+  for (var n = 0; n < 5; n++) {
+    var fx = 62 + n * 68;
+    h += "<rect x='" + (fx - 30) + "' y='182' width='60' height='60' rx='6' fill='#131418' " + S + "/>";
+    h += "<circle cx='" + fx + "' cy='212' r='25' fill='#0c0d10' " + S + "/>";
+    for (var b = 0; b < 5; b++) {
+      var ang = (b / 5) * Math.PI * 2;
+      h += "<line x1='" + fx + "' y1='212' x2='" + (fx + Math.cos(ang) * 22).toFixed(1) + "' y2='" + (212 + Math.sin(ang) * 22).toFixed(1) + "' stroke='#2a2e35' stroke-width='5' stroke-linecap='round'/>";
+    }
+    h += "<circle cx='" + fx + "' cy='212' r='7' fill='#1d2025' " + S + "/>";
+  }
+  h += "</g>";
+
+  /* 2 · storage sleds */
+  h += "<g class='cp' data-part='2'>";
+  for (var d = 0; d < 4; d++) {
+    var sy = 186 + d * 17;
+    h += "<rect x='392' y='" + sy + "' width='124' height='12' rx='2.5' fill='#16181c' " + S + "/>";
+    h += "<circle cx='508' cy='" + (sy + 6) + "' r='1.8' fill='#3fd96e'/>";
+  }
+  h += "</g>";
+
+  /* number badges */
+  [[1, 44, 44], [2, 392, 186], [3, 32, 182], [4, 366, 44]].forEach(function (p) {
+    h += "<g class='badge' data-part='" + p[0] + "'><circle cx='" + p[1] + "' cy='" + p[2] + "' r='10'/><text x='" + p[1] + "' y='" + (p[2] + 0.5) + "'>" + p[0] + "</text></g>";
+  });
+  svg.innerHTML = h;
+
+  /* linking */
+  var user = false, cur = 0, timer = null;
+  function show(n) { if (n) grid.setAttribute("data-hl", n); else grid.removeAttribute("data-hl"); }
+  function take() { user = true; clearInterval(timer); timer = null; }
+
+  Array.prototype.forEach.call(grid.querySelectorAll(".part"), function (el) {
+    var n = el.getAttribute("data-part");
+    el.addEventListener("mouseenter", function () { take(); show(n); });
+    el.addEventListener("focus", function () { take(); show(n); });
+    el.addEventListener("click", function () { take(); show(n); });
+  });
+  Array.prototype.forEach.call(svg.querySelectorAll(".cp"), function (el) {
+    el.addEventListener("mouseenter", function () { take(); show(el.getAttribute("data-part")); });
+  });
+  grid.addEventListener("mouseleave", function () { if (user) show(null); });
+
+  if (REDUCED || !("IntersectionObserver" in window)) return;
+  new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (user) return;
+      if (e.isIntersecting && !timer) {
+        show(String(cur + 1));
+        timer = setInterval(function () { cur = (cur + 1) % 4; show(String(cur + 1)); }, 2600);
+      } else if (!e.isIntersecting && timer) {
+        clearInterval(timer); timer = null; show(null);
+      }
+    });
+  }, { threshold: 0.35 }).observe(grid);
 })();
 
 /* ============================================================
-   TYPE-ON — headings and copy print themselves when they arrive
-   ============================================================
-   Two departures from the usual version of this effect.
-
-   1. It splits IN PLACE instead of reading textContent and
-      rebuilding. The headline is "Inference that never <em>leaves
-      the building.</em>" and the em carries the amber glow, so
-      flattening to text would throw the only colour on the panel
-      away. Walking the text nodes and wrapping each character
-      leaves every element in the tree exactly where it was.
-   2. There is no aria-hidden clone. The characters are hidden
-      with opacity, which assistive tech ignores, so the full
-      sentence is in the accessibility tree from the first frame
-      and there is nothing to duplicate.
-
-   Live readouts (#r-tps, #loadv, #thermMsg and friends) are
-   rewritten every frame by the rig; splitting one would have its
-   spans blown away on the next tick, so nothing in .readout or
-   .caption is in the selector.
+   TYPE-ON — unchanged from v1
    ============================================================ */
 (function () {
   "use strict";
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   if (!("IntersectionObserver" in window)) return;
 
-  var GLITCH = "!<>-_\/[]{}\u2014=+*^?#_@";
-
-  /* Headings glitch and type at a readable pace; body copy runs about four
-     times faster, because 140 characters at a heading's speed is five
-     seconds of somebody waiting to read a paragraph. */
+  var GLITCH = "!<>-_\/[]{}—=+*^?#_@";
   var GROUPS = [
     { sel: ".nameplate h1, .section-head h2, .cta h2, .spec h3", speed: 26, glitch: 0.42 },
     { sel: ".section-head .stencil, .cta .stencil", speed: 30, glitch: 0.55 },
@@ -962,18 +1430,12 @@ if (REDUCED) machine.style.setProperty("--rpm", "0s");
     var nodes = [], n;
     while ((n = walker.nextNode())) nodes.push(n);
     if (!nodes.length) return [];
-
     var spans = [];
     nodes.forEach(function (node, idx) {
-      /* The source is indented, so every text node carries the newlines and
-         leading spaces of the markup. They collapse to one space when
-         rendered but they would each take a typing tick, which reads as the
-         line stalling. Normalise first, and trim only the outer edges. */
       var text = node.nodeValue.replace(/\s+/g, " ");
       if (idx === 0) text = text.replace(/^ /, "");
       if (idx === nodes.length - 1) text = text.replace(/ $/, "");
       if (!text) { node.parentNode.removeChild(node); return; }
-
       var frag = document.createDocumentFragment();
       for (var i = 0; i < text.length; i++) {
         var sp = document.createElement("span");
@@ -990,19 +1452,16 @@ if (REDUCED) machine.style.setProperty("--rpm", "0s");
   function type(el, speed, glitchChance) {
     var spans = splitChars(el);
     if (!spans.length) return;
-
     var caret = document.createElement("span");
     caret.className = "typing-caret";
     caret.setAttribute("aria-hidden", "true");
     spans[0].parentNode.insertBefore(caret, spans[0]);
-
     var i = 0;
     (function next() {
       if (i >= spans.length) { caret.remove(); return; }
       var span = spans[i];
       span.parentNode.insertBefore(caret, span.nextSibling);
       span.classList.add("visible");
-
       if (glitchChance && span.textContent !== " " && Math.random() < glitchChance) {
         var settled = span.textContent;
         var cycles = 0, max = Math.floor(Math.random() * 3) + 2;
@@ -1032,7 +1491,6 @@ if (REDUCED) machine.style.setProperty("--rpm", "0s");
     });
   });
 })();
-
 </script>
 </body>
 </html>
