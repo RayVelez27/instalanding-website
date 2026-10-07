@@ -36,7 +36,7 @@ try {
   const names = tools.map((t) => t.name).sort();
   check(
     "tools advertised",
-    ["get_demo_source", "get_prompt", "list_categories", "search_prompts"].every((n) =>
+    ["get_demo_source", "get_prompt", "inspect_prompt", "list_categories", "search_prompts"].every((n) =>
       names.includes(n)
     ),
     names.join(", ")
@@ -53,7 +53,7 @@ try {
 
   const search = await client.callTool({
     name: "search_prompts",
-    arguments: { query: "rive button", limit: 3 },
+    arguments: { query: "fire button", limit: 3 },
   });
   const searchText = bodyOf(search);
   const slug = searchText.match(/slug: ([a-z0-9-]+)/)?.[1];
@@ -70,6 +70,13 @@ try {
     "empty search explains itself",
     !miss.isError && /Nothing matched/.test(bodyOf(miss)),
     bodyOf(miss).slice(0, 60)
+  );
+
+  const inspect = await client.callTool({ name: "inspect_prompt", arguments: { slug } });
+  check(
+    "inspect_prompt reports stack and next steps",
+    !inspect.isError && /Stack/.test(bodyOf(inspect)) && /get_prompt/.test(bodyOf(inspect)),
+    bodyOf(inspect).split("\n")[0]
   );
 
   const prompt = await client.callTool({ name: "get_prompt", arguments: { slug } });
@@ -111,7 +118,7 @@ try {
   check(
     "get_demo_source inlines and truncates",
     !demoInline.isError &&
-      bodyOf(demoInline).includes("<!DOCTYPE html>") &&
+      /<!doctype html>/i.test(bodyOf(demoInline)) &&
       bodyOf(demoInline).length < 4000,
     `${bodyOf(demoInline).length} chars`
   );

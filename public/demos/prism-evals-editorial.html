@@ -1,4 +1,30 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Generative Editorial Product Page
+  slug     generative-editorial-product-page
+  prompt   https://instalanding.ai/p/generative-editorial-product-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/generative-editorial-product-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of the main <style>: --accent #ff4081, --ink, --paper, --b5/--b10/--b60,
+            the generative palette --g1..--g6, --panel (indigo product screen), --display Asul, --sans Cabin, --mono IBM Plex Mono, --hand
+  sections  nav, hero, ticker, hero-art, logos, about, runs, product, ticker-2, testimonials, pricing, cta, contact, footer
+  scripts   1) one inline IIFE: gooey-grid compositions for every [data-goo] host (data-cols/data-rows), tickers, run
+               gallery, preview library, testimonial tabs, gate table + sparkline
+            2) motion: GSAP 3.12.5 + ScrollTrigger (cdnjs) inside the same IIFE; skipped entirely under reduced motion
+  assets    none: every "image" is a CSS grid of gradient cells run through the inline SVG #goo filter
+
+  ADAPTING
+  - The palette lives twice: --g1..--g6 in CSS and the weighted PALETTE array at the top of the script, which is
+    what actually paints the compositions. Change both.
+  - Every composition depends on the hidden <svg> #goo filter (blur + alpha matrix 19 -9) at the top of <body>;
+    remove it and the grids fall back to hard squares.
+  - Floats and scrubbed parallax each own a separate wrapper ([data-anim=float] / [data-anim=parallax]); never put
+    both on one element's transform.
+  - Reveals use per-element ScrollTrigger gsap.from(): content starts hidden only once GSAP runs, and stays visible without it.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Prism Evals</title>
 <meta name="description" content="Single-file editorial landing page for an AI evals platform: every image is a generative gooey-grid composition, with GSAP scroll work, tickers and a card slider." />
 
@@ -928,7 +954,7 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
   </defs>
 </svg>
 
-<nav class="nav" data-anim="nav">
+<nav class="nav" data-anim="nav" data-section="nav">
   <div class="nav-in">
     <p class="wordmark">Prism</p>
     <div class="nav-links">
@@ -942,7 +968,7 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </nav>
 
 <!-- ============ HERO ============ -->
-<section class="hero">
+<section class="hero" data-section="hero">
   <div class="hero-metas">
     <div class="hero-meta tl" data-anim="hero-info"><small>Layer</small><strong>Evals</strong></div>
     <div class="hero-meta tr" data-anim="hero-info"><small>p95 verdict</small><strong>240 ms</strong></div>
@@ -961,10 +987,10 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ TICKER ============ -->
-<div class="ticker"><div class="ticker-track" id="topTicker"></div></div>
+<div class="ticker" data-section="ticker"><div class="ticker-track" id="topTicker"></div></div>
 
 <!-- ============ HERO ART ============ -->
-<section class="sec" style="padding-top: 24px">
+<section class="sec" style="padding-top: 24px" data-section="hero-art" aria-label="Generative composition">
   <div class="art" style="aspect-ratio: 1 / 1" data-goo="hero" data-cols="12" data-rows="12">
     <div class="art-grid" data-anim="art-grid" id="artGrid"></div>
     <span class="art-note">Run 4,182 · click to resample</span>
@@ -974,7 +1000,7 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ LOGOS ============ -->
-<section class="logos" aria-label="Teams running Prism">
+<section class="logos" data-section="logos" aria-label="Teams running Prism">
   <p class="micro muted">Gating releases at</p>
   <ul>
     <li>Kestrel Pay</li><li>Ovidian Health</li><li>Tallgrass Labs</li><li>Sable &amp; Finch</li><li>Quillmark</li><li>Arbor Freight</li>
@@ -982,7 +1008,7 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ ABOUT ============ -->
-<section class="sec sec-tall" id="about">
+<section class="sec sec-tall" id="about" data-section="about">
   <div class="row-between">
     <p class="micro" data-anim="reveal" style="max-width: 130px; line-height: 1.28">Evals for<br>shipping teams</p>
     <p class="micro muted" data-anim="reveal">Release gate · v4</p>
@@ -1018,7 +1044,7 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ RUNS ============ -->
-<section class="sec" id="runs" style="padding-top: 96px; padding-bottom: 200px">
+<section class="sec" id="runs" data-section="runs" style="padding-top: 96px; padding-bottom: 200px">
   <div class="wrap" style="display:flex;flex-direction:column;gap:96px;align-items:center">
     <div class="runs-head">
       <span class="hand">Latest</span>
@@ -1030,7 +1056,7 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ THE GATE ============ -->
-<section class="gate" id="gate">
+<section class="gate" id="gate" data-section="product">
   <div class="gate-in" style="padding-inline: var(--pad)">
     <div class="gate-copy" data-anim="reveal">
       <p class="micro muted">The gate, as your reviewer sees it</p>
@@ -1074,10 +1100,10 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ BIG TICKER ============ -->
-<div class="ticker ticker--big"><div class="ticker-track" id="bigTicker"></div></div>
+<div class="ticker ticker--big" data-section="ticker-2"><div class="ticker-track" id="bigTicker"></div></div>
 
 <!-- ============ QUOTES ============ -->
-<section class="voices" id="voices">
+<section class="voices" id="voices" data-section="testimonials">
   <div class="voices-head">
     <div>
       <p class="hand" data-anim="hand">What teams say</p>
@@ -1111,7 +1137,7 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ PRICING ============ -->
-<section class="sec pricing" id="pricing">
+<section class="sec pricing" id="pricing" data-section="pricing">
   <div class="wrap">
     <div class="pricing-head">
       <h2 class="display h-mid" data-anim="reveal">Pricing</h2>
@@ -1141,14 +1167,14 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ BIG CTA ============ -->
-<section class="sec" style="padding-top: 48px">
+<section class="sec" style="padding-top: 48px" data-section="cta" aria-label="Get started">
   <div class="art cta-band" data-goo="band" data-cols="28" data-rows="6">
     <div class="hero-cta"><a class="cta cta--lg" href="#start"><span class="cta-ico" aria-hidden="true"><span class="cta-goo" data-goo="btn" data-cols="3" data-rows="3"></span><svg viewBox="0 0 24 28"><rect class="board" x="1" y="3" width="22" height="24" rx="2.5"/><rect class="clip" x="7" y="0.8" width="10" height="5" rx="1.6"/><g class="rows"><circle class="dt" cx="6.2" cy="11.5" r="1.3"/><path class="tk" style="--d:0.00s" d="M3.8 11.5 l1.7 1.7 l3.1 -3.4"/><path class="ln" style="--d:0.00s" d="M11.5 11.5 H19.5"/><circle class="dt" cx="6.2" cy="17" r="1.3"/><path class="tk" style="--d:0.12s" d="M3.8 17 l1.7 1.7 l3.1 -3.4"/><path class="ln" style="--d:0.12s" d="M11.5 17 H19.5"/><circle class="dt" cx="6.2" cy="22.5" r="1.3"/><path class="tk" style="--d:0.24s" d="M3.8 22.5 l1.7 1.7 l3.1 -3.4"/><path class="ln" style="--d:0.24s" d="M11.5 22.5 H19.5"/></g></svg></span><span class="cta-label">Start free</span></a></div>
   </div>
 </section>
 
 <!-- ============ CONTACT ============ -->
-<section class="sec" id="start" style="padding-top: 24px">
+<section class="sec" id="start" data-section="contact" style="padding-top: 24px">
   <div class="contact-row">
     <div class="contact-col left">
       <div style="display:flex;flex-direction:column;gap:24px;align-items:flex-start;width:100%">
@@ -1179,7 +1205,7 @@ section[id], .quotes, .process { scroll-margin-top: 64px; }
 </section>
 
 <!-- ============ FOOTER ============ -->
-<footer class="footer">
+<footer class="footer" data-section="footer">
   <div class="footer-in">
     <div class="footer-top" data-anim="reveal">
       <div class="footer-brand">

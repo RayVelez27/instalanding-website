@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { builders } from "@/data/builders";
 import { Github, Twitter, Mail, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import NewsletterModal from "@/components/NewsletterModal";
+import ContactModal from "@/components/ContactModal";
 import SignupField from "@/components/SignupField";
 
 /**
@@ -17,7 +17,10 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean }[] = [
   { to: "/systems", label: "SYSTEMS", soon: true },
   { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED
   { to: "/about", label: "ABOUT" },
-  { to: "/builders", label: "BUILDERS" },
+  { to: "/agents", label: "AGENTS" },
+  // BUILDERS is hidden, not removed: /builders and the per-builder pages still
+  // resolve (they are search landing pages). Restore this line to bring it back.
+  // { to: "/builders", label: "BUILDERS" },
 ];
 
 const BrandMark = () => (
@@ -28,7 +31,7 @@ const BrandMark = () => (
 
 const Sidebar = () => {
   const location = useLocation();
-  const [newsletterOpen, setNewsletterOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
 
@@ -57,8 +60,9 @@ const Sidebar = () => {
         <Twitter size={iconSize} />
       </a>
       <button
-        onClick={() => { setNewsletterOpen(true); handleNavClick(); }}
-        title="Newsletter"
+        onClick={() => { setContactOpen(true); handleNavClick(); }}
+        title="Contact"
+        aria-label="Contact Ray"
         className="sidebar-social-link"
       >
         <Mail size={iconSize} />
@@ -140,7 +144,7 @@ const Sidebar = () => {
         </div>
       )}
 
-      <NewsletterModal open={newsletterOpen} onClose={() => setNewsletterOpen(false)} />
+      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </>
   );
 };

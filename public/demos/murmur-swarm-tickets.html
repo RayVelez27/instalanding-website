@@ -1,4 +1,30 @@
 <!DOCTYPE html>
+<!--
+  INSTALANDING.AI · Holographic Ticket Landing Page
+  slug     holographic-ticket-landing-page
+  prompt   https://instalanding.ai/p/holographic-ticket-landing-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/holographic-ticket-landing-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --black-color, --paper, --petal, --albedo, --rose,
+            --line, --gold-grad (the one accent); ticket shape vars --stub/--stubw, --notch, --perf, --mask-v/--mask-h;
+            Oswald 200-700 from Google Fonts
+  sections  hero, marquee, lab, products, how-it-works, models, quote, cta, footer
+  scripts   three.js r128 + OrbitControls 0.128 + GSAP 3.12.5 + ScrollTrigger (cdnjs / jsdelivr), then one inline
+            script: sphere-swarm scene (fly-in timeline, breathing, raycast push, pairwise collisions, paused
+            off-screen by IntersectionObserver); chrome fade-in after the intro; ticket tilt + sheen; marquee
+            sheen tracking; .reveal / .parallax ScrollTriggers
+  assets    none: tickets, orbs and barcodes are CSS gradients/masks/box-shadows, social marks are inline SVG
+
+  ADAPTING
+  - Ticket die-cuts are four mask layers composited with intersect (plus -webkit-mask-composite: source-in);
+    switching to add returns a plain rectangle. Notches follow --stub, so change shape through the vars.
+  - The float loop uses the translate property and the pointer tilt writes transform; do not merge them.
+  - OrbitControls has zoom and pan off (else the wheel stops scrolling) and is disabled on coarse pointers;
+    the push only applies while the pointer is inside the hero rect, since mousemove is on window.
+  - The marquee band is wider than the viewport; html, body overflow-x: hidden is what keeps 390px clean.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -685,9 +711,9 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
 <body>
 
   <!-- ===== Hero ===== -->
-  <section class="hero" id="top">
+  <section class="hero" id="top" data-section="hero">
     <h1 class="main-txt">Murmur</h1>
-    <canvas class="webgl" id="webgl"></canvas>
+    <canvas class="webgl" id="webgl" aria-hidden="true"></canvas>
 
     <div class="hero-content">
       <header class="hide-text">
@@ -714,7 +740,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
           </div>
           <div class="bottom-desc">
             <div class="left-desc">
-              <h1 class="holo-num">X</h1>
+              <h1 class="holo-num" aria-hidden="true">X</h1>
               <a href="#contact" class="ticket wide hero-ticket" data-tilt="0.8" aria-label="Swarm v1.0 research preview, request early access">
                 <div class="ticket-bg"></div>
                 <div class="ticket-main">
@@ -733,7 +759,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
               <h2>Agents That Collide</h2>
             </div>
             <div class="right-desc">
-              <h1 class="holo-num">01</h1>
+              <h1 class="holo-num" aria-hidden="true">01</h1>
               <div class="desc-inner">
                 <span>Social Links</span>
                 <ul>
@@ -753,7 +779,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
   </section>
 
   <!-- ===== Marquee ===== -->
-  <div class="marquee" aria-hidden="true">
+  <div class="marquee" aria-hidden="true" data-section="marquee">
     <div class="marquee-band">
       <div class="ticket-bg"></div>
       <div class="marquee-shine"></div>
@@ -765,7 +791,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
   </div>
 
   <!-- ===== 02 Studio ===== -->
-  <section class="section" id="studio">
+  <section class="section" id="studio" data-section="lab">
     <div class="section-head reveal">
       <h2 class="section-title">The<br><span class="accent">Lab</span></h2>
       <span class="section-num">02 — Lab</span>
@@ -787,7 +813,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
   </section>
 
   <!-- ===== 03 Studies ===== -->
-  <section class="section" id="work">
+  <section class="section" id="work" data-section="products">
     <div class="section-head reveal">
       <h2 class="section-title">The Swarm<br><span class="accent">Platform</span></h2>
       <p>Six products, one idea: many small models working together beat one big model working alone.</p>
@@ -958,7 +984,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
   </section>
 
   <!-- ===== 04 Process ===== -->
-  <section class="section" id="process">
+  <section class="section" id="process" data-section="how-it-works">
     <div class="section-head reveal">
       <h2 class="section-title">How Swarm<br><span class="accent">Works</span></h2>
       <span class="section-num">04 — Platform</span>
@@ -992,7 +1018,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
   </section>
 
   <!-- ===== 05 Materials ===== -->
-  <section class="section" id="materials">
+  <section class="section" id="materials" data-section="models">
     <div class="section-head reveal">
       <h2 class="section-title">The Model<br><span class="accent">Family</span></h2>
       <p>Six in-house models, each tuned for a role in the swarm. Hover one to open it up.</p>
@@ -1110,7 +1136,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
   </section>
 
   <!-- ===== Quote ===== -->
-  <section class="quote">
+  <section class="quote" aria-label="Quote" data-section="quote">
     <blockquote class="reveal">
       “Intelligence isn't one big model. It's <span class="accent">many small ones colliding</span> until the right answer settles.”
       <cite>— Murmur Labs Research Notes</cite>
@@ -1118,7 +1144,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
   </section>
 
   <!-- ===== 06 Contact ===== -->
-  <section class="section" id="contact">
+  <section class="section" id="contact" data-section="cta">
     <div class="section-head reveal">
       <span class="section-num">06 — Early Access</span>
       <span class="section-num">Research preview open</span>
@@ -1160,7 +1186,7 @@ button { outline: none; border: none; cursor: pointer; font-family: inherit; }
   </section>
 
   <!-- ===== Footer ===== -->
-  <footer class="footer">
+  <footer class="footer" data-section="footer">
     <div class="footer-top">
       <div>
         <h5>Murmur Labs</h5>

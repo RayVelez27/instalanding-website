@@ -1,4 +1,32 @@
 <!doctype html>
+<!--
+  INSTALANDING.AI · Driving Cluster Dashboard
+  slug     driving-cluster-dashboard
+  prompt   https://instalanding.ai/p/driving-cluster-dashboard.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/driving-cluster-dashboard
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --accent (the live drive mode; every
+            chromatic thing reads it), --cyan/--eco/--sport, --void/--panel, --text/--mute,
+            --bloom/--neon-text (hover neon), --bar/--sb (fold maths), --display Chakra Petch /
+            --mono JetBrains Mono (Google Fonts)
+  sections  topbar, cluster, status-bar
+  scripts   one inline IIFE, no libraries: dial() glyph builder, MODES (eco/auto/sport), speedometer
+            geometry, speed/battery/range simulation, accelerator hold, seeded city map, rAF loop
+            gated by an IntersectionObserver on .cluster
+  assets    none: CSS conic-gradient bezels plus inline SVG glyphs, arc and generated map
+
+  ADAPTING
+  - Drive mode is a custom property: setMode() writes --accent on .cluster and on <html>. Restyle by
+    editing MODES[].accent / the --eco/--cyan/--sport tokens, not hard-coded colours.
+  - The fold is exact: --bar is the 60px topbar plus its 1px border. Change the topbar height and
+    update --bar, or the page grows a one-pixel scroll.
+  - The speedo scale (MAX 240, START -126, SPAN 252) drives the ticks, numbers, arc and needle
+    together; change all of them through those constants.
+  - Dial cardinals are full-diameter spokes rotated about their middle; do not re-place them with a
+    percentage translate (it resolves against each mark's own size).
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -601,8 +629,9 @@ h1, h2 { font-weight: 700; letter-spacing: -0.015em; line-height: 1.02; }
 </style>
 </head>
 <body>
+<h1 class="sr">Meridian driving cluster</h1>
 
-<header class="topbar">
+<header class="topbar" data-section="topbar">
   <div class="wrap">
     <span class="view">Driving cluster</span>
     <nav class="topnav" aria-label="Cluster">
@@ -616,18 +645,18 @@ h1, h2 { font-weight: 700; letter-spacing: -0.015em; line-height: 1.02; }
 
 <main>
   <!-- ============ CLUSTER ============ -->
-  <section class="stage" id="cluster">
+  <section class="stage" id="cluster" data-section="cluster" aria-label="Instrument cluster">
     <div class="wrap">
       <div class="cluster">
         <div class="cluster-top">
-          <span class="status"><i></i><span id="sys-state">Initialising</span></span>
+          <span class="status"><i aria-hidden="true"></i><span id="sys-state">Initialising</span></span>
           <span id="clock">--:--:-- UTC</span>
         </div>
         <div class="cluster-body">
         <div class="cluster-main">
 
         <div class="speedo-wrap">
-          <div class="speedo" id="speedo">
+          <div class="speedo" id="speedo" data-component="speedometer">
             <div class="dial-bezel" aria-hidden="true"></div>
             <div class="dial-cards" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
             <svg class="arc" viewBox="0 0 200 200" aria-hidden="true">
@@ -686,7 +715,7 @@ h1, h2 { font-weight: 700; letter-spacing: -0.015em; line-height: 1.02; }
         </dl>
         </div>
 
-        <aside class="cluster-map">
+        <aside class="cluster-map" data-component="route-map" aria-label="Route map">
           <div class="map-panel">
             <svg id="map" aria-hidden="true"></svg>
             <div class="ego" aria-hidden="true"></div>
@@ -706,7 +735,7 @@ h1, h2 { font-weight: 700; letter-spacing: -0.015em; line-height: 1.02; }
 </main>
 
 <!-- A dashboard has no page footer; the legal line lives in the status bar. -->
-<footer class="statusbar">
+<footer class="statusbar" data-section="status-bar">
   <span class="sb-left">
     <i class="sb-dot" aria-hidden="true"></i>
     <b>SIM</b> · Meridian is a fictional product — the vehicle, the route and every

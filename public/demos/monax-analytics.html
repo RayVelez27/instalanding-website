@@ -1,4 +1,29 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Monax Analytics Landing Page
+  slug     monax-analytics-landing-page
+  prompt   https://instalanding.ai/p/monax-analytics-landing-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/monax-analytics-landing-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of the main <style>: --bg #efede8, --bg-2, --ink #0d0d10, --mute, --line,
+            --green / --green-dark, the shadow stack --shadow-card/-soft/-pill/-dark, --ease-soft; Inter (Google Fonts)
+  sections  nav, hero, fan-stack, logos, product, features, testimonials, pricing, resources, footer
+  scripts   1) GSAP 3.12.5 + ScrollTrigger (cdnjs): intro timeline, pill bobs, fanned card stack, section reveals,
+               product-demo tabs, bento alert feed, stories carousel, monthly/annual toggle, demo newsletter (sends nothing)
+            2) dithered field: plain-WebGL port of FaultyTerminal, one canvas per [data-fx] host (data-fx-ink / data-fx-paper)
+  assets    none: all CSS gradients, inline SVG and SVG data URIs (grain, avatar glyph)
+
+  ADAPTING
+  - [data-fx] hosts get position:relative + isolation:isolate and a z-index:-1 canvas as first child; their CSS
+    gradient is the no-WebGL fallback, so keep it. Recolour via data-fx-ink / data-fx-paper, not CSS.
+  - Section reveals use ScrollTrigger.batch with clearProps:"transform" so CSS :hover lifts survive; never put a
+    second ScrollTrigger tween on the same element's transform.
+  - Fan-slot mouse parallax uses the CSS translate property, kept off GSAP's transform; keep them separate.
+  - The GSAP script runs gsap.set() initial states inline at parse time: an element renamed in the markup stays hidden.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Monax</title>
 <meta name="description" content="Single-file analytics SaaS landing page: warm grain, glossy 3D orbs, masked headline reveal, tabbed product demo, bento, pricing and GSAP motion." />
 
@@ -2423,25 +2448,25 @@ section[id] { scroll-margin-top: 90px; }
 
 </style>
 
-<div class="grain"></div>
+<div class="grain" aria-hidden="true"></div>
 
 <!-- ============ NAV ============ -->
-<nav class="nav">
+<nav class="nav" data-section="nav" aria-label="Primary">
   <div class="logo">Monax</div>
   <ul class="nav-links">
     <li><a href="#product">Products
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </a></li>
     <li><a href="#pricing">Pricing
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </a></li>
     <li><a href="#platform">About</a></li>
     <li><a href="#resources">Resources
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </a></li>
@@ -2450,7 +2475,7 @@ section[id] { scroll-margin-top: 90px; }
 </nav>
 
 <!-- ============ HERO ============ -->
-<section class="hero">
+<section class="hero" data-section="hero">
   <p class="eyebrow hero-eyebrow" id="heroEyebrow"><span><b>120+</b> data teams · <b>200+</b> connectors</span></p>
   <h1 class="headline" id="headline">
     <div class="line line-1">
@@ -2473,7 +2498,7 @@ section[id] { scroll-margin-top: 90px; }
 </section>
 
 <!-- ============ BELOW HERO: fanned card stack ============ -->
-<section class="fan-section" aria-label="What your team sees in Monax">
+<section class="fan-section" data-section="fan-stack" aria-label="What your team sees in Monax">
   <div class="fan-stage" id="fanStage">
     <div class="fan-ghost" aria-hidden="true"><span class="gl">r</span><span class="gl">e</span><span class="gl">a</span><span class="gl">l</span><span class="gl">&nbsp;</span><span class="gl">a</span><span class="gl">n</span><span class="gl">s</span><span class="gl">w</span><span class="gl">e</span><span class="gl">r</span><span class="gl">s</span></div>
 
@@ -2547,7 +2572,7 @@ section[id] { scroll-margin-top: 90px; }
 </section>
 
 <!-- ============ LOGO MARQUEE ============ -->
-<section class="logos" aria-label="Teams using Monax">
+<section class="logos" data-section="logos" aria-label="Teams using Monax">
   <p class="logos-label">Trusted by data-driven teams at</p>
   <div class="logo-marquee">
     <div class="logo-track">
@@ -2574,7 +2599,7 @@ section[id] { scroll-margin-top: 90px; }
 </section>
 
 <!-- ============ PRODUCT DEMO ============ -->
-<section class="section" id="product">
+<section class="section" id="product" data-section="product">
   <div class="sec-head">
     <div class="reveal">
       <div class="eyebrow">How it works · Three steps</div>
@@ -2681,7 +2706,7 @@ section[id] { scroll-margin-top: 90px; }
 </section>
 
 <!-- ============ BENTO ============ -->
-<section class="section" id="platform">
+<section class="section" id="platform" data-section="features">
   <div class="sec-head">
     <div class="reveal">
       <div class="eyebrow">The platform · Built in layers</div>
@@ -2739,7 +2764,7 @@ section[id] { scroll-margin-top: 90px; }
 </section>
 
 <!-- ============ CUSTOMER STORIES ============ -->
-<section class="section" id="stories">
+<section class="section" id="stories" data-section="testimonials">
   <div class="sec-head">
     <div class="reveal">
       <div class="eyebrow">Customer stories</div>
@@ -2798,7 +2823,7 @@ section[id] { scroll-margin-top: 90px; }
 </section>
 
 <!-- ============ PRICING ============ -->
-<section class="section" id="pricing">
+<section class="section" id="pricing" data-section="pricing">
   <div class="sec-head">
     <div class="reveal">
       <div class="eyebrow">Compare plans</div>
@@ -2857,7 +2882,7 @@ section[id] { scroll-margin-top: 90px; }
 </section>
 
 <!-- ============ RESOURCES ============ -->
-<section class="section" id="resources">
+<section class="section" id="resources" data-section="resources">
   <div class="sec-head">
     <div class="reveal">
       <div class="eyebrow">Resources</div>
@@ -2892,12 +2917,12 @@ section[id] { scroll-margin-top: 90px; }
 </section>
 
 <!-- ============ FOOTER ============ -->
-<footer class="footer" id="contact">
+<footer class="footer" id="contact" data-section="footer">
   <div class="footer-top">
     <div class="footer-brand">
       <div class="logo">Monax</div>
       <p>Analytics your whole team can actually use.</p>
-      <form class="newsletter">
+      <form class="newsletter" data-component="newsletter">
         <input type="email" name="email" placeholder="Work email" aria-label="Work email" autocomplete="email" required />
         <button type="submit" class="contact-pill">Subscribe</button>
       </form>

@@ -1,4 +1,29 @@
 <!DOCTYPE html>
+<!--
+  INSTALANDING.AI · Agent Run Transcript Page
+  slug     agent-run-transcript-page
+  prompt   https://instalanding.ai/p/agent-run-transcript-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/agent-run-transcript-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --paper #fff, --paper-dim, --ink #0b0b0a, --ink-70/45/25/12,
+            --halt #b3221d (the one red), --f-display EB Garamond, --f-label Space Grotesk, --f-mono IBM Plex Mono, --f-chrome Silkscreen
+  sections  nav, hero, logos, run-transcript, product, anatomy, compare, how-it-works, install, integrations,
+            testimonials, pricing, faq, cta, footer, field-manual
+  scripts   one inline script, no dependencies, numbered blocks: 1 STEPS data (the 24-step run), 2 derived totals,
+            3-7 state / tape build / render / transport / pointer-capture scrub, 7b-8 gauge rings + charts,
+            9-12b page wiring, manual dialog, install snippets, comparison sheet, 13 init
+  assets    none: inline SVG, an SVG-noise data URI for the paper grain; fonts from Google Fonts
+
+  ADAPTING
+  - STEPS is the single source of truth: totals, axis labels, docket and comparison numbers are derived from it at
+    boot, so edit the data, never a number in the copy.
+  - The live transcript line is kept centred by setting the log's own scrollTop; scrollIntoView would yank the
+    whole page inside an iframe.
+  - render() splits per-frame readouts (playhead, clock) from structural rebuilds guarded by lastI; keep that guard.
+  - Silkscreen (--f-chrome) must stay at 11px or larger, or its C rasterises as an O.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -716,7 +741,7 @@ section[id]{ scroll-margin-top:62px; }
 <div class="ruler ruler-right" aria-hidden="true"></div>
 
 <!-- ======================= NAV ======================= -->
-<header class="nav">
+<header class="nav" data-section="nav">
   <div class="nav-inner">
     <a class="nav-mark" href="#top"><span class="wm">Spool</span><span class="tag">Trace recorder</span></a>
     <nav class="nav-links" id="navLinks" aria-label="Sections">
@@ -732,7 +757,7 @@ section[id]{ scroll-margin-top:62px; }
 </header>
 
 <!-- ======================= HERO ======================= -->
-<section class="hero" id="top">
+<section class="hero" id="top" data-section="hero">
   <div class="jacket">
 
     <div class="jacket-row-top">
@@ -746,7 +771,7 @@ section[id]{ scroll-margin-top:62px; }
     </div>
 
     <div class="tape-strip">
-      <svg class="chart-svg" id="heroChart" viewBox="0 0 240 40" preserveAspectRatio="none">
+      <svg class="chart-svg" id="heroChart" viewBox="0 0 240 40" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="#0b0b0a"/>
@@ -811,7 +836,7 @@ section[id]{ scroll-margin-top:62px; }
   </div>
 </section>
 
-<div class="trust">
+<div class="trust" data-section="logos" role="region" aria-label="Teams recording runs">
   <div class="trust-inner">
     <span class="l">Recording runs at</span>
     <ul>
@@ -829,7 +854,7 @@ section[id]{ scroll-margin-top:62px; }
 <!-- ======================= THE DECK ======================= -->
 <div class="app" id="app">
 
-  <section class="band band--first" id="player">
+  <section class="band band--first" id="player" data-section="run-transcript">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">Thirty-eight seconds,<br/>one step at a time</h2>
@@ -838,7 +863,7 @@ section[id]{ scroll-margin-top:62px; }
       <p class="band-lede">This is a real recording of a fictional run: an agent reconciling a month of invoices against the ledger. Press play and watch it work, or grab the tape and go straight to the part that went wrong.</p>
       <div class="deck-stats"><span id="stats">—</span></div>
 
-      <main class="win" id="deck">
+      <main class="win" id="deck" data-component="tape-player">
       <div class="win-title">
         <button class="win-box" id="btnCover" title="Back to the cover" aria-label="Back to the cover"></button>
         <span class="win-title-text" id="winTitleText">RUN 4F2A1C — RECONCILE-INVOICES</span>
@@ -914,7 +939,7 @@ section[id]{ scroll-margin-top:62px; }
           <div class="gauges" id="gauges">
             <div class="gauge">
               <div class="ring" id="ringCtx">
-                <svg viewBox="0 0 100 100">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
                   <path class="ring-bg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
                   <path class="ring-fg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
                 </svg>
@@ -925,7 +950,7 @@ section[id]{ scroll-margin-top:62px; }
             </div>
             <div class="gauge">
               <div class="ring" id="ringSpend">
-                <svg viewBox="0 0 100 100">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
                   <path class="ring-bg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
                   <path class="ring-fg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
                 </svg>
@@ -936,7 +961,7 @@ section[id]{ scroll-margin-top:62px; }
             </div>
             <div class="gauge">
               <div class="ring" id="ringWall">
-                <svg viewBox="0 0 100 100">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
                   <path class="ring-bg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
                   <path class="ring-fg" d="M5,50 A45,45,0 1 1 95,50 A45,45,0 1 1 5,50"/>
                 </svg>
@@ -961,7 +986,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 02 — what it keeps ---------------- -->
-  <section class="band" id="product">
+  <section class="band" id="product" data-section="product">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">The run happened once.<br/>Keep it that way.</h2>
@@ -993,7 +1018,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 03 — anatomy of a step ---------------- -->
-  <section class="band" id="anatomy">
+  <section class="band" id="anatomy" data-section="anatomy">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">What one step<br/>looks like on the tape</h2>
@@ -1029,7 +1054,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 04 — two runs, one task ---------------- -->
-  <section class="band" id="compare">
+  <section class="band" id="compare" data-section="compare">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">The same task, twice,<br/>read side by side</h2>
@@ -1050,7 +1075,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 05 — how it works ---------------- -->
-  <section class="band" id="how">
+  <section class="band" id="how" data-section="how-it-works">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">Three moves,<br/>and then it is just there</h2>
@@ -1082,7 +1107,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 06 — recording ---------------- -->
-  <section class="band" id="install">
+  <section class="band" id="install" data-section="install">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">Wrap the loop once,<br/>keep every run after</h2>
@@ -1111,7 +1136,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 07 — what it clips onto ---------------- -->
-  <section class="band" id="works">
+  <section class="band" id="works" data-section="integrations">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">It clips onto<br/>whatever you have</h2>
@@ -1132,7 +1157,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 08 — voices ---------------- -->
-  <section class="band" id="voices">
+  <section class="band" id="voices" data-section="testimonials">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">What people find<br/>on the first tape they watch</h2>
@@ -1156,7 +1181,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 09 — rate card ---------------- -->
-  <section class="band" id="plans">
+  <section class="band" id="plans" data-section="pricing">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">One rate,<br/>counted in runs</h2>
@@ -1184,7 +1209,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- 10 — questions ---------------- -->
-  <section class="band" id="faq">
+  <section class="band" id="faq" data-section="faq">
     <div class="band-inner">
       <div class="band-head">
         <h2 class="band-title">Questions we get<br/>in the first week</h2>
@@ -1216,7 +1241,7 @@ section[id]{ scroll-margin-top:62px; }
   </section>
 
   <!-- ---------------- closer ---------------- -->
-  <section class="band" id="closer">
+  <section class="band" id="closer" data-section="cta">
     <div class="band-inner closer">
       <h2>Stop asking the agent what it did</h2>
       <p>Play the tape back and watch it. The run is thirty-eight seconds long; you can read it in two minutes.</p>
@@ -1227,7 +1252,7 @@ section[id]{ scroll-margin-top:62px; }
     </div>
   </section>
 
-  <footer class="sheet-footer">
+  <footer class="sheet-footer" data-section="footer">
     <strong>SPOOL is a fictional product and this run never happened.</strong> The trace, the task, the models, the
     timings, the token counts and the prices were all invented for this demo; nothing is recorded, and no data leaves the page.<br />
     keys — space play/pause &nbsp;·&nbsp; &#8592;/&#8594; step &nbsp;·&nbsp; home/end &nbsp;·&nbsp; 1/2/3 speed &nbsp;·&nbsp; ? manual
@@ -1235,7 +1260,7 @@ section[id]{ scroll-margin-top:62px; }
 </div>
 
 <!-- ======================= FIELD MANUAL ======================= -->
-<div class="overlay" id="helpOverlay">
+<div class="overlay" id="helpOverlay" data-section="field-manual">
   <div class="panel" role="dialog" aria-modal="true" aria-label="About the recorder">
     <div class="win-title">
       <button class="win-box" id="btnCloseHelp" aria-label="Close the manual"></button>

@@ -1,4 +1,28 @@
 <!DOCTYPE html>
+<!--
+  INSTALANDING.AI · Skewed Marquee Wall
+  slug     skewed-marquee-wall
+  prompt   https://instalanding.ai/p/skewed-marquee-wall.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/skewed-marquee-wall
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --ground #1b1e21, --panel, --well, --chrome / --chrome-hi,
+            --ink, --ok / --warn / --stop (+ -glow; semantic only), --speed (marquee multiplier), --f-display VT323, Geist body
+  sections  nav, hero, integrations, how-it-works, agents, guardrails, cta, footer
+  scripts   1) the run console: scripted planner, step-by-step simulated run with tool-call trace and approval gates,
+               fleet kill switch; asks window.claude.use("sample") for live plans when hosted inside Claude, else offline
+            2) scroll reveals: IntersectionObserver over a [selector, kind] table, skipped under reduced motion
+            No CDN libraries; fonts from Google Fonts.
+  assets    none: all CSS and inline SVG
+
+  ADAPTING
+  - Each .marquee holds TWO identical .marquee__group children (the second aria-hidden); the keyframe ends at
+    translateX(calc(-100% - var(--gap))), not -100%, or the strip jumps one gap per cycle.
+  - Lane speed is --duration / --speed per .marquee; the kill switch pauses every lane via body.stopped, so keep that class hook.
+  - body uses overflow-x: clip, not hidden, so the skewed bands overhang without a scrollbar and the sticky bar still sticks.
+  - Nothing leaves the page: runs are simulated even when Claude writes the plan.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1226,7 +1250,7 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
 <body class="spinning">
 <a class="sr-only" href="#main">Skip to content</a>
 
-<header class="topbar">
+<header class="topbar" data-section="nav">
   <a class="brand" href="#top"><span class="dome" aria-hidden="true"></span>SKEWSHOP</a>
   <nav aria-label="Primary">
     <a href="#console">Run console</a>
@@ -1242,7 +1266,7 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
 
 <main id="main">
   <!-- ─── HERO ─── -->
-  <section class="hero" id="top">
+  <section class="hero" id="top" data-section="hero">
     <div class="hero-reels" aria-hidden="true">
       <div class="marquee marquee--skew " id="laneA" style="--duration: 70s"><div class="marquee__group"><article class="tile"><div class="tile-top"><span class="dot dot--ok"></span><span>Support desk</span><time>0:38</time></div><p>Closed 23 tickets, escalated 2 billing disputes</p><span class="tile-tools">zendesk · slack</span></article><article class="tile"><div class="tile-top"><span class="dot dot--warn"></span><span>Finance close</span><time>1:12</time></div><p>Waiting on approval: 6 adjusting entries</p><span class="tile-tools">stripe · postgres</span></article><article class="tile"><div class="tile-top"><span class="dot dot--ok"></span><span>Inventory</span><time>0:51</time></div><p>Drafted 3 restock orders under two weeks of cover</p><span class="tile-tools">shopify · gmail</span></article><article class="tile"><div class="tile-top"><span class="dot dot--ok"></span><span>Catalog QA</span><time>0:24</time></div><p>Fixed 41 product pages with missing alt text</p><span class="tile-tools">shopify</span></article><article class="tile"><div class="tile-top"><span class="dot dot--ok"></span><span>Research</span><time>2:06</time></div><p>Priced 18 competitor SKUs, flagged 4 undercuts</p><span class="tile-tools">web · sheets</span></article></div><div class="marquee__group" aria-hidden="true"><article class="tile"><div class="tile-top"><span class="dot dot--ok"></span><span>Support desk</span><time>0:38</time></div><p>Closed 23 tickets, escalated 2 billing disputes</p><span class="tile-tools">zendesk · slack</span></article><article class="tile"><div class="tile-top"><span class="dot dot--warn"></span><span>Finance close</span><time>1:12</time></div><p>Waiting on approval: 6 adjusting entries</p><span class="tile-tools">stripe · postgres</span></article><article class="tile"><div class="tile-top"><span class="dot dot--ok"></span><span>Inventory</span><time>0:51</time></div><p>Drafted 3 restock orders under two weeks of cover</p><span class="tile-tools">shopify · gmail</span></article><article class="tile"><div class="tile-top"><span class="dot dot--ok"></span><span>Catalog QA</span><time>0:24</time></div><p>Fixed 41 product pages with missing alt text</p><span class="tile-tools">shopify</span></article><article class="tile"><div class="tile-top"><span class="dot dot--ok"></span><span>Research</span><time>2:06</time></div><p>Priced 18 competitor SKUs, flagged 4 undercuts</p><span class="tile-tools">web · sheets</span></article></div></div>
       <div class="marquee marquee--rails marquee--skew" style="--duration: 90s"><div class="marquee__group"><p class="readout">Brief it <em>·</em> gate it <em>·</em> ship it <em>·</em></p><p class="readout">Brief it <em>·</em> gate it <em>·</em> ship it <em>·</em></p><p class="readout">Brief it <em>·</em> gate it <em>·</em> ship it <em>·</em></p></div><div class="marquee__group" aria-hidden="true"><p class="readout">Brief it <em>·</em> gate it <em>·</em> ship it <em>·</em></p><p class="readout">Brief it <em>·</em> gate it <em>·</em> ship it <em>·</em></p><p class="readout">Brief it <em>·</em> gate it <em>·</em> ship it <em>·</em></p></div></div>
@@ -1265,7 +1289,7 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
       </div>
 
       <!-- ─── THE RUN CONSOLE ─── -->
-      <section class="console" id="console" aria-label="Run console">
+      <section class="console" id="console" data-component="run-console" aria-label="Run console">
         <div class="console-body">
           <div class="c-bar">
             <span class="c-bar-title"><span class="dome" aria-hidden="true"></span>Run console</span>
@@ -1358,13 +1382,13 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
   </section>
 
   <!-- ─── STACK ─── -->
-  <section class="stack-band" aria-label="Integrations">
+  <section class="stack-band" data-section="integrations" aria-label="Integrations">
     <div class="stack-band-label">Works inside the tools your shop already runs on</div>
     <div class="marquee" style="--duration: 50s; --gap: 2.4rem"><div class="marquee__group"><span class="tool-name">Shopify</span><span class="tool-name">Stripe</span><span class="tool-name">Zendesk</span><span class="tool-name">Gmail</span><span class="tool-name">Slack</span><span class="tool-name">Postgres</span><span class="tool-name">HubSpot</span><span class="tool-name">Linear</span><span class="tool-name">Google Sheets</span><span class="tool-name">Shippo</span><span class="tool-name">Notion</span><span class="tool-name">QuickBooks</span></div><div class="marquee__group" aria-hidden="true"><span class="tool-name">Shopify</span><span class="tool-name">Stripe</span><span class="tool-name">Zendesk</span><span class="tool-name">Gmail</span><span class="tool-name">Slack</span><span class="tool-name">Postgres</span><span class="tool-name">HubSpot</span><span class="tool-name">Linear</span><span class="tool-name">Google Sheets</span><span class="tool-name">Shippo</span><span class="tool-name">Notion</span><span class="tool-name">QuickBooks</span></div></div>
   </section>
 
   <!-- ─── HOW A RUN WORKS ─── -->
-  <section class="section wrap" id="how">
+  <section class="section wrap" id="how" data-section="how-it-works">
     <div class="section-head">
       <h2>Every job takes the same five steps, in the same order.</h2>
       <p>The order is the product. An agent can't act before it has a plan you can read, and it can't touch money or customers without passing a gate.</p>
@@ -1379,7 +1403,7 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
   </section>
 
   <!-- ─── AGENTS ─── -->
-  <section class="section wrap" id="agents" style="padding-top: 0">
+  <section class="section wrap" id="agents" data-section="agents" style="padding-top: 0">
     <div class="section-head">
       <h2>Six agents, each with one job and a short leash.</h2>
       <p>Each one gets only the tools its job needs and its own approval rules. Add them one at a time.</p>
@@ -1388,7 +1412,7 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
   </section>
 
   <!-- ─── GUARDRAILS ─── -->
-  <section class="section wrap" id="guardrails" style="padding-top: 0">
+  <section class="section wrap" id="guardrails" data-section="guardrails" style="padding-top: 0">
     <div class="split">
       <div>
         <div class="section-head">
@@ -1410,7 +1434,7 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
   </section>
 
   <!-- ─── CLOSING ─── -->
-  <section class="closing" aria-label="Get started">
+  <section class="closing" data-section="cta" aria-label="Get started">
     <div class="marquee marquee--skew-reverse closing-band" style="--duration: 45s"><div class="marquee__group"><p class="readout">Brief it · Gate it · <em>Ship it</em> ·</p><p class="readout">Brief it · Gate it · <em>Ship it</em> ·</p></div><div class="marquee__group" aria-hidden="true"><p class="readout">Brief it · Gate it · <em>Ship it</em> ·</p><p class="readout">Brief it · Gate it · <em>Ship it</em> ·</p></div></div>
     <div class="wrap">
       <div class="cta">
@@ -1470,7 +1494,7 @@ html.reveal-ready [data-reveal]:not(.is-in) { opacity: 0; }
   </section>
 </main>
 
-<footer>
+<footer data-section="footer">
   <div class="wrap footer-row">
     <span>SKEWSHOP is a fictional product. The marquees are real CSS.</span>
     <span>Lanes: two groups, one keyframe, one translate.</span>

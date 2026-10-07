@@ -5,7 +5,7 @@
  * Gives an agent the prompt library without a browser: search it, pull a
  * one-shot prompt, read a single-file demo's source.
  *
- *   claude mcp add instalanding -- npx -y instalanding-mcp
+ *   claude mcp add instalanding -- npx -y instalanding mcp
  *
  * Point it somewhere else with INSTALANDING_BASE_URL (or --base-url), e.g. at a
  * local dev server while you are adding prompts.
@@ -13,9 +13,9 @@
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { DEMO_INLINE_LIMIT, Library, LibraryError, rank } from "./library.js";
+import { DEMO_INLINE_LIMIT, Library, LibraryError, formatInspect, rank } from "./library.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
 const argFor = (flag) => {
   const index = process.argv.indexOf(flag);
@@ -56,6 +56,8 @@ const describe = (entry) =>
     `slug: ${entry.slug}`,
     `category: ${entry.categoryLabel ?? entry.category}`,
     `${entry.description}`,
+    entry.bestFor?.length ? `best for: ${entry.bestFor.join(", ")}` : null,
+    entry.style?.length ? `style: ${entry.style.join(", ")}` : null,
     `prompt: ~${entry.approxPromptTokens ?? Math.round((entry.promptChars ?? 0) / 4)} tokens · get_prompt("${entry.slug}")`,
     entry.demoUrl
       ? `demo: ${entry.demoUrl}`
@@ -76,10 +78,12 @@ const server = new McpServer(
   {
     instructions:
       "The INSTALANDING.AI library of one-shot prompts for landing pages and UI components. " +
-      "Start with search_prompts to find a component, then get_prompt to read the full brief and " +
-      "build from it. Prompts are prose briefs, not code — follow the brief and write the code " +
-      "yourself. get_demo_source returns a working reference implementation as a single HTML file, " +
-      "which is large: read it only when the prompt alone is not enough.",
+      "Search with search_prompts (plain words: what it is for and how it should look), " +
+      "check a candidate with inspect_prompt (stack, sections, best-for, size — cheap), then " +
+      "get_prompt to read the full brief and build from it. Prompts are prose briefs, not code — " +
+      "follow the brief and write the code yourself, in the user's stack. get_demo_source returns " +
+      "a working reference implementation as a single HTML file, which is large: read it only when " +
+      "the prompt alone is not enough, and lift sections by their data-section attribute.",
   }
 );
 
@@ -122,10 +126,26 @@ server.registerTool(
         "",
         ...results.map(describe),
         "",
-        `Then: get_prompt("<slug>") for the full brief.`,
+        `Then: inspect_prompt("<slug>") to check the fit, get_prompt("<slug>") for the full brief.`,
       ].join("\n\n")
     );
   })
+);
+
+server.registerTool(
+  "inspect_prompt",
+  {
+    title: "Inspect a prompt",
+    description:
+      "Check whether an entry fits before reading it: its stack (libraries, fonts, WebGL/canvas), " +
+      "its sections in order, what it is best for, its style, and the size of the prompt and demo. " +
+      "A few hundred tokens — much cheaper than get_prompt.",
+    inputSchema: {
+      slug: z.string().describe('Prompt slug, e.g. "monax-analytics-landing-page".'),
+    },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  guard(async ({ slug }) => text(formatInspect(await library.entry(slug))))
 );
 
 server.registerTool(
@@ -296,7 +316,7 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   // stdout is the protocol channel — anything human goes to stderr.
-  console.error(`instalanding-mcp ${VERSION} → ${library.baseUrl}`);
+  console.error(`instalanding mcp ${VERSION} → ${library.baseUrl}`);
 }
 
 main().catch((error) => {

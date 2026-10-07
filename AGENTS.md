@@ -1,8 +1,8 @@
 # AGENTS.md
 
 Guide for coding agents working **in** this repository. If you want to *use* the library
-from an agent instead, see [`mcp/README.md`](mcp/README.md) or fetch `/llms.txt` from the
-deployed site.
+from an agent instead, read [`mcp/SKILL.md`](mcp/SKILL.md) (served at `/SKILL.md`), see
+[`mcp/README.md`](mcp/README.md), or fetch `/llms.txt` from the deployed site.
 
 ## What this is
 
@@ -24,7 +24,10 @@ src/index.css              all app styling (plain CSS, not Tailwind classes, for
 public/demos/*.html        single-file reference implementations
 public/thumbs/*.jpg        tile screenshots, 1200x600 (2:1)
 plugins/library-endpoints.mjs   emits the agent-readable endpoints at build, serves them in dev
-mcp/                       the MCP server (its own package, own node_modules)
+mcp/                       the `instalanding` npm package: CLI (src/cli.js), MCP server
+                           (src/index.js), shared reader (src/library.js) and SKILL.md.
+                           Its own package, own node_modules. Not yet published to npm.
+src/pages/Agents.tsx       /agents, the manifesto. NPM_PUBLISHED at the top gates the npx note
 ```
 
 ## Commands
@@ -64,6 +67,12 @@ and the MCP server's results — derives from one object in `src/data/prompts.ts
 | `video` | `/previews/<name>.mp4` for a motion preview (see below) |
 | `videoAspect` | `portrait` \| `landscape` \| `square` |
 | `credits` | Required when the component is built on someone else's work (see below) |
+| `bestFor` | 3–5 use cases in the words an agent searches with: `"AI infrastructure"`, `"developer tools"` |
+| `style` | 4–6 look descriptors: `"dark"`, `"editorial"`, `"webgl"`, `"glassmorphism"`. Searched and shown by `inspect` |
+
+Do not add `sections` or `stack` to an entry: the endpoint plugin reads both off the demo file
+(its `data-section` attributes, CDN script URLs, Google Fonts and canvas/WebGL use), so they
+cannot drift from the code.
 
 ### Grid shape
 
@@ -148,6 +157,24 @@ images, no `pravatar`, no CDN product photos. The file must work opened directly
 
 If the component is real-brand adjacent or the content could be mistaken for genuine, make the
 brand obviously fictional and say so in a legal line.
+
+### Making the demo readable by agents
+
+Every demo is also read by agents that will edit it, so three things are required:
+
+- **A header comment** directly after `<!doctype html>`: title, slug, the `/p/<slug>.txt` URL,
+  the page URL and the licence, then a **MAP** (where the tokens live, the `data-section` names
+  in order, one line per script saying what it drives, what is inlined) and **ADAPTING** notes
+  (the specific things that break when edited naively — usually the prompt's own warnings).
+  Every line must be true of the file. The `/agents` page shows the fire button's header live.
+- **`data-section="<name>"` on every top-level region**, in order: `nav`, `hero`, `features`,
+  `how-it-works`, `stats`, `testimonials`, `pricing`, `faq`, `cta`, `footer`, or a short specific
+  name. `data-component` marks a widget worth lifting on its own. When the DOM is built in
+  script, set the attribute where the element is made — the plugin also matches
+  `"data-section":"x"` and `dataset.section = "x"`. Never tag elements after the fact.
+- **The accessibility floor**: `<html lang>`, one `<h1>`, a `<main>` (or `role="main"`), labels on
+  icon-only controls, `aria-hidden` on decorative canvases and art. Agents that browse read the
+  accessibility tree.
 
 ### Scroll reveals
 
@@ -313,14 +340,20 @@ Generated at build by `plugins/library-endpoints.mjs`, served from memory in dev
 
 | path | what it is |
 | --- | --- |
-| `/prompts.json` | manifest: every entry's metadata, URLs, token estimate, credits |
+| `/prompts.json` | manifest: every entry's metadata, URLs, token estimate, credits, `bestFor`, `style`, and — read off the demo — `sections`, `stack`, `demoBytes` |
 | `/p/<slug>.txt` | one prompt, raw, ready to paste verbatim |
 | `/p/<slug>.json` | the same prompt plus its metadata |
 | `/llms.txt` | markdown index of the library, per the llms.txt convention |
-| `/sitemap.xml` | every crawlable route: library, categories, builder pages, about |
+| `/SKILL.md` | the agent skill, from `mcp/SKILL.md` with URLs rewritten to `SITE_URL` |
+| `/sitemap.xml` | every crawlable route: library, categories, agents, builder pages, about |
 
 Entries carry `videoUrl` and `repoUrl` in the manifest, so an agent can tell a repo-hosted
 template from a single-file demo without fetching anything.
+
+The CLI and the MCP server both read these files through `mcp/src/library.js`, and share its
+`rank` and `formatInspect`, so `instalanding inspect` and the `inspect_prompt` tool always
+agree. Test both against the dev server: `node mcp/test/cli.js http://localhost:8081` and
+`node mcp/test/smoke.js http://localhost:8081`.
 
 Keep these promises when changing the plugin: `prompts.json` always has a `prompts` array, slugs
 are stable, `/p/<slug>.txt` is the prompt **and nothing else** (no header, no banner — it gets

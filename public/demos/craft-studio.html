@@ -1,4 +1,32 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · CRAFT Studio WebGL Landing Page
+  slug     craft-studio-webgl-landing-page
+  prompt   https://instalanding.ai/p/craft-studio-webgl-landing-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/craft-studio-webgl-landing-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    two :root blocks in <style>: --bg #e8e9ec, --paper, --ink #0d0f14, --mute, --line, --prism (the only accent,
+            a 5-stop gradient), --ease cubic-bezier(.7,0,.2,1), --pad; then --serif (Instrument Serif), --mono
+            (JetBrains Mono), --lift. Body face: Inter Tight (Google Fonts)
+  sections  nav, hero, product, about, features, customers, metrics, pricing, contact, footer
+  scripts   import map: Three.js 0.170 + addons (jsDelivr)
+            classic <script>: word-by-word statement lighting, reveals, count-ups, footer clock, billing toggle, forms
+            module 1: hero, glass TorusKnot (MeshPhysicalMaterial + RoomEnvironment) over the headline as a CanvasTexture
+            module 2: lens bands, the same glass knot rendered over each [data-lens] band on #lens-layer
+  assets    none binary: CSS/SVG only, SVG-noise grain as a data: URI; fonts from Google Fonts
+
+  ADAPTING
+  - The hero headline is read from the sr-only <h1 id="headline"> spans and drawn into the WebGL scene; edit
+    those spans (and .hero-fallback, shown under html.no-webgl), not the canvas. BG/INK in module 1 duplicate
+    --bg/--ink: change both.
+  - Both modules wait for document.fonts.load('900 100px "Inter Tight"') before drawing; swap the family there
+    too, or the canvas type renders in a fallback face.
+  - Each lens band carries data-lens-bg / data-lens-ink; they must match the section it sits on or the glass
+    shows a seam. The hero loop only runs while .hero-spacer is on screen (IntersectionObserver).
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Refract AI</title>
 <meta name="description" content="Refract is the AI platform for teams that ship: retrieval, agents, evals and guardrails on your own data." />
 
@@ -846,7 +874,7 @@ body::after {
   <span>workflow</span>
 </h1>
 
-<nav class="nav" aria-label="Primary">
+<nav class="nav" aria-label="Primary" data-section="nav">
   <a class="nav__logo" href="#top">Refract&reg;</a>
   <div class="nav__right">
     <ul class="nav__links">
@@ -865,7 +893,7 @@ body::after {
 </div>
 
 <main id="top">
-  <div class="hero-spacer">
+  <div class="hero-spacer" data-section="hero">
     <div class="hero-cta">
       <a class="btn btn--ink" href="#contact">Start building free</a>
       <a class="btn btn--glass" href="#platform">See the platform <span aria-hidden="true">→</span></a>
@@ -873,7 +901,7 @@ body::after {
   </div>
 
   <!-- PRODUCT -->
-  <section class="section showcase" aria-label="Product preview">
+  <section class="section showcase" aria-label="Product preview" data-section="product">
     <div class="app reveal">
       <div class="app-bar" aria-hidden="true">
         <div class="app-dots"><i></i><i></i><i></i></div>
@@ -934,7 +962,7 @@ body::after {
   </section>
 
   <!-- 01 STUDIO -->
-  <section class="section" id="about">
+  <section class="section" id="about" aria-label="Why Refract" data-section="about">
     <div class="label"><span>(01)</span><span>Why Refract</span></div>
     <p class="statement" data-words>
       Refract is the AI platform for teams that ship. Connect your data, deploy <em>agents, copilots and search</em> in days, and keep every answer grounded, cited and auditable.
@@ -963,7 +991,7 @@ reply = agent.run(<span class="s">"Why was order #4821 refunded?"</span>)
   </section>
 
   <!-- 02 CAPABILITIES -->
-  <section class="section" id="platform">
+  <section class="section" id="platform" aria-label="Platform" data-section="features">
     <div class="label"><span>(02)</span><span>Platform</span></div>
     <ol class="svc">
       <li class="svc-row reveal"><span class="svc-num">01</span><h3>Retrieval</h3><p>Hybrid vector and keyword search over 40+ sources, re-ranked and kept in sync with permissions.</p><span class="svc-arrow" aria-hidden="true">↗</span></li>
@@ -974,7 +1002,7 @@ reply = agent.run(<span class="s">"Why was order #4821 refunded?"</span>)
   </section>
 
   <!-- 03 WORK -->
-  <section class="section" id="customers">
+  <section class="section" id="customers" data-section="customers">
     <div class="label"><span>(03)</span><span>Customers</span></div>
     <div class="work-head">
       <h2 class="display reveal">In<br /><span class="serif">production</span></h2>
@@ -1062,7 +1090,7 @@ reply = agent.run(<span class="s">"Why was order #4821 refunded?"</span>)
   </section>
 
   <!-- 04 NUMBERS -->
-  <section class="section numbers" id="metrics" aria-labelledby="numbers-title">
+  <section class="section numbers" id="metrics" aria-labelledby="numbers-title" data-section="metrics">
     <div class="label"><span>(04)</span><span id="numbers-title">In numbers</span></div>
     <div class="lens-wrap">
       <div class="lens lens--dark" data-lens="Measured" data-lens-bg="#0d0f14" data-lens-ink="#e8e9ec" aria-hidden="true" style="--fit: 18cqi"><span>Measured</span></div>
@@ -1089,11 +1117,11 @@ reply = agent.run(<span class="s">"Why was order #4821 refunded?"</span>)
   </section>
 
   <!-- 05 PRICING -->
-  <section class="section" id="pricing">
+  <section class="section" id="pricing" data-section="pricing">
     <div class="label"><span>(05)</span><span>Pricing</span></div>
     <div class="pricing-head">
       <h2 class="display reveal">Simple<br /><span class="serif">pricing</span></h2>
-      <div class="billing" role="group" aria-label="Billing period">
+      <div class="billing" role="group" aria-label="Billing period" data-component="billing-toggle">
         <button type="button" data-billing="monthly" aria-pressed="false">Monthly</button>
         <button type="button" data-billing="annual" aria-pressed="true">Annual<small>−20%</small></button>
       </div>
@@ -1125,7 +1153,7 @@ reply = agent.run(<span class="s">"Why was order #4821 refunded?"</span>)
   </section>
 
   <!-- 06 CONTACT -->
-  <section class="section" id="contact">
+  <section class="section" id="contact" data-section="contact">
     <div class="label"><span>(06)</span><span>Get started</span></div>
     <div class="contact-grid">
       <div>
@@ -1151,7 +1179,7 @@ reply = agent.run(<span class="s">"Why was order #4821 refunded?"</span>)
   </section>
 </main>
 
-<footer class="footer">
+<footer class="footer" data-section="footer">
   <div class="foot">
     <div class="lens" data-lens="Ship it" data-lens-bg="#f6f7f9" data-lens-ink="#0d0f14" aria-hidden="true" style="--fit: 21cqi"><span>Ship it</span></div>
     <div class="foot-cta">

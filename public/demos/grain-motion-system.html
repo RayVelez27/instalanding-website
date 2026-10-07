@@ -1,4 +1,32 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Grain Motion System Page
+  slug     grain-motion-system-page
+  prompt   https://instalanding.ai/p/grain-motion-system-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/grain-motion-system-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    two layers. @layer tokens :root = the lake scene's oklch palette (--color-sky-*, --color-rose, --color-flame ...).
+            The unlayered :root after it = the page: --bg, --surface, --ink, --accent (= --color-rose), --accent-text,
+            --ease-enter/-exit/-standard/-spring, --d-micro..--d-slow (80-400ms), --shadow-*, --f-display (Cherry Bomb One),
+            --f-ui (Geist), --f-mono (Geist Mono), --dither (base64 PNG)
+  sections  nav, hero, specs, features, build, console, pricing, faq, cta, footer
+  scripts   one inline <script>, no libraries: burger + data-goto scroll buttons, copy buttons, hero run card replay,
+            console tabs, modal, approval checkpoint flow, reduced motion pauses the SMIL film grain
+  assets    the CSS-painted autumn lake (.lake, divs only), inline SVG film-grain filter (#lakeGrain) with SMIL seed
+            animation, base64 PNG dither in --dither, SVG noise as data: URIs; fonts from Google Fonts
+
+  ADAPTING
+  - The lake scales from container units (--u = 100cqi / --scene-grid on .lake, container-type: inline-size); give it
+    a width, never a fixed height, or every piece drifts out of register.
+  - Sticker type duplicates its text in data-text (the die-cut outline is ::before content:attr(data-text)); the
+    h1 and closing h2 carry the sentence again in aria-label. Change all three together.
+  - The page's own styles are unlayered on purpose so they beat the scene's @layer rules; adding them inside a layer
+    makes the scene's dark centred page win.
+  - CSS cannot stop a SMIL animation: under reduced motion the script calls pauseAnimations() on #lakeGrain. Keep the id.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>GRAIN</title>
 <meta name="description" content="GRAIN is a fictional runtime for long-horizon AI agents: durable steps, human checkpoints and replayable traces." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1870,7 +1898,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </style>
 
 <!-- ══ NAV ══ -->
-<header class="nav">
+<header class="nav" data-section="nav">
   <div class="wrap nav-in">
     <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><b class="sticker" data-text="Grain">Grain</b></a>
     <nav class="nav-links" id="navLinks" aria-label="Sections">
@@ -1886,7 +1914,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </header>
 
 <!-- ══ HERO ══ -->
-<section class="hero" id="top">
+<section class="hero" id="top" data-section="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <span class="pill"><b>v3.0</b> Human checkpoints now route to Slack and email</span>
@@ -2019,7 +2047,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </section>
 
 <!-- ══ SPECS ══ -->
-<div class="specs">
+<div class="specs" data-section="specs">
   <div class="wrap specs-in">
     <div class="spec"><b>18 ms</b><span>median overhead per step</span></div>
     <div class="spec"><b>Any step</b><span>resumes after a crash</span></div>
@@ -2029,7 +2057,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </div>
 
 <!-- ══ PLATFORM ══ -->
-<section class="band" id="platform">
+<section class="band" id="platform" data-section="features">
   <div class="wrap">
     <div class="band-head">
       <div>
@@ -2292,7 +2320,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </section>
 
 <!-- ══ BUILD ══ -->
-<section class="band" id="build">
+<section class="band" id="build" data-section="build">
   <div class="wrap build">
     <div>
       <h2 class="band-title">An agent is twenty lines. <em>The guardrail is five.</em></h2>
@@ -2316,7 +2344,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </section>
 
 <!-- ══ CONSOLE ══ -->
-<section class="band" id="console">
+<section class="band" id="console" data-section="console">
   <div class="wrap">
     <div class="band-head">
       <div>
@@ -2398,7 +2426,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </section>
 
 <!-- ══ PRICING ══ -->
-<section class="band" id="pricing">
+<section class="band" id="pricing" data-section="pricing">
   <div class="wrap">
     <div class="band-head">
       <div>
@@ -2448,7 +2476,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </section>
 
 <!-- ══ FAQ ══ -->
-<section class="band" id="faq">
+<section class="band" id="faq" data-section="faq">
   <div class="wrap faq-grid">
     <div>
       <h2 class="band-title">What teams ask <em>before the first deploy.</em></h2>
@@ -2475,7 +2503,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </section>
 
 <!-- ══ CLOSER ══ -->
-<section class="band" style="padding-top:0; border-top:0">
+<section class="band" style="padding-top:0; border-top:0" data-section="cta">
   <div class="wrap">
     <div class="sunset">
       <div class="sunset-art scene" aria-hidden="true">
@@ -2551,7 +2579,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
   </div>
 </section>
 
-<footer class="foot">
+<footer class="foot" data-section="footer">
   <div class="wrap foot-in">
     <small><b>Grain is a fictional product and nothing here is real.</b><br />The company, the version number, the figures, the prices and the install command were all invented for a design demo. Nothing is installed, nothing is bought, and no data leaves this page.</small>
     <div class="foot-links"><span>Docs</span><span>Changelog</span><span>Status</span><span>© 2026</span></div>
@@ -2559,7 +2587,7 @@ table.evals{ width:100%; min-width:560px; border-collapse:collapse; font-size:14
 </footer>
 
 <!-- ══ MODAL ══ -->
-<div class="backdrop" id="backdrop">
+<div class="backdrop" id="backdrop" data-component="modal">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <span class="dith modal-art" aria-hidden="true"></span>
     <h3 id="modalTitle"></h3>

@@ -1,4 +1,28 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Recessed Aperture Hero Page
+  slug     recessed-aperture-hero-page
+  prompt   https://instalanding.ai/p/recessed-aperture-hero-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/recessed-aperture-hero-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+           Aperture and drifting pills adapted from a pen by Rafaela Lucas (credited in the footer).
+
+  MAP
+  tokens    :root custom properties at the top of the main <style>: --bg-1 #5531b8 (the flat surface), --bg-2/--bg-3,
+            --coral, --cream, --g-warm / --g-cool gradients, --nm-lit / --nm-dim (soft-UI light and shade), --sans Barlow, --cond Barlow Condensed
+  sections  nav, hero, features, stats, how-it-works, console, pricing, faq, footer
+  scripts   one inline script, no libraries: hero aperture pointer parallax over [data-depth] layers; eviction-policy
+            console (range + switches -> strip, dial, verdict); hero ask form with mode tabs writing JSON into #code;
+            nav sheet menu (focus trap, Esc, scroll-spy); demo subscribe form (sends nothing)
+  assets    none: CSS shapes and inline SVG; fonts from Google Fonts
+
+  ADAPTING
+  - Soft-UI surfaces (.nm + --offset/--inset/--inner) cast via ::before/::after at z-index -1, so .nm keeps z-index 0
+    as its own stacking context; never give one overflow:hidden or the shadow is clipped and it goes flat.
+  - The page background must stay the flat --bg-1 the surfaces are filled with; a gradient behind them gives the trick away.
+  - Parallax moves the [data-depth] layer; keyframe a child inside it, never the layer itself, or the keyframe wins.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Mnemo — a million tokens your agent can reach</title>
 <meta name="description" content="A fictional context layer for agents, staged inside a recessed parallax aperture with tokens drifting through it. One file, no images, no libraries." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1037,7 +1061,7 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
   .f-sep { display: none; }
 }
 </style>
-<nav>
+<nav data-section="nav" aria-label="Primary">
   <div class="menu">
     <a class="brand" href="#top" aria-label="Mnemo home">
       <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
@@ -1087,7 +1111,7 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
   </div>
 </nav>
 
-<header class="stage" id="top">
+<header class="stage" id="top" data-section="hero">
   <div class="scene" id="scene" aria-hidden="true">
     <div class="layer disc" data-depth="1.2"></div>
     <div class="layer l-one" data-depth="0.9">
@@ -1178,7 +1202,7 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
 </header>
 
 <main class="band">
-  <section class="sec" id="window">
+  <section class="sec" id="window" data-section="features">
     <div class="wrap">
       <div class="sec-head">
         <p class="eyebrow">What sits in the aperture</p>
@@ -1208,7 +1232,7 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
     </div>
   </section>
 
-  <section class="sec" style="padding-top: 0">
+  <section class="sec" style="padding-top: 0" data-section="stats" aria-label="Numbers">
     <div class="wrap">
       <div class="stats">
         <div class="stat nm nm--inset"><b>1M</b><span>tokens addressable per run</span></div>
@@ -1220,7 +1244,7 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
     </div>
   </section>
 
-  <section class="sec" id="how" style="padding-top: 0">
+  <section class="sec" id="how" data-section="how-it-works" style="padding-top: 0">
     <div class="wrap">
       <div class="sec-head">
         <p class="eyebrow">Three calls</p>
@@ -1246,14 +1270,14 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
     </div>
   </section>
 
-  <section class="sec" id="console" style="padding-top: 0">
+  <section class="sec" id="console" data-section="console" style="padding-top: 0">
     <div class="wrap">
       <div class="sec-head">
         <p class="eyebrow">Eviction policy</p>
         <h2>You decide what the window keeps.</h2>
         <p>Nothing ages out on its own schedule. Set the policy once per run and the window holds to it.</p>
       </div>
-      <div class="console">
+      <div class="console" data-component="eviction-console">
         <div class="panel nm nm--offset">
           <h3>Retention</h3>
           <p class="hint">Applies to the whole run</p>
@@ -1309,7 +1333,7 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
     </div>
   </section>
 
-  <section class="sec" id="plans" style="padding-top: 0">
+  <section class="sec" id="plans" data-section="pricing" style="padding-top: 0">
     <div class="wrap">
       <div class="sec-head">
         <p class="eyebrow">Plans</p>
@@ -1351,7 +1375,7 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
     </div>
   </section>
 
-  <section class="sec" id="faq" style="padding-top: 0">
+  <section class="sec" id="faq" data-section="faq" style="padding-top: 0">
     <div class="wrap">
       <div class="sec-head">
         <p class="eyebrow">Questions</p>
@@ -1376,7 +1400,7 @@ nav.scrolled .sheet { right: max(12px, calc(50% - 440px)); }
 
 </main>
 
-<footer class="finale" id="start">
+<footer class="finale" id="start" data-section="footer">
   <div class="f-sky" aria-hidden="true">
     <div class="f-orbit"><i class="o1"></i><i class="o2"></i><i class="o3"></i><i class="o4"></i><i class="o5"></i></div>
     <div class="f-dome"></div>

@@ -267,24 +267,6 @@ html {
   overflow: hidden;
 }
 .about-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.about-initials {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 56px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #000;
-  background: #fff;
-  padding: 10px 16px;
-  border: 1px solid #000;
-}
-.about-kicker {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  color: #999;
-  margin: 0 0 14px;
-}
 .about-name {
   font-family: 'IBM Plex Mono', monospace;
   font-size: clamp(34px, 5.4vw, 52px);
@@ -306,27 +288,8 @@ html {
   margin: 0 0 14px;
   max-width: 54ch;
 }
-.about-meta {
-  display: flex;
-  gap: 28px;
-  flex-wrap: wrap;
-  margin: 26px 0 0;
-  padding-top: 20px;
-  border-top: 1px solid #e5e5e5;
-}
-.about-meta dt {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  color: #999;
-  margin-bottom: 5px;
-}
-.about-meta dd {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  color: #000;
-  margin: 0;
-}
+/* The same black button the contact dialog submits with. */
+.about-contact { margin-top: 18px; }
 @media (max-width: 760px) {
   .about-inner { grid-template-columns: 1fr; gap: 28px; }
   .about-portrait { max-width: 240px; }
@@ -549,6 +512,108 @@ html {
 .builder-others-list a:hover { color: #000; text-decoration: underline; }
 @media (max-width: 760px) {
   .builders, .builder, .builder-others { padding-left: 18px; padding-right: 18px; }
+}
+
+/* ── Agents manifesto ──────────────────────────────────────── */
+/* Built on the builder page's type and blocks, so it reads as part of the same
+   set; only the tenets, the loop, the client tabs and the endpoint list are new. */
+.agents { padding-bottom: 70px; }
+/* No eyebrow and no breadcrumbs above it, so the head brings its own air:
+   clear of the viewport top, and a wider gap before the first rule. */
+.agents-head { padding: 72px 0 24px; }
+.agents-head .builder-title { margin-bottom: 20px; }
+.agents-head .builder-lede { margin-bottom: 36px; }
+@media (max-width: 760px) {
+  .agents-head { padding: 28px 0 12px; }
+}
+.agents code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.92em;
+  color: #000;
+}
+.agents-block { margin: 0 0 18px; }
+.agents-block pre { overflow-x: auto; }
+.agents-exhibit { border-style: dashed; }
+.agents-exhibit pre { padding-bottom: 18px; color: #444; }
+.agents-h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 28px 0 10px;
+}
+.agents-tenets {
+  margin: 0;
+  padding-left: 22px;
+  list-style: decimal-leading-zero;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #666;
+  max-width: 64ch;
+}
+.agents-tenets li { margin-bottom: 12px; padding-left: 6px; }
+.agents-tenets li::marker { color: #000; font-size: 11px; }
+.agents-tenets strong { color: #000; font-weight: 600; }
+.agents-loop {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #e5e5e5;
+  max-width: 64ch;
+}
+.agents-loop li {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e5e5;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #666;
+}
+.agents-loop code { font-weight: 600; }
+.agents-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.agents-tab {
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  padding: 6px 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #666;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.agents-tab:hover { border-color: #000; color: #000; }
+.agents-tab--on { border-color: #000; background: #000; color: #fff; }
+.agents-tab--on:hover { color: #fff; }
+.agents-tab:focus-visible, .builder-copy:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.agents .builder-section p.agents-where {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #999;
+  margin: 0 0 8px;
+}
+.agents-endpoints { margin: 0; max-width: 64ch; border-top: 1px solid #e5e5e5; }
+.agents-endpoints div {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid #e5e5e5;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.agents-endpoints dt { color: #000; font-weight: 600; }
+.agents-endpoints dt a { color: #000; }
+.agents-endpoints dd { margin: 0; color: #666; }
+@media (max-width: 560px) {
+  .agents-loop li, .agents-endpoints div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
 
 /* Main content offset for sidebar */
@@ -1121,6 +1186,7 @@ html {
   color: #fff; background: #000; border: 1px solid #000;
   padding: 10px 16px;
   text-decoration: none;
+  cursor: pointer;
   transition: background 200ms ease, color 200ms ease;
 }
 .invite-btn:hover { background: #fff; color: #000; }
@@ -1751,6 +1817,115 @@ html {
   object-fit: contain;
 }
 
+/* ── Contact Ray (sidebar mail icon, About page) ─────────────
+   The sidebar's black-on-white mono language at dialog size. Above the
+   sidebar (z 100) and the prompt modal's overlay. */
+.contact-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.5);
+  animation: contact-fade 160ms ease-out;
+}
+.contact-dialog {
+  position: fixed;
+  z-index: 301;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 30px 28px 28px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  font-family: 'IBM Plex Mono', monospace;
+  animation: contact-in 180ms ease-out;
+}
+@keyframes contact-fade { from { opacity: 0; } }
+@keyframes contact-in { from { opacity: 0; transform: translate(-50%, calc(-50% + 6px)); } }
+.contact-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: none;
+  color: #666;
+  cursor: pointer;
+}
+.contact-close:hover { color: #000; }
+.contact-close:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.contact-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: #000;
+}
+.contact-hint { margin: 0 0 20px; font-size: 12px; line-height: 1.6; color: #888; }
+.contact-form { display: flex; flex-direction: column; }
+.contact-label {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #000;
+}
+.contact-input {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: box-shadow 200ms ease;
+}
+.contact-input:focus { box-shadow: 0 0 0 1px #000; }
+.contact-input[aria-invalid="true"] { border-color: #c0392b; box-shadow: 0 0 0 1px #c0392b; }
+.contact-textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+.contact-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.contact-error { margin: -6px 0 14px; font-size: 11px; color: #c0392b; }
+.contact-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #000;
+  background: #000;
+  color: #fff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+.contact-submit:hover { background: #fff; color: #000; }
+.contact-submit:disabled { cursor: progress; background: #000; color: #fff; opacity: 0.7; }
+.contact-submit:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.contact-sent { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 10px; }
+.contact-sent p { margin: 0 0 8px; font-size: 13px; line-height: 1.6; color: #000; }
+/* 16px on phones so iOS does not zoom into the field on focus */
+@media (max-width: 640px) {
+  .contact-dialog { padding: 26px 20px 22px; }
+  .contact-input { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-overlay, .contact-dialog { animation: none; }
+}
+
 /* ── Sidebar signup (replaces the account icon) ── */
 .signup {
   display: flex;
@@ -2105,9 +2280,8 @@ html {
 /* ============================================================
    CODE view. One colour story for the whole strip: black-and-white
    controls like the rest of the site, and the site's four-colour
-   spectrum (orange, pink, violet, blue) reserved for the one call to
-   action, BUILD WITH, and echoed in the editor's top rule and the
-   syntax colours, so the button and the code read as one thing.
+   spectrum (orange, pink, violet, blue) used only in the editor's top
+   rule and the syntax colours.
    ============================================================ */
 .pmodal-stage--code { background: #0d0d10; border-color: #000; display: grid; }
 .pcode-wrap { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
@@ -2187,105 +2361,6 @@ html {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #8b8b98;
-}
-
-/* Toolbar actions */
-.pmodal-btn--tight { padding: 7px 12px; }
-.pmodal-btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
-.pmodal-btn[data-done] { background: #000; color: #fff; }
-.pmodal-flash {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #000;
-  font-weight: 600;
-  animation: pmodal-flash-in 200ms ease-out;
-}
-.pmodal-flash a { color: #000; }
-@keyframes pmodal-flash-in { from { opacity: 0; transform: translateY(3px); } }
-
-.pmodal-build-wrap { position: relative; }
-.pmodal-build {
-  position: relative;
-  color: #fff;
-  border-color: #000;
-  background: linear-gradient(100deg, #ff930f, #ff1b6b 38%, #bf0fff 68%, #0061ff);
-  background-size: 140% 100%;
-  box-shadow: 3px 3px 0 #000;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
-  transition: transform 120ms ease, box-shadow 120ms ease, background-position 400ms ease;
-}
-.pmodal-build:hover {
-  color: #fff;
-  background: linear-gradient(100deg, #ff930f, #ff1b6b 38%, #bf0fff 68%, #0061ff);
-  background-size: 140% 100%;
-  background-position: 100% 0;
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #000;
-}
-.pmodal-build:active,
-.pmodal-build[aria-expanded="true"] { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
-.pmodal-build-chev { transition: transform 160ms ease; }
-.pmodal-build[aria-expanded="true"] .pmodal-build-chev { transform: rotate(180deg); }
-
-.pmodal-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 30;
-  width: 252px;
-  padding: 6px;
-  background: #fff;
-  border: 1px solid #000;
-  box-shadow: 5px 5px 0 #000;
-  font-family: 'IBM Plex Mono', monospace;
-  animation: pmodal-menu-in 140ms ease-out;
-}
-@keyframes pmodal-menu-in { from { opacity: 0; transform: translateY(-4px); } }
-.pmodal-menu-head {
-  margin: 0;
-  padding: 6px 8px 8px;
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  color: #999;
-}
-.pmodal-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 9px 8px;
-  background: none;
-  border: 0;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #000;
-  outline: none;
-}
-.pmodal-menu-item:hover,
-.pmodal-menu-item:focus-visible { background: #000; color: #fff; }
-.pmodal-menu-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15); }
-.pmodal-menu-item:hover .pmodal-menu-dot,
-.pmodal-menu-item:focus-visible .pmodal-menu-dot { box-shadow: 0 0 0 1px #fff; }
-.pmodal-menu-go { margin-left: auto; opacity: 0.35; }
-.pmodal-menu-item:hover .pmodal-menu-go,
-.pmodal-menu-item:focus-visible .pmodal-menu-go { opacity: 1; }
-.pmodal-menu-note {
-  margin: 6px 0 0;
-  padding: 9px 8px 4px;
-  border-top: 1px solid #e4e4e4;
-  font-size: 9.5px;
-  line-height: 1.55;
-  color: #888;
-}
-@media (prefers-reduced-motion: reduce) {
-  .pmodal-menu, .pmodal-flash { animation: none; }
-  .pmodal-build, .pmodal-build:hover, .pmodal-build:active { transition: none; transform: none; }
 }
 
 /* Prompt column */

@@ -1,4 +1,32 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Notched Panel Catalog Page
+  slug     notched-panel-catalog-page
+  prompt   https://instalanding.ai/p/notched-panel-catalog-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/notched-panel-catalog-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of the main <style>: --blue #183fad, --blue-2, --blue-3, --yellow #f1bf0a,
+            --ink, --r / --r-sm (panel radii), --sh-raised / --sh-pressed (moulded control shadows),
+            --display (Anton), --sans (Inter), --mono (JetBrains Mono)
+  sections  nav, hero, logos, quickstart, catalog, routing-policy, pricing, faq, cta, footer
+  scripts   one inline <script>, no libraries: MODELS table renders the catalog cards + benchmark plates,
+            route toggling + nav count, copy buttons, hero model carousel (prev/next), burger menu that
+            swaps out the hero, policy console estimate, FAQ accordion, plan pick -> sign-up note
+  assets    none binary: inline SVG icons/marks, SVG-noise grain as a data: URI; fonts from Google Fonts
+
+  ADAPTING
+  - The notch is not clip-path: each panel paints a square of its NEIGHBOUR's colour behind its corner
+    (z-index -5). Recolour a panel and you must recolour the square its neighbour paints, or the curve shows.
+  - Every card, price, plate and meta line comes from MODELS at the top of the script; add a model there,
+    not in the HTML. The policy console routes only over models with chat: true, or the embedding and
+    safety endpoints win every policy and the estimate never moves.
+  - The burger toggles .open on #heroSwap and sets inert on the menu/hero pair; keep both inside it.
+  - The isometric rig (.rig, five skewed boxes) only displays at >=1024px; showFeatured() rewrites its
+    #rig1-#rig5 labels with the hero, so keep those ids if you restyle it.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Modelyard</title>
 <meta name="description" content="Landing page for a fictional model-routing gateway: interlocking notched cobalt panels, a model catalogue with labelled benchmark plates, and a routing policy console." />
 
@@ -993,7 +1021,7 @@ h1, h2, h3 { text-wrap: balance; }
 }
 </style>
 
-<nav class="nav wrap" id="top">
+<nav class="nav wrap" id="top" data-section="nav">
   <div class="nav-brand">
     <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
       <rect width="40" height="40" rx="9" fill="#183FAD" />
@@ -1033,7 +1061,7 @@ h1, h2, h3 { text-wrap: balance; }
   </div>
 </div>
 
-<header class="header lit grain rise" id="hero">
+<header class="header lit grain rise" id="hero" data-section="hero">
   <h1 class="headline">ONE ENDPOINT.<br><em>EVERY MODEL.</em></h1>
 
   <div class="stage">
@@ -1087,7 +1115,7 @@ h1, h2, h3 { text-wrap: balance; }
 </header>
 </div>
 
-<section class="logos wrap rise" style="--d:120ms" aria-label="Customers">
+<section class="logos wrap rise" style="--d:120ms" aria-label="Customers" data-section="logos">
   <p class="eyebrow">Routing production traffic for</p>
   <ul>
     <li class="l1">NORTHWIND</li>
@@ -1099,7 +1127,7 @@ h1, h2, h3 { text-wrap: balance; }
   </ul>
 </section>
 
-<section class="code wrap rise" id="quickstart" style="--d:220ms">
+<section class="code wrap rise" id="quickstart" style="--d:220ms" data-section="quickstart">
   <div class="code-copy">
     <p class="eyebrow">Quickstart</p>
     <h2>SWAP ONE URL. KEEP YOUR CODE.</h2>
@@ -1133,7 +1161,7 @@ h1, h2, h3 { text-wrap: balance; }
   </div>
 </section>
 
-<main class="main wrap" id="catalog">
+<main class="main wrap" id="catalog" data-section="catalog">
   <div class="main-head">
     <div>
       <p class="eyebrow">Catalog · 9 models</p>
@@ -1152,7 +1180,7 @@ h1, h2, h3 { text-wrap: balance; }
   <p class="bench-key" id="benchKey"></p>
 </main>
 
-<section class="console wrap lit grain" id="policy">
+<section class="console wrap lit grain" id="policy" data-section="routing-policy" data-component="policy-console">
   <div class="console-head">
     <p class="eyebrow">Routing policy</p>
     <h2>PRESS WHAT MATTERS</h2>
@@ -1200,7 +1228,7 @@ h1, h2, h3 { text-wrap: balance; }
   </div>
 </section>
 
-<section class="plans wrap" id="plans">
+<section class="plans wrap" id="plans" data-section="pricing">
   <div class="main-head">
     <div>
       <p class="eyebrow">Pricing</p>
@@ -1260,7 +1288,7 @@ h1, h2, h3 { text-wrap: balance; }
   </div>
 </section>
 
-<section class="faq wrap" id="faq">
+<section class="faq wrap" id="faq" data-section="faq">
   <p class="eyebrow">Questions</p>
   <div class="faq-row open">
     <button class="faq-q" type="button" aria-expanded="true">
@@ -1285,7 +1313,7 @@ h1, h2, h3 { text-wrap: balance; }
   </div>
 </section>
 
-<section class="signup wrap" id="signup">
+<section class="signup wrap" id="signup" data-section="cta">
   <p class="eyebrow" style="color:inherit;opacity:.7">Get started</p>
   <h2>ONE KEY, NINE MODELS</h2>
   <form id="signupForm">
@@ -1298,7 +1326,7 @@ h1, h2, h3 { text-wrap: balance; }
   <p class="note" id="signupNote">Free tier, no card required.</p>
 </section>
 
-<footer class="footer wrap lit grain" id="footer">
+<footer class="footer wrap lit grain" id="footer" data-section="footer">
   <div class="foot-grid">
     <div class="foot-brand">
       <div class="foot-logo">

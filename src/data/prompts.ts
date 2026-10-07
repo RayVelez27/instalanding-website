@@ -47,6 +47,15 @@ export interface PromptEntry {
    * just has one way in rather than two.
    */
   sectionOnly?: boolean;
+  /**
+   * What the page suits, in the words an agent searches with ("AI
+   * infrastructure", "developer tools"). Published in the manifest and
+   * ranked by `instalanding search`; the stack and sections are read off the
+   * demo file itself, so they are not repeated here.
+   */
+  bestFor?: string[];
+  /** How it looks: "dark", "editorial", "webgl", "glassmorphism". Also searched. */
+  style?: string[];
 }
 
 export interface PromptCredit {
@@ -121,6 +130,8 @@ A starfield placed once from a seeded generator - nothing here needs to move to 
     variant: "large",
     added: "Sep 27, 2026",
     demo: "/demos/proxima-edge.html",
+    bestFor: ["AI inference and edge networks","cloud infrastructure","developer platforms","usage-based pricing"],
+    style: ["dark","blue","glassmorphism","concentric-rings","pointer-light"],
     thumbnail: "/thumbs/proxima-edge.jpg",
     theme: "dark",
   },
@@ -160,6 +171,8 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     variant: "large",
     added: "Sep 26, 2026",
     demo: "/demos/timbre-console.html",
+    bestFor: ["voice AI consoles","text-to-speech tools","audio review dashboards"],
+    style: ["light","neumorphic","monospace","amber-accent","one-viewport"],
     thumbnail: "/thumbs/timbre-console.jpg",
     theme: "light",
   },
@@ -201,6 +214,8 @@ Every layer but the nearest moves, and a layer that has drifted up shows its own
     variant: "large",
     added: "Sep 26, 2026",
     demo: "/demos/footnote-grounding.html",
+    bestFor: ["LLM grounding and evals","RAG citation checking","AI trust and safety","document AI"],
+    style: ["light","editorial","paper","serif","highlighter"],
     thumbnail: "/thumbs/footnote-grounding.jpg",
     theme: "light",
     credits: [
@@ -253,6 +268,8 @@ Under prefers-reduced-motion the aperture is already open, the pills are parked 
     variant: "large",
     added: "Sep 26, 2026",
     demo: "/demos/mnemo-context-window.html",
+    bestFor: ["agent memory infrastructure","LLM platform APIs","AI developer tools","usage-priced dev products"],
+    style: ["purple","neumorphic","soft-ui","parallax","condensed-type"],
     thumbnail: "/thumbs/mnemo-context-window.jpg",
     theme: "dark",
     credits: [
@@ -336,6 +353,8 @@ Keep the background to the frame and the light. A drifting particle field and a 
     variant: "large",
     added: "Sep 25, 2026",
     demo: "/demos/umbra-eclipse.html",
+    bestFor: ["AI infrastructure launches","developer runtime announcements","waitlist pages","product reveals"],
+    style: ["dark","theatrical","spotlight","conic-gradients","scroll-driven"],
     thumbnail: "/thumbs/umbra-eclipse.jpg",
     theme: "dark",
     credits: [
@@ -379,6 +398,8 @@ Run the frame loop only while the panel is on screen and stop it once the machin
     variant: "large",
     added: "Sep 25, 2026",
     demo: "/demos/kiln-panel.html",
+    bestFor: ["on-prem AI hardware","AI infrastructure","self-hosted LLM appliances","live telemetry products"],
+    style: ["dark","industrial","skeuomorphic","monospace","amber-accent"],
     thumbnail: "/thumbs/kiln-panel.jpg",
     theme: "dark",
   },
@@ -427,6 +448,8 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     variant: "large",
     added: "Sep 25, 2026",
     demo: "/demos/maverick-console.html",
+    bestFor: ["LLM observability","model interpretability tools","AI eval dashboards","agent run inspectors"],
+    style: ["dark","vhs","scanlines","monospace","one-viewport"],
     thumbnail: "/thumbs/maverick-console.jpg",
     theme: "dark",
     credits: [
@@ -482,6 +505,8 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     variant: "large",
     added: "Sep 25, 2026",
     demo: "/demos/drive-cluster.html",
+    bestFor: ["autonomous vehicle HUDs","EV telemetry dashboards","real-time instrument UIs","simulation control panels"],
+    style: ["dark","hud","neon-cyan","monospace","one-viewport"],
     thumbnail: "/thumbs/drive-cluster.jpg",
     theme: "dark",
   },
@@ -522,6 +547,8 @@ Every animation in the edge-light system and the orb needs a prefers-reduced-mot
     variant: "large",
     added: "Sep 29, 2026",
     demo: "/demos/arcline-neon-glass.html",
+    bestFor: ["AI platform launches","enterprise knowledge assistants","agent automation SaaS","developer APIs","AI chat apps"],
+    style: ["dark","glassmorphism","neon","blue","lowercase","react-bundle"],
     credits: [
       {
         label: "Neon Glass Context Menu by Simey",
@@ -607,6 +634,8 @@ Lay the walls out on a grid, not wrapping flex. The captions are wider than the 
     variant: "large",
     added: "Sep 24, 2026",
     demo: "/demos/grain-motion-system.html",
+    bestFor: ["AI agent runtimes","developer tools","workflow automation","human-in-the-loop AI"],
+    style: ["light","illustrated","css-art","sticker","playful","grain"],
     thumbnail: "/thumbs/grain-motion-system.jpg",
     theme: "light",
     credits: [
@@ -698,6 +727,8 @@ Under 640px the snake and the slab are hidden and the cards centre in one column
     variant: "large",
     added: "Sep 23, 2026",
     demo: "/demos/throughline-scroll-stack.html",
+    bestFor: ["AI infrastructure","LLM ops and eval platforms","developer tools","model gateways"],
+    style: ["dark","monospace","spectrum-gradient","scroll-driven","poster"],
     thumbnail: "/thumbs/throughline-scroll-stack.jpg",
     theme: "dark",
   },
@@ -785,6 +816,8 @@ Two columns collapse to one at 860px, the rate card at 760px, the meta strip to 
     variant: "large",
     added: "Sep 23, 2026",
     demo: "/demos/spool-run-transcript.html",
+    bestFor: ["agent observability","LLM tracing and debugging","AI developer tools","replay UIs"],
+    style: ["light","editorial","print","serif","monospace","retro"],
     thumbnail: "/thumbs/spool-run-transcript.jpg",
     theme: "light",
     // Parked for now. `hidden` rather than deleting: /prompt/:slug still
@@ -835,6 +868,8 @@ Breakpoints at 1499, 1199, 991, 767. The work grid goes 3 to 2 to 1, the process
     variant: "large",
     added: "Sep 29, 2026",
     demo: "/demos/murmur-swarm-tickets.html",
+    bestFor: ["AI research labs","multi-agent platforms","model family showcases","early-access waitlists"],
+    style: ["light","pastel","holographic","webgl","three.js"],
     thumbnail: "/thumbs/murmur-swarm-tickets.jpg",
     theme: "light",
   },
@@ -881,6 +916,8 @@ One column of cards under 480px, two to 768px, three above. The interlocking foo
     variant: "large",
     added: "Sep 23, 2026",
     demo: "/demos/modelyard-router.html",
+    bestFor: ["LLM gateways and model routers","AI API platforms","model catalogs","developer tools"],
+    style: ["light","poster","cobalt-yellow","notched-panels","bold"],
     thumbnail: "/thumbs/modelyard-router.jpg",
     theme: "light",
   },
@@ -930,6 +967,8 @@ DETAILS THAT MATTER
     variant: "large",
     added: "Sep 23, 2026",
     demo: "/demos/bigred-runbooks.html",
+    bestFor: ["incident response and SRE tools","runbook automation","AI operator products","devops platforms"],
+    style: ["light","neo-brutalist","bento","isometric","monospace","tactile"],
     thumbnail: "/thumbs/bigred-runbooks.jpg",
     theme: "light",
   },
@@ -976,6 +1015,8 @@ At 1024px the centre nav, the about cards, the process floats and the ghost quot
     variant: "large",
     added: "Sep 22, 2026",
     demo: "/demos/prism-evals-editorial.html",
+    bestFor: ["LLM eval platforms","AI quality and CI gates","developer tools","editorial product launches"],
+    style: ["light","editorial","generative-art","gooey","serif"],
     thumbnail: "/thumbs/prism-evals-editorial.jpg",
     theme: "light",
   },
@@ -1047,6 +1088,8 @@ Under 62rem the grids go to two columns and the readout wraps. Under 46rem the n
       },
     ],
     demo: "/demos/drift-wind-routing.html",
+    bestFor: ["logistics and routing","fleet operations","geospatial data products","climate and weather tech"],
+    style: ["dark","webgl","data-viz","editorial","monospace","scroll-pinned"],
     thumbnail: "/thumbs/drift-wind-routing.jpg",
     theme: "dark",
   },
@@ -1118,6 +1161,8 @@ One thing to re-check after a palette swap: any button shaded with a flat black 
     variant: "large",
     added: "Sep 22, 2026",
     demo: "/demos/traffo-constellation.html",
+    bestFor: ["AI analytics","product analytics SaaS","AI copilots","growth tools"],
+    style: ["light","clay","warm-paper","pixel-type","yellow-accent"],
     credits: [
       {
         label: "Button by dexter-st on Uiverse.io",
@@ -1203,6 +1248,8 @@ DETAILS
     variant: "wide",
     added: "Sep 22, 2026",
     demo: "/demos/smartcare-ai.html",
+    bestFor: ["clinical and healthcare AI","medical imaging","regulated enterprise SaaS","risk prediction"],
+    style: ["dark","clinical","webgl","iridescent","hud"],
     thumbnail: "/thumbs/smartcare-ai.jpg",
     theme: "dark",
   },
@@ -1247,6 +1294,8 @@ At 900px grids collapse to one column and the services rows reflow. At 640px, 22
     variant: "large",
     added: "Sep 22, 2026",
     demo: "/demos/craft-studio.html",
+    bestFor: ["AI platforms","agent and RAG infrastructure","premium SaaS launches","design-forward tech brands"],
+    style: ["light","swiss","monochrome","webgl","glass","three.js"],
     thumbnail: "/thumbs/craft-studio.jpg",
     theme: "light",
   },
@@ -1292,6 +1341,8 @@ Attributes: mode="signup|login", domain, simulate="normal|slow|fail". Events (bu
     variant: "large",
     added: "Sep 21, 2026",
     demo: "/demos/launch-form.html",
+    bestFor: ["sign-up and onboarding flows","creator platforms","SaaS account creation","web component libraries"],
+    style: ["dark","space","web-component","form","gradient"],
     thumbnail: "/thumbs/launch-form.jpg",
     theme: "dark",
   },
@@ -1340,6 +1391,8 @@ SHOWCASE PAGE (dark, Bricolage Grotesque + Instrument Serif italic accents + Jet
     variant: "large",
     added: "Sep 21, 2026",
     demo: "/demos/fire-button.html",
+    bestFor: ["playful CTAs and toggles","gamified streak UIs","component showcases","launch buttons"],
+    style: ["dark","canvas","particles","glass","playful"],
     credits: [
       {
         label: "Fire Button — Rive Marketplace",
@@ -1397,6 +1450,8 @@ At 1000px columns stack and the bento goes to 2 columns. At 700px everything is 
     variant: "large",
     added: "Sep 21, 2026",
     demo: "/demos/monax-analytics.html",
+    bestFor: ["analytics SaaS","BI and data platforms","B2B dashboards","data team tools"],
+    style: ["light","warm-paper","3d-orbs","webgl","bento"],
     thumbnail: "/thumbs/monax-analytics.jpg",
     theme: "light",
   },
@@ -1456,6 +1511,8 @@ At 1100px the hero stacks and drops its fixed height. At 1024px grids go to 2 co
       },
     ],
     demo: "/demos/dermexcel-clay-hero.html",
+    bestFor: ["AI agent platforms","developer APIs","SaaS control planes","workflow automation","B2B infrastructure"],
+    style: ["light","clay","neumorphic","soft-ui","pastel","theme-switcher"],
     thumbnail: "/thumbs/clay-pharma-landing-hero.jpg",
     theme: "light",
   },
@@ -1502,6 +1559,8 @@ FALLBACKS AND DETAIL
     variant: "wide",
     added: "Sep 22, 2026",
     demo: "/demos/marquee-wall.html",
+    bestFor: ["AI agents for operations","e-commerce automation","agent orchestration","back-office SaaS"],
+    style: ["dark","industrial","pixel-type","marquee","terminal"],
     thumbnail: "/thumbs/marquee-wall.jpg",
     theme: "dark",
   },

@@ -112,10 +112,15 @@ export class Library {
 
     // A wrong slug is the most common agent mistake — answer with the near misses,
     // compared slug-to-slug so an unrelated word match never masquerades as one.
-    const near = nearestSlugs(wanted, manifest.prompts, 3);
+    // A truncated slug ("smartcare") shares too few trigrams with the full one
+    // to clear the threshold, so slugs that contain it come first.
+    const near = [
+      ...manifest.prompts.filter((p) => wanted && p.slug.includes(wanted)).map((p) => p.slug),
+      ...nearestSlugs(wanted, manifest.prompts, 3),
+    ].filter((s, i, all) => all.indexOf(s) === i).slice(0, 3);
     throw new LibraryError(
       `No prompt with slug "${slug}".` + (near.length ? ` Did you mean: ${near.join(", ")}?` : "") +
-        " Use search_prompts to find one."
+        " Search for one first (search_prompts, or: instalanding search <words>)."
     );
   }
 
@@ -141,6 +146,15 @@ export class Library {
   }
 }
 
+/**
+ * Substring match, except short terms must match a whole word: "ai" should
+ * find "AI infrastructure", not every "detail" and "plain" in the library.
+ */
+const has = (text, term) =>
+  term.length > 3
+    ? text.includes(term)
+    : new RegExp(`(^|[^a-z0-9])${term.replace(/[.+#]/g, "\\$&")}($|[^a-z0-9])`).test(text);
+
 /** Token-overlap scoring: good enough for a 20–200 entry library, no deps. */
 export const rank = (prompts, query, limit) => {
   const terms = String(query ?? "")
@@ -153,13 +167,26 @@ export const rank = (prompts, query, limit) => {
     const title = entry.title.toLowerCase();
     const description = (entry.description ?? "").toLowerCase();
     const slug = entry.slug.toLowerCase();
-    const haystack = `${title} ${description} ${slug} ${entry.category} ${entry.preview ?? ""}`;
+    // What the page is for and how it looks — the words agents actually search
+    // with ("dark technical ai") — plus what it is built from.
+    const tags = [
+      ...(entry.bestFor ?? []),
+      ...(entry.style ?? []),
+      entry.theme ?? "",
+      ...(entry.stack?.libraries ?? []).map((l) => l.name),
+      ...(entry.stack?.features ?? []),
+      ...(entry.sections ?? []),
+    ]
+      .join(" ")
+      .toLowerCase();
+    const haystack = `${title} ${description} ${slug} ${entry.category} ${entry.preview ?? ""} ${tags}`;
     let score = 0;
     for (const term of terms) {
-      if (title.includes(term)) score += 6;
-      if (slug.includes(term)) score += 4;
-      if (description.includes(term)) score += 3;
-      else if (haystack.includes(term)) score += 1;
+      if (has(title, term)) score += 6;
+      if (has(slug, term)) score += 4;
+      if (has(tags, term)) score += 4;
+      if (has(description, term)) score += 3;
+      else if (has(haystack, term)) score += 1;
     }
     // A full phrase match beats scattered word hits.
     if (terms.length > 1 && `${title} ${description}`.includes(terms.join(" "))) score += 5;
@@ -195,4 +222,58 @@ export const nearestSlugs = (wanted, prompts, limit, threshold = 0.3) => {
     .sort((x, y) => y.score - x.score)
     .slice(0, limit)
     .map((candidate) => candidate.slug);
+};
+
+const kb = (bytes) => `${Math.round(bytes / 1024)} KB`;
+
+/**
+ * Everything an agent needs to decide whether an entry fits, without reading
+ * the prompt or the demo: what it is for, how it looks, what it is built from
+ * and how it is laid out. Shared by `instalanding inspect` and the MCP tool so
+ * the two never disagree.
+ *
+ * @param {object} entry   one manifest entry
+ * @param {{ cli?: boolean }} [options]  name the next step as a CLI command or an MCP call
+ */
+export const formatInspect = (entry, { cli = false } = {}) => {
+  const next = (verb, tool) => (cli ? `instalanding ${verb} ${entry.slug}` : `${tool}("${entry.slug}")`);
+  const stack = entry.stack;
+  const rows = [
+    ["Stack", stack
+      ? [
+          "single HTML file, every asset inlined, no build step",
+          stack.libraries?.length
+            ? `libraries: ${stack.libraries.map((l) => `${l.name} ${l.version} (${l.cdn})`).join(", ")}`
+            : "libraries: none — plain HTML, CSS and JS",
+          stack.fonts?.length ? `fonts: ${stack.fonts.join(", ")} (Google Fonts)` : null,
+          stack.features?.length ? `uses: ${stack.features.join(", ")}` : null,
+        ]
+      : entry.repoUrl
+        ? [`a repository, not a single file: ${entry.repoUrl}`]
+        : ["prompt only — no reference build"]],
+    ["Sections", entry.sections?.length ? [entry.sections.join(" → ")] : null],
+    ["Best for", entry.bestFor?.length ? [entry.bestFor.join(", ")] : null],
+    ["Style", entry.style?.length || entry.theme
+      ? [[entry.theme, ...(entry.style ?? []).filter((s) => s !== entry.theme)].filter(Boolean).join(", ")]
+      : null],
+    ["Prompt", [`~${(entry.approxPromptTokens ?? 0).toLocaleString()} tokens · ${next("get", "get_prompt")}`]],
+    ["Demo", entry.demoUrl
+      ? [`${entry.demoBytes ? `${kb(entry.demoBytes)} · ` : ""}${next("add", "get_demo_source")}`, entry.demoUrl]
+      : null],
+    ["Page", [entry.pageUrl]],
+    ["Built on", entry.credits?.length ? entry.credits.map((c) => `${c.label} — ${c.href}`) : null],
+  ];
+
+  const lines = [
+    entry.title,
+    `${entry.slug} · ${entry.categoryLabel ?? entry.category}`,
+    entry.description,
+    "",
+  ];
+  for (const [label, values] of rows) {
+    const shown = (values ?? []).filter(Boolean);
+    if (!shown.length) continue;
+    shown.forEach((value, i) => lines.push(`${(i ? "" : label).padEnd(10)} ${value}`));
+  }
+  return lines.join("\n");
 };

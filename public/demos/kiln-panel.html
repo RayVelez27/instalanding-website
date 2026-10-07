@@ -1,4 +1,30 @@
 <!doctype html>
+<!--
+  INSTALANDING.AI · Machine Front Panel Page
+  slug     machine-front-panel-page
+  prompt   https://instalanding.ai/p/machine-front-panel-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/machine-front-panel-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --void #08090b, --alu / --alu-hi / --alu-lo (plate metal),
+            --text, --amber #ff9426, --ember, --cyan, --green, --stack (laminated copper edge shadow),
+            --ease / --spring, --display (Archivo), --mono (JetBrains Mono); --heat is written per frame on #machine
+  sections  nav, menu, hero, why, inside, spec-sheet, compare, install, configurations, faq, cta, footer
+  scripts   one inline <script>, no libraries, several IIFEs: turbine blades, gauge, rolling counters, machine state +
+            simulation (load integrates toward a target and drives everything), section scenes (why route,
+            inside cutaway, spec barcode, compare switch, install log, config rack), full-screen menu, type-on
+  assets    none: every screw, blade, gauge and LED is CSS or inline SVG; fonts from Google Fonts
+
+  ADAPTING
+  - One number (state.load) drives the fan period, gauge ticks, coil glow and readouts. prop() writes custom
+    properties on #machine only when the value changes; never move them to :root, it restyles the whole page per frame.
+  - The frame loop runs only while #machine is on screen (IntersectionObserver, 140px margin) or the menu is open
+    (html.nav-open keeps its status card live). The boot (power-on + needle self-test) fires 560ms after load; reduced motion
+    skips it and starts already running with the turbine stopped.
+  - The hero is the machine: keep the nameplate headline wide (about 24ch) or it wraps and pushes the readouts
+    below the fold. Grain lives on .plate, not a fixed full-screen layer, which costs frames.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1211,7 +1237,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 </head>
 <body>
 
-<header class="topbar" id="topbar">
+<header class="topbar" id="topbar" data-section="nav">
   <div class="wrap">
     <a class="brand" href="#panel" aria-label="Kiln, back to the top">
       <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
@@ -1230,7 +1256,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </div>
 </header>
 
-<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" aria-hidden="true" inert>
+<div class="menu" id="menu" data-section="menu" role="dialog" aria-modal="true" aria-label="Site menu" aria-hidden="true" inert>
   <div class="menu-bg" aria-hidden="true"></div>
   <div class="wrap menu-inner">
     <nav class="menu-nav" aria-label="Sections">
@@ -1266,7 +1292,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 </div>
 
 <main>
-  <section id="panel" class="hero">
+  <section id="panel" class="hero" data-section="hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
         <p class="eyebrow">K-04<span class="sep" aria-hidden="true">/</span>Rack unit</p>
@@ -1283,7 +1309,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
 
       <div class="hero-stage">
         <div class="chassis">
-          <div class="plate face machine off" id="machine">
+          <div class="plate face machine off" id="machine" data-component="front-panel">
             <div class="spill" aria-hidden="true"></div>
             <span class="screw tl" aria-hidden="true"></span>
             <span class="screw tr" aria-hidden="true"></span>
@@ -1404,7 +1430,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </section>
 
   <!-- ============ WHY — the route a request takes ============ -->
-  <section class="section why" id="why">
+  <section class="section why" id="why" data-section="why">
     <div class="wrap">
       <div class="section-head">
         <p class="stencil">Why a box</p>
@@ -1438,7 +1464,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </section>
 
   <!-- ============ INSIDE — full-width cutaway with callouts ============ -->
-  <section class="section inside-sec" id="inside">
+  <section class="section inside-sec" id="inside" data-section="inside">
     <div class="wrap">
       <div class="section-head center">
         <p class="stencil">Inside the box</p>
@@ -1478,7 +1504,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </section>
 
   <!-- ============ SPEC SHEET — the rating plate ============ -->
-  <section class="section spec-sec" id="specsheet">
+  <section class="section spec-sec" id="specsheet" data-section="spec-sheet">
     <div class="wrap">
       <div class="section-head center">
         <p class="stencil">Spec sheet</p>
@@ -1524,7 +1550,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </section>
 
   <!-- ============ COMPARE — one switch ============ -->
-  <section class="section versus-sec" id="compare">
+  <section class="section versus-sec" id="compare" data-section="compare">
     <div class="wrap">
       <div class="versus-head">
         <div class="section-head">
@@ -1552,7 +1578,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </section>
 
   <!-- ============ INSTALL — the log ============ -->
-  <section class="section install-sec" id="install">
+  <section class="section install-sec" id="install" data-section="install">
     <div class="wrap install">
       <div class="install-side">
         <div class="section-head">
@@ -1578,7 +1604,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </section>
 
   <!-- ============ CONFIGURATIONS — the rack ============ -->
-  <section class="section rack-sec" id="configs">
+  <section class="section rack-sec" id="configs" data-section="configurations">
     <div class="wrap">
       <div class="section-head">
         <p class="stencil">Configurations</p>
@@ -1611,7 +1637,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </section>
 
   <!-- ============ FAQ — pinned heading ============ -->
-  <section class="section faq-sec" id="faq">
+  <section class="section faq-sec" id="faq" data-section="faq">
     <div class="wrap faq-grid">
       <div class="faq-side">
         <div class="section-head">
@@ -1646,7 +1672,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
   </section>
 
   <!-- ============ CTA — the key ============ -->
-  <section class="section cta-sec">
+  <section class="section cta-sec" data-section="cta">
     <div class="wrap">
       <div class="cta" id="order">
         <p class="stencil">Nothing here is real</p>
@@ -1671,7 +1697,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; gap:
         </a>
       </div>
 
-      <footer class="footer">
+      <footer class="footer" data-section="footer">
         <span>
           Kiln is a fictional product and this page is a design demo — the machine, the readings<br />
           and every number are invented. Nothing here is real.

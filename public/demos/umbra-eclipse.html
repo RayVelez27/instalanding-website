@@ -1,4 +1,33 @@
 <!doctype html>
+<!--
+  INSTALANDING.AI · Stage Light Launch Page
+  slug     stage-light-launch-page
+  prompt   https://instalanding.ai/p/stage-light-launch-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/stage-light-launch-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --void, --ice/--sky, --flare/--flare-2 (beam
+            and sweep colour), --hair/--hair-2 (grid lines), --size (the stage scale; body font-size is
+            3% of it), --display Archivo / --mono JetBrains Mono (Google Fonts); body.flare redefines
+            the light tokens for the warm lamp
+  sections  nav, hero, pitch, features, how-it-works, stats, faq, cta, footer
+  scripts   one inline IIFE, no libraries: lamp toggle (cool/warm/off body classes), wordmark sweep
+            gated by an IntersectionObserver, scroll-driven stage exit (--out) + letter split, card
+            animation gating, demo access form, streamed quickstart output, comparison bars
+  assets    none: all CSS (conic spotlights, ridge, grid frame, @property --p sweep) plus one inline SVG chevron
+
+  ADAPTING
+  - Recolour through the tokens: the lamp works by redefining them under body.flare, so hard-coded
+    colours will not follow the warm light.
+  - The hero exit is one value: --out (0 to 1) is written on .stage, .top and .spotlight across the
+    180svh .stage-pin, whose -60svh margin lets the page rise behind it. Change the pin height and the
+    exit timing changes with it.
+  - The wordmark is split into per-letter spans at boot, and each letter's gradient offset (--ox/--bw)
+    is re-measured after document.fonts.ready; change the word in both .hero h1s (the second is the
+    aria-hidden glow copy).
+  - Place stage children in % of the stage, not em: em resolves against the element's own font-size.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -843,7 +872,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 
 <div class="spotlight" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span></div>
 
-<header class="top">
+<header class="top" data-section="nav">
   <a class="wordmark" href="#pitch">UMBRA</a>
   <button class="lamp" type="button" id="lamp" aria-pressed="true">
     <span class="sr" id="lampLabel">Stage light: cool. Press to warm it.</span>
@@ -851,7 +880,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
   <a class="topcta" href="#access">Request access</a>
 </header>
 
-<div class="stage-pin">
+<div class="stage-pin" data-section="hero">
 <div class="stage">
   <div class="field" aria-hidden="true">
     <b class="br br--tl"></b><b class="br br--tr"></b><b class="br br--bl"></b><b class="br br--br"></b>
@@ -882,7 +911,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
 </div>
 
 <main class="band">
-  <section class="pitch" id="pitch">
+  <section class="pitch" id="pitch" data-section="pitch">
     <div class="wrap">
       <h2>Load once. Serve everywhere.<br />Pay for none of the waiting.</h2>
       <p class="lede">
@@ -892,7 +921,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
     </div>
   </section>
 
-  <section class="cards">
+  <section class="cards" data-section="features" aria-label="Capabilities">
     <div class="wrap">
       <div class="specs">
         <article class="gcard">
@@ -944,7 +973,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
     </div>
   </section>
 
-  <section class="how" id="how">
+  <section class="how" id="how" data-section="how-it-works">
     <div class="wrap">
       <article class="gcard gcard--wide" id="howCard">
         <span class="gcard-plate" aria-hidden="true"></span>
@@ -955,7 +984,7 @@ body.out .lamp:hover { box-shadow: inset 0 0 0 1px rgba(194, 204, 255, 0.45); }
             <p>Point Umbra at a model file. It picks the backend for the machine it's on, compiles the graph once and keeps it warm. There is no server process to stand up and no container to keep alive.</p>
             <span class="gcard-tag">quickstart</span>
           </div>
-          <div class="gcard-panel code-panel">
+          <div class="gcard-panel code-panel" data-component="quickstart-stream">
             <div class="code-bar">
               <span>quickstart.py</span>
               <button class="code-run" type="button" id="runAgain">▶ Run</button>
@@ -982,7 +1011,7 @@ model = umbra.load(<span class="s">"./weights/7b-instruct"</span>)
     </div>
   </section>
 
-  <section class="figures" id="figures">
+  <section class="figures" id="figures" data-section="stats" aria-label="Figures">
     <div class="wrap">
       <div class="stats">
         <article class="gcard gcard--stat">
@@ -1024,7 +1053,7 @@ model = umbra.load(<span class="s">"./weights/7b-instruct"</span>)
     </div>
   </section>
 
-  <section class="faq" id="faq">
+  <section class="faq" id="faq" data-section="faq">
     <div class="wrap">
       <h2>Questions</h2>
       <div class="qs">
@@ -1052,11 +1081,11 @@ model = umbra.load(<span class="s">"./weights/7b-instruct"</span>)
     </div>
   </section>
 
-  <section class="close" id="access">
+  <section class="close" id="access" data-section="cta">
     <div class="wrap">
       <h2>Come and watch it do nothing.</h2>
       <p>The interesting part of a runtime is what it stops doing. Put a model in front of it and see how little is left between the request and the first token.</p>
-      <form class="access" id="accessForm">
+      <form class="access" id="accessForm" data-component="access-form">
         <label class="sr" for="accessEmail">Work email</label>
         <input id="accessEmail" name="email" type="email" required autocomplete="email" placeholder="you@company.com" />
         <button class="pill pill--cta" type="submit">
@@ -1068,7 +1097,7 @@ model = umbra.load(<span class="s">"./weights/7b-instruct"</span>)
     </div>
   </section>
 
-  <footer class="foot">
+  <footer class="foot" data-section="footer">
     <div class="wrap">
       <nav class="foot-nav" aria-label="Page">
         <a href="#how">How it works</a>

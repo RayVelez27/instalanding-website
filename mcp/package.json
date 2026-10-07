@@ -1,15 +1,17 @@
 {
-  "name": "instalanding-mcp",
-  "version": "0.1.0",
-  "description": "MCP server for the INSTALANDING.AI one-shot prompt library — search prompts and pull single-file component demos straight into your agent.",
+  "name": "instalanding",
+  "version": "0.2.0",
+  "description": "Landing pages and UI components for coding agents: search, inspect and pull one-shot briefs and single-file reference builds from INSTALANDING.AI. CLI + MCP server + agent skill.",
   "type": "module",
   "license": "MIT",
   "bin": {
+    "instalanding": "src/cli.js",
     "instalanding-mcp": "src/index.js"
   },
   "main": "src/index.js",
   "files": [
     "src",
+    "SKILL.md",
     "README.md"
   ],
   "engines": {
@@ -22,11 +24,18 @@
     "landing-page",
     "ui-components",
     "claude",
-    "cursor"
+    "cursor",
+    "cli",
+    "agent-skill",
+    "claude-code",
+    "codex",
+    "opencode"
   ],
   "scripts": {
     "start": "node src/index.js",
-    "smoke": "node test/smoke.js"
+    "cli": "node src/cli.js",
+    "smoke": "node test/smoke.js",
+    "smoke:cli": "node test/cli.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

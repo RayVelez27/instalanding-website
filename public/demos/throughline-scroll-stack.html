@@ -1,4 +1,27 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Icon-Cut Card Stack Page
+  slug     icon-cut-card-stack-page
+  prompt   https://instalanding.ai/p/icon-cut-card-stack-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/icon-cut-card-stack-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of the main <style>: --ink #131417, --fg, --line/--line-2,
+            --spectrum (the only colour), --violet/--amber/--green/--cyan, --navy (hero panel), --f-mono; Anton for the poster
+  sections  nav, hero, card-stack, features, stats, pricing, faq, cta, footer
+  scripts   1) hero "ask your runbooks" form with a canned KB  2) the waterline: procedural seamless SVG waves
+            3) the scroll rig: per-char spectrum paint, nav/burger, snake (throughlines) + slab, GSAP 3.12.5 + ScrollTrigger (cdnjs, deferred)
+            4) card edges and row entrance (IntersectionObserver)
+  assets    none: all CSS/inline SVG; card icon cut-outs are SVG data URIs in --cut/--rim on #c-* ids; fonts from Google Fonts
+
+  ADAPTING
+  - The spectrum lives twice: --spectrum in CSS and the GRAD string in the rig script (per-character card copy). Change both.
+  - Card glyph holes are <mask> data URIs (--cut) authored in the card's 300x450 space, with a matching 7px stroke in --rim; edit both.
+  - .stage uses overflow: clip, not hidden; hidden makes it a scroll container and the sticky slab stops working.
+  - No scroll-behavior: smooth on html (it fights ScrollTrigger), and keep GSAP deferred after the page's own scripts.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Throughline</title>
 <meta name="description" content="THROUGHLINE is a fictional AI delivery platform: route between models, ground them in your corpus, gate releases on evals and ship behind a canary." />
 <script>document.documentElement.className += " js";</script>
@@ -1210,7 +1233,7 @@ a{ color:inherit; }
 <body>
 
 <!-- ======================= NAV ======================= -->
-<header class="nav">
+<header class="nav" data-section="nav">
   <div class="nav-in">
     <a class="brand" href="#top">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4" fill="none" stroke="url(#spectrum)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1241,7 +1264,7 @@ a{ color:inherit; }
 </div></div>
 
 <!-- ======================= HERO ======================= -->
-<section class="hero" id="top">
+<section class="hero" id="top" data-section="hero">
       <div class="wrap hero-copy">
     <div class="poster">
       <h1><i>Prompt</i><i>to production</i><i class="spec">one pipeline</i></h1>
@@ -1262,7 +1285,7 @@ a{ color:inherit; }
     </div>
 
 
-    <div class="ask" id="ask">
+    <div class="ask" id="ask" data-component="ask-box">
       <form class="ask-form" id="ask-form" autocomplete="off">
         <div class="ask-pill">
           <label for="ask-input" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ask the demo runbooks</label>
@@ -1308,7 +1331,7 @@ a{ color:inherit; }
 
 
 <!-- ======================= THE STACK ======================= -->
-<section class="stage" id="stage">
+<section class="stage" id="stage" data-section="card-stack" aria-label="The stack">
   <div class="rig">
 
     <div class="world" aria-hidden="true"><div class="tablet"></div></div>
@@ -1455,7 +1478,7 @@ a{ color:inherit; }
 </section>
 
 <!-- ======================= STAGES ======================= -->
-<section class="band" id="stages">
+<section class="band" id="stages" data-section="features">
   <div class="wrap">
     <div class="band-head">
       <span class="band-num">01 — Stages</span>
@@ -1524,7 +1547,7 @@ a{ color:inherit; }
 </section>
 
 <!-- ======================= NUMBERS ======================= -->
-<section class="band band--tight">
+<section class="band band--tight" data-section="stats" aria-label="Numbers">
   <div class="wrap">
     <div class="stats">
       <div class="stat"><b class="grad">41ms</b><span>p95 routing overhead</span></div>
@@ -1536,7 +1559,7 @@ a{ color:inherit; }
 </section>
 
 <!-- ======================= PRICING ======================= -->
-<section class="band" id="pricing">
+<section class="band" id="pricing" data-section="pricing">
   <div class="wrap">
     <div class="band-head">
       <span class="band-num">02 — Pricing</span>
@@ -1586,7 +1609,7 @@ a{ color:inherit; }
 </section>
 
 <!-- ======================= QUESTIONS ======================= -->
-<section class="band" id="faq">
+<section class="band" id="faq" data-section="faq">
   <div class="wrap">
     <div class="band-head">
       <span class="band-num">03 — Questions</span>
@@ -1614,7 +1637,7 @@ a{ color:inherit; }
 </section>
 
 <!-- ======================= CLOSER ======================= -->
-<section class="band closer">
+<section class="band closer" data-section="cta">
   <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <div class="wrap">
     <h2>Stop holding the <span class="grad">pipeline together</span> by hand</h2>
@@ -1626,7 +1649,7 @@ a{ color:inherit; }
   </div>
 </section>
 
-<footer class="foot">
+<footer class="foot" data-section="footer">
   <div class="wrap foot-in">
     <small>
       <b>THROUGHLINE is a fictional product and nothing here is real.</b><br>

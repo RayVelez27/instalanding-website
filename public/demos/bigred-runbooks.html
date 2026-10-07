@@ -1,4 +1,31 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Squircle Keycap Product Page
+  slug     squircle-keycap-product-page
+  prompt   https://instalanding.ai/p/squircle-keycap-product-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/squircle-keycap-product-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties in the second <style>: --paper, --ink, --red, --green, --amber,
+            --border (3px ink), --shadow (7px 7px 0 hard), --display/--body/--mono (Bricolage Grotesque,
+            Instrument Sans, DM Mono); Material Icons ligatures via Google Fonts
+  sections  nav, hero, run-log, stats, audit, registry, proof, playbook, footer
+  scripts   one inline IIFE, no libraries: S() superellipse path + createBtn() SVG keycaps (mounted into the
+            empty <span id> hosts); isometric CSS 3D deck of .k keys around the red key; six-step simulated
+            run log; readiness-audit meter; registry filters + inspector + copy; WebAudio press thunk
+  assets    none inlined: keys are JS-built SVG, the deck is CSS 3D, fonts load from Google Fonts
+
+  ADAPTING
+  - Keycap widths are measured from the label with canvas measureText in 700 15px Instrument Sans and
+    re-measured on document.fonts.ready; change the label font in createBtn() too, or labels clip.
+  - Icons are Material Icons ligature text inside SVG tspans; keep text-transform:none on the key
+    (createBtn sets it) or an uppercased parent turns the icon name into the literal word.
+  - Under 560px fitPhone() makes Sign in icon-only and the hero/audit keys full-width (matchMedia mirrors
+    the CSS query); labelled keys otherwise push the page wider than 390px.
+  - The deck's six lit ring keys map 1:1 to STEPS; keep DECK, RING_CELLS and STEPS in step together.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>BIGRED</title>
 <meta name="description" content="Landing page for a fictional runbook-automation product: a physical keycap system in a restrained brutalist layout, with a live run console, runbook registry and readiness audit." />
 
@@ -352,7 +379,7 @@ p { line-height: 1.6; }
 
 <main class="shell" id="top">
 
-  <div class="bento topbar">
+  <div class="bento topbar" data-section="nav">
     <span class="brand"><span id="brandKey"></span> BIGRED</span>
     <nav class="topnav" aria-label="Sections">
       <a href="#registry">Registry</a>
@@ -366,7 +393,7 @@ p { line-height: 1.6; }
   </div>
 
   <!-- HERO -->
-  <header class="bento hero">
+  <header class="bento hero" data-section="hero">
     <div class="hero-copy">
       <p class="eyebrow">Runbook automation · AI operator</p>
       <h1>One button<span>per runbook.</span></h1>
@@ -389,7 +416,7 @@ p { line-height: 1.6; }
   </header>
 
   <!-- CONSOLE -->
-  <section class="bento console" aria-label="Run log">
+  <section class="bento console" aria-label="Run log" data-section="run-log">
     <div class="console-head">
       <span class="live" id="liveDot"><i></i><span id="liveText">Ready</span></span>
       <span>run log · svc/payments@staging</span>
@@ -400,7 +427,7 @@ p { line-height: 1.6; }
   </section>
 
   <!-- STATS -->
-  <section class="section" aria-label="Fleet statistics">
+  <section class="section" aria-label="Fleet statistics" data-section="stats">
     <div class="stats">
       <article class="stat">
         <p class="mono">Runbooks on keys</p>
@@ -427,7 +454,7 @@ p { line-height: 1.6; }
   </section>
 
   <!-- AUDIT -->
-  <section class="bento audit section" id="audit">
+  <section class="bento audit section" id="audit" data-section="audit">
     <div class="audit-head">
       <div>
         <p class="eyebrow">Readiness</p>
@@ -447,7 +474,7 @@ p { line-height: 1.6; }
   </section>
 
   <!-- REGISTRY -->
-  <section class="section" id="registry">
+  <section class="section" id="registry" data-section="registry">
     <div class="section-head">
       <div>
         <p class="eyebrow">Registry</p>
@@ -460,7 +487,7 @@ p { line-height: 1.6; }
         <button class="filter" type="button" data-filter="security">Security</button>
       </div>
     </div>
-    <div class="workspace">
+    <div class="workspace" data-component="registry-inspector">
       <div class="cards" id="cards"></div>
       <aside class="bento inspector" aria-live="polite">
         <div class="inspector-top">
@@ -484,7 +511,7 @@ p { line-height: 1.6; }
   </section>
 
   <!-- PROOF -->
-  <section class="section proof" aria-label="Integrations and security">
+  <section class="section proof" aria-label="Integrations and security" data-section="proof">
     <div>
       <p class="eyebrow">Works with your stack</p>
       <ul class="wordmarks">
@@ -501,7 +528,7 @@ p { line-height: 1.6; }
   </section>
 
   <!-- PLAYBOOK -->
-  <section class="section" id="playbook">
+  <section class="section" id="playbook" data-section="playbook">
     <div class="section-head"><div><p class="eyebrow">Playbook</p><h2>Three moves, in order</h2></div></div>
     <div class="remedies">
       <article class="remedy">
@@ -525,7 +552,7 @@ p { line-height: 1.6; }
     </div>
   </section>
 
-  <footer class="bento footer">
+  <footer class="bento footer" data-section="footer">
     <div class="footer-top">
       <div>
         <p class="eyebrow">BIGRED</p>

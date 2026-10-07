@@ -1,4 +1,33 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Clay SaaS Platform Page
+  slug     clay-saas-platform-page
+  prompt   https://instalanding.ai/p/clay-saas-platform-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/clay-saas-platform-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of the second <style>: --greyLight-1 (the one page colour),
+            --greyLight-2, --white, --primary / --primary-light / --primary-dark, --text-dark, --shadow /
+            --shadow-inset / --shadow-lg (soft-UI pair); html font-size 62.5% so 1rem = 10px; Funnel Display +
+            JetBrains Mono from Google Fonts; dark/dim themes are body:has(input[value=dark|dim]:checked) overrides
+  sections  nav, menu, hero, platform, modules, how-it-works, pipelines, testimonials, faq, footer
+  scripts   no libraries. Head one-liner adds .mo to <html> unless reduced motion; one inline DOMContentLoaded
+            script: split-letter generate button, theme switcher, .m morph shells, .rv reveals +
+            stat counters via IntersectionObserver, floating pill + full-page menu, data-target scroll,
+            module cards/toggles, pipeline tabs, FAQ accordion
+  assets    one base64 WebP displacement map inlined in the #switcher SVG filter (theme switcher glass);
+            everything else inline SVG / CSS
+
+  ADAPTING
+  - Soft UI only works when every raised or pressed surface is the same colour as the page: tint a card
+    or band away from --greyLight-1 and the shadow pair reads as a drop shadow.
+  - .rv/.m start hidden only under html.mo (set by the head one-liner) and the IntersectionObserver adds .is-in;
+    if you drop or break the observer script, drop .mo too or those sections stay at opacity 0.
+  - The generate button's letters are split from plain text in JS; keep the label as text, not spans.
+  - The first <style> and the <title> inside <body> are a host wrapper, not page styles.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Dermexcel</title>
 <script>if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("mo");</script>
 <meta name="description" content="Dermexcel, a fictional AI agent platform with a skincare-inspired routine: brief, run and review agents from one control plane." />
@@ -4156,7 +4185,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
         </feDisplacementMap>
       </filter></svg>
 
-<header class="site-nav">
+<header class="site-nav" data-section="nav">
   <a class="logo" href="#top" data-close aria-label="Dermexcel, back to top">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 338.3 330" aria-hidden="true"><use href="#dx-mark"></use></svg>
     DERMEXCEL
@@ -4169,7 +4198,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
   </div>
 </header>
 
-<div class="menu" id="site-menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+<div class="menu" id="site-menu" data-section="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
   <div class="menu-inner">
     <nav aria-label="Primary">
       <ul class="menu-links">
@@ -4191,7 +4220,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
       </div>
       <div class="menu-card pane" style="--i: 3">
         <span class="menu-kicker">Appearance</span>
-        <fieldset class="switcher">
+        <fieldset class="switcher" data-component="theme-switcher">
           <legend class="switcher__legend">Choose theme</legend>
           <label class="switcher__option" title="Light">
             <input class="switcher__input" type="radio" name="theme" value="light" c-option="1" checked />
@@ -4225,7 +4254,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 </div>
 
 
-<section class="hero hx">
+<section class="hero hx" data-section="hero">
   <div class="bg-text gsap-bg-text" aria-hidden="true">DERMEXCEL</div>
 
   <div class="hx-grid">
@@ -4264,7 +4293,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
       </ul>
     </div>
 
-    <div class="hx-stage" aria-label="Example: a task is taken in, planned, checked and handed off">
+    <div class="hx-stage" role="group" aria-label="Example: a task is taken in, planned, checked and handed off">
       <div class="hx-glow" aria-hidden="true"></div>
 
       <!-- capture viewport, drawn rather than photographed -->
@@ -4472,7 +4501,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
   </div>
 </section>
 
-<section class="platform" id="platform">
+<section class="platform" id="platform" data-section="platform">
   <div class="platform-inner">
     <div class="platform-head">
       <h2 class="platform-title rv">One API.<br><span>The whole agent routine.</span></h2>
@@ -4535,7 +4564,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 
 
 <!-- ============ Modules ============ -->
-<section class="section section--gray" id="products">
+<section class="section section--gray" id="products" data-section="modules">
   <div class="section-inner">
     <div class="section-head">
       <div class="rv">
@@ -4623,7 +4652,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 </section>
 
 <!-- ============ How it works + numbers ============ -->
-<section class="section section--white" id="science">
+<section class="section section--white" id="science" data-section="how-it-works">
   <div class="wireframe-globe wireframe-globe--right"></div>
   <div class="section-inner">
     <div class="section-head">
@@ -4684,7 +4713,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 </section>
 
 <!-- ============ Pipelines ============ -->
-<section class="section section--gray" id="plans">
+<section class="section section--gray" id="plans" data-section="pipelines">
   <div class="section-inner">
     <div class="section-head">
       <div class="rv">
@@ -4730,7 +4759,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 </section>
 
 <!-- ============ Customers ============ -->
-<section class="section section--white" id="reviews">
+<section class="section section--white" id="reviews" data-section="testimonials">
   <div class="section-inner">
     <div class="section-head">
       <div class="rv">
@@ -4762,7 +4791,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 </section>
 
 <!-- ============ FAQ ============ -->
-<section class="section section--gray" id="faq">
+<section class="section section--gray" id="faq" data-section="faq">
   <div class="section-inner faq-layout">
     <div class="faq-intro rv">
       <h2 class="section-title">Questions,<br><span>answered.</span></h2>
@@ -4806,7 +4835,7 @@ h3, .flow-step h3, .step-card h3, .product-info h3, .faq-q, .mcard-body h3 { fon
 </section>
 
 <!-- ============ Footer ============ -->
-<footer class="site-footer fx-footer">
+<footer class="site-footer fx-footer" data-section="footer">
   <div class="ft-card dcard">
     <span class="card-fx" aria-hidden="true"><span class="card-grid"></span><span class="card-glow"></span></span>
 

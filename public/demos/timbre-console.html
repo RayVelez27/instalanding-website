@@ -1,4 +1,28 @@
 <!doctype html>
+<!--
+  INSTALANDING.AI · Speech Console Dashboard
+  slug     speech-console-dashboard
+  prompt   https://instalanding.ai/p/speech-console-dashboard.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/speech-console-dashboard
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --page, --shell/--shell-2 (moulded plastic),
+            --screen, --amber (the only colour), --ink/--ink-2/--ink-3, --lift/--lift-sm/--press
+            (the one-light-source shadows), --sans Inter / --mono JetBrains Mono (Google Fonts)
+  sections  topbar, deck, queue, status-bar
+  scripts   one inline IIFE, no libraries: TAKES data, seeded waveform + read-along transcript,
+            transport keys, scrub (pointer + arrows), gain knob, tick meters, one parked rAF loop
+  assets    none: all CSS (deck, knob, meters, bars) plus five inline SVG transport glyphs
+
+  ADAPTING
+  - One viewport: body is overflow:hidden and .app is 100dvh above 1080px, so anything added to a
+    column must shrink (min-height:0) or it is silently clipped, not scrolled.
+  - .trays keeps position:relative + z-index:0; drop it and the tray pseudo-elements paint behind the page.
+  - Waveform, transcript and meters all read the same `pos`; edit TAKES[].x / .s / .seed, not the DOM.
+  - setPlaying is re-wrapped below the loop to kick the parked rAF: start playback through setPlaying(),
+    never by setting `playing` directly. The knob dots sit at translateY(-50px) for a 104px knob.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -283,9 +307,10 @@ ul { list-style: none; }
 </style>
 </head>
 <body>
+<h1 class="sr">Timbre speech console</h1>
 
 <div class="app">
-  <header class="topbar">
+  <header class="topbar" data-section="topbar">
     <span class="view">Speech console</span>
     <div class="tb-mid">
       <span class="chip"><span class="dot" aria-hidden="true"></span><span id="tb-state">Stopped</span></span>
@@ -294,9 +319,9 @@ ul { list-style: none; }
     <span class="chip">SESSION 4C1F · SIM</span>
   </header>
 
-  <div class="body">
+  <div class="body" role="main">
     <!-- ============ THE DECK ============ -->
-    <div class="col">
+    <div class="col" data-section="deck" role="region" aria-label="Player deck">
       <div class="deckwrap">
         <div class="trays">
           <div class="deck">
@@ -337,7 +362,7 @@ ul { list-style: none; }
               </div>
 
               <div class="knobwrap">
-                <div class="knob" id="knob" role="slider" tabindex="0"
+                <div class="knob" id="knob" data-component="gain-knob" role="slider" tabindex="0"
                      aria-label="Output gain" aria-valuemin="0" aria-valuemax="100" aria-valuenow="72">
                   <div class="dots" id="dots" aria-hidden="true"></div>
                   <div class="cap" id="cap"></div>
@@ -354,14 +379,14 @@ ul { list-style: none; }
         </div>
       </div>
 
-      <div class="script">
+      <div class="script" data-component="transcript">
         <div class="script-head"><span class="lbl">Transcript</span><span class="lbl" id="sc-pos">—</span></div>
         <p id="script"></p>
       </div>
     </div>
 
     <!-- ============ THE QUEUE ============ -->
-    <div class="col">
+    <div class="col" data-section="queue" role="region" aria-label="Take queue">
       <div class="card queue">
         <div class="card-head">
           <span class="lbl">Takes</span>
@@ -378,7 +403,7 @@ ul { list-style: none; }
     </div>
   </div>
 
-  <footer class="statusbar">
+  <footer class="statusbar" data-section="status-bar">
     <span><b>SIM</b> · Timbre is a fictional product — the model, the voices and every reading are invented. Nothing here is real.</span>
     <span class="sb-r">Deck after an audio player by Riotters · one file · no images · no libraries</span>
   </footer>

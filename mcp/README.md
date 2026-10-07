@@ -1,21 +1,55 @@
-# instalanding-mcp
+# instalanding
 
-MCP server for the [INSTALANDING.AI](https://instalanding.ai) one-shot prompt library.
+Give your agent better taste. CLI, MCP server and agent skill for the
+[INSTALANDING.AI](https://instalanding.ai) library of landing pages and UI components.
 
-Your agent searches the library and pulls a complete build brief without a browser, a copy
-button, or an account. Free and open source, like the library itself.
+Your agent searches the library, checks a candidate's fit, and pulls a complete build brief or
+a single-file reference build — without a browser, a copy button, or an account. Free and open
+source, like the library itself.
 
 ```bash
-claude mcp add instalanding -- npx -y instalanding-mcp
+npx -y instalanding search "dark technical ai"
+npx -y instalanding inspect monax-analytics-landing-page
+npx -y instalanding get monax-analytics-landing-page > brief.txt
+npx -y instalanding add monax-analytics-landing-page ./public
 ```
 
-## Install
+One package, three surfaces, one data source — they always agree:
+
+| surface | for | start |
+| --- | --- | --- |
+| CLI | any agent with a shell (Claude Code, Codex, Cursor, OpenCode, Gemini CLI, …) | `npx -y instalanding help` |
+| MCP | tool-aware clients | `npx -y instalanding mcp` |
+| Skill | agents that load `SKILL.md` / `AGENTS.md` instructions | `npx -y instalanding skill --install` |
+
+## CLI
+
+| command | what it does |
+| --- | --- |
+| `search [words...]` | Rank entries by use, look and stack. `--category`, `--limit` |
+| `inspect <slug>` | Stack (libraries, fonts, WebGL/canvas), sections in order, best-for, style, sizes |
+| `get <slug>` | The one-shot brief, raw, to stdout — and nothing else, so it pipes. `--meta` adds a header |
+| `add <slug> [path]` | Write the reference build. A directory gets `<slug>.html`. `--force` to overwrite |
+| `skill` | Print the agent skill. `--install [dir]` writes `<dir>/instalanding/SKILL.md` (default `.claude/skills`) |
+| `mcp` | Run the MCP server on stdio |
+| `categories` | What the library holds |
+
+Every command takes `--json` and `--base-url`. Results go to stdout, progress and errors to
+stderr. Exit codes: `0` ok, `1` library error (unknown slug, network), `2` usage error.
+
+## Skill
+
+`SKILL.md` teaches an agent the loop — search, inspect, get or add, adapt, verify — and works
+over the CLI, the MCP server or plain HTTP, whichever the agent has. It is also served at
+`https://instalanding.ai/SKILL.md`, so an agent can read it without installing anything.
+
+## MCP install
 
 <details open>
 <summary><b>Claude Code</b></summary>
 
 ```bash
-claude mcp add instalanding -- npx -y instalanding-mcp
+claude mcp add instalanding -- npx -y instalanding mcp
 ```
 </details>
 
@@ -27,7 +61,7 @@ claude mcp add instalanding -- npx -y instalanding-mcp
   "mcpServers": {
     "instalanding": {
       "command": "npx",
-      "args": ["-y", "instalanding-mcp"]
+      "args": ["-y", "instalanding", "mcp"]
     }
   }
 }
@@ -42,7 +76,7 @@ claude mcp add instalanding -- npx -y instalanding-mcp
   "mcpServers": {
     "instalanding": {
       "command": "npx",
-      "args": ["-y", "instalanding-mcp"]
+      "args": ["-y", "instalanding", "mcp"]
     }
   }
 }
@@ -70,6 +104,17 @@ Find prompts by what you want to build.
 
 Returns each match with its slug, description, token estimate and demo URL. Omit `query` to
 browse a category.
+
+### `inspect_prompt`
+Check whether an entry fits before reading it — a few hundred tokens.
+
+| arg | type | notes |
+| --- | --- | --- |
+| `slug` | string | |
+
+Returns the stack (CDN libraries with versions, Google Fonts, WebGL/canvas/web component),
+the `data-section` names in order, what the page is best for, its style, and the size of the
+prompt and the demo.
 
 ### `get_prompt`
 The full one-shot brief for a slug — the thing you build from.
@@ -116,7 +161,7 @@ attach context can pick one from a list.
 adding prompts:
 
 ```bash
-npx instalanding-mcp --base-url http://localhost:8081
+npx instalanding mcp --base-url http://localhost:8081
 ```
 
 ## How it works
@@ -140,6 +185,7 @@ so the agent can recover on its own.
 npm install
 npm start                                   # stdio server against the public site
 node test/smoke.js http://localhost:8081    # end-to-end over real MCP stdio
+node test/cli.js http://localhost:8081      # end-to-end CLI: output, files written, exit codes
 ```
 
 The smoke test spawns the server, then exercises every tool and resource: the tool list, search

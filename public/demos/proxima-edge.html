@@ -1,4 +1,31 @@
 <!doctype html>
+<!--
+  INSTALANDING.AI · Radiating Rings Hero Page
+  slug     radiating-rings-hero-page
+  prompt   https://instalanding.ai/p/radiating-rings-hero-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/radiating-rings-hero-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --void, --deep, --mid, --lit, --blue (#045cff),
+            --ink, --glass, --line, --sans (Poppins), --mono (JetBrains Mono), --ease; per-ring gradient
+            stops are --c1..--c3 / --h1..--h3 on each .rings i:nth-child(n)
+  sections  nav, hero, features, latency, how-it-works, stats, pricing, faq, cta, footer
+  scripts   one inline script, no libraries: seeded starfield + region dot map; pointer-tracked light
+            (#lightsrc + #beamcore transforms, lerped, parks when caught up); footer subscribe (local only);
+            count-up stats; pill-nav glide measured from the active link; .rv scroll reveals
+  assets    none: orb, rings, stars and icons are CSS and inline SVG; fonts from Google Fonts
+
+  ADAPTING
+  - The five .rings i stadiums are all centred on .cta-slot; resizing the button or moving it out of
+    .ringstack breaks the tunnel. The hover light is a ::after opacity fade keyed on .ringstack:hover and
+    :focus-within, with the stagger delay in the :hover rule, not the base rule.
+  - The light moves by transform on #lightsrc and #beamcore; do not switch it to animating
+    background-position (repaints the whole hero every frame).
+  - The pill-nav glide is measured from the active link and re-measured on document.fonts.ready and
+    resize; links must keep href="#id" matching a section id for the IntersectionObserver handoff.
+  - Count-up targets live in data-to / data-dp on #stats; the visible text is overwritten from them.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -718,7 +745,7 @@ ul { list-style: none; }
 </head>
 <body>
 
-<nav class="nav">
+<nav class="nav" aria-label="Main" data-section="nav">
   <div class="wrap">
     <a class="brand" href="#top">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -728,7 +755,7 @@ ul { list-style: none; }
       </svg>
       Proxima
     </a>
-    <div class="pillnav" id="pillnav">
+    <div class="pillnav" id="pillnav" data-component="pill-nav">
       <span class="glide" id="glide" aria-hidden="true"></span>
       <a href="#network" class="on">Network</a>
       <a href="#latency">Latency</a>
@@ -743,7 +770,7 @@ ul { list-style: none; }
   </div>
 </nav>
 
-<header class="hero" id="top">
+<header class="hero" id="top" data-section="hero">
   <span class="lightsrc" id="lightsrc" aria-hidden="true"></span>
   <div class="stars" id="stars" aria-hidden="true"></div>
 
@@ -779,7 +806,7 @@ ul { list-style: none; }
     </div>
 
     <div class="ringstack">
-      <div class="rings"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="rings" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
       <div class="beam" aria-hidden="true"><i id="beamcore"></i></div>
       <div class="readout ro-1" aria-hidden="true"><small>Frankfurt</small><b>11<em>ms p50</em></b></div>
       <div class="readout ro-2" aria-hidden="true"><small>Tokyo</small><b>Warm<em>· 3 replicas</em></b></div>
@@ -798,10 +825,10 @@ ul { list-style: none; }
     <div class="logos wrap">
       <p>Serving at the edge for teams like these · placeholder names</p>
       <ul>
-        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 15 10 4l7 11z"/></svg>Kestrel</li>
+        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 15 10 4l7 11z"/></svg>Kestrel</li>
         <li class="caps">Oxbow</li>
         <li class="serif">Tessellate</li>
-        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="6.5"/><circle cx="10" cy="10" r="2.5" fill="currentColor"/></svg>Meridian&nbsp;Nine</li>
+        <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><circle cx="10" cy="10" r="2.5" fill="currentColor"/></svg>Meridian&nbsp;Nine</li>
         <li class="caps">Quillray</li>
         <li class="serif">Halden&nbsp;&amp;&nbsp;Moor</li>
       </ul>
@@ -811,7 +838,7 @@ ul { list-style: none; }
 
 <main>
   <!-- ======================= NETWORK ======================= -->
-  <section class="sec" id="network">
+  <section class="sec" id="network" data-section="features">
     <div class="wrap">
       <div class="sec-head rv">
         <h2>Distance is the part of latency you cannot optimise away.</h2>
@@ -862,7 +889,7 @@ ul { list-style: none; }
   </section>
 
   <!-- ======================= LATENCY ======================= -->
-  <section class="sec" id="latency">
+  <section class="sec" id="latency" data-section="latency">
     <div class="wrap">
       <div class="sec-head rv">
         <h2>The same model, measured from the same six cities.</h2>
@@ -882,7 +909,7 @@ ul { list-style: none; }
   </section>
 
   <!-- ======================= HOW ======================= -->
-  <section class="sec" id="how">
+  <section class="sec" id="how" data-section="how-it-works">
     <div class="wrap">
       <div class="sec-head rv">
         <h2>Three calls, then it is somebody else's problem.</h2>
@@ -926,7 +953,7 @@ ul { list-style: none; }
   </section>
 
   <!-- ======================= NUMBERS ======================= -->
-  <section class="sec" id="numbers">
+  <section class="sec" id="numbers" data-section="stats">
     <div class="wrap">
       <div class="sec-head rv">
         <h2>What it looks like from the caller's side.</h2>
@@ -970,7 +997,7 @@ ul { list-style: none; }
   </section>
 
   <!-- ======================= PRICING ======================= -->
-  <section class="sec" id="pricing">
+  <section class="sec" id="pricing" data-section="pricing">
     <div class="wrap">
       <div class="sec-head center rv">
         <h2>Pay for tokens, not for distance.</h2>
@@ -1020,7 +1047,7 @@ ul { list-style: none; }
   </section>
 
   <!-- ======================= FAQ ======================= -->
-  <section class="sec" id="faq">
+  <section class="sec" id="faq" data-section="faq">
     <div class="wrap faq-wrap">
       <div class="sec-head rv" style="margin-bottom:0">
         <h2>Things people ask before the first deploy.</h2>
@@ -1052,7 +1079,7 @@ ul { list-style: none; }
   </section>
 
   <!-- ======================= CLOSE ======================= -->
-  <section class="close" id="start">
+  <section class="close" id="start" data-section="cta">
     <div class="wrap">
       <div class="portal rv">
         <div class="portal-rings" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><b></b></div>
@@ -1069,7 +1096,7 @@ ul { list-style: none; }
   </section>
 </main>
 
-<footer class="ft">
+<footer class="ft" data-section="footer">
   <div class="wrap">
     <div class="ft-top">
       <div class="ft-brand">

@@ -1,4 +1,31 @@
 <!DOCTYPE html>
+<!--
+  INSTALANDING.AI · Launch Form Onboarding Flow
+  slug     launch-form-onboarding-flow
+  prompt   https://instalanding.ai/p/launch-form-onboarding-flow.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/launch-form-onboarding-flow
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :host custom properties at the top of the shadow <style> inside TEMPLATE: --lf-bg, --lf-surface,
+            --lf-text, --lf-mute, --lf-blue / --lf-blue-hi, --lf-btn-h (radius = 0.2 x height), --lf-ease, --lf-dur;
+            Inter + JetBrains Mono from Google Fonts
+  sections  launch-form (the custom element; inside its shadow root: signup, login, overlay)
+  scripts   one inline script, no libraries: PublishButton controller (idle/launch/wait/done on data-phase),
+            the <launch-form> custom element with Shadow DOM (steps, validation, live preview card,
+            simulated requests, launch-form:* events)
+  assets    none: icons are inline SVG strings in ICON, starfield/planet/orbit are CSS
+
+  ADAPTING
+  - Everything lives in a shadow root: page CSS and document.querySelector do not reach it. Style through
+    the :host --lf-* tokens and talk to it through attributes (mode, domain, simulate) and the composed
+    launch-form:signup|login|publish events, whose detail.respondWith(promise) swaps in a real request.
+  - The publish button must hold on "wait" until the request resolves; settle() only after the promise does,
+    reset() on failure. Do not time "done" off the animation.
+  - The ".orbit.pub" suffix width is measured by a ResizeObserver (webfont changes it); keep that if you
+    change the domain or the font.
+  - Under 860px the overlay is hidden and starBurst() bails because the card has no width.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -16,7 +43,8 @@
 </head>
 <body>
 
-<launch-form simulate="normal" domain="orbit.pub"></launch-form>
+<h1 style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Orbit: create your account and launch a publication</h1>
+<launch-form simulate="normal" domain="orbit.pub" role="main" data-section="launch-form"></launch-form>
 
 <script>
 /* ==================================================================
@@ -831,7 +859,7 @@
   </div>
 
   <!-- ======== SIGN UP + ONBOARDING ======== -->
-  <section class="pane pane--signup is-active" aria-label="Create your Orbit account">
+  <section class="pane pane--signup is-active" aria-label="Create your Orbit account" data-section="signup">
     <div class="pane-scroll">
       <div class="pane-inner">
         <div class="pane-top">
@@ -932,7 +960,7 @@
           <div class="alert" role="alert">${ICON.alert}<span></span></div>
           <div class="actions">
             <button type="button" class="text-btn" data-back>${ICON.back}Back</button>
-            <button type="submit" class="pub-btn" data-phase="idle">
+            <button type="submit" class="pub-btn" data-phase="idle" data-component="publish-button">
               <span class="pb-face" aria-hidden="true">
                 <span class="pb-rocket">${ICON.rocket}</span>
                 <span class="pb-label">Publish</span>
@@ -961,7 +989,7 @@
   </section>
 
   <!-- ======== LOG IN ======== -->
-  <section class="pane pane--login" aria-label="Log in to Orbit">
+  <section class="pane pane--login" aria-label="Log in to Orbit" data-section="login">
     <div class="pane-scroll">
       <div class="pane-inner">
         <form class="step login-form" data-login novalidate>
@@ -999,7 +1027,7 @@
   </section>
 
   <!-- ======== SLIDING OVERLAY ======== -->
-  <div class="overlay-wrap">
+  <div class="overlay-wrap" data-section="overlay">
     <div class="overlay">
       <div class="stars"></div>
       <div class="orbit"></div>

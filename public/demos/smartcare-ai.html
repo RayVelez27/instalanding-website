@@ -1,4 +1,30 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · SmartCare Clinical AI Landing Page
+  slug     smartcare-clinical-ai-landing-page
+  prompt   https://instalanding.ai/p/smartcare-clinical-ai-landing-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/smartcare-clinical-ai-landing-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of the main <style>: --ink #070a13, --text, --signal #8db5ff,
+            --alert / --warn / --ok, --panel, --radius 16px, --display (Bricolage Grotesque), --sans (Hanken Grotesk), --mono (IBM Plex Mono)
+  sections  nav, menu, hero, metrics, features, predictive, how-it-works, testimonials, governance, faq, cta, footer
+  scripts   1) page behaviour: full-screen menu + hover preview, CTA spotlight, FAQ accordion, risk chart (Catmull-Rom curve)
+            2) hero HUD: builds the tick rings and 36 radiating pills into #hudRings and drives the findings readout
+            3) platform card graphics drawn into each card's SVG in JS  4) iridescence shader, plain WebGL, behind the hero
+            No CDN libraries; fonts from Google Fonts.
+  assets    none: inline SVG, CSS gradients, an SVG-noise data URI for the CTA grain
+
+  ADAPTING
+  - The shader's tint is hard-coded (gl.uniform3f uColor 0.3, 0.42, 0.82) and the card-graphics script hard-codes
+    SIG/ALERT hex values; neither reads the CSS tokens, so retheme them by hand alongside --signal / --alert.
+  - The hero canvas is screen-blended and masked to an ellipse in CSS (.irid); without WebGL the host gets
+    data-irid="off" and a CSS glow stands in. Keep both paths.
+  - The menu is role=dialog + inert while closed; the script toggles inert/aria-expanded, so keep those ids (#menu, #menuBtn).
+  - The CTA (#start) sits inside the FAQ section's .wrap, so moving or restyling the FAQ moves it too.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>SmartCare Solutions</title>
 <meta name="description" content="Clinical AI for imaging and risk. Pre-reads every study, ranks what needs a clinician now, and shows the evidence behind each flag." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1053,7 +1079,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 
 <div class="page">
 
-<header class="header" data-open="false">
+<header class="header" data-open="false" data-section="nav">
   <div class="header-bar">
     <div class="wrap">
       <a class="logo" href="#top" aria-label="SmartCare Solutions home">
@@ -1074,7 +1100,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </div>
 </header>
 
-<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+<div class="menu" id="menu" data-section="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
   <div class="menu-bg" aria-hidden="true">
     <div class="menu-rings">
       <svg viewBox="0 0 1000 1000">
@@ -1147,7 +1173,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 <main id="top">
 
   <!-- ───── Hero ───── -->
-  <section class="hero">
+  <section class="hero" data-section="hero">
     <div class="hero-glow" aria-hidden="true"><canvas class="irid" id="iridCanvas"></canvas></div>
     <div class="wrap hero-grid">
       <div class="hero-copy">
@@ -1206,7 +1232,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </section>
 
   <!-- ───── Outcomes ───── -->
-  <section class="section" id="outcomes">
+  <section class="section" id="outcomes" data-section="metrics">
     <div class="wrap">
       <div class="sec-head">
         <span class="label">Outcomes · 18-month rollout, six sites</span>
@@ -1245,7 +1271,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </section>
 
   <!-- ───── Platform ───── -->
-  <section class="section" id="capabilities">
+  <section class="section" id="capabilities" data-section="features">
     <div class="wrap">
       <div class="sec-head">
         <span class="label">Platform</span>
@@ -1286,7 +1312,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </section>
 
   <!-- ───── Predictive ───── -->
-  <section class="section" id="predictive">
+  <section class="section" id="predictive" data-section="predictive">
     <div class="wrap">
       <div class="sec-head">
         <span class="label">Predictive risk</span>
@@ -1378,7 +1404,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </section>
 
   <!-- ───── How it works ───── -->
-  <section class="section" id="workflow">
+  <section class="section" id="workflow" data-section="how-it-works">
     <div class="wrap">
       <div class="sec-head">
         <span class="label">How a pilot runs</span>
@@ -1409,7 +1435,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </section>
 
   <!-- ───── Quote ───── -->
-  <section class="quote">
+  <section class="quote" data-section="testimonials" aria-label="Customer quote">
     <div class="wrap">
       <figure style="margin:0">
         <blockquote>“The value wasn’t replacing a read. It was knowing <em>which twelve studies</em> to open first.”</blockquote>
@@ -1419,7 +1445,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </section>
 
   <!-- ───── Governance ───── -->
-  <section class="section" id="governance">
+  <section class="section" id="governance" data-section="governance">
     <div class="wrap">
       <div class="sec-head">
         <span class="label">Governance</span>
@@ -1463,7 +1489,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </section>
 
   <!-- ───── FAQ ───── -->
-  <section class="section" id="faq">
+  <section class="section" id="faq" data-section="faq">
     <div class="wrap">
       <div class="faq-layout">
       <div class="faq-side">
@@ -1497,7 +1523,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
       </div>
 
       <!-- ───── CTA ───── -->
-      <div class="cta" id="start">
+      <div class="cta" id="start" data-section="cta">
         <div class="cta-fx" aria-hidden="true"><div class="aurora"></div><div class="floor"></div><div class="spot"></div><div class="grain"></div></div>
         <div class="cta-copy">
           <span class="label">Clinical pilot · booking for Q1 2027</span>
@@ -1548,7 +1574,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
   </section>
 </main>
 
-<div class="wrap">
+<div class="wrap" data-section="footer">
   <footer class="footer">
     <div>
       <a class="logo" href="#top" aria-label="SmartCare Solutions home">

@@ -1,4 +1,31 @@
 <!DOCTYPE html>
+<!--
+  INSTALANDING.AI · Clay Constellation SaaS Hero
+  slug     clay-constellation-saas-hero
+  prompt   https://instalanding.ai/p/clay-constellation-saas-hero.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/clay-constellation-saas-hero
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --bg #ebe9e1, --cream, --ink #0a0a0a, --ink-soft, clay families
+            --mint / --yellow / --purple (each -light/-deep), --spring; button frame tokens --dot-size, --line-weight,
+            --line-distance, --animation-speed, --dot-color, --line-color, --squish*. Fonts: Funnel Display, JetBrains Mono
+  sections  nav, menu, hero, logos, stats, features, product, quote, testimonials, pricing, faq, cta, footer
+  scripts   1 pixel type: turns each .px element's text into a CSS shape() clip-path (only where supported)
+            2 chat demo: scripted conversation in the hero composer (the `script` array)
+            3 pricing billing toggle   4 metric fills on view, CTA form, footer wordmark   5 mobile menu
+            6 GSAP 3.12.5 + ScrollTrigger (cdnjs): entrance timeline, hero scrub, per-word heading reveals, card tilt
+  assets    none binary: inline SVG icons/logos, SVG turbulence grain; fonts from Google Fonts
+
+  ADAPTING
+  - .px text is drawn from a per-letter glyph table: only a-z (lowercased) and spaces render; anything else becomes a
+    space. Browsers without clip-path shape() keep it as plain text.
+  - Hidden start states are set by GSAP in JS (gsap.set), not CSS, so the page renders complete if the CDN fails.
+    Tweens that move hoverable elements end with clearProps; keep that or hover transforms stay pinned.
+  - Headings are split into per-word masks by walking text nodes, so inner accent spans survive; keep markup inside them.
+  - The button frame reads --line-color / --dot-color; the dark CTA slab re-points them on .final-cta .btn-wrapper.
+    Stats render from data-num / data-decimals / data-prefix / data-suffix, not from the visible text.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -2425,7 +2452,7 @@ html:not(.px-on) .mm-mark { display: none; }
 
 <div class="top-rule" aria-hidden="true"></div>
 
-<header class="site-header">
+<header class="site-header" data-section="nav">
   <div class="nav-frame">
     <div class="line horizontal top" aria-hidden="true"></div>
     <div class="line vertical right" aria-hidden="true"></div>
@@ -2470,7 +2497,7 @@ html:not(.px-on) .mm-mark { display: none; }
   </div>
 </header>
 
-<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Site menu" hidden>
+<div class="mobile-menu" id="mobileMenu" data-section="menu" role="dialog" aria-modal="true" aria-label="Site menu" hidden>
   <span class="finale-grid" aria-hidden="true"></span>
   <span class="mm-glow" aria-hidden="true"></span>
   <div class="mm-inner">
@@ -2496,7 +2523,7 @@ html:not(.px-on) .mm-mark { display: none; }
   <div class="mm-mark" aria-hidden="true"><span class="px">traffo</span></div>
 </div>
 
-<main class="hero" id="main">
+<main class="hero" id="main" data-section="hero">
   <span class="glass glass--tab" aria-hidden="true"><i class="live-dot"></i><span>Assistant 4.2<br />now live</span></span>
   
   <div class="hero-left">
@@ -2540,7 +2567,7 @@ html:not(.px-on) .mm-mark { display: none; }
       <span class="hv-dots hv-dots--b" aria-hidden="true"></span>
 
       <div class="chat-stage">
-        <section class="chat" aria-label="Demo chat with the Traffo assistant">
+        <section class="chat" aria-label="Demo chat with the Traffo assistant" data-component="chat-demo">
         <header class="chat-head">
           <span class="chat-avatar"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z" /></svg></span>
           <div class="chat-who">
@@ -2589,7 +2616,7 @@ html:not(.px-on) .mm-mark { display: none; }
 </main>
 
 
-<section class="logos" aria-label="Teams using Traffo">
+<section class="logos" aria-label="Teams using Traffo" data-section="logos">
   <p class="logos-label">Trusted by 4,000+ growth teams</p>
   <div class="marquee">
     <div class="marquee-track">
@@ -2617,7 +2644,7 @@ html:not(.px-on) .mm-mark { display: none; }
   </div>
 </section>
 
-<section class="stats-bar">
+<section class="stats-bar" aria-label="Traffo by the numbers" data-section="stats">
   <div class="metrics-head">
     <div class="section-eyebrow"><span class="px">traffo by the numbers</span></div>
     <span class="metrics-live"><i class="live-dot"></i>Live across all workspaces</span>
@@ -2661,7 +2688,7 @@ html:not(.px-on) .mm-mark { display: none; }
   </div>
 </section>
 
-<section class="features" id="features">
+<section class="features" id="features" data-section="features">
   <div class="features-head">
     <div>
       <div class="section-eyebrow"><span class="px">how traffo works</span></div>
@@ -2716,7 +2743,7 @@ html:not(.px-on) .mm-mark { display: none; }
 </section>
 
 
-<section class="section product" id="product">
+<section class="section product" id="product" data-section="product">
   <div class="section-head">
     <div>
       <div class="section-eyebrow"><span class="px">inside the assistant</span></div>
@@ -2789,14 +2816,14 @@ html:not(.px-on) .mm-mark { display: none; }
   </div>
 </section>
 
-<section class="quote-section" id="quote">
+<section class="quote-section" id="quote" aria-label="Customer quote" data-section="quote">
   <span class="quote-mark" aria-hidden="true">"</span>
   <blockquote class="quote-text">We stopped building dashboards and started asking Traffo. Our conversion rate went up 38% in a quarter.</blockquote>
   <div class="quote-author">— Trinette Eckard, Head of Growth at Makebelief</div>
 </section>
 
 
-<section class="section voices" id="customers">
+<section class="section voices" id="customers" data-section="testimonials">
   <div class="section-head">
     <div>
       <div class="section-eyebrow"><span class="px">from the teams using it</span></div>
@@ -2823,7 +2850,7 @@ html:not(.px-on) .mm-mark { display: none; }
   </div>
 </section>
 
-<section class="section pricing" id="pricing">
+<section class="section pricing" id="pricing" data-section="pricing">
   <div class="section-head center">
     <div class="section-eyebrow"><span class="px">pricing</span></div>
     <h2 class="section-title">Start free. Pay when it pays for itself.</h2>
@@ -2875,7 +2902,7 @@ html:not(.px-on) .mm-mark { display: none; }
   <p class="pricing-foot">No card for Starter · Cancel anytime · SOC 2 Type II</p>
 </section>
 
-<section class="section faq" id="faq">
+<section class="section faq" id="faq" data-section="faq">
   <div class="faq-wrap">
     <div class="faq-side">
       <div class="section-eyebrow"><span class="px">questions</span></div>
@@ -2911,7 +2938,7 @@ html:not(.px-on) .mm-mark { display: none; }
   </div>
 </section>
 
-<section class="final-cta finale" id="start">
+<section class="final-cta finale" id="start" data-section="cta">
   <span class="finale-grid" aria-hidden="true"></span>
   <span class="finale-glow" aria-hidden="true"></span>
   <div class="final-cta-card">
@@ -2938,7 +2965,7 @@ html:not(.px-on) .mm-mark { display: none; }
 
   <div class="finale-rule" aria-hidden="true"><i></i><span></span><i></i></div>
 
-  <footer class="site-footer">
+  <footer class="site-footer" data-section="footer">
     <div class="footer-top">
       <div class="footer-brand">
         <div class="f-logo">

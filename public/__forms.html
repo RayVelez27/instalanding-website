@@ -1,0 +1,24 @@
+<!doctype html>
+<!--
+  Netlify Forms registry. Netlify discovers forms by parsing static HTML at
+  deploy time and never runs the React app, so every form the app submits is
+  declared here too, with the same name and the same fields. The app POSTs to
+  this file's path. Never linked, never shown.
+  Source of the live form: src/components/ContactModal.tsx
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Forms</title>
+  </head>
+  <body>
+    <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="contact" />
+      <input name="bot-field" />
+      <input name="name" />
+      <input type="email" name="email" />
+      <textarea name="message"></textarea>
+    </form>
+  </body>
+</html>

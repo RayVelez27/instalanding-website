@@ -1,6 +1,5 @@
 import Sidebar from "@/components/Sidebar";
 import PromptGrid from "@/components/PromptGrid";
-import AiBuilderTrigger from "@/components/AiBuilderTrigger";
 import StarOnGithub from "@/components/StarOnGithub";
 
 const Index = () => (
@@ -9,9 +8,9 @@ const Index = () => (
     <main>
       <div className="library-intro">
         <div className="library-intro-text">
-          <p className="library-intro-kicker">ONE-SHOT PROMPT LIBRARY</p>
+          <p className="library-intro-kicker">ONE-SHOT HTML LIBRARY</p>
           <p className="library-intro-sub">
-            Copy a prompt, paste it into your <AiBuilderTrigger />, ship the component.
+            Premium pages built for humans and agents. One file. No dependencies. Copy it, remix it, ship it.
           </p>
         </div>
         <StarOnGithub />

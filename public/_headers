@@ -9,6 +9,11 @@
   Cache-Control: public, max-age=300
   Content-Type: text/plain; charset=utf-8
 
+/SKILL.md
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300
+  Content-Type: text/markdown; charset=utf-8
+
 /p/*
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=300

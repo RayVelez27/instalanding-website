@@ -1,4 +1,31 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Highlighter Markup Page
+  slug     highlighter-markup-page
+  prompt   https://instalanding.ai/p/highlighter-markup-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/highlighter-markup-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of the main <style>: --paper #fffcf0, --ink #100f0f, --hl-red /
+            --hl-orange / --hl-yellow / --hl-green ... (highlighter tray), --serif (Source Serif 4), --mono
+            (JetBrains Mono), --step-* fluid type scale, --grain / --grain-page; a second :root adds --pencil, --print
+  sections  nav, hero, verdicts, demo, stats, how-it-works, payload, uses, faq, cta, footer
+  scripts   one inline <script>, no libraries: splits mark[data-split] into one mark per word, claim buttons open
+            their source span, hero ridgeline parallax, terminal log beside the fir, marks draw in on view,
+            the closing sea settles and lights the lighthouse
+  assets    none binary: inline SVG filters (#rough, #paper, #crayon), SVG ridges/sea/lighthouse, noise as data: URIs;
+            fonts from Google Fonts (Source Serif 4, JetBrains Mono, Caveat)
+
+  ADAPTING
+  - A mark is coloured by its ::before, not the element, and only through --color; the shading uses relative colour
+    hsl(from var(--color) h s calc(l - 20)). Put the displacement filter on the element and the glyphs wobble too.
+  - mark is inline-block so a marked phrase cannot wrap; add data-split to any multi-word mark so the script
+    breaks it into per-word marks (only the last keeps the pen blob).
+  - The colour IS the verdict: --hl-red was deepened away from --hl-orange; check a pixel sample if you retint.
+  - Ridgeline layers (#ridge .parallax__layer) each move 1 - 1/(1+x) of the scroll distance; their order matters.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Footnote</title>
 <meta name="description" content="A fictional grounding checker that marks up model output with a real highlighter: rough-edged SVG-displaced marks, a colour per verdict, and a per-word split that lets them wrap. One file, no images, no libraries." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -716,7 +743,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
   </defs>
 </svg>
 
-<header class="top">
+<header class="top" data-section="nav">
   <div class="wide">
     <a class="brand" href="#top">FOOTNOTE<sup>®</sup></a>
     <nav class="nav">
@@ -730,7 +757,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
 </header>
 
 <main id="top">
-  <section class="hero">
+  <section class="hero" data-section="hero">
     <div class="hero-sheet paper">
     <div class="wrap">
       <span class="hero-sun" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
@@ -807,7 +834,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
     </div>
   </section>
 
-  <section class="sec" id="tray">
+  <section class="sec" id="tray" data-section="verdicts">
     <div class="wide">
       <div class="sec-head">
         <p class="label">The tray</p>
@@ -835,7 +862,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
     </div>
   </section>
 
-  <section class="sec" id="sheet">
+  <section class="sec" id="sheet" data-section="demo">
     <div class="wide">
       <div class="sec-head">
         <p class="label">A marked answer</p>
@@ -870,7 +897,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
     </div>
   </section>
 
-  <section class="sec">
+  <section class="sec" data-section="stats">
     <div class="wide">
       <div class="sec-head">
         <p class="label">On paper</p>
@@ -886,7 +913,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
     </div>
   </section>
 
-  <section class="sec" id="how">
+  <section class="sec" id="how" data-section="how-it-works">
     <div class="wide">
       <div class="sec-head">
         <p class="label">How it works</p>
@@ -910,7 +937,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
   </section>
 
   <!-- ======================= THE PAYLOAD ======================= -->
-  <section class="sec" id="payload">
+  <section class="sec" id="payload" data-section="payload">
     <div class="wide payload">
       <div class="sec-head">
         <p class="label">The payload</p>
@@ -947,7 +974,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
   </section>
 
   <!-- ======================= WHERE IT GOES ======================= -->
-  <section class="sec" id="uses">
+  <section class="sec" id="uses" data-section="uses">
     <div class="wide">
       <div class="sec-head">
         <p class="label">Where it goes</p>
@@ -980,7 +1007,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
   </section>
 
   <!-- ======================= MARGIN NOTES ======================= -->
-  <section class="sec" id="faq">
+  <section class="sec" id="faq" data-section="faq">
     <div class="wrap">
       <div class="sec-head">
         <p class="label">Margin notes</p>
@@ -1013,7 +1040,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
        palette, paper grain — turned to the sea, and the sky starts as the
        page itself so the section above runs straight into it. The lighthouse
        is the point of it: its beam sweeps across the words "point at". -->
-  <section class="close" id="start">
+  <section class="close" id="start" data-section="cta">
     <div class="sea" aria-hidden="true">
       <div class="sea__sky"></div>
       <span class="moon"><i></i><i></i><i></i><i></i><i></i></span>
@@ -1061,7 +1088,7 @@ footer { background: #2f2b33; padding: 2.25rem 0 3rem; }
   </section>
 </main>
 
-<footer>
+<footer data-section="footer">
   <div class="wide foot">
     <span>
       Footnote is a fictional product and this page is a design demo — the platform,<br />

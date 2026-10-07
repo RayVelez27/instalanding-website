@@ -1,4 +1,33 @@
 <!doctype html>
+<!--
+  INSTALANDING.AI · Canvas Fire Button
+  slug     canvas-fire-button
+  prompt   https://instalanding.ai/p/canvas-fire-button.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/canvas-fire-button
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: --ink-0..--ink-3 (ground to lifted),
+            --flame-1..--flame-4 (flame stops, read by the canvas), --text/--mute, --violet,
+            --spring/--ease-out, --font-ui Bricolage Grotesque / --font-serif Instrument Serif /
+            --font-mono JetBrains Mono (Google Fonts)
+  sections  nav, hero, variants, anatomy, usage, cta, footer  (cta and footer sit inside usage)
+  scripts   one inline IIFE, no libraries: FireButton class (window.FireButton.upgradeAll() turns every
+            button.fb into socket + label + flame canvas; set/toggle/supercharge, firebutton:* events),
+            procedural flame renderer, shared ember canvas (#embers), playground controls, typed code
+            card, glitching .live-head headings, scroll reveals
+  assets    none: canvas-drawn flame and embers, CSS body/ring, one inline SVG charge ring per button
+
+  ADAPTING
+  - The flame colours are read from --flame-1..4 once at boot (readColors) and must stay 6-digit hex:
+    radialSprite appends alpha to them, so hsl() or 3-digit values throw. Change them, then reload.
+  - The component is declarative: write <button class="fb" data-size data-off data-on ...> and let
+    upgradeAll() build the inside; it overwrites the button's innerHTML.
+  - The flame canvas is deliberately larger than its socket (2.6x wide, 4.4x tall) so the fire towers
+    out; socket width comes from a ResizeObserver, not a per-frame offsetWidth read.
+  - .live-head headings are split into aria-hidden letter spans at boot (the text moves to aria-label);
+    edit the heading text in the HTML, not after load.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -721,7 +750,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
 </head>
 <body>
 
-<header class="topbar">
+<header class="topbar" data-section="nav">
   <div class="wrap">
     <span class="brand">
       <span class="brand-mark" aria-hidden="true"></span>
@@ -736,7 +765,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
 
 <main>
   <!-- ============ HERO / PLAYGROUND ============ -->
-  <section class="hero" id="playground">
+  <section class="hero" id="playground" data-section="hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
         <span class="eyebrow intro" style="--i: 0">Interactive component</span>
@@ -757,9 +786,9 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
         </div>
       </div>
 
-      <div class="stage-card intro" style="--i: 5">
+      <div class="stage-card intro" style="--i: 5" data-component="fire-button-playground">
         <div class="stage">
-          <div class="stage-blaze" id="stage-blaze"></div>
+          <div class="stage-blaze" id="stage-blaze" aria-hidden="true"></div>
           <span class="stage-label">FLAME STATE</span>
           <div class="readout" aria-hidden="true">
             <span class="input-chip" id="chip-on">ON <b>false</b></span>
@@ -809,7 +838,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
   </section>
 
   <!-- ============ VARIANTS ============ -->
-  <section class="section" id="variants">
+  <section class="section" id="variants" data-section="variants">
     <div class="wrap">
       <div class="section-head reveal">
         <div>
@@ -882,7 +911,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
   </section>
 
   <!-- ============ ANATOMY ============ -->
-  <section class="section" id="anatomy">
+  <section class="section" id="anatomy" data-section="anatomy">
     <div class="wrap">
       <div class="section-head reveal">
         <div>
@@ -912,7 +941,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
   </section>
 
   <!-- ============ USAGE ============ -->
-  <section class="section" id="usage">
+  <section class="section" id="usage" data-section="usage">
     <div class="wrap">
       <div class="section-head reveal">
         <div>
@@ -961,14 +990,14 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
         </div>
       </div>
 
-      <div class="cta reveal">
+      <div class="cta reveal" data-section="cta">
         <span class="eyebrow">Your turn</span>
         <h2 class="live-head">Go on, <em>set it off</em>.</h2>
         <p>Hold the button until the ring closes. We promise nothing actually catches fire.</p>
         <button class="fb" type="button" data-size="lg" data-off="Hold me" data-on="Blazing"></button>
       </div>
 
-      <footer class="footer">
+      <footer class="footer" data-section="footer">
         <span>Ember UI is an invented brand and this page is a demo — nothing here is real.</span>
         <span>Flame drawn procedurally on canvas · no dependencies</span>
       </footer>
@@ -976,7 +1005,7 @@ h1 em[data-m], h2 em[data-m] { filter: grayscale(1) brightness(0.55); }
   </section>
 </main>
 
-<div class="scorch" id="scorch"></div>
+<div class="scorch" id="scorch" aria-hidden="true"></div>
 <canvas class="embers" id="embers" aria-hidden="true"></canvas>
 
 <script>

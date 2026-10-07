@@ -1,4 +1,32 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<!--
+  INSTALANDING.AI · Wind Field Routing Page
+  slug     wind-field-routing-page
+  prompt   https://instalanding.ai/p/wind-field-routing-page.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/wind-field-routing-page
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties inside @layer base: --bg, --bg-2, --paper (drives every hairline via
+            color-mix), --ink, --low, --high, --rule / --rule-strong, --key-bg (button gap colour per band),
+            --font-display/body/mono (Archivo, Instrument Sans, IBM Plex Mono)
+  sections  nav, menu, hero, stats, model, bridge, routes, api, pricing, cta, footer
+  scripts   GSAP 3.12.5 + ScrollTrigger (cdnjs), then inline blocks: (1) the chart: WebGL wind field, 14,000
+            particles (5,200 under 760px) through six vortices, ping-pong trails + 2D isobar/route overlay,
+            six presets; (2) scroll scene: pinned intro, map fitted into the headline slot; (3) full-screen
+            menu; (4) three mini 2D field dashboards; (5) bridge dial SVG; (6) stats odometers; (7) live board agent log
+  assets    none inlined: all canvas, inline SVG and CSS; fonts from Google Fonts
+
+  ADAPTING
+  - The first <style> and stray <title> in <body> are a host wrapper; page rules after it are partly
+    unlayered on purpose so they beat that wrapper's unlayered reset. Keep it that way if you move CSS into layers.
+  - The wind canvases live on a fixed-size #map_stage that is scaled (--stage-s) to cover the shrinking
+    map; resizing the canvas per scroll frame would rebuild the field. #chart_slot in the h1 is the fit target.
+  - The button "keys" are gaps painted in var(--key-bg); each band must set it to its own background or
+    the gaps show as blocks.
+  - No WebGL falls back to a CSS gradient; the field pauses off screen and in hidden tabs, keep both.
+-->
+<html lang="en"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>DRIFT Weather Routing</title>
 <meta name="description" content="Landing page for a fictional weather-routing service, built on a live WebGL wind field with isobars, a solved route and six Mediterranean wind presets." />
 
@@ -2019,7 +2047,7 @@ body {
 }
 </style>
 
-<header class="nav">
+<header class="nav" data-section="nav">
   <div class="nav-pill">
     <a class="wordmark" href="#top">DRIFT <small>routing</small></a>
     <div class="nav-right">
@@ -2029,7 +2057,7 @@ body {
   </div>
 </header>
 
-<nav class="menu" id="site_menu" aria-label="Site" aria-hidden="true">
+<nav class="menu" id="site_menu" aria-label="Site" aria-hidden="true" data-section="menu">
   <ul class="menu-links">
       <li><a href="#model"><small>01</small>The model</a></li>
       <li><a href="#bridge"><small>02</small>Bridge sheet</a></li>
@@ -2057,7 +2085,7 @@ body {
 <main id="top">
 
   <!-- ============ HERO: the live chart ============ -->
-  <section class="intro" id="intro">
+  <section class="intro" id="intro" data-section="hero">
     <div class="statement-wrap">
       <h1 class="statement" aria-label="Route the weather. Not around it.">
         <span class="top-line" aria-hidden="true">
@@ -2080,7 +2108,7 @@ body {
   <div class="map" id="field" data-field="on">
    <div class="map-scrim" aria-hidden="true"></div>
    <div class="map-stage" id="map_stage">
-    <canvas id="wind_canvas"></canvas>
+    <canvas id="wind_canvas" aria-hidden="true"></canvas>
     <canvas id="chart_overlay" aria-hidden="true"></canvas>
     <div class="markers" id="markers"></div>
 
@@ -2111,7 +2139,7 @@ body {
           </div>
         </div>
 
-        <div class="mode-panel" aria-label="Pressure presets">
+        <div class="mode-panel" role="group" aria-label="Pressure presets" data-component="wind-presets">
           <button type="button" data-mode="summer">Summer calm</button>
           <button type="button" data-mode="levante">Levante</button>
           <button type="button" data-mode="mistral" class="is-active">Mistral</button>
@@ -2126,7 +2154,7 @@ body {
   </section>
 
   <!-- ============ Readout ============ -->
-  <ul class="stats" id="stats" aria-label="Drift in numbers">
+  <ul class="stats" id="stats" aria-label="Drift in numbers" data-section="stats">
     <li class="stat">
       <span class="stat-label">Voyages under routing</span>
       <strong class="stat-num"><span class="odo" data-value="1,284">1,284</span></strong>
@@ -2169,7 +2197,7 @@ body {
   </ul>
 
   <!-- ============ How the field works ============ -->
-  <section class="band" id="model">
+  <section class="band" id="model" data-section="model">
     <div class="shell">
       <div class="section-head">
         <div>
@@ -2246,7 +2274,7 @@ body {
   </section>
 
   <!-- ============ Bridge sheet ============ -->
-  <section class="band band--quiet" id="bridge">
+  <section class="band band--quiet" id="bridge" data-section="bridge">
     <div class="shell grid-2">
       <div>
         <h2 class="section-title">One page. Every waypoint.</h2>
@@ -2306,7 +2334,7 @@ body {
   </section>
 
   <!-- ============ Routes ============ -->
-  <section class="band" id="routes">
+  <section class="band" id="routes" data-section="routes">
     <div class="shell">
       <div class="section-head">
         <div>
@@ -2315,7 +2343,7 @@ body {
         <p class="lede">Colour is wind on the leg, on the same scale as the legend under the chart. Delta is against the great-circle plan the charterer signed.</p>
       </div>
 
-      <div class="board" id="board">
+      <div class="board" id="board" data-component="live-board">
         <div class="board-bar">
           <span class="board-title"><i></i>routing-desk <b>/</b> live-board</span>
           <span class="board-meta" id="board_meta">6 voyages · agent idle</span>
@@ -2345,7 +2373,7 @@ body {
 
   <!-- ============ Presets ============ -->
   <!-- ============ API ============ -->
-  <section class="band" id="api">
+  <section class="band" id="api" data-section="api">
     <div class="shell grid-2">
       <div>
         <h2 class="section-title">One call per voyage</h2>
@@ -2373,7 +2401,7 @@ body {
   </section>
 
   <!-- ============ Pricing ============ -->
-  <section class="band band--quiet" id="pricing">
+  <section class="band band--quiet" id="pricing" data-section="pricing">
     <div class="shell">
       <div class="section-head">
         <div>
@@ -2427,7 +2455,7 @@ body {
   </section>
 
   <!-- ============ FAQ + access ============ -->
-  <section class="band" id="access">
+  <section class="band" id="access" data-section="cta">
     <div class="shell grid-2">
       <div>
         <h2 class="section-title">Put one hull on the field</h2>
@@ -2462,7 +2490,7 @@ body {
   </section>
 </main>
 
-<footer class="footer">
+<footer class="footer" data-section="footer">
   <div class="shell">
     <div class="footer-top">
       <div class="footer-brand">

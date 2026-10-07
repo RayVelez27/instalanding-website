@@ -7,6 +7,11 @@
     <meta name="description" content="InstaLanding.ai — a library of one-shot prompts for web, motion, product, navigation, and form components. Copy a prompt, paste it into your AI builder, ship the component.">
     <meta name="author" content="InstaLanding.ai" />
 
+    <!-- For agents: the whole library as flat files. No JS, no account. Start with /SKILL.md. -->
+    <link rel="alternate" type="application/json" href="/prompts.json" title="Library manifest" />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt index" />
+    <link rel="alternate" type="text/markdown" href="/SKILL.md" title="Agent skill" />
+
     
     
     <meta property="og:type" content="website" />
@@ -19,14 +24,21 @@
   
   
   
-  <meta property="og:title" content="InstaLanding.ai — One-Shot Prompt Library">>
-  <meta name="twitter:title" content="InstaLanding.ai — One-Shot Prompt Library">>
-  <meta property="og:description" content="A library of one-shot prompts for landing page components — copy, paste, ship.">>
-  <meta name="twitter:description" content="A library of one-shot prompts for landing page components — copy, paste, ship.">>
+  <meta property="og:title" content="InstaLanding.ai — One-Shot Prompt Library">
+  <meta name="twitter:title" content="InstaLanding.ai — One-Shot Prompt Library">
+  <meta property="og:description" content="A library of one-shot prompts for landing page components — copy, paste, ship.">
+  <meta name="twitter:description" content="A library of one-shot prompts for landing page components — copy, paste, ship.">
 </head>
 
   <body>
     <div id="root"></div>
+    <!-- An agent reading this shell without running JS gets nothing from #root. -->
+    <noscript>
+      INSTALANDING.AI is a library of landing pages and UI components for coding agents.
+      Read it without JavaScript: <a href="/SKILL.md">/SKILL.md</a> (how to use it),
+      <a href="/prompts.json">/prompts.json</a> (the manifest), <a href="/llms.txt">/llms.txt</a> (an index),
+      /p/&lt;slug&gt;.txt (one brief, raw).
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

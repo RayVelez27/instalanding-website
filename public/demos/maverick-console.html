@@ -1,4 +1,30 @@
 <!doctype html>
+<!--
+  INSTALANDING.AI · Model Capture Console
+  slug     model-capture-console
+  prompt   https://instalanding.ai/p/model-capture-console.txt   (the one-shot brief this file was built from)
+  page     https://instalanding.ai/prompt/model-capture-console
+  license  MIT. Fictional brand; replace names, copy and numbers before shipping.
+
+  MAP
+  tokens    :root custom properties at the top of <style>: shell --void/--shell/--edge, inspector
+            --panel/--ink (redefined under .console[data-skin="dark"]), signal --indigo/--cyan/--rose,
+            --bar/--sb (fold maths), --display Archivo / --mono JetBrains Mono (Google Fonts)
+  sections  topbar, console, status-bar
+  scripts   one inline IIFE, no libraries: LAYERS/STEPS/CHECKPOINTS data, tablist + arrow keys,
+            inspector skin toggle, overview rail, anatomy hotspots, timeline pager, eval meters,
+            trace transport + capture log; a second IIFE ties the topbar buttons to the tabs and ticks the clock
+  assets    none: CSS panels plus inline SVG (subject portrait, layer stack, icons, sparklines)
+
+  ADAPTING
+  - The fold is exact: --bar is the 60px topbar plus its 1px border, and section, shell and grid all
+    carry min-height:0. Drop one and the grid hands its overflow to the page instead of the panel.
+  - The skin toggle writes data-skin on #consoleBox (the console's own id, not the section's #console);
+    the dock is styled from shell tokens on purpose because --ink/--panel flip with the skin.
+  - Anatomy hotspots are placed from LAYERS data (left in % of #figInner, top scaled to 388px), never
+    measured: that tab starts display:none and measures zero width.
+  - Topbar buttons work by clicking the tab whose id is in their data-tab; keep those ids in step.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -683,8 +709,9 @@ h1, h2 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
 </style>
 </head>
 <body>
+<h1 class="sr">Maverick model capture console</h1>
 
-<header class="topbar">
+<header class="topbar" data-section="topbar">
   <div class="wrap">
     <span class="view">Capture console <span class="ver">v1.0</span></span>
     <nav class="topnav" aria-label="Console sections">
@@ -698,7 +725,7 @@ h1, h2 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
 
 <main>
   <!-- ============ CONSOLE ============ -->
-  <section class="console-view" id="console" style="scroll-margin-top: 0">
+  <section class="console-view" id="console" style="scroll-margin-top: 0" data-section="console" aria-label="Capture console">
     <div class="wrap">
       <div class="console-outer">
         <div class="console" id="consoleBox">
@@ -722,7 +749,7 @@ h1, h2 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
             <div class="side-name">Maverick</div>
             <div class="side-sub">Model autopsy console</div>
 
-            <div class="transport">
+            <div class="transport" data-component="trace-transport">
               <div class="transport-title">Run trace</div>
               <div class="transport-read" id="read">—</div>
               <div class="transport-btns">
@@ -771,11 +798,11 @@ h1, h2 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
                     </div>
                     <div class="round-set">
                       <button class="round" type="button" id="skin" aria-pressed="false">
-                        <svg viewBox="0 0 24 24"><path d="M20 13a8 8 0 1 1-9-9 6.5 6.5 0 0 0 9 9z" /></svg>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13a8 8 0 1 1-9-9 6.5 6.5 0 0 0 9 9z" /></svg>
                         <span class="sr">Toggle panel dark mode</span>
                       </button>
                       <button class="round" type="button" id="toAnatomy">
-                        <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5" /></svg>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5" /></svg>
                         <span class="sr">Open the anatomy tab</span>
                       </button>
                     </div>
@@ -863,7 +890,7 @@ h1, h2 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
               </div>
             </div>
 
-            <div class="dock">
+            <div class="dock" data-component="capture-log">
               <div class="dock-head">
                 <span class="dock-title">Capture log</span>
                 <span class="dock-meta">MV-7 &middot; SIM &middot; SEED 41627</span>
@@ -881,7 +908,7 @@ h1, h2 { font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
 <!-- The app's status bar. A dashboard has no page footer, but the legal
      line and the credit still have to live somewhere, so they live here
      the way a build stamp would. -->
-<footer class="statusbar">
+<footer class="statusbar" data-section="status-bar">
   <span class="sb-left">
     <i class="sb-dot" aria-hidden="true"></i>
     <b>SIM</b> · Maverick is a fictional product — the model, the capture and every
@@ -990,7 +1017,7 @@ $("#skin").addEventListener("click", (e) => {
    ============================================================ */
 $("#rail").innerHTML = LAYERS.slice(0, 5).map((l) => `
   <button class="rcard" type="button" data-layer="${l.id}" aria-pressed="false">
-    <svg viewBox="0 0 24 24">${l.icon}</svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true">${l.icon}</svg>
     <b>${l.name}</b><span>${l.sub}</span><em>inspect →</em>
   </button>`).join("");
 $("#rail").addEventListener("click", (e) => {
