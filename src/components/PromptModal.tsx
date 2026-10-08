@@ -175,13 +175,13 @@ const PromptModal = () => {
               <div className="pmodal-toolbar">
                 {entry.demo && (
                   <div className="pmodal-views" role="group" aria-label="Show">
-                    <button className="pmodal-view" aria-pressed={mode === "preview"} onClick={() => setMode("preview")}>
-                      <Eye size={13} />
-                      Preview
+                    <button className="pmodal-view" aria-pressed={mode === "preview"} onClick={() => setMode("preview")} title="Preview">
+                      <Eye size={13} aria-hidden="true" />
+                      <span className="pmodal-label">Preview</span>
                     </button>
-                    <button className="pmodal-view" aria-pressed={mode === "code"} onClick={() => setMode("code")}>
-                      <Code2 size={13} />
-                      Code
+                    <button className="pmodal-view" aria-pressed={mode === "code"} onClick={() => setMode("code")} title="Code">
+                      <Code2 size={13} aria-hidden="true" />
+                      <span className="pmodal-label">Code</span>
                     </button>
                   </div>
                 )}
@@ -195,9 +195,10 @@ const PromptModal = () => {
                           className="pmodal-view"
                           aria-pressed={view === key}
                           onClick={() => setView(key)}
+                          title={VIEWPORTS[key].label}
                         >
-                          <Icon size={13} />
-                          {VIEWPORTS[key].label}
+                          <Icon size={13} aria-hidden="true" />
+                          <span className="pmodal-label">{VIEWPORTS[key].label}</span>
                         </button>
                       );
                     })}
@@ -246,18 +247,20 @@ const PromptModal = () => {
 
             <section className="pmodal-side" aria-label="Prompt">
               <div className="pmodal-actions">
-                <button className="pmodal-btn pmodal-btn--solid" onClick={handleCopy} aria-live="polite">
-                  {copied === "done" ? <Check size={13} /> : <Copy size={13} />}
-                  {copied === "done" ? "COPIED" : copied === "failed" ? "COPY FAILED" : copyLabel}
+                <button className="pmodal-btn pmodal-btn--solid" onClick={handleCopy} aria-live="polite" title={copyLabel}>
+                  {copied === "done" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
+                  <span className="pmodal-label">
+                    {copied === "done" ? "COPIED" : copied === "failed" ? "COPY FAILED" : copyLabel}
+                  </span>
                 </button>
                 {entry.demo && (
-                  <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer">
-                    NEW TAB <ExternalLink size={12} />
+                  <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab">
+                    <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
                   </a>
                 )}
                 {!entry.demo && entry.repoUrl && (
-                  <a className="pmodal-btn" href={entry.repoUrl} target="_blank" rel="noreferrer">
-                    VIEW CODE <ExternalLink size={12} />
+                  <a className="pmodal-btn" href={entry.repoUrl} target="_blank" rel="noreferrer" title="View code">
+                    <span className="pmodal-label">VIEW CODE</span> <ExternalLink size={12} aria-hidden="true" />
                   </a>
                 )}
               </div>

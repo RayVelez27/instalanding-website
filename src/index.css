@@ -2174,6 +2174,10 @@ html {
   height: min(940px, calc(100vh - 40px));
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  /* One column capped at the dialog's width. Left implicit, the column grew
+     to its widest content (the pager titles) and spilled past the frame on
+     phones. */
+  grid-template-columns: minmax(0, 1fr);
   background: #fff;
   border: 1px solid #000;
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
@@ -2538,6 +2542,21 @@ html {
   .pmodal-title { font-size: 17px; }
   .pmodal-desc { display: none; }
   .pmodal-pager-btn { max-width: 46%; }
+  /* Icon-only toolbar and actions. The label stays in the accessibility tree
+     (visually hidden, not display:none), so each button keeps its name. */
+  .pmodal-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .pmodal-view, .pmodal-btn { gap: 0; min-width: 40px; min-height: 36px; justify-content: center; }
+  /* "1440px · scroll inside the frame" has no room beside the icons and was
+     pushing the toolbar wider than the dialog. */
+  .pmodal-toolbar .pmodal-note { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
