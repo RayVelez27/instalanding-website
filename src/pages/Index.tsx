@@ -1,6 +1,6 @@
 import Sidebar from "@/components/Sidebar";
 import PromptGrid from "@/components/PromptGrid";
-import StarOnGithub from "@/components/StarOnGithub";
+import GithubButton from "@/components/GithubButton";
 import { useSeo } from "@/hooks/useSeo";
 
 const Index = () => {
@@ -22,7 +22,7 @@ const Index = () => {
             Premium pages built for humans and agents. One file. No dependencies. Copy it, remix it, ship it.
           </p>
         </div>
-        <StarOnGithub />
+        <GithubButton />
       </div>
       <PromptGrid invite />
     </main>

@@ -1083,7 +1083,7 @@ html {
 }
 .library-intro-text { min-width: 0; }
 
-/* Star button, top right of the library. */
+/* GITHUB button, top right of the library. */
 .star-btn {
   display: inline-flex;
   align-items: center;
@@ -1102,14 +1102,7 @@ html {
   transition: background 160ms ease, color 160ms ease;
 }
 .star-btn:hover { background: #000; color: #fff; }
-.star-btn-icon { transition: transform 200ms ease; }
-.star-btn:hover .star-btn-icon { transform: rotate(72deg) scale(1.15); }
-.star-btn-count {
-  padding-left: 8px;
-  border-left: 1px solid currentColor;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.85;
-}
+.star-btn:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
 .library-intro-kicker {
   margin: 0 0 6px;
   font-family: 'IBM Plex Mono', monospace;
@@ -1129,7 +1122,6 @@ html {
 @media (max-width: 640px) {
   .library-intro { padding: 8px 18px 4px; }
   .star-btn { padding: 7px 10px; gap: 6px; }
-  .star-btn-label { display: none; }
   .library-intro-kicker { font-size: 16px; }
 }
 
