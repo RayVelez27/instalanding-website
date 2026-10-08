@@ -288,17 +288,6 @@ const PromptModal = () => {
                   ))}
                 </ul>
               </div>
-
-              {entry.credits && entry.credits.length > 0 && (
-                <div className="pmodal-credits">
-                  <span>BUILT ON</span>
-                  {entry.credits.map((credit) => (
-                    <a key={credit.href} href={credit.href} target="_blank" rel="noreferrer">
-                      {credit.label} <ExternalLink size={11} />
-                    </a>
-                  ))}
-                </div>
-              )}
             </section>
           </div>
 

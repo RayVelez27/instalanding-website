@@ -146,7 +146,7 @@ const buildManifest = ({ prompts, categories }, base, siteName, root) => ({
   name: siteName,
   url: base,
   description:
-    "One-shot prompts for landing pages and UI components. Copy a prompt, paste it into any AI builder, ship the component. Free, open source, no account.",
+    "Premium landing pages built for humans and agents: single HTML files with no dependencies, each with the one-shot prompt that builds it. Copy it, remix it, ship it. Free, MIT, no account.",
   generated: new Date().toISOString(),
   count: prompts.length,
   license: "MIT",
@@ -220,6 +220,7 @@ const buildSitemap = (library, builders, base) => {
     { loc: `${base}agents`, priority: "0.9" },
     { loc: `${base}builders`, priority: "0.9" },
     { loc: `${base}about`, priority: "0.4" },
+    { loc: `${base}contact`, priority: "0.3" },
     ...builders.map((b) => ({ loc: `${base}${b.path.replace(/^\//, "")}`, priority: "0.9" })),
     // product has a section route of its own; the rest sit under /category/
     ...library.categories.map((c) => ({

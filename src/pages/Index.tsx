@@ -1,8 +1,17 @@
 import Sidebar from "@/components/Sidebar";
 import PromptGrid from "@/components/PromptGrid";
 import StarOnGithub from "@/components/StarOnGithub";
+import { useSeo } from "@/hooks/useSeo";
 
-const Index = () => (
+const Index = () => {
+  useSeo({
+    title: "InstaLanding.ai — One-Shot HTML Library for Humans and Agents",
+    rawTitle: true,
+    description:
+      "Premium landing pages built for humans and agents. Each one is a single HTML file with no dependencies, plus the one-shot prompt that builds it. Copy it, remix it, ship it. Free and MIT.",
+    canonical: "/",
+  });
+  return (
   <div className="app-layout">
     <Sidebar />
     <main>
@@ -18,6 +27,7 @@ const Index = () => (
       <PromptGrid invite />
     </main>
   </div>
-);
+  );
+};
 
 export default Index;

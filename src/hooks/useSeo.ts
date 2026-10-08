@@ -1,65 +1,75 @@
 import { useEffect } from "react";
 
-const SITE = "INSTALANDING.AI";
+const SITE = "InstaLanding.ai";
+/** The default social card; index.html carries the same URL for non-JS crawlers. */
+const DEFAULT_IMAGE = "/og.png";
 
-function setMeta(selector: string, attr: string, value: string, create: () => Element) {
+/** Set a tag's attribute, creating the tag if the page does not have it yet. */
+function setTag(selector: string, attr: string, value: string, make: () => Element) {
   let el = document.head.querySelector(selector);
   if (!el) {
-    el = create();
+    el = make();
     document.head.appendChild(el);
   }
   el.setAttribute(attr, value);
 }
 
+const meta = (key: "name" | "property", id: string, content: string) =>
+  setTag(`meta[${key}="${id}"]`, "content", content, () => {
+    const m = document.createElement("meta");
+    m.setAttribute(key, id);
+    return m;
+  });
+
 /**
- * Per-route title, description and canonical.
+ * Per-route title, description, canonical and social image.
+ *
+ * Every main route calls this, so navigating never leaves the previous page's
+ * tags behind. `title` is the page's own name; the site name is appended
+ * unless `rawTitle` is set (the home page, whose title already is the brand).
  *
  * This is a client-rendered SPA, so these tags land after hydration: good
  * enough for anything that executes JavaScript, not good enough for crawlers
- * that do not. The builder pages are the first part of the library written to
- * be found rather than browsed, so when they start earning traffic the next
- * step is prerendering these routes at build time — at which point this hook
- * keeps working unchanged and simply stops being the only source of the tags.
+ * that do not — those see index.html's defaults. Prerendering the routes at
+ * build time is the next step, and this hook keeps working unchanged when it
+ * happens.
  */
-export function useSeo(opts: { title: string; description: string; canonical?: string }) {
-  const { title, description, canonical } = opts;
+export function useSeo(opts: {
+  title: string;
+  description: string;
+  canonical?: string;
+  /** Path or absolute URL of the social card. Defaults to the site card. */
+  image?: string;
+  /** Pixel size of `image`; the site card is 1200x630, tile thumbnails 1200x600. */
+  imageSize?: [number, number];
+  rawTitle?: boolean;
+}) {
+  const { title, description, canonical, image = DEFAULT_IMAGE, imageSize = [1200, 630], rawTitle = false } = opts;
+  const [imageW, imageH] = imageSize;
 
   useEffect(() => {
-    const previous = document.title;
-    document.title = `${title} — ${SITE}`;
+    const fullTitle = rawTitle ? title : `${title} — ${SITE}`;
+    const imageUrl = new URL(image, window.location.origin).toString();
 
-    setMeta('meta[name="description"]', "content", description, () => {
-      const m = document.createElement("meta");
-      m.setAttribute("name", "description");
-      return m;
-    });
-    setMeta('meta[property="og:title"]', "content", `${title} — ${SITE}`, () => {
-      const m = document.createElement("meta");
-      m.setAttribute("property", "og:title");
-      return m;
-    });
-    setMeta('meta[property="og:description"]', "content", description, () => {
-      const m = document.createElement("meta");
-      m.setAttribute("property", "og:description");
-      return m;
-    });
+    document.title = fullTitle;
+    meta("name", "description", description);
+    meta("property", "og:title", fullTitle);
+    meta("property", "og:description", description);
+    meta("property", "og:image", imageUrl);
+    meta("property", "og:image:width", String(imageW));
+    meta("property", "og:image:height", String(imageH));
+    meta("name", "twitter:title", fullTitle);
+    meta("name", "twitter:description", description);
+    meta("name", "twitter:image", imageUrl);
 
     if (canonical) {
       const href = new URL(canonical, window.location.origin).toString();
-      setMeta('link[rel="canonical"]', "href", href, () => {
+      setTag('link[rel="canonical"]', "href", href, () => {
         const l = document.createElement("link");
         l.setAttribute("rel", "canonical");
         return l;
       });
-      setMeta('meta[property="og:url"]', "content", href, () => {
-        const m = document.createElement("meta");
-        m.setAttribute("property", "og:url");
-        return m;
-      });
+      meta("property", "og:url", href);
     }
-
-    return () => {
-      document.title = previous;
-    };
-  }, [title, description, canonical]);
+  }, [title, description, canonical, image, imageW, imageH, rawTitle]);
 }

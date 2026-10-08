@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import ContactModal from "@/components/ContactModal";
+import { useSeo } from "@/hooks/useSeo";
 
 /**
  * About — one full viewport, portrait beside the bio.
@@ -13,35 +14,55 @@ import ContactModal from "@/components/ContactModal";
  */
 const About = () => {
   const [contactOpen, setContactOpen] = useState(false);
+  useSeo({
+    title: "About Ray Velez",
+    description:
+      "Ray Velez — designer, developer, artist engineer — and why InstaLanding.ai builds premium, dependency-free HTML pages for both humans and coding agents.",
+    canonical: "/about",
+    image: "/about/ray.jpg",
+    imageSize: [500, 500],
+  });
   return (
     <div className="app-layout">
       <Sidebar />
       <main>
         <section className="about">
           <div className="about-inner">
-            <div className="about-portrait">
-              <img src="/about/ray.jpg" alt="Ray Velez" width={500} height={500} decoding="async" />
+            <div className="about-side">
+              <div className="about-portrait">
+                <img src="/about/ray.jpg" alt="Ray Velez" width={500} height={500} decoding="async" />
+              </div>
+              <button type="button" className="contact-submit about-contact" onClick={() => setContactOpen(true)}>
+                CONTACT RAY <ArrowRight size={14} aria-hidden="true" />
+              </button>
             </div>
 
             <div className="about-copy">
               <h1 className="about-name">Ray Velez</h1>
-              <p className="about-role">Web developer and designer, turned artist engineer.</p>
+              <p className="about-role">Designer, developer, artist engineer.</p>
 
               <p className="about-bio">
-                Placeholder bio. I build the things in this library — the prompts, the reference
-                implementations, and the page you are reading them on. Most of it starts as a
-                question about how an interface should feel and ends as a single HTML file you
-                can open from disk.
+                I&rsquo;ve spent years designing and building for the web. Somewhere along the way,
+                the line between design and code disappeared.
               </p>
               <p className="about-bio">
-                Placeholder bio. Years of shipping product design and front-end work, now spent
-                on the seam between the two: interfaces that are built, not mocked, and tools
-                that make the building faster.
+                Now I&rsquo;m interested in interfaces that are built, not mocked &mdash; where
+                typography, motion, interaction, and logic all live in the same medium.
               </p>
-
-              <button type="button" className="contact-submit about-contact" onClick={() => setContactOpen(true)}>
-                CONTACT RAY <ArrowRight size={14} aria-hidden="true" />
-              </button>
+              <p className="about-bio">
+                I built InstaLanding as an exploration of that idea: premium, dependency-free
+                interfaces that exist as complete HTML files. No design handoff. No framework
+                required. Just something you can open, understand, remix, and ship.
+              </p>
+              <p className="about-bio">
+                Everything in this library is designed for two audiences: humans and agents.
+              </p>
+              <p className="about-bio">
+                Because as coding agents get better at building software, I think the interesting
+                question becomes less &ldquo;Can AI write the code?&rdquo; and more &ldquo;What
+                should we give it to build from?&rdquo;
+              </p>
+              <p className="about-bio about-bio--close">This library is my answer.</p>
             </div>
           </div>
         </section>

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Github, Star } from "lucide-react";
 
-/** owner/repo for the library itself. One place to change after the repo is public. */
-export const GITHUB_REPO = "RayVelez27/instalanding-website";
+/**
+ * The public library repo: every page as one HTML file plus its brief. This
+ * is not the site's own source repo (instalanding-website), which stays private.
+ */
+export const GITHUB_REPO = "RayVelez27/instalanding.ai";
 
 const CACHE_KEY = `stars:${GITHUB_REPO}`;
 

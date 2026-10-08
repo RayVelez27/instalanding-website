@@ -134,24 +134,19 @@ html {
   padding: 0;
 }
 
-.sidebar-socials {
-  display: flex;
-  flex-direction: row;
-  gap: 0;
-}
-
+/* X and LinkedIn, above NEW DROPS. 12px padding keeps the first icon on the
+   same left edge as the signup field below it. */
+.sidebar-socials { display: flex; gap: 0; }
 .sidebar-social-link {
   display: flex;
   align-items: center;
   padding: 12px;
   color: #666;
-  transition: color 200ms ease;
   text-decoration: none;
+  transition: color 200ms ease;
 }
-
-.sidebar-social-link:hover {
-  color: #000;
-}
+.sidebar-social-link:hover { color: #000; }
+.sidebar-social-link:focus-visible { outline: 2px solid #000; outline-offset: -2px; }
 
 .sidebar-brand {
   font-family: 'IBM Plex Mono', monospace;
@@ -242,21 +237,37 @@ html {
 }
 
 /* ── About ─────────────────────────────────────────────────── */
+/* One screen, no scroll, on desktop: the page is exactly 100vh and the bio's
+   type, leading and gaps are sized off the viewport height (clamped at both
+   ends), so a short laptop screen tightens the text instead of pushing the
+   last paragraph below the fold. Under 760px the columns stack and the page
+   scrolls normally — seven paragraphs do not fit a phone screen at a
+   readable size. */
 .about {
-  min-height: 100vh;
+  height: 100vh;
   display: grid;
   place-items: center;
-  padding: 40px 26px;
+  padding: clamp(20px, 4vh, 40px) 26px;
+  overflow: hidden;
 }
 .about-inner {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 48px;
-  align-items: center;
-  max-width: 900px;
+  grid-template-columns: 225px minmax(0, 1fr);
+  gap: clamp(32px, 4vw, 56px);
+  align-items: start;
+  max-width: 980px;
+}
+/* Portrait with CONTACT RAY under it, level with the name. */
+.about-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding-top: clamp(4px, 1vh, 8px);
 }
 .about-portrait {
   position: relative;
+  width: 100%;
   aspect-ratio: 4 / 5;
   border: 1px solid #000;
   background:
@@ -267,32 +278,50 @@ html {
   overflow: hidden;
 }
 .about-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.about-contact { width: 100%; }
 .about-name {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(34px, 5.4vw, 52px);
+  font-size: clamp(30px, min(5.4vw, 6vh), 52px);
   font-weight: 600;
   letter-spacing: -0.03em;
-  margin: 0 0 10px;
+  line-height: 1.05;
+  margin: 0 0 clamp(8px, 1.4vh, 14px);
 }
 .about-role {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 15px;
+  font-size: clamp(13px, 1.7vh, 15px);
   color: #000;
-  margin: 0 0 22px;
+  margin: 0 0 clamp(12px, 2.4vh, 24px);
 }
 .about-bio {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 13.5px;
-  line-height: 1.85;
+  font-size: clamp(11.5px, 1.55vh, 13.5px);
+  line-height: 1.75;
   color: #666;
-  margin: 0 0 14px;
-  max-width: 54ch;
+  margin: 0 0 clamp(6px, 1.3vh, 13px);
+  max-width: 64ch;
 }
-/* The same black button the contact dialog submits with. */
-.about-contact { margin-top: 18px; }
+/* The closing line lands in ink rather than grey, so the bio ends on it. */
+.about-bio--close { color: #000; margin-bottom: 0; }
 @media (max-width: 760px) {
+  .about { height: auto; min-height: 100vh; overflow: visible; padding: 32px 18px 48px; }
   .about-inner { grid-template-columns: 1fr; gap: 28px; }
-  .about-portrait { max-width: 240px; }
+  .about-side { max-width: 180px; padding-top: 0; }
+  .about-bio { font-size: 13.5px; margin-bottom: 14px; }
+}
+/* ── Contact page ── the About page's type around the shared contact form */
+.contact-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 5vh, 48px) 26px;
+}
+.contact-page-inner { width: min(520px, 100%); }
+.contact-page .about-role { margin-bottom: clamp(18px, 3vh, 28px); }
+.contact-page .contact-input { font-size: 14px; }
+@media (max-width: 760px) {
+  .contact-page { min-height: 0; padding: 32px 18px 48px; place-items: start stretch; }
+  .contact-page .contact-input { font-size: 16px; }
 }
 
 /* ── Builders hub ──────────────────────────────────────────── */
@@ -734,12 +763,6 @@ html {
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 0;
-}
-
-.mobile-overlay-socials {
-  display: flex;
-  flex-direction: row;
   gap: 0;
 }
 
@@ -2479,28 +2502,6 @@ html {
 }
 .pmodal-more-go { color: #bbb; flex-shrink: 0; }
 .pmodal-more-row:hover .pmodal-more-go { color: #000; }
-
-
-.pmodal-credits {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  color: #999;
-}
-.pmodal-credits a {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  color: #000;
-  text-decoration: none;
-  box-shadow: inset 0 -1px 0 #000;
-  letter-spacing: 0.06em;
-  font-size: 10px;
-}
 
 .pmodal-pager {
   display: flex;

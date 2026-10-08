@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { submitNetlifyForm } from "@/lib/netlifyForms";
 
+/** `exists` is kept for callers' sake; Netlify Forms cannot tell a repeat address apart. */
 export type SubscribeStatus = "idle" | "loading" | "success" | "exists" | "error";
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// Postgres unique_violation: the address is already on the list
-const ALREADY_SUBSCRIBED = "23505";
+/** The NEW DROPS list. Its static twin is the `new-drops` form in public/__forms.html. */
+export const NEW_DROPS_FORM = "new-drops";
 
-/** Adds an email to the `subscribers` list. Resolves true when the address is on the list. */
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Sends an email to the NEW DROPS list as a Netlify form submission. Resolves true on success. */
 export function useSubscribe() {
   const [status, setStatus] = useState<SubscribeStatus>("idle");
   const [error, setError] = useState("");
@@ -23,16 +25,9 @@ export function useSubscribe() {
 
     setStatus("loading");
     try {
-      const { error: insertError } = await supabase.from("subscribers").insert({ email });
-      if (!insertError) {
-        setStatus("success");
-        return true;
-      }
-      if (insertError.code === ALREADY_SUBSCRIBED) {
-        setStatus("exists");
-        return true;
-      }
-      throw insertError;
+      await submitNetlifyForm(NEW_DROPS_FORM, { email });
+      setStatus("success");
+      return true;
     } catch {
       setStatus("error");
       setError("Something went wrong. Try again.");

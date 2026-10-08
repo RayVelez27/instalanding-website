@@ -3,41 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>InstaLanding.ai — One-Shot Prompt Library</title>
-    <meta name="description" content="InstaLanding.ai — a library of one-shot prompts for web, motion, product, navigation, and form components. Copy a prompt, paste it into your AI builder, ship the component.">
-    <meta name="author" content="InstaLanding.ai" />
+
+    <!-- Site-wide defaults. This is a client-rendered SPA, so these are the tags
+         every crawler that does not run JavaScript (link unfurlers, social
+         cards) sees for every URL. Routes refine title, description and
+         canonical at runtime via src/hooks/useSeo.ts. Absolute URLs assume the
+         production origin, https://instalanding.ai. -->
+    <title>InstaLanding.ai — One-Shot HTML Library for Humans and Agents</title>
+    <meta name="description" content="Premium landing pages built for humans and agents. Each one is a single HTML file with no dependencies, plus the one-shot prompt that builds it. Copy it, remix it, ship it. Free and MIT." />
+    <meta name="author" content="Ray Velez" />
+    <link rel="canonical" href="https://instalanding.ai/" />
+    <meta name="theme-color" content="#000000" />
+
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="InstaLanding.ai" />
+    <meta property="og:url" content="https://instalanding.ai/" />
+    <meta property="og:title" content="InstaLanding.ai — One-Shot HTML Library" />
+    <meta property="og:description" content="Premium pages built for humans and agents. One file. No dependencies. Copy it, remix it, ship it." />
+    <meta property="og:image" content="https://instalanding.ai/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="InstaLanding.ai — One-shot HTML library: a grid of six landing page designs beside the wordmark." />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@pascowebdesigns" />
+    <meta name="twitter:creator" content="@pascowebdesigns" />
+    <meta name="twitter:title" content="InstaLanding.ai — One-Shot HTML Library" />
+    <meta name="twitter:description" content="Premium pages built for humans and agents. One file. No dependencies. Copy it, remix it, ship it." />
+    <meta name="twitter:image" content="https://instalanding.ai/og.png" />
+    <meta name="twitter:image:alt" content="InstaLanding.ai — One-shot HTML library: a grid of six landing page designs beside the wordmark." />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "InstaLanding.ai",
+        "url": "https://instalanding.ai/",
+        "description": "Premium landing pages built for humans and agents. Single HTML files with no dependencies, each with the one-shot prompt that builds it.",
+        "inLanguage": "en",
+        "license": "https://opensource.org/license/mit",
+        "author": {
+          "@type": "Person",
+          "name": "Ray Velez",
+          "url": "https://instalanding.ai/about",
+          "sameAs": ["https://x.com/pascowebdesigns", "https://www.linkedin.com/in/raymond-velez-96aa4a172/"]
+        }
+      }
+    </script>
 
     <!-- For agents: the whole library as flat files. No JS, no account. Start with /SKILL.md. -->
     <link rel="alternate" type="application/json" href="/prompts.json" title="Library manifest" />
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt index" />
     <link rel="alternate" type="text/markdown" href="/SKILL.md" title="Agent skill" />
-
-    
-    
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7a67d43e-3267-47e9-9215-3cd90fa1d088/id-preview-8394abde--4ba85d5f-8d06-4faf-bd3f-69f37c1f3231.lovable.app-1771435616733.png">
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7a67d43e-3267-47e9-9215-3cd90fa1d088/id-preview-8394abde--4ba85d5f-8d06-4faf-bd3f-69f37c1f3231.lovable.app-1771435616733.png">
-    
-  
-  
-  
-  <meta property="og:title" content="InstaLanding.ai — One-Shot Prompt Library">
-  <meta name="twitter:title" content="InstaLanding.ai — One-Shot Prompt Library">
-  <meta property="og:description" content="A library of one-shot prompts for landing page components — copy, paste, ship.">
-  <meta name="twitter:description" content="A library of one-shot prompts for landing page components — copy, paste, ship.">
-</head>
+  </head>
 
   <body>
     <div id="root"></div>
     <!-- An agent reading this shell without running JS gets nothing from #root. -->
     <noscript>
-      INSTALANDING.AI is a library of landing pages and UI components for coding agents.
-      Read it without JavaScript: <a href="/SKILL.md">/SKILL.md</a> (how to use it),
-      <a href="/prompts.json">/prompts.json</a> (the manifest), <a href="/llms.txt">/llms.txt</a> (an index),
-      /p/&lt;slug&gt;.txt (one brief, raw).
+      InstaLanding.ai is a library of premium landing pages built for humans and agents:
+      single HTML files with no dependencies. Read it without JavaScript:
+      <a href="/SKILL.md">/SKILL.md</a> (how to use it), <a href="/prompts.json">/prompts.json</a>
+      (the manifest), <a href="/llms.txt">/llms.txt</a> (an index), /p/&lt;slug&gt;.txt (one brief, raw).
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>

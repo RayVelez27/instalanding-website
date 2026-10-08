@@ -1,4 +1,6 @@
 import Sidebar from "@/components/Sidebar";
+import { useLocation } from "react-router-dom";
+import { useSeo } from "@/hooks/useSeo";
 
 interface ComingSoonProps {
   /** Menu label, shown as the heading */
@@ -12,7 +14,10 @@ interface ComingSoonProps {
  * announced but empty, so they share this. When one ships, replace the
  * route's element with the real page and delete nothing else.
  */
-const ComingSoon = ({ title, blurb }: ComingSoonProps) => (
+const ComingSoon = ({ title, blurb }: ComingSoonProps) => {
+  const { pathname } = useLocation();
+  useSeo({ title: `${title} — Coming Soon`, description: blurb, canonical: pathname });
+  return (
   <div className="app-layout">
     <Sidebar />
     <main>
@@ -25,6 +30,7 @@ const ComingSoon = ({ title, blurb }: ComingSoonProps) => (
       </section>
     </main>
   </div>
-);
+  );
+};
 
 export default ComingSoon;

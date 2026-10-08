@@ -5,18 +5,23 @@ import Sidebar from "@/components/Sidebar";
 import PromptThumb from "@/components/PromptThumb";
 import { copyText } from "@/lib/copyText";
 import { getPromptBySlug, getRelatedPrompts, visiblePrompts, categoryHref } from "@/data/prompts";
+import { useSeo } from "@/hooks/useSeo";
 
 const PromptDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const entry = getPromptBySlug(slug);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    if (!entry) return;
-    const previous = document.title;
-    document.title = `${entry.title} — InstaLanding.ai`;
-    return () => { document.title = previous; };
-  }, [entry]);
+  // Called before the not-found redirect below: hooks cannot be conditional.
+  useSeo({
+    title: entry?.title ?? "Not found",
+    description: entry
+      ? `${entry.description}. A single HTML file with no dependencies, plus the one-shot prompt that builds it.`
+      : "",
+    canonical: entry ? `/prompt/${entry.slug}` : undefined,
+    image: entry?.thumbnail,
+    imageSize: entry?.thumbnail ? [1200, 600] : undefined,
+  });
 
   // Reset the copied flag when navigating between prompts
   useEffect(() => setCopied(false), [slug]);

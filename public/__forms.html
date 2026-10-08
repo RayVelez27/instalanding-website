@@ -4,7 +4,9 @@
   deploy time and never runs the React app, so every form the app submits is
   declared here too, with the same name and the same fields. The app POSTs to
   this file's path. Never linked, never shown.
-  Source of the live form: src/components/ContactModal.tsx
+  contact    — src/components/ContactForm.tsx (the /contact page and the dialog)
+  new-drops  — src/hooks/useSubscribe.ts (the sidebar's NEW DROPS field)
+  How they post: src/lib/netlifyForms.ts
 -->
 <html lang="en">
   <head>
@@ -19,6 +21,10 @@
       <input name="name" />
       <input type="email" name="email" />
       <textarea name="message"></textarea>
+    </form>
+    <form name="new-drops" method="POST" data-netlify="true" hidden>
+      <input type="hidden" name="form-name" value="new-drops" />
+      <input type="email" name="email" />
     </form>
   </body>
 </html>
