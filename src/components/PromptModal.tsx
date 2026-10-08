@@ -192,7 +192,7 @@ const PromptModal = () => {
                       return (
                         <button
                           key={key}
-                          className="pmodal-view"
+                          className={`pmodal-view pmodal-view--${key}`}
                           aria-pressed={view === key}
                           onClick={() => setView(key)}
                           title={VIEWPORTS[key].label}

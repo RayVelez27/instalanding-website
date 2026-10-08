@@ -2557,6 +2557,8 @@ html {
   /* "1440px · scroll inside the frame" has no room beside the icons and was
      pushing the toolbar wider than the dialog. */
   .pmodal-toolbar .pmodal-note { display: none; }
+  /* On a phone the screen already is the mobile preview. */
+  .pmodal-view--mobile { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
