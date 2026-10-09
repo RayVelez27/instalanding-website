@@ -1103,6 +1103,17 @@ html {
 }
 .star-btn:hover { background: #000; color: #fff; }
 .star-btn:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+/* GITHUB link + live star count, joined like GitHub's own star button. */
+.star-group { display: inline-flex; flex-shrink: 0; }
+.star-group .star-count {
+  border-left: 0;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+  animation: star-count-in 240ms ease both;
+}
+.star-group .star-count:hover svg { fill: currentColor; }
+@keyframes star-count-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .star-group .star-count { animation: none; } }
 .library-intro-kicker {
   margin: 0 0 6px;
   font-family: 'IBM Plex Mono', monospace;
