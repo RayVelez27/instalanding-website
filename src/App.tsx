@@ -12,6 +12,7 @@ import About from "./pages/About";
 import Builders from "./pages/Builders";
 import Agents from "./pages/Agents";
 import Contact from "./pages/Contact";
+import Contribute from "./pages/Contribute";
 import BuilderPage from "./pages/BuilderPage";
 import { builders } from "@/data/builders";
 import ComingSoon from "./pages/ComingSoon";
@@ -52,6 +53,7 @@ const AppRoutes = () => {
           element={<ComingSoon title="Product" blurb="Dashboards, consoles and in-app flows — the screens people use after they sign up — as one-shot prompts with a reference build." />}
         />
         <Route path="/agents" element={<Agents />} />
+        <Route path="/contribute" element={<Contribute />} />
         <Route path="/contact" element={<Contact />} />
         {/* Out of the menu, not deleted: the builder pages are search landing
             pages and keep their URLs and their sitemap entries. */}

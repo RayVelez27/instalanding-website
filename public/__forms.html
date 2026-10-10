@@ -5,6 +5,7 @@
   declared here too, with the same name and the same fields. The app POSTs to
   this file's path. Never linked, never shown.
   contact    — src/components/ContactForm.tsx (the /contact page and the dialog)
+  contribute — src/pages/Contribute.tsx (the pasted HTML arrives as html_file)
   new-drops  — src/hooks/useSubscribe.ts (the sidebar's NEW DROPS field)
   How they post: src/lib/netlifyForms.ts
 -->
@@ -21,6 +22,17 @@
       <input name="name" />
       <input type="email" name="email" />
       <textarea name="message"></textarea>
+    </form>
+    <form name="contribute" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+      <input type="hidden" name="form-name" value="contribute" />
+      <input name="bot-field" />
+      <input name="template_name" />
+      <textarea name="template_description"></textarea>
+      <input name="submitter_name" />
+      <input type="url" name="social_1" />
+      <input type="url" name="social_2" />
+      <input name="html_bytes" />
+      <input type="file" name="html_file" />
     </form>
     <form name="new-drops" method="POST" data-netlify="true" hidden>
       <input type="hidden" name="form-name" value="new-drops" />

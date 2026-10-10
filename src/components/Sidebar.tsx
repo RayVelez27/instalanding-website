@@ -16,6 +16,7 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean }[] = [
   { to: "/systems", label: "SYSTEMS", soon: true },
   { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED
   { to: "/about", label: "ABOUT" },
+  { to: "/contribute", label: "CONTRIBUTE" },
   { to: "/contact", label: "CONTACT" },
   // AGENTS is hidden, not removed: /agents still resolves and is in the
   // sitemap, and the agent endpoints point at it. Restore to bring it back.
