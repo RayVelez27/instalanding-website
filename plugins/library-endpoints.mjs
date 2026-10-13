@@ -221,6 +221,7 @@ const buildSitemap = (library, builders, base) => {
     { loc: `${base}builders`, priority: "0.9" },
     { loc: `${base}about`, priority: "0.4" },
     { loc: `${base}contribute`, priority: "0.5" },
+    { loc: `${base}sponsor`, priority: "0.4" },
     { loc: `${base}contact`, priority: "0.3" },
     ...builders.map((b) => ({ loc: `${base}${b.path.replace(/^\//, "")}`, priority: "0.9" })),
     // product has a section route of its own; the rest sit under /category/

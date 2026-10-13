@@ -355,6 +355,17 @@ html {
 .contrib-desc { min-height: 80px; }
 .contrib-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .contrib-hint { margin: -10px 0 16px; font-size: 10.5px; color: #888; }
+/* /sponsor reuses the contribute layout; these are its only extras. */
+.sponsor-list { list-style: none; margin: 0 0 16px; padding: 0; border-top: 1px solid #000; }
+.sponsor-list li { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-bottom: 1px solid #ddd; }
+.sponsor-list strong { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #000; }
+.sponsor-picks { margin: 0 0 18px; padding: 0; border: 0; min-width: 0; }
+.sponsor-picks legend { padding: 0; }
+.sponsor-pick { display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin-bottom: 6px; border: 1px solid #000; font-size: 12px; cursor: pointer; background: #fff; transition: background 150ms ease, color 150ms ease; }
+.sponsor-pick:has(input:checked) { background: #000; color: #fff; }
+.sponsor-pick input { width: 14px; height: 14px; margin: 0; accent-color: #000; }
+.sponsor-pick:has(input:checked) input { accent-color: #fff; }
+.sponsor-pick:has(input:focus-visible) { outline: 2px solid #000; outline-offset: 2px; }
 .contrib-html { min-height: 220px; font-size: 11.5px !important; line-height: 1.5; white-space: pre; overflow-wrap: normal; overflow-x: auto; tab-size: 2; }
 @media (max-width: 960px) {
   .contrib-grid { grid-template-columns: minmax(0, 1fr); }
@@ -1146,17 +1157,6 @@ html {
 }
 .star-btn:hover { background: #000; color: #fff; }
 .star-btn:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
-/* GITHUB link + live star count, joined like GitHub's own star button. */
-.star-group { display: inline-flex; flex-shrink: 0; }
-.star-group .star-count {
-  border-left: 0;
-  gap: 5px;
-  font-variant-numeric: tabular-nums;
-  animation: star-count-in 240ms ease both;
-}
-.star-group .star-count:hover svg { fill: currentColor; }
-@keyframes star-count-in { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .star-group .star-count { animation: none; } }
 .library-intro-kicker {
   margin: 0 0 6px;
   font-family: 'IBM Plex Mono', monospace;

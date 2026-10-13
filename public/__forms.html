@@ -6,6 +6,7 @@
   this file's path. Never linked, never shown.
   contact    — src/components/ContactForm.tsx (the /contact page and the dialog)
   contribute — src/pages/Contribute.tsx (the pasted HTML arrives as html_file)
+  sponsor    — src/pages/Sponsor.tsx (reached from the home feed's last tile)
   new-drops  — src/hooks/useSubscribe.ts (the sidebar's NEW DROPS field)
   How they post: src/lib/netlifyForms.ts
 -->
@@ -33,6 +34,16 @@
       <input type="url" name="social_2" />
       <input name="html_bytes" />
       <input type="file" name="html_file" />
+    </form>
+    <form name="sponsor" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="sponsor" />
+      <input name="bot-field" />
+      <input name="name" />
+      <input type="email" name="email" />
+      <input name="company" />
+      <input type="url" name="website" />
+      <input name="placements" />
+      <textarea name="message"></textarea>
     </form>
     <form name="new-drops" method="POST" data-netlify="true" hidden>
       <input type="hidden" name="form-name" value="new-drops" />

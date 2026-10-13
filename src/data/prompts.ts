@@ -92,6 +92,289 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Card Scanner Finance Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "Autonomous finance agents: tilted cards in an orbit ring, a scroll-pinned scanner that turns cards into code, and a live control bento",
+    prompt: `Build a single-file HTML landing page for "NOVA", fictional autonomous finance agents that read every transaction, tokenize every card and reconcile and close the books in real time, with a person in the loop. Inter Tight (display), Inter (copy) and JetBrains Mono (UI) from Google Fonts; GSAP 3.12.5 with ScrollTrigger and three.js r128 from cdnjs; everything else inline, no images. Fictional vendors and figures.
+
+THE PALETTE
+Near-black violet (#050508, #0b0a14), pale lilac text, accents lilac #c4b5fd and violet #8b5cf6, with a warm ember #e3857a and cream #f1dba7 for the close. Heavy uppercase headlines in Inter Tight 900, filled with a radial gradient clipped to the text whose centre (--gy) GSAP scrubs with scroll, so the light travels down the words as they pass. Use three oklch palettes (lilac, indigo, ember) and interpolate in oklch where supported. Give each headline width: fit-content so the gradient box covers the longest line.
+
+THE HERO
+Left: a pulsing "Agents online · v2.4" pill, "AUTONOMOUS / FINANCE / AGENTS" with the middle word in the indigo palette, a lede, a pale pill CTA and a ghost "Watch demo" with a ringed play icon. Right: one scene built at a fixed 880x640 and scaled to its column. It contains:
+- A tilted glowing orbit ellipse with a running highlight, dust and three dots riding it with SVG animateMotion.
+- A glass JSON panel showing a live transaction whose fields flash as they change.
+- A scrolling mini code panel and a faint ghost panel.
+- Two metallic cards (copper and graphite: chip, contactless mark, brushed texture, perspective tilt) floating out of phase. A sweep of light crosses the graphite card when it gets tokenized.
+- A checklist (Transaction read → Card tokenized → Risk analysis → Category assigned → Reconciled → Books updated) that steps through one transaction at a time, with a READ → TOKENIZE → ANALYZE → RECONCILE → CLOSE pipeline lighting in sync.
+- A light beam dropping into a strip of water at the bottom of the hero, whose horizon line and reflection align to the beam.
+Tilt the scene gently toward the pointer. Behind it all, three.js additive particle dust drifts sideways, and a low SVG rock silhouette sits on the waterline. Four big mono stats sit in the water strip.
+
+THE SCANNER
+Pin a section and scroll a horizontal track of cards through a fixed vertical light bar at the screen's centre. Each card is two layers, the solid card and a dark panel of churning code (pseudo-source about tokenizing, risk scores and ledgers, with a glitch flicker and a fading mask). Clip them against the bar every frame, so a card turns into code as it crosses. Fire a scan flash the first time it enters. Draw the bar on a 2D canvas as stacked additive glow layers with a particle spray that intensifies while a card is in the beam. Fade the bar in only once the intro text has scrolled past it. Below each card, a numbered caption: Tokenize, Score, Act, Close. A progress hairline tracks the scroll. Render particles only for sections on screen, in one requestAnimationFrame loop.
+
+CONTROL
+A bento of glass tiles with gradient hairline borders and a pointer-following glow:
+- A live ledger: rows stream in at the top with a scanning badge that settles to Matched or Flagged, a light beam sweeps across the table, and the counts tick.
+- Guardrails: four real role="switch" toggles drive an autonomy meter (Guarded, Supervised, Autonomous) and write to the audit trail.
+- Connectors: chips orbiting a glowing NOVA core with depth-based scale and opacity.
+- A signed audit trail with hashes, where human actions are marked in cream.
+- Month-end: "2 days", in the ember palette, with before/after bars that grow on view.
+- An approval card: Approve or Hold a payment, each logged, and a new request arrives four seconds later.
+
+THE REST
+A two-column FAQ (sticky head with a "Talk to a human" tile, native details with smooth height animation and a glowing left rule on the open item). Then a super footer: a framed stage with HUD corner brackets, "Put your finance ops on autopilot." with "autopilot." in ember, and a gooey spinning-gradient Deploy button. Clicking Deploy runs a simulated agent in a console (timer, progress bar, six log lines resolving to results, then three metrics popping in). Below it, link columns and a newsletter field. Last, a giant NOVA wordmark split by a moving scan line: solid on one side, wireframe on the other.
+
+THE FLOOR
+One h1, a main, data-section on every region, aria-hidden on every decorative canvas and the hero scene, real buttons with types, visible focus (including on the invisible button layered over the custom Deploy button), no horizontal scroll at 390px. Under prefers-reduced-motion, stop the decorative loops (orbit, floats, glitch, sweeps, the wordmark split). Keep the pinned scroll, because the reader drives it.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 12, 2026",
+    demo: "/demos/nova-agentic-finance.html",
+    bestFor: ["fintech and payments","AI agents for finance teams","card issuing and treasury tools","B2B SaaS with a live product story"],
+    style: ["dark","violet","glassmorphism","scroll-pinned","canvas","threejs","gsap","credit-cards"],
+    thumbnail: "/thumbs/nova-agentic-finance.jpg",
+    theme: "dark",
+    credits: [
+      {
+        label: "Made by Beings",
+        href: "https://madebybeings.com",
+        note: "The page's design and build, as credited in its footer.",
+      },
+      {
+        label: "Card scanner inspired by evervault",
+        href: "https://evervault.com/",
+        note: "The scroll-driven scanner that turns cards into code follows the effect on evervault's site.",
+      },
+    ],
+  },
+  {
+    title: "Paper Sun Agent Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "AI agents for the night shift: a paper-cut sunset panel you can slap stickers on, a dusk-to-daybreak arc, and a run log that stops to ask",
+    prompt: `Build a single-file HTML landing page for "Daybreak", a fictional product that runs AI agents overnight on the work a team keeps pushing to tomorrow, and has it waiting, checked and reviewable in the morning. Bricolage Grotesque (display, optical sizing on), Figtree (body) and JetBrains Mono (labels) from Google Fonts, everything else inline, no libraries. Every illustration is inline SVG and CSS. Write all colour in oklch.
+
+THE PALETTE
+A deep night navy page (oklch 14% 0.045 265) with panels a step lighter, and a dusk ramp for accents: ember, flame, marigold, a pale sky cyan and a sun yellow (oklch 90.9% 0.189 99.9) for the primary buttons. Headlines are two lines: the first in a soft white-to-ice gradient, the second in a full spectrum gradient (cyan, violet, pink, orange, yellow) across the words. Buttons are fat pills with a darker bottom edge, so they read as pressable.
+
+THE HERO
+A small dot-led kicker, "Hand it off at dusk. / Wake up to it done.", a lede, and a command-line style input ("> Start a free night run") with a gradient hairline border and a yellow arrow key, then three checkmarked reassurances.
+On wide desktops (1260px and up) only, frame the headline with the story's two ends in the side gutters. On the left is dusk: a glowing crescent moon in a faint orbit ellipse, and a dotted ember-to-violet trail down to a glass "6:00 PM · Brief handed off" card. On the right is daybreak: a steaming coffee mug (the copy says you check the result over coffee), drawn in SVG. It has a sun-yellow-to-marigold body with the headline's spectrum as a band, a dark glass saucer with a violet rim, and three steam curls that rise and fade. Give it the same glow as the moon, and add a dotted marigold trail down to a warm-rimmed "7:00 AM · Digest ready" card. Don't put a second sun here; the hero panel below already has one. Add a floating icon tile and a few twinkling stars and sparkles on each side. Size each side as min(270px, 50% - 434px) and anchor it 410px from centre, so it never touches the headline. Keep it behind the hero content and aria-hidden, and hide it below 1260px.
+Under it, the signature: a big glass app panel in 3D (perspective from above, slightly tilted), with two faint orbit ellipses around it and a glowing floor. Inside, a paper-cut sunset drawn in SVG: a bloom and a radial sun, then three layered hills in blue, violet and a magenta-to-orange band, each edge traced with a blurred glowing stroke. Over it: an icon rail, a "Night run · 12 tasks completed" header and floating glass task cards (Bug fixes, Reconciliations, Reports filed, Follow-ups, Refunds) at different translateZ depths, bobbing gently. Small square icon tiles float outside the panel's edges. Size everything in the panel in cqi against a container-type: inline-size box, so the whole scene scales as one.
+The panel is a button: clicking it slaps a round "done" sticker exactly where you clicked (Refund sent, Bug fixed, Inbox zero…), cycling colours, and bumps the task count. Each sticker peels on from a folded corner: compute the fold axis from a random angle, store it in custom properties, and animate one registered @property --p from folded to flat. Keep the last 14.
+
+THE BANDS
+The page is a stack of torn-paper bands that overlap with negative margins: an orange band ("One brief. One night. One review.") with three stat orbs (5× faster turnaround and two more), then a night-blue band for the product.
+
+ONE NIGHT, HOUR BY HOUR
+A half-dome night sky (aspect 2:1, rounded top) with stars and a sun that rises as the night progresses. A gradient arc traces the dome, with six stops placed along it: 6 PM Plain-language briefs, 8 PM Your tools scoped, 11 PM Many hands one run, 2 AM Checkpoints that hold, 5 AM Full replay, 7 AM The morning digest. Each stop is a button with a glowing orb and a label card placed on the side away from the arc. The active hour lights up, the past ones dim, the progress stroke fills to it via dashoffset, the stars fade and the sun climbs, and the sky's bottom glow changes colour per hour. Below, a console card: a "Night run · <phase>" bar, six progress segments (the current one fills over the 4.5s auto-advance), the time, a title, a paragraph and a one-line terminal snippet with a blinking caret, plus previous and next buttons. Auto-advance until the visitor picks an hour.
+
+EVERY STEP, WRITTEN DOWN
+A two-column section: copy and three live metrics (actions logged, agents working, waiting on you) beside a run log card for "Clear the refund backlog under $200". The log reveals a row every 1.4s on a vertical track that fills as it goes: brief received, work split four ways, orders matched, then "Paused for you" in red with a "Review 3 refunds" button, refunds issued, digest ready. Clicking review turns the row green ("Reviewed by you · Approved") and zeroes the waiting count. When the log completes, a "Morning digest ready" footer appears with "Replay the night"; it also replays by itself after a pause.
+
+THE REST
+Pricing (Solo $29, Team $99 lifted and outlined in yellow, Enterprise "Let's talk") as rimmed glass cards, an FAQ of native details with a plus that turns, a CTA with a second paper-cut sunset across the full width and the same command input (confirming inline on submit), and a footer with a reflection glow and link columns.
+
+THE FLOOR
+One h1, a main, data-section on every region, a visually hidden label on each command input, aria-pressed on the hour stops, aria-live on the console readout, aria-hidden on all decorative art, visible focus, no horizontal scroll at 390px. Under prefers-reduced-motion, stop both timers, show the whole run log, and freeze the bobbing, the stickers and the sky.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 12, 2026",
+    demo: "/demos/daybreak-night-shift.html",
+    bestFor: ["AI agent products","automation and back-office tools","async and overnight workflows","B2B SaaS with personality"],
+    style: ["dark","night","sunset-gradient","paper-cut","3d-panel","playful","spectrum-type"],
+    thumbnail: "/thumbs/daybreak-night-shift.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Tide Reveal Agent Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An AI agent platform over a live WebGL sea that, on scroll, ebbs into a terminal window, then a clickable workspace and a run trace",
+    prompt: `Build a single-file HTML landing page for "Undertow", a fictional platform that runs AI agents on a company's recurring work: they plan, act and check, and ask a person before anything irreversible. Archivo (variable width), Instrument Sans and IBM Plex Mono from Google Fonts, GSAP 3.12.5 and ScrollTrigger from cdnjs, everything else inline. No images: the sea is a shader, every product screen is HTML and CSS, every chart is inline SVG. Example domains and 555 numbers only, and mark the customers, quote and figures as illustrative in a comment.
+
+THE SYSTEM
+One palette for the whole page: deep navy #0a1830 surfaces, white type, one signal blue (#8fb8ff, #4c8dff for action) for progress and selection, and coral only where a person is needed. Archivo at 125% width for display and the wordmark, Instrument Sans for reading, Plex Mono for labels and data. Write the base in CSS layers with logical properties and color-mix(in oklab) tints off one --paper token, then scope everything below the hero to a .stone class that re-points the same tokens, so one card style (navy, 1.1rem radius, a hairline ring and a long soft shadow) and one featured card (light) serve every section.
+
+THE SEA
+The hero is a full-screen raw-WebGL ocean, written from scratch: one ray-plane hit per pixel, a five-octave crest function (rotate the wave direction each octave, wobble it with value noise), a finite-difference normal, Fresnel sky reflection, a tight specular glint and exponential horizon haze. Render it at 0.45 to 0.6 of screen resolution capped near 1.1 million pixels, at 30fps, paused off screen, in hidden tabs and under reduced motion (draw one frame). Lerp the sea's height, chop, speed and colours toward a preset so it can change mood smoothly. No WebGL falls back to a CSS gradient.
+
+THE HERO
+Over the sea: a stacked headline "DELEGATE / THE / WORK." in heavy white Archivo with a thin italic "THE", and a real visually hidden h1 ("Delegate the work. Keep the judgment."), since the stacked words are aria-hidden. Behind the words, a tall glass slab skewed -33deg, and joined to it a second slanted pane carrying the lede. Draw them as ONE glass: a script measures both boxes, builds the two parallelograms as path subpaths, clips one blurred, frosted fill to their union, and strokes each outline with the other shape masked out, so there's no seam where they meet. A drop shadow falls only outside the glass. A kicker with a long rule into the slab, and a single white pill CTA with a navy arrow disc and a slow sheen, inside thin concentric rings and crosshair ticks.
+Size the whole composition off one --fs (about min(10.6vw, 16.5vh)) and make it clear the nav. The block is centred on the headline, but the slab and kicker hang about 0.8 x --fs above it, so reserve that in the hero's top padding (nav height + 0.8 x --fs + 1rem). Otherwise, on a laptop-height window (730px and under), the slab runs up behind the nav links. Check 1280x600, 1536x730 and 1920x1080: the gaps above the slab and below the CTA should come out about equal.
+The nav starts flat and full width over the sea, then after 24px of scroll gathers into a floating glass pill. Inline links mark the section on screen; under 46rem they give way to a menu button that opens a full-screen menu which clips down from the top, with inert content behind, a focus trap and Escape to close.
+
+THE TIDE
+Pin the hero for 95% of a viewport and scrub one timeline: the headline words lift, scale and blur away like spray; a glowing tideline drops down the screen while the sea is clip-path inset() down behind it; then the sea gathers into the exact rectangle of a terminal window on the right (rounded 18px) while the canvas stage pushes in. Never resize the canvas, only clip it, or the shader stalls. The copy rises line by line from behind masks: "PLAN. ACT. CHECK. / THEN ASK YOU.", a lede, a blue copy-to-clipboard install line, an outlined "undertow init" quickstart and a platforms line. When the scene ends, the terminal types a run over the sea: the command, planning, four green tool lines, a coral approval stop, "approve? [y/N] y", and the email sent. Measure the terminal on init and on width changes only; a phone's toolbar changes the height mid-scroll.
+
+THE PRODUCT
+Three cards, each a small live product screen: a plan that writes itself step by step ending in an approval gate and a "Run plan" button that lights; a queue of task chips draining into four agents with load bars; and a re-plan shown as a line diff with the reason, confidence and ETA change, cycling through three diffs.
+
+THE WORKSPACE
+A full product window, as real as you can make it: a top bar with breadcrumbs, a ⌘K search, avatars and "+ New run"; a left column of six runs with live status dots (running, needs you, done), the agents and the connected tools; a centre with the run title, status, a progress bar and Timeline / Output / Logs tabs; a right column with a "Needs you" approval card (preview, Approve, Edit), the files the run made and a budget meter. The churn run advances by itself every few seconds until it reaches the approval; Approve completes it with a toast and it resets later. Runs are keyboard-navigable. Number the three regions with small pins and explain them in a legend underneath.
+
+THE RUN TRACE
+An SVG trace on a time axis: one lane per tool plus a "you" lane, each step a dashed bar that fills as a playhead sweeps, a confidence line underneath with an 80% re-plan threshold and an annotated dip. At the approval the playhead holds with a pulsing "Waiting on you" chip, which turns to "Approved by you", then carries on and loops. Play and pause, and seven step buttons to jump. A four-cell readout below (step, tool and time, confidence, elapsed) whose values wrap rather than overflow, and which is not a live region, since it changes every frame.
+
+THE REST
+A trust band (six typographic wordmarks, a quote card, three big stats, compliance pills; two wordmarks per row on phones), an API section where a segmented control, two range sliders and an approval switch rewrite the JSON request beside them, three pricing tiers with the middle one light, a sign-up form with an FAQ of native details, and a footer.
+
+THE FLOOR
+One h1 and one main (the app window's centre column is a div), data-section on every region, the terminal as role="img" with a label describing the run and its typed lines hidden from screen readers, labels on every control, visible focus rings, reduced motion respected everywhere, no horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 12, 2026",
+    demo: "/demos/undertow-agents.html",
+    bestFor: ["AI agent platforms","workflow automation","developer tools with a CLI","B2B SaaS with a product demo"],
+    style: ["dark","navy","webgl","shader","scroll-driven","glassmorphism","product-ui"],
+    thumbnail: "/thumbs/undertow-agents.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Manga Panel Dev Tool Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A deploy CLI pitched as a black-and-white manga issue: a sliced retro sun over a city skyline, a typing terminal, three villains defeated and a reader-mail FAQ",
+    prompt: `Build a single-file HTML landing page for "OVERCLOCK", a fictional one-command deploy tool, styled as an issue of a black-and-white manga. Bangers, Anton, Barlow Condensed and JetBrains Mono from Google Fonts, everything else inline. No images and no libraries: every illustration is inline SVG animated with SMIL, and the screentone is CSS. Strictly two inks, #111 and an off-white paper #f8f8f5. Use example domains only, especially in the curl | sh install line.
+
+THE PAGE
+One 1120px panel with a 4px ink border and a hard 10px offset shadow, sitting on a halftone-dotted grey desk. Under 640px the panel goes full bleed and loses the frame.
+
+THE HAND-DRAWN LINE
+Two SVG filters declared once (feTurbulence into feDisplacementMap): a strong one for outlines and a light one for display pieces. Never filter a box that contains body text, or the text wobbles too. Instead set border:0 on cards, steps, plans and the terminal and draw the outline as an ::after overlay with the filter on it. Apply the light filter directly to buttons, tags, badges, the logo mark and the big numbers.
+
+THE HERO
+A dot-screen background with a huge paper circle bleeding off the top left behind the copy. An "issue" tag (Vol. 03 · Dev Tools · 2026), then the h1 in Bangers, white fill with a 7px ink stroke using paint-order: stroke fill, rotated -2deg, with a boxed Japanese subtitle under it (限界を超えろ, beyond the limit). A lede on a padded paper panel (so the dot screen never runs behind the words) with one phrase reversed out in ink, two hard-shadow buttons that lift on hover and press on active, and a copyable install line.
+On the right, a terminal panel tilted 1.5deg with a doubled offset shadow and a speech-bubble "12 seconds?!". It types oc deploy --prod, then streams detection, a cache hit, a build time, a block progress bar and a ✓ LIVE line, holds, and loops.
+Behind it all, the scene: a retro sun rising into place, sliced by paper bars that slide down it and thicken as they go, two rings pulsing outward from it, a seeded skyline of ink buildings with lit and blinking windows, and a perspective grid floor scrolling toward the viewer. Reserve the hero's bottom padding for it.
+
+THE SCENE BUILDER
+Don't hand-write the suns and skylines. Mark them up as empty <g data-sun> and <g data-skyline> groups configured by data attributes (centre, radius, bar count, start, end, duration, invert; width, base, min and max height, seed, a dip so buildings shorten under the sun, night mode) and build them with one small script from a seeded PRNG, so the city is identical on every load. Pause each SVG's animations with an IntersectionObserver while it is off screen.
+
+THE ROGUES' GALLERY
+A diagonal-hatched break strip ("3 villains are wanted!"), then three villain cards in a 2+2 grid, the first full width split art/info. Each has a numbered tag, an animated scene, a boxed stat tag, a katakana sound effect, a name in Bangers, an ink "villain · defeated by X" role strip, a paragraph and a dashed-rule fact list:
+The Slow Build: a speedometer whose needle swings from 14 MIN to 0.8 S with speed lines, over a conveyor of ticked boxes on spinning wheels.
+Config Hell: four config file tabs whose tangled wires straighten into the OC badge, an "AUTO-DETECTED ✓" stamp and packets running down the wires.
+The 3 AM Outage: an inverted night panel, a small sliced moon, twinkling stars, a skyline in night mode and a heartbeat line that spikes, with a "ROLLBACK!" flag.
+
+THE REST
+A "how it works" frame with a tab on its top edge, three steps with ghosted big numbers and code chips, and a note that uses strikethrough, wavy underline, an ink highlight and a hatched mark. A second break ("Choose your power level"), then three plans, the middle one inverted and tilted -1deg with a "Most picked!" tag.
+
+READER MAIL
+A third break ("Got questions?"), then a two-column FAQ of six native <details> items, the first open. Each summary is a tilted ink "Q.01" tag, the question in Bangers (wavy underline on hover) and a round plus that rotates into a filled minus when open. Wobble the item outlines with the same ::after overlay, hide the default marker, give the summary a dashed inset focus ring, and fade the answer in under a thick ink left rule.
+
+THE FINAL CHAPTER
+An ink end panel split copy and art. Copy: a bordered "Final chapter · Your move" kicker, "To be deployed…" in huge paper Bangers with a hard grey drop shadow, a tilted paper caption, a line of copy, a terminal-style signup (a "$" prompt cell, the email field and an ink "Join beta →" button fused into one paper bar with a hard shadow that lifts on focus-within), an inline validation line and three ✓ perks. Art: an inverted sliced sun setting on a horizon, pulsing rings, twinkling stars and a perspective floor whose cross-lines accelerate toward the viewer, with a floating paper chip showing the ✓ LIVE result. Faint concentric rings and a masked dot screen texture the ink. A thin footer.
+
+THE FLOOR
+One h1 and a main, data-section on every region, aria-hidden on every scene, the terminal given role="img" with a label describing the run, labels on the copy button and the email field, visible focus rings in both inks, no horizontal scroll at 390px. Under prefers-reduced-motion stop the typing (print the finished run), draw the suns as static slices and freeze every SMIL scene on a good frame rather than hiding it.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 11, 2026",
+    demo: "/demos/overclock-deploy.html",
+    bestFor: ["developer tools and CLIs","deploy and hosting platforms","indie dev launches","playful B2B SaaS"],
+    style: ["black-and-white","manga","comic","halftone","hand-drawn","svg-animation","retro-sun"],
+    thumbnail: "/thumbs/overclock-deploy.jpg",
+    theme: "light",
+  },
+  {
+    title: "Ghost Agent Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "Invisible AI agents pitched as ghosts: pixel ghosts float up a curved hero, and three SVG ghosts clear a 100-task board live",
+    prompt: `Build a single-file HTML landing page for "Haunt", a fictional company whose AI agents work like ghosts: invisible, in the tools a team already uses, noticed only when the work is done. Archivo from Google Fonts (the variable width axis), everything else inline. No images and no libraries: the logo, the favicon and both kinds of ghost are inline SVG or pure CSS. Fictional brand, invented customers and figures, example.com-style contact details.
+
+THE TYPE AND THE PALETTE
+Near-black #060409 night, a slightly lifted #0b0711 for alternate sections, warm off-white text. One accent run, cyan #49e7ff to violet #9769ff to pink #ff4fc8, used as a gradient on the key word of the hero, the step numbers and thin rules. Display type is Archivo at font-stretch 125% and weight 900, uppercase, line-height .8, tight negative tracking; labels are the same face at weight 500, small, wide-tracked caps. Every headline ends in a cyan full stop, and one word per headline is outlined (transparent fill, a 1-2px text stroke).
+
+THE HERO
+Full height, a vertical gradient from deep teal at the foot through plum to magenta at the top, with a pink radial off the top right. The signature shape: a big rounded bottom-right corner (clamp 64px to 240px), plus an inverse curve under the bottom-left made from two pseudo-elements, one filled with the hero's bottom colour and one with the page colour rounded on its top-left, so the hero pours into the next section. Keep the bottom colour in one custom property both use.
+Behind the copy, twenty pixel ghosts float up the hero: each one is a single span built from seven linear-gradient rectangles (head, eyes, mouth, body, a fading tail) all sized off one --size variable, plus-lighter blended, wobbling with a squash-and-stretch keyframe while it rises. Pause them when the hero is off screen and drop them under prefers-reduced-motion.
+Copy: "AI agents that work like ghosts." with "ghosts" in the gradient, a lede, a filled pink-to-violet pill and a ghost pill, and a right-aligned meta line in small caps.
+
+THE NAV
+Transparent over the hero, dark glass with a hairline after 20px. A gradient ghost logo that bobs and blinks, the wordmark, and a MENU button whose three lines fold into an X. It opens a full-screen takeover: big numbered links on the left, a contact column on the right. Mark it inert while closed, focus the first link on open, close on Escape and on any link, and lock the page scroll while it is open.
+
+THE AGENTS
+Four rows, not cards: number, name with a role in cyan small caps, a sentence, and pill tags on the right. Scout researches, Scribe writes, Sentinel watches, Poltergeist does ops. Rows get a faint violet wash on hover.
+
+THE CUSTOMERS
+A 12-column grid of four tall cards, 7/5 then 5/7, each a dark radial colour field with the client's initials as a huge outlined monogram, a category line, the name and one result. Cards take a real photo through a custom property (--img). Below, a 2x2 client wall and a placeholder quote.
+
+GHOST SHIFT
+The live demo. A 10x10 board of task cells behind the stage, masked to a radial so it fades at the edges, every third cell labelled SCOUT, every fifth SCRIBE, every fifteenth SENTINEL. Three cute SVG ghosts stand in a row, the middle one larger, each with a bobbing body and a shadow ellipse that shrinks as it rises; clone them from one <template>. A pill player underneath: SUMMON AGENTS starts a 480ms beat that clears one task per beat, lights the current cell and three random ones in pink, violet or cyan, hops the matching ghost, flashes its name as an outlined word behind the stage, and updates a status line and a gradient progress bar. The intro fades and blurs away while it runs. After 100 the board refills. The button toggles to SEND THEM HOME.
+
+HOW IT WORKS
+Three steps (Summon, Assign, Vanish) with big gradient numbers, and a four-up stats row.
+
+THE CYBER CARDS
+The customer cards and the steps tilt toward the pointer in 3D (up to 7 and 10 degrees). Inject the decoration with JS so the markup stays clean: a glare that follows the pointer, three corner glows, four sweeping gradient lines, a scan bar, six drifting particles and four corner brackets that slide outward on hover. Skip the tilt on touch and under reduced motion.
+
+THE CLOSE
+A floating ghost, "Let something haunt you.", contact lines, and a demo form: name, work email, company, a custom listbox select for team size (options with a sub-line and a check, full keyboard support: arrows, Home, End, Enter, Escape, type-ahead) and a textarea. Submitting opens a prefilled mailto. Then a thin footer.
+
+THE FLOOR
+A skip link, one h1, a main, labels on every field, aria-hidden on all the decorative ghosts and layers, visible cyan focus rings, no horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 11, 2026",
+    demo: "/demos/haunt-agents.html",
+    bestFor: ["AI agent startups","automation and ops tools","B2B SaaS launches","marketing agencies"],
+    style: ["dark","neon-gradient","playful","pixel-art","3d-tilt-cards","expanded-type"],
+    thumbnail: "/thumbs/haunt-agents.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Sunset Scroll Story Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A fusion company told as one long sunset: scroll and the sun goes down over a layered SVG landscape, night falls, then a live canvas tokamak takes over",
+    prompt: `Build a single-file HTML landing page for "Solstice", a fictional compact-fusion company, where the first 6000px of scroll is a story: the sun sets over a layered landscape, night falls, stars come out, and only then does the page arrive. Space Grotesk, Inter and JetBrains Mono from Google Fonts; GSAP 3.12.5 and ScrollTrigger from cdnjs; everything else inline. No images - the landscape is one inline SVG, the reactor is canvas, the icons are inline SVG. Say in the footer that the company is fictional, and credit the parallax landscape to its original artist if you build on one.
+
+THE STAGE
+One SVG fixed to the viewport, viewBox 750 by 500 with preserveAspectRatio "xMidYMax slice", so the hills always meet the bottom edge and the sky crops at the top on wide screens. Give it a white background: the sky rect is a radial gradient at 80 percent opacity and the colours were chosen over white, so it goes muddy over anything darker.
+Three scenes stacked in that one SVG: scene 1 is dusk hills, trees and two banks of cloud; scene 2 is a second, darker range that rises from below; scene 3 is the night sky with its own radial gradient, a star field and a final range of hills. Paint every layer with linear gradients from peach through rose to plum and navy, darker the nearer it is.
+The scroll distance is a 6000px empty element behind the SVG, and a 6000px spacer in the flow so the real content starts after it. Every trigger is keyed to that element - a percentage of it or a pixel offset into it - so its height and the trigger timings change together or the scenes overlap.
+
+THE SUNSET
+All scrubbed, never timed. Over the first 45 percent the near hills drop and drift sideways at different rates and the cloud banks part to the edges. The sun is the centre of the sky's radial gradient: animate its cy from above the frame to below the horizon and widen its colour stops as it goes, so the glow spreads as it sinks. Then the second range rises in staggered layers, the sky's outer stop darkens to plum, and from 60 percent the night scene slides up from below with the stars fading in and a few of them twinkling on their own loops. A single falling star crosses late: draw it as a short SVG line with a white-to-transparent gradient plus a soft radial glow at the head, never a hotlinked image.
+
+THE HERO AND THE STORY
+The hero sits over the bright sky in deep plum ink, centred: a mono eyebrow pill with a pulsing dot, a two-line display headline ("A sun that never sets."), a lede and two pill buttons. It fades and lifts away over the first 9 percent of the scroll.
+On wide screens the slice-scaled hills climb behind the lede and the secondary button, and dark plum text over dark purple hills disappears. Put a soft peach radial haze behind the hero copy, ending just under the buttons, and give the ghost button a pale translucent fill with a backdrop blur. Hide any scroll-down arrow that ships with the landscape - it lands on the buttons.
+Two captions tell the story mid-scroll, each fading in, holding and fading out inside its own scroll window: "The sun sets. Demand doesn't." at the peak, "Firm power, all night long." once it is night. Put them in a glass pill with a mono timestamp above, so they read over both the yellow sun and the night sky.
+
+THE NAV
+Fixed, transparent and plum over the sunset; after 140px it turns to dark glass with light text. Under 760px it collapses to a three-line burger that opens a full-screen menu: big numbered links that stagger in, a full-width call to action and a live status line. Lock the page scroll while it is open, close it on Escape and on any link, and close it if the window widens past the breakpoint.
+
+THE PAGE AFTER DARK
+The content sits on near-black ink, z-index above the fixed SVG, with a gradient fade on its top edge so it rises out of the night rather than cutting across it. In order: a four-up stats band with sun-to-pink gradient numbers; four technology cards (magnets, plasma control, breeding blanket, power cycle), each with a mono index, an icon tile, a paragraph and a dashed-rule spec line; the reactor; a manufacturing split with numbered steps; a five-stop milestone timeline whose line runs sun to pink to grey, with done, now (pulsing) and future dots; a careers list of rows that indent on hover; a CTA panel lit by a pink-to-violet radial with an email form; and a footer.
+
+THE REACTOR
+A canvas tokamak in a framed panel, aspect-ratio 1 to 0.92, sized by a ResizeObserver: 18 toroidal-field coils drawn as D-shaped loops, sorted by depth so the back half paints behind the plasma and the front half in front; a central solenoid with a current pulse running up it; about 1600 plasma particles (750 under 700px wide) on helical field lines whose pitch rises toward the edge; a divertor glow ring; and four label chips with dashed leaders. Project with a simple perspective camera, tilt and yaw it toward the pointer with easing, and spin it slowly.
+Run a shot when the panel first comes into view: coils energise, breakdown, ramp-up, flat-top, with a HUD that shows the phase, a live telemetry table and a scrolling fusion-power trace, plus a "New shot" button that restarts it. Pause the loop when the panel is off screen. Under prefers-reduced-motion draw one settled frame instead of animating, skip the section reveals and the star twinkle, and keep the landscape scrub, since the reader is driving it.
+
+THE FLOOR
+One h1, a main, aria-hidden on the landscape SVG and both canvases, labels on the burger and the restart button, visible focus rings, no horizontal scroll at 390px.`,
+    preview: "parallax",
+    variant: "large",
+    added: "Oct 11, 2026",
+    demo: "/demos/solstice-fusion.html",
+    bestFor: ["climate and energy startups","deep-tech company sites","hardware launches","storytelling homepages"],
+    style: ["illustrated","parallax","scroll-driven","sunset-gradient","canvas","gsap"],
+    thumbnail: "/thumbs/solstice-fusion.jpg",
+    theme: "light",
+    credits: [
+      {
+        label: "Parallax scroll landscape by isladjan",
+        href: "https://isladjan.com/work/4/",
+        note: "The layered SVG landscape and its sunset-to-night scroll choreography come from this piece.",
+      },
+    ],
+  },
+  {
     title: "Radiating Rings Hero Page",
     category: "web",
     categoryLabel: "WEB",

@@ -3,7 +3,6 @@ import { Copy, Check, ArrowRight, ExternalLink } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { feedPrompts, promptsInCategory, type PromptEntry } from "@/data/prompts";
 import PromptThumb from "@/components/PromptThumb";
-import ContactModal from "@/components/ContactModal";
 import { copyText } from "@/lib/copyText";
 
 /* ── Tile ── */
@@ -79,31 +78,27 @@ const GridTile = (entry: TileProps) => {
 
    Drawn in the shell's own system rather than as artwork: black ink on
    white, a hairline black frame, the hatch from the About portrait, and the
-   same flat button the detail page uses. */
+   same flat button the detail page uses. It invites sponsors and links to
+   /sponsor, which has no navbar entry. */
 
-/* WORK WITH ME opens the same Contact Ray dialog as the sidebar's mail icon. */
-const InviteTile = () => {
-  const [contactOpen, setContactOpen] = useState(false);
-  return (
-    <div className="grid-item grid-item--invite">
-      <div className="inner inner--invite">
-        <div className="invite-body">
-          <p className="invite-kicker">STILL HERE?</p>
-          <h3 className="invite-title">Let&rsquo;s make something</h3>
-          <p className="invite-copy">
-            I&rsquo;m Ray. I design and build everything in this library. If you have
-            something that deserves this kind of attention, I&rsquo;d like to hear
-            about it.
-          </p>
-          <button type="button" className="invite-btn" onClick={() => setContactOpen(true)}>
-            WORK WITH ME <ArrowRight size={12} aria-hidden="true" />
-          </button>
-        </div>
+/* The only way in to /sponsor: the page is deliberately not in the navbar. */
+const InviteTile = () => (
+  <div className="grid-item grid-item--invite">
+    <div className="inner inner--invite">
+      <div className="invite-body">
+        <p className="invite-kicker">STILL HERE?</p>
+        <h3 className="invite-title">Sponsor the library</h3>
+        <p className="invite-copy">
+          Every page here is free and MIT licensed, built for people shipping with AI.
+          Sponsors keep it that way, and get in front of exactly that crowd.
+        </p>
+        <Link to="/sponsor" className="invite-btn">
+          BECOME A SPONSOR <ArrowRight size={12} aria-hidden="true" />
+        </Link>
       </div>
-      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </div>
-  );
-};
+  </div>
+);
 
 /* ── Grid ── */
 
