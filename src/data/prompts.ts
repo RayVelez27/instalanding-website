@@ -92,6 +92,153 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Retro Messenger Agent Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An AI agent pitched as your old instant-messenger buddy: a working chat window that plans and runs tasks, nudges that shake the screen, and a buddy-list footer",
+    prompt: `Build a single-file HTML landing page for "Hollr", a fictional AI chat assistant that lives in a nostalgic mid-2000s instant-messenger window and has an Agent mode that plans and runs tasks. Oswald (display), Neuton (descriptive copy) and Verdana/Tahoma (UI, like the old clients) from Google Fonts; no libraries, no images. Fictional brand, pricing and copy.
+
+THE PALETTE
+A night-indigo page (#2c2b5c to #1d1c45) with drifting violet, magenta and blue blurred orbs, a dot grain and twinkling stars. The messenger chrome is pale (#D7E4F5, #EEF0FD, #F5F2F9) with glossy two-tone title bars: blue for chat, violet once Agent mode runs. Window borders are slate #586170. The brand gradient runs from violet #6a2fc4 to magenta #c0169f, with a lemon #e6e82a accent and online green. Buttons come in two kinds: classic bevelled grey with an inset shadow, and gradient pills with a moving sheen.
+
+THE HEADINGS
+Every section heading is a framed block: a tiny Neuton kicker tracked at .5em, then one or two lines of uppercase Oswald 700 filled with a slowly moving pastel gradient (lilac, pink, white, lemon, sky) clipped to the text, with a double rule above and below.
+
+THE HERO
+- A slim full-width nav styled as a glossy messenger title bar: logo, an "Online" status pill, links, and a "Sign in" button with its access-key letter underlined.
+- The framed h1 "Your favorite contact now gets things done." Its kicker is a glass pill with a gradient NEW badge before "MEET HOLLR · YOUR AI CONTACT", and the tracking tightens on phones so the pill stays on one line down to 320px. Then a Neuton lede.
+- The centrepiece is a working messenger window that rises in with a 3D tilt, has a conic glowing border that spins faster while the agent runs, and tilts toward the pointer. It has:
+  - a title bar with window controls and a toolbar (Invite, Send Files, Video, Voice, Activities) with underlined access keys;
+  - a chat log, robot and you avatars, and a status bar with a progress bar;
+  - a composer with a Chat/Agent segmented control (a sliding gradient pill), emoticon buttons that insert ":)" and ";)", a Voice clip button and a Nudge button;
+  - a textarea whose placeholder types and deletes example tasks, tool toggles (Web, Files, Calendar, Email, as aria-pressed chips) and a Run button.
+- Chat mode answers with a typing indicator and typed keyword replies. Nudge shakes the window, plays a short square-wave buzz through Web Audio, and makes the bot promise shorter answers.
+- Agent mode matches the task against playbooks (party, report, trip, email, meeting, or a generic plan). It posts a plan card, runs each step with a spinner and a tool tag, and skips any step whose tool is turned off (striking it through). It ends with a result card (Approve & continue, Refine). Run turns into Stop while it works.
+- Floating stickers (Web search, Calendar hold) bob beside the window. Suggestion chips below start example runs.
+- A perspective grid floor scrolls under the hero, and a spotlight follows the pointer.
+
+THE REST
+- Features: six window-styled cards, each with a 3D layered icon (a stack of slabs with a glossy face, floating and catching a sheen) in its own colour, and small animated glyphs (nudge arrows, a winking smiley, lines being written, sound waves, clock hands, a status ripple).
+- How it works: a sticky left column with a giant outlined step number that rolls over and a rail that fills with scroll. Three sticky stacking cards on the right; the card being covered scales down and dims. Each card plays its own mini animation: a sign-in form typing a name, a chat that switches to Agent mode and ticks off a mini plan, and an approval with a history list.
+- FAQ: a help chat window with searchable questions ("/" focuses the search). Opening one shows typing dots before the answer bubble. An empty state offers to ask Hollr instead.
+- A mega footer: the framed "Hollr has signed in." with an email form, trust ticks, and a tilted buddy-list window (your status, Hollr online with a rotating status message, three "agents at work" progress bars). Then link columns, a giant outlined HOLLR wordmark with flowing colour, and a status strip with Back to top.
+- A "Hollr has just signed in" toast slides up after a few seconds.
+
+THE FLOOR
+One h1, a main, data-section on every region, labelled inputs, real buttons, visible focus, aria-live on the chat log, no horizontal scroll at 390px. Under prefers-reduced-motion, every animation collapses to its end state, the console doesn't tilt and replies appear at once.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 13, 2026",
+    demo: "/demos/hollr-messenger.html",
+    bestFor: ["consumer AI assistants","AI agents with a friendly face","chat and messaging products","nostalgic or playful brands"],
+    style: ["dark","y2k","retro-ui","skeuomorphic","purple","interactive-demo"],
+    thumbnail: "/thumbs/hollr-messenger.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Event Horizon Orbital Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "Satellite servicing under a ray-marched black hole you can drag to orbit, with nine live three.js mission scenes inside amber glass cards",
+    prompt: `Build a single-file HTML landing page for "Halcyon Orbital", a fictional satellite-servicing company: inspection, refuelling, robotic repair, life-extension docking, relocation and end-of-life disposal, from LEO to GEO. Archivo (copy and the h1), Archivo Narrow (h2/h3) and JetBrains Mono (labels and HUD) from Google Fonts; three.js r128 from cdnjs; every texture drawn on canvas at load, no images. Fictional figures, fleet and contacts on an example domain.
+
+THE PALETTE
+Pure black with warm off-white ink #efebe2 and three steps of warm grey. One accent, amber #ffb45e, for CTAs, active states, HUD values and the glow. Pale ice blue #a9caff only for faults and secondary readouts. Labels are mono, uppercase and widely tracked. Headings are tight uppercase.
+
+THE BLACK HOLE
+A fixed, full-screen WebGL backdrop. One fragment shader ray-marches each pixel's light ray around the hole, bending it with a Schwarzschild-like acceleration (a = -1.5·h²·p/r⁵), and:
+- marks rays that fall inside r = 1 as captured;
+- accumulates a volumetric accretion disc between r = 3 and 13 that thickens outward, built from layered fbm arms, filaments and clumps, rotating Keplerian-fast near the centre;
+- applies relativistic Doppler beaming and gravitational redshift, so one side of the disc is bright and blue-white and the other dim and red;
+- shows a procedural starfield and faint nebula gas for rays that escape, plus a photon-ring halo.
+Render the shader into a target, then a bright pass, a two-pass Gaussian bloom and an ACES composite with slight chromatic aberration, a warm grade, a vignette and fine grain. Run it in three quality tiers (pixel ratio and step count) and drop a tier if the first 90 frames average under 28 fps. Drag to orbit, double-click to reset, and let it slowly auto-orbit. Page scroll eases the camera in and over the disc. Below the hero, a fixed veil fades in to darken and frost the scene so the copy stays readable.
+
+THE HERO
+- A three-column nav: the logo (a small amber planet with a ring), centre links inside amber corner brackets with an amber dot on the section in view, and an outlined "Request a mission" button.
+- Left: "NOTHING IN ORBIT HAS TO BE LOST." with "lost." in amber, a lede, a filled amber CTA and a ghost CTA, and three mono traits divided by amber hairlines.
+- Top right: simulated live telemetry (range closing, closing rate, a drifting latitude, a docking-window countdown).
+- Bottom right: a LEO/MEO/GEO radar whose rings and labels cycle, with dots orbiting at three speeds.
+- A "Systems nominal" status box.
+Scrims keep the left column readable without dimming the hole. The hero ignores pointer events, except on the buttons, so the scene stays draggable.
+
+THE CARDS
+Every panel is the same signature glass: a warm mesh-gradient fill (dark at the top, amber and peach glowing in the lower corners), an inset glow, and a 1px gradient border with an amber light sweeping round it (a conic gradient on an @property angle, desynchronised per card). Then:
+- A four-up stats strip with count-ups.
+- Six service cards. Each has a 3D scene, corner ticks and a live HUD:
+  - Inspection: a drone circles a satellite while a LIDAR slice sweeps up it, revealing a point cloud and then finding a cracked cell.
+  - Refuelling: propellant slugs run along a hose while a 24-segment gauge fills.
+  - Repair: a two-link IK arm carries a reaction-wheel module into an empty bay and torques it in with sparks.
+  - Docking: a tug closes on a client's aft end, captures it with a flash and fires its engine.
+  - Relocation: a Hohmann transfer around a night-side planet with city lights, with burns at perigee and apogee.
+  - Disposal: a satellite falls into a daylit limb, heats, trails plasma and breaks up.
+- A four-phase mission timeline on diamond markers.
+- Three coverage cards (LEO, MEO, GEO).
+- Three fleet cards, each a turning procedural spacecraft (a tug with arms, an inspector with a scanning head, a propellant depot).
+Draw all nine scenes with ONE shared WebGL renderer, copied into a 2D canvas per card, and only while on screen. Cards tilt the scene toward the pointer and dolly in on hover. Keep an inline SVG fallback in each card for no WebGL.
+
+THE FOOTER
+One large glass panel holding:
+- "TELL US WHAT'S WRONG UP THERE." with three promises and a priority email line;
+- a mission intake form (name, organisation, email, orbit regime, service, situation) with inline validation and a confirmation, no backend;
+- a giant outlined wordmark fitted to its row by JS;
+- link columns and a legal bar.
+
+THE FLOOR
+One h1, a main, data-section on every region, aria-hidden on the canvases, the veil, the telemetry and every decorative SVG, labelled form fields, visible focus, no horizontal scroll at 390px. A diagnostics overlay appears only if three.js, WebGL or a shader fails. Under prefers-reduced-motion, stop the sweeps, ticker, radar and pulses, stop the hole orbiting and freeze its disc, and render each card scene as one still at its showcase moment.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 13, 2026",
+    demo: "/demos/halcyon-orbital.html",
+    bestFor: ["space and aerospace companies","deep-tech and hardware startups","technical services with a showcase hero","products that want a WebGL wow moment"],
+    style: ["dark","amber","webgl","shader","threejs","glassmorphism","hud"],
+    thumbnail: "/thumbs/halcyon-orbital.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Faceted Iceberg Platform Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An AI agent platform drawn in low-poly crystal: a shape-mosaic hero, an iceberg whose waterline drops as the platform takes on the stack, and a faceted sunrise footer",
+    prompt: `Build a single-file HTML landing page for "Halcyra", a fictional AI agent platform ("Intelligence, orchestrated at scale"). Outfit from Google Fonts is the only font (500 for headlines, 200 for the light words set against them). No libraries, no images: every illustration is inline SVG built from one shared sprite. Fictional customers, figures and testimonial.
+
+THE PALETTE
+Near-black #06060a with glass surfaces (white at 3-5.5%) and hairlines (white at 8% and 14%). Text #f4f4f7, muted #9a9aab, dim #5f5f70. One five-stop spectrum carries the brand: lime #9be15d, teal #3fd1a8, sky #4cc4e8, iris #7f9cff, violet #a78bfa, used as --grad left to right for gradient text (slowly shimmering), pill tags and the primary button (whose gradient slides on hover). Headlines are tight (letter-spacing -.04em) with one phrase in each set in Outfit 200 and gradient text. Section kickers are uppercase with a small faceted diamond before them, in sky, or in sun, rose or mint variants for later sections. Behind the page sit fixed blurred colour orbs, a 72px grid masked to the top of the viewport and a fine SVG grain.
+
+THE SPRITE
+A hidden SVG holds the facet gradients and four low-poly symbols reused everywhere:
+- #gem: a crystal in ice blues.
+- #gem-g: the same crystal in greens.
+- #orb: a geodesic hex ball in sunset oranges and magentas.
+- #cube: an isometric data cube in aurora pinks with a few data marks.
+Plus #cdot, a white callout dot with a lime centre. Callouts are always a pulsing lime dot, a thin white leader line with one elbow, and widely tracked uppercase labels.
+
+THE HERO
+A fixed pill nav (glass, blurred, darker once scrolled) with the logo (a gradient diamond with a dark inset), five links and a light "Start building" pill. Left: a "New · Agents 3.0 is live" eyebrow, the headline, a lede, and an email capture pill whose placeholder types and deletes three example addresses. It turns lime when valid, shakes red when not, and swaps to a success pill on submit. Below it, three ticked notes. Right: a 4x4 mosaic of tiles, each a different quarter-round shape (mixed border radii). They are glossy radial spheres in the five brand colours alternating with dark glass tiles holding an icon, an equaliser, a sparkline, a "tokens/s 18.4k" stat and a bobbing #orb. Tiles scale in one after another. Two glass stat cards float over the corners, and a "LIVE INFERENCE · EDGE" callout hangs below. Crystals drift around the hero. Then a marquee of fictional customer wordmarks.
+
+THE MIDDLE
+- How it works: three cards whose art panels are small SVG scenes of the sprite symbols bobbing, with callout labels.
+- The platform: a horizontal slider of six cards with buttons, mouse drag with snap, and a gradient progress bar. Each card has a spinning conic-gradient border, pointer tilt and a spotlight, and a live visual: a chat exchange with typing dots, a node graph with flowing dashes, growing bars, shield rings, a typed SDK snippet, and an area chart.
+- The iceberg: one faceted SVG iceberg in a framed panel, with five callouts down its length (Agents & UX, Workflows, Memory & evals, Models & runtime, GPUs & infra). Four stage buttons (Self-hosted, GPU cloud, Model APIs, Halcyra) move the waterline: the sky and the water tint translate together with a 1.5s ease. Each callout above the line reads "YOU MANAGE"; below, it dims and reads "HANDLED BY HALCYRA". The header counts the layers you still manage. It cycles on its own while on screen until someone clicks a stage.
+- A performance bento: a 142ms p50 headline with comparison bars that fill on view, and count-up stats.
+- Use-case buttons that swap the copy, three metrics and the art: the big symbol, its glow colour and the three callout labels change per team.
+- An integrations orbit: dashed rings turning in opposite directions, flowing spokes and eight labelled nodes around a central crystal.
+- A testimonial, three pricing plans (the featured one with a spinning conic border) and a FAQ with a sticky head and native details.
+
+THE FINALE
+A footer that turns to night: twinkling stars and an occasional shooting star, "The future of work runs on Halcyra.", a second email pill and a proof row. Then a horizon of three seeded low-poly terrain bands generated in JS from the sprite's gradients. The far and mid bands parallax, and a faceted #orb sun with a tilted ring rises out of them on scroll, with slowly turning conic rays behind it. Two callouts sit on the ridges: 4,000+ teams, 4.8B runs. Then link columns, a status pill and a giant outlined HALCYRA wordmark lit by a gradient spotlight that sweeps on its own and follows the pointer.
+
+THE FLOOR
+One h1, a main, data-section on every region, aria-hidden on every decorative SVG (the iceberg keeps role="img" and a label), stage and use-case buttons as toggle buttons with aria-pressed, visible focus everywhere, no horizontal scroll at 390px. Under prefers-reduced-motion, every animation runs once to its end state, the iceberg does not cycle and the placeholder does not type.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 13, 2026",
+    demo: "/demos/halcyra-agents.html",
+    bestFor: ["AI agent platforms","enterprise AI and orchestration","developer platforms with a pricing page","B2B SaaS that needs a stack diagram"],
+    style: ["dark","low-poly","faceted","spectrum-gradient","glassmorphism","svg-illustration"],
+    thumbnail: "/thumbs/halcyra-agents.jpg",
+    theme: "dark",
+  },
+  {
     title: "Card Scanner Finance Page",
     category: "web",
     categoryLabel: "WEB",
@@ -350,10 +497,10 @@ THE NAV
 Fixed, transparent and plum over the sunset; after 140px it turns to dark glass with light text. Under 760px it collapses to a three-line burger that opens a full-screen menu: big numbered links that stagger in, a full-width call to action and a live status line. Lock the page scroll while it is open, close it on Escape and on any link, and close it if the window widens past the breakpoint.
 
 THE PAGE AFTER DARK
-The content sits on near-black ink, z-index above the fixed SVG, with a gradient fade on its top edge so it rises out of the night rather than cutting across it. In order: a four-up stats band with sun-to-pink gradient numbers; four technology cards (magnets, plasma control, breeding blanket, power cycle), each with a mono index, an icon tile, a paragraph and a dashed-rule spec line; the reactor; a manufacturing split with numbered steps; a five-stop milestone timeline whose line runs sun to pink to grey, with done, now (pulsing) and future dots; a careers list of rows that indent on hover; a CTA panel lit by a pink-to-violet radial with an email form; and a footer.
+The content sits on near-black ink, z-index above the fixed SVG, with a gradient fade on its top edge so it rises out of the night rather than cutting across it. In order: a four-up stats band with sun-to-pink gradient numbers; four technology cards (magnets, plasma control, breeding blanket, power cycle), each with a mono index, an icon tile, a paragraph and a dashed-rule spec line; the reactor; a manufacturing split with numbered steps; a vertical, scroll-driven milestone timeline (a sticky left column with the heading and a giant sun-to-violet gradient year that rolls to the milestone being read, a status line and a 2023-2032 meter; on the right a rail that fills to a reading line 55% down the viewport with a glowing comet at its tip, and five glass cards that light as their node crosses that line, each with a year, a Done / In progress / Next / Goal tag and two key figures; nodes are pink when done, sun and pulsing for now, violet once reached); a careers list of rows that indent on hover; a CTA panel lit by a pink-to-violet radial with an email form; and a footer.
 
 THE REACTOR
-A canvas tokamak in a framed panel, aspect-ratio 1 to 0.92, sized by a ResizeObserver: 18 toroidal-field coils drawn as D-shaped loops, sorted by depth so the back half paints behind the plasma and the front half in front; a central solenoid with a current pulse running up it; about 1600 plasma particles (750 under 700px wide) on helical field lines whose pitch rises toward the edge; a divertor glow ring; and four label chips with dashed leaders. Project with a simple perspective camera, tilt and yaw it toward the pointer with easing, and spin it slowly.
+A canvas tokamak in a framed panel, aspect-ratio 1 to 0.92, sized by a ResizeObserver: 18 toroidal-field coils drawn as Princeton-D loops (a straight inner leg against the central column), split into segments and depth-sorted together with every plasma particle so each coil passes in front of and behind the ring piece by piece (opaque casings with source-over, the optically thin plasma with additive blending); casings lit warm by the plasma near its midplane, plus a soft camera bloom over everything so the near coils sit inside the glow; a central solenoid with a current pulse running up it; about 1600 plasma particles (750 under 700px wide) following helical field lines (poloidal speed = toroidal speed / q, with q rising from 1 at the core toward the edge); a divertor glow ring; and four label chips with dashed leaders. Project with a simple perspective camera, tilt and yaw it toward the pointer with easing, and spin it slowly.
 Run a shot when the panel first comes into view: coils energise, breakdown, ramp-up, flat-top, with a HUD that shows the phase, a live telemetry table and a scrolling fusion-power trace, plus a "New shot" button that restarts it. Pause the loop when the panel is off screen. Under prefers-reduced-motion draw one settled frame instead of animating, skip the section reveals and the star twinkle, and keep the landscape scrub, since the reader is driving it.
 
 THE FLOOR
