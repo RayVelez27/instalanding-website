@@ -356,6 +356,12 @@ html {
 .contrib-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .contrib-hint { margin: -10px 0 16px; font-size: 10.5px; color: #888; }
 /* /sponsor reuses the contribute layout; these are its only extras. */
+.contrib-explainer .sponsor-mission { margin: 0 0 14px; font-size: clamp(19px, 2vw, 24px); line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; color: #000; }
+.sponsor-stats { list-style: none; margin: 4px 0 20px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #000; }
+.sponsor-stats li { display: flex; flex-direction: column; gap: 4px; padding: 12px; min-width: 0; }
+.sponsor-stats li + li { border-left: 1px solid #000; }
+.sponsor-stats strong { font-size: clamp(22px, 2.4vw, 30px); line-height: 1; color: #000; }
+.sponsor-stats span { font-size: 9.5px; letter-spacing: 0.12em; color: #555; }
 .sponsor-list { list-style: none; margin: 0 0 16px; padding: 0; border-top: 1px solid #000; }
 .sponsor-list li { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-bottom: 1px solid #ddd; }
 .sponsor-list strong { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #000; }
@@ -1202,6 +1208,28 @@ html {
   background-color: #f4f4f4;
   border: 1px solid #e4e4e4;
 }
+/* A GOSPEL video tile: a play badge over the still. */
+.grid-item .tile-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  display: grid;
+  place-items: center;
+  padding-left: 3px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
+  pointer-events: none;
+  transition: opacity 300ms ease-out;
+}
+/* The hover overlay carries the title and WATCH, so the badge steps aside for it. */
+.grid-item:hover .tile-play,
+.grid-item.touch-active .tile-play { opacity: 0; }
 
 /* ── The invite tile ──
    Borrows the card's box and gutter so it sits in the run, then drops the
@@ -1591,6 +1619,8 @@ html {
   border: 1px solid #e4e4e4;
   overflow: hidden;
 }
+.detail-preview-frame--video { aspect-ratio: 16 / 9; background: #000; border-color: #000; }
+.detail-video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
 .detail-preview-caption {
   margin: 8px 0 0;
   font-size: 9px;
@@ -2360,6 +2390,26 @@ html {
   box-shadow: 0 0 0 1px #d8d8d8;
 }
 .pmodal-fallback { position: absolute; inset: 0; }
+/* GOSPEL videos play in the stage; YouTube letterboxes inside the frame itself. */
+.pmodal-stage--video { background: #000; border-color: #000; }
+.pmodal-video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+/* A video that cannot be embedded: its still, a play button, and a note that it opens on YouTube. */
+.video-poster { display: grid; place-items: center; overflow: hidden; color: #fff; text-decoration: none; }
+.video-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0.86; transition: opacity 200ms ease; }
+.video-poster-play {
+  position: relative; width: 84px; height: 84px; padding-left: 4px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(0, 0, 0, 0.62); border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: transform 200ms ease, background 200ms ease;
+}
+.video-poster-note {
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+  padding: 6px 10px; background: rgba(0, 0, 0, 0.7);
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; white-space: nowrap;
+}
+.video-poster:hover img { opacity: 1; }
+.video-poster:hover .video-poster-play { transform: scale(1.06); background: rgba(0, 0, 0, 0.82); }
+.video-poster:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
 
 /* ============================================================
    CODE view. One colour story for the whole strip: black-and-white
@@ -2490,6 +2540,49 @@ html {
   letter-spacing: 0.14em;
   color: #999;
 }
+.pmodal-body-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #000;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.pmodal-body-back:hover { text-decoration: underline; }
+.pmodal-body-back:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.pmodal-btn[aria-pressed="true"] { background: #000; color: #fff; }
+
+/* FEEDBACK: the form takes the MORE ONE-SHOTS box over, with the template it is about named on top. */
+.pfeedback { min-height: 0; overflow: auto; padding: 14px 14px 16px; }
+.pfeedback .contact-input { font-size: 13px; }
+.pfeedback .contact-textarea { min-height: 120px; }
+.pfeedback-about {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid #e4e4e4;
+  background: #fafafa;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #000;
+}
+.pfeedback-about span {
+  display: block;
+  margin-bottom: 3px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: #999;
+}
+.pfeedback-optional { margin-left: 6px; font-weight: 400; color: #999; }
+.pfeedback .contact-submit { align-self: flex-start; }
+@media (max-width: 640px) { .pfeedback .contact-input { font-size: 16px; } }
+
 /* The side column lists the rest of the library rather than the prompt text:
    the prompt is one click away on COPY, and in full on the page itself. */
 .pmodal-more {

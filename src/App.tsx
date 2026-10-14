@@ -53,9 +53,13 @@ const AppRoutes = () => {
           path="/product"
           element={<ComingSoon title="Product" blurb="Dashboards, consoles and in-app flows — the screens people use after they sign up — as one-shot prompts with a reference build." />}
         />
+        <Route
+          path="/stack"
+          element={<ComingSoon title="Stack" blurb="Whole app stacks — frontend, backend, auth, payments and deploy — as one-shot prompts with a reference build." />}
+        />
         <Route path="/agents" element={<Agents />} />
         <Route path="/contribute" element={<Contribute />} />
-        {/* Not in the navbar: reached from the last tile in the home feed. */}
+        {/* SPONSOR in the navbar. */}
         <Route path="/sponsor" element={<Sponsor />} />
         <Route path="/contact" element={<Contact />} />
         {/* Out of the menu, not deleted: the builder pages are search landing

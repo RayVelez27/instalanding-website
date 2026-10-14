@@ -37,7 +37,11 @@ const loadData = (root, rel) => {
 const loadLibrary = (root) => {
   const { prompts, categories } = loadData(root, DATA_FILE);
   if (!Array.isArray(prompts) || !prompts.length) throw new Error(`No prompts exported from ${DATA_FILE}`);
-  return { prompts, categories };
+  // Video entries (GOSPEL) live in the feed but are not templates: no prompt to
+  // build from and nothing for an agent to copy, so the endpoints never list them.
+  const templates = prompts.filter((p) => !p.youtube);
+  const used = new Set(templates.map((p) => p.category));
+  return { prompts: templates, categories: categories.filter((c) => used.has(c.slug)) };
 };
 
 const abs = (base, url) => (url ? new URL(url, base).href : undefined);

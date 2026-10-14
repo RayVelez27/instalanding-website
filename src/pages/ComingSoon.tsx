@@ -10,7 +10,7 @@ interface ComingSoonProps {
 }
 
 /**
- * A real page rather than a dead menu item: SYSTEMS and PRODUCT are both
+ * A real page rather than a dead menu item: SYSTEMS, PRODUCT and STACK are
  * announced but empty, so they share this. When one ships, replace the
  * route's element with the real page and delete nothing else.
  */

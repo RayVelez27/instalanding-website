@@ -6,8 +6,10 @@
   this file's path. Never linked, never shown.
   contact    — src/components/ContactForm.tsx (the /contact page and the dialog)
   contribute — src/pages/Contribute.tsx (the pasted HTML arrives as html_file)
-  sponsor    — src/pages/Sponsor.tsx (reached from the home feed's last tile)
+  sponsor    — src/pages/Sponsor.tsx (SPONSOR in the sidebar nav: request info)
   new-drops  — src/hooks/useSubscribe.ts (the sidebar's NEW DROPS field)
+  template-feedback — src/components/TemplateFeedback.tsx (FEEDBACK in the prompt modal; the
+               template is sent as hidden fields, and `subject` names it in the notification email)
   How they post: src/lib/netlifyForms.ts
 -->
 <html lang="en">
@@ -42,7 +44,17 @@
       <input type="email" name="email" />
       <input name="company" />
       <input type="url" name="website" />
-      <input name="placements" />
+      <input name="interests" />
+      <textarea name="message"></textarea>
+    </form>
+    <form name="template-feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="template-feedback" />
+      <input name="bot-field" />
+      <input type="hidden" name="subject" />
+      <input name="template" />
+      <input name="template_slug" />
+      <input type="url" name="template_url" />
+      <input type="email" name="email" />
       <textarea name="message"></textarea>
     </form>
     <form name="new-drops" method="POST" data-netlify="true" hidden>

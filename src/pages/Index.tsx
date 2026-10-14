@@ -24,7 +24,7 @@ const Index = () => {
         </div>
         <GithubButton />
       </div>
-      <PromptGrid invite />
+      <PromptGrid />
     </main>
   </div>
   );

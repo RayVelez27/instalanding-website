@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Check, ArrowRight, ExternalLink } from "lucide-react";
+import { Copy, Check, ArrowRight, ExternalLink, Play } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { feedPrompts, promptsInCategory, type PromptEntry } from "@/data/prompts";
 import PromptThumb from "@/components/PromptThumb";
@@ -28,6 +28,9 @@ const GridTile = (entry: TileProps) => {
       <div className="shim shim--css" data-variant={entry.variant} />
       <div className="inner inner--prompt">
         <PromptThumb entry={entry} />
+        {entry.youtube && (
+          <span className="tile-play" aria-hidden="true"><Play size={18} fill="currentColor" /></span>
+        )}
         <div className="overview overview--prompt">
           {/* Covers the whole tile so the card reads as one link; the buttons below sit on top of it */}
           <Link
@@ -39,26 +42,45 @@ const GridTile = (entry: TileProps) => {
           <h3 className="title">{entry.title}</h3>
           <p className="prompt-desc">{entry.description}</p>
           <div className="tile-actions">
-            <button
-              className="copy-prompt-btn"
-              onClick={(e) => { e.stopPropagation(); onCopy(entry); }}
-            >
-              {copied ? <Check size={12} /> : <Copy size={12} />}
-              {copied ? "COPIED" : "COPY"}
-            </button>
-            <Link to={`/prompt/${entry.slug}`} state={asModal} className="view-prompt-btn">
-              VIEW <ArrowRight size={12} />
-            </Link>
-            {(entry.demo || entry.repoUrl) && (
-              <a
-                className="view-prompt-btn"
-                href={entry.demo ?? entry.repoUrl}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {entry.demo ? "DEMO" : "CODE"} <ExternalLink size={12} />
-              </a>
+            {entry.youtube ? (
+              <>
+                <Link to={`/prompt/${entry.slug}`} state={asModal} className="view-prompt-btn">
+                  WATCH <Play size={11} fill="currentColor" />
+                </Link>
+                <a
+                  className="view-prompt-btn"
+                  href={`https://www.youtube.com/watch?v=${entry.youtube}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  YOUTUBE <ExternalLink size={12} />
+                </a>
+              </>
+            ) : (
+              <>
+                <button
+                  className="copy-prompt-btn"
+                  onClick={(e) => { e.stopPropagation(); onCopy(entry); }}
+                >
+                  {copied ? <Check size={12} /> : <Copy size={12} />}
+                  {copied ? "COPIED" : "COPY"}
+                </button>
+                <Link to={`/prompt/${entry.slug}`} state={asModal} className="view-prompt-btn">
+                  VIEW <ArrowRight size={12} />
+                </Link>
+                {(entry.demo || entry.repoUrl) && (
+                  <a
+                    className="view-prompt-btn"
+                    href={entry.demo ?? entry.repoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {entry.demo ? "DEMO" : "CODE"} <ExternalLink size={12} />
+                  </a>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -67,42 +89,9 @@ const GridTile = (entry: TileProps) => {
   );
 };
 
-/* ── The last tile ──
-   Not a PromptEntry: it reuses the grid's chrome, but it is a different kind
-   of thing and pretending otherwise would put it in the manifest, the sitemap
-   and /prompts.json.
-
-   Opt-in, not "whenever there is no category": BuilderPage also renders the
-   uncategorised feed, and it has its own closing section underneath. Only the
-   home page asks for this.
-
-   Drawn in the shell's own system rather than as artwork: black ink on
-   white, a hairline black frame, the hatch from the About portrait, and the
-   same flat button the detail page uses. It invites sponsors and links to
-   /sponsor, which has no navbar entry. */
-
-/* The only way in to /sponsor: the page is deliberately not in the navbar. */
-const InviteTile = () => (
-  <div className="grid-item grid-item--invite">
-    <div className="inner inner--invite">
-      <div className="invite-body">
-        <p className="invite-kicker">STILL HERE?</p>
-        <h3 className="invite-title">Sponsor the library</h3>
-        <p className="invite-copy">
-          Every page here is free and MIT licensed, built for people shipping with AI.
-          Sponsors keep it that way, and get in front of exactly that crowd.
-        </p>
-        <Link to="/sponsor" className="invite-btn">
-          BECOME A SPONSOR <ArrowRight size={12} aria-hidden="true" />
-        </Link>
-      </div>
-    </div>
-  </div>
-);
-
 /* ── Grid ── */
 
-const PromptGrid = ({ category, invite }: { category?: string; invite?: boolean }) => {
+const PromptGrid = ({ category }: { category?: string }) => {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
   // promptsInCategory, not a filter over the interleaved list: filtering an
@@ -121,7 +110,6 @@ const PromptGrid = ({ category, invite }: { category?: string; invite?: boolean 
         {items.map((p) => (
           <GridTile key={p.slug} {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} />
         ))}
-        {invite && !category && <InviteTile />}
       </div>
     </div>
   );

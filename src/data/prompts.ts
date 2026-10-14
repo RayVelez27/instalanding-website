@@ -1,4 +1,4 @@
-export type PromptCategory = "web" | "motion" | "product" | "navigation" | "forms";
+export type PromptCategory = "web" | "motion" | "product" | "navigation" | "forms" | "gospel";
 
 export interface PromptEntry {
   /** URL-safe id derived from the title — used by /prompt/:slug */
@@ -36,6 +36,18 @@ export interface PromptEntry {
   videoLoop?: boolean;
   /** Where the code lives when it is not a single file in this repo. */
   repoUrl?: string;
+  /**
+   * A YouTube video id. The entry is a video, not a template: the tile opens a
+   * player instead of a preview, there is no prompt to copy, it closes the feed
+   * rather than being shuffled into it, and the agent endpoints leave it out.
+   */
+  youtube?: string;
+  /**
+   * False when the rights holder blocks the video from playing outside YouTube
+   * (YouTube then shows "Video unavailable" in any embed). The window shows the
+   * still with a play button that opens YouTube instead of a dead player.
+   */
+  youtubeEmbed?: boolean;
   /**
    * Keeps the entry out of the feed and the related rail. /prompt/:slug still
    * resolves and the endpoints still serve it, so shared links keep working.
@@ -88,9 +100,25 @@ export const categories: { slug: PromptCategory; label: string }[] = [
   { slug: "product", label: "PRODUCT" },
   { slug: "navigation", label: "NAVIGATION" },
   { slug: "forms", label: "FORMS" },
+  { slug: "gospel", label: "GOSPEL" },
 ];
 
 const entries: Omit<PromptEntry, "slug">[] = [
+  {
+    title: "Purple Rain in the Rain",
+    category: "gospel",
+    categoryLabel: "GOSPEL",
+    description: "Prince at the Super Bowl XLI halftime show, Miami, February 2007: a downpour, a purple stage, and Purple Rain to close it out",
+    prompt: "Prince, Super Bowl XLI halftime show (Miami, 2007). Watch: https://www.youtube.com/watch?v=-WYYlRArn3g",
+    preview: "hero",
+    variant: "large",
+    added: "Oct 13, 2026",
+    youtube: "-WYYlRArn3g",
+    // The NFL blocks this upload from playing on other sites, so it opens on YouTube.
+    youtubeEmbed: false,
+    thumbnail: "/thumbs/prince-super-bowl-xli.jpg",
+    theme: "dark",
+  },
   {
     title: "Retro Messenger Agent Page",
     category: "web",
@@ -2262,9 +2290,14 @@ const interleaveByTheme = (list: readonly PromptEntry[]): PromptEntry[] => {
  * Ordered once per page load, not per render, so it holds still while you
  * browse and changes when you come back.
  */
-const runnable = prompts.filter((p) => !p.hidden && (p.demo || p.repoUrl));
+const runnable = prompts.filter((p) => !p.hidden && (p.demo || p.repoUrl || p.youtube));
 
-export const visiblePrompts: PromptEntry[] = interleaveByTheme(runnable);
+/* Videos close a run instead of being shuffled into it: they are a different
+   kind of thing from the templates, and the last tile is where they belong. */
+const videosLast = (run: PromptEntry[]): PromptEntry[] =>
+  run.filter((p) => !p.youtube).concat(run.filter((p) => p.youtube));
+
+export const visiblePrompts: PromptEntry[] = videosLast(interleaveByTheme(runnable));
 
 /**
  * The main feed. Section-only entries are reachable from their section.
@@ -2275,9 +2308,9 @@ export const visiblePrompts: PromptEntry[] = interleaveByTheme(runnable);
  * side by side, so the feed came out with pairs and triples in it even though
  * the order it was cut from alternated perfectly.
  */
-export const feedPrompts: PromptEntry[] = interleaveByTheme(
+export const feedPrompts: PromptEntry[] = videosLast(interleaveByTheme(
   runnable.filter((p) => !p.sectionOnly)
-);
+));
 
 /**
  * A category's run, alternating within that category — same reason.
@@ -2289,7 +2322,7 @@ const categoryRuns = new Map<string, PromptEntry[]>();
 export const promptsInCategory = (category: string): PromptEntry[] => {
   const cached = categoryRuns.get(category);
   if (cached) return cached;
-  const run = interleaveByTheme(runnable.filter((p) => p.category === category));
+  const run = videosLast(interleaveByTheme(runnable.filter((p) => p.category === category)));
   categoryRuns.set(category, run);
   return run;
 };

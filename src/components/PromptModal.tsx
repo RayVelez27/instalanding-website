@@ -9,12 +9,15 @@ import {
   Copy,
   Eye,
   ExternalLink,
+  MessageSquare,
   Monitor,
   Smartphone,
   X,
 } from "lucide-react";
 import PromptThumb from "@/components/PromptThumb";
 import DemoCode from "@/components/DemoCode";
+import TemplateFeedback from "@/components/TemplateFeedback";
+import VideoStage from "@/components/VideoStage";
 import { loadDemoSource, useDemoSource } from "@/lib/demoSource";
 import { copyText } from "@/lib/copyText";
 import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/data/prompts";
@@ -48,6 +51,8 @@ const PromptModal = () => {
   const [view, setView] = useState<ViewportKey>("desktop");
   const [mode, setMode] = useState<"preview" | "code">("preview");
   const [stage, setStage] = useState({ width: 0, height: 0 });
+  /* FEEDBACK swaps the MORE ONE-SHOTS list for a feedback form about this template. */
+  const [panel, setPanel] = useState<"more" | "feedback">("more");
   const observer = useRef<ResizeObserver>();
 
   /* What to show instead of the prompt text: a handful of other one-shots,
@@ -81,6 +86,7 @@ const PromptModal = () => {
     setCopied("idle");
     setView("desktop");
     setMode("preview");
+    setPanel("more");
   }, [slug]);
 
   useEffect(() => () => window.clearTimeout(copyTimer.current), []);
@@ -185,7 +191,9 @@ const PromptModal = () => {
                     </button>
                   </div>
                 )}
-                {entry.demo && mode === "code" ? null : entry.demo ? (
+                {entry.youtube ? (
+                  <span className="pmodal-note">{entry.youtubeEmbed === false ? "YOUTUBE · OPENS IN A NEW TAB" : "YOUTUBE · PLAYS HERE"}</span>
+                ) : entry.demo && mode === "code" ? null : entry.demo ? (
                   <div className="pmodal-views" role="group" aria-label="Preview width">
                     {(Object.keys(VIEWPORTS) as ViewportKey[]).map((key) => {
                       const Icon = VIEWPORTS[key].icon;
@@ -212,10 +220,12 @@ const PromptModal = () => {
               </div>
 
               <div
-                className={`pmodal-stage pmodal-stage--${mode === "code" ? "code" : view}`}
+                className={`pmodal-stage pmodal-stage--${entry.youtube ? "video" : mode === "code" ? "code" : view}`}
                 ref={attachStage}
               >
-                {entry.demo && mode === "code" ? (
+                {entry.youtube ? (
+                  <VideoStage entry={entry} className="pmodal-video" />
+                ) : entry.demo && mode === "code" ? (
                   code ? (
                     <DemoCode code={code} file={entry.demo.split("/").pop() ?? "index.html"} />
                   ) : (
@@ -247,12 +257,24 @@ const PromptModal = () => {
 
             <section className="pmodal-side" aria-label="Prompt">
               <div className="pmodal-actions">
-                <button className="pmodal-btn pmodal-btn--solid" onClick={handleCopy} aria-live="polite" title={copyLabel}>
-                  {copied === "done" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
-                  <span className="pmodal-label">
-                    {copied === "done" ? "COPIED" : copied === "failed" ? "COPY FAILED" : copyLabel}
-                  </span>
-                </button>
+                {entry.youtube ? (
+                  <a
+                    className="pmodal-btn pmodal-btn--solid"
+                    href={`https://www.youtube.com/watch?v=${entry.youtube}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Watch on YouTube"
+                  >
+                    <span className="pmodal-label">WATCH ON YOUTUBE</span> <ExternalLink size={12} aria-hidden="true" />
+                  </a>
+                ) : (
+                  <button className="pmodal-btn pmodal-btn--solid" onClick={handleCopy} aria-live="polite" title={copyLabel}>
+                    {copied === "done" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
+                    <span className="pmodal-label">
+                      {copied === "done" ? "COPIED" : copied === "failed" ? "COPY FAILED" : copyLabel}
+                    </span>
+                  </button>
+                )}
                 {entry.demo && (
                   <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab">
                     <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
@@ -263,33 +285,57 @@ const PromptModal = () => {
                     <span className="pmodal-label">VIEW CODE</span> <ExternalLink size={12} aria-hidden="true" />
                   </a>
                 )}
+                <button
+                  className="pmodal-btn"
+                  aria-pressed={panel === "feedback"}
+                  aria-controls="pmodal-body"
+                  onClick={() => setPanel((p) => (p === "feedback" ? "more" : "feedback"))}
+                  title="Send feedback on this template"
+                >
+                  <MessageSquare size={12} aria-hidden="true" />
+                  <span className="pmodal-label">FEEDBACK</span>
+                </button>
               </div>
 
-              <div className="pmodal-body">
-                <div className="pmodal-body-head">
-                  <span>MORE ONE-SHOTS</span>
-                  <span>{more.length} OF {visiblePrompts.length}</span>
-                </div>
-                <ul className="pmodal-more">
-                  {more.map((item: PromptEntry) => (
-                    <li key={item.slug}>
-                      <button className="pmodal-more-row" onClick={() => go(item.slug)}>
-                        <span className="pmodal-more-thumb">
-                          {item.thumbnail ? (
-                            <img src={item.thumbnail} alt="" loading="lazy" decoding="async" />
-                          ) : (
-                            <PromptThumb entry={item} />
-                          )}
-                        </span>
-                        <span className="pmodal-more-text">
-                          <span className="pmodal-more-title">{item.title}</span>
-                          <span className="pmodal-more-cat">{item.categoryLabel}</span>
-                        </span>
-                        <ArrowRight size={12} className="pmodal-more-go" />
+              <div className="pmodal-body" id="pmodal-body">
+                {panel === "feedback" ? (
+                  <>
+                    <div className="pmodal-body-head">
+                      <span>FEEDBACK</span>
+                      <button type="button" className="pmodal-body-back" onClick={() => setPanel("more")}>
+                        <ArrowLeft size={10} aria-hidden="true" /> MORE ONE-SHOTS
                       </button>
-                    </li>
-                  ))}
-                </ul>
+                    </div>
+                    <TemplateFeedback key={entry.slug} entry={entry} onDone={() => setPanel("more")} />
+                  </>
+                ) : (
+                  <>
+                    <div className="pmodal-body-head">
+                      <span>MORE ONE-SHOTS</span>
+                      <span>{more.length} OF {visiblePrompts.length}</span>
+                    </div>
+                    <ul className="pmodal-more">
+                      {more.map((item: PromptEntry) => (
+                        <li key={item.slug}>
+                          <button className="pmodal-more-row" onClick={() => go(item.slug)}>
+                            <span className="pmodal-more-thumb">
+                              {item.thumbnail ? (
+                                <img src={item.thumbnail} alt="" loading="lazy" decoding="async" />
+                              ) : (
+                                <PromptThumb entry={item} />
+                              )}
+                            </span>
+                            <span className="pmodal-more-text">
+                              <span className="pmodal-more-title">{item.title}</span>
+                              <span className="pmodal-more-cat">{item.categoryLabel}</span>
+                            </span>
+                            <ArrowRight size={12} className="pmodal-more-go" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
             </section>
           </div>

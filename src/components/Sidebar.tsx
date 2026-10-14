@@ -7,7 +7,7 @@ import SignupField from "@/components/SignupField";
 
 /**
  * The menu is no longer one entry per category. PAGES is the whole library
- * and always will be; SYSTEMS and PRODUCT are announced but empty. The
+ * and always will be; SYSTEMS, PRODUCT and STACK are announced but empty. The
  * category routes still resolve — the detail page links to them — they are
  * just not in the menu any more.
  */
@@ -15,8 +15,12 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean }[] = [
   { to: "/", label: "PAGES" },
   { to: "/systems", label: "SYSTEMS", soon: true },
   { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED
+  { to: "/stack", label: "STACK", soon: true },
   { to: "/about", label: "ABOUT" },
-  { to: "/contribute", label: "CONTRIBUTE" },
+  // CONTRIBUTE is hidden, not removed: /contribute still resolves and is in
+  // the sitemap. Restore this line to bring it back.
+  // { to: "/contribute", label: "CONTRIBUTE" },
+  { to: "/sponsor", label: "SPONSOR" },
   { to: "/contact", label: "CONTACT" },
   // AGENTS is hidden, not removed: /agents still resolves and is in the
   // sitemap, and the agent endpoints point at it. Restore to bring it back.

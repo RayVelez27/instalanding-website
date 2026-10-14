@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, Copy, ExternalLink } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import PromptThumb from "@/components/PromptThumb";
+import VideoStage from "@/components/VideoStage";
 import { copyText } from "@/lib/copyText";
 import { getPromptBySlug, getRelatedPrompts, visiblePrompts, categoryHref } from "@/data/prompts";
 import { useSeo } from "@/hooks/useSeo";
@@ -16,7 +17,9 @@ const PromptDetail = () => {
   useSeo({
     title: entry?.title ?? "Not found",
     description: entry
-      ? `${entry.description}. A single HTML file with no dependencies, plus the one-shot prompt that builds it.`
+      ? entry.youtube
+        ? `${entry.description}.`
+        : `${entry.description}. A single HTML file with no dependencies, plus the one-shot prompt that builds it.`
       : "",
     canonical: entry ? `/prompt/${entry.slug}` : undefined,
     image: entry?.thumbnail,
@@ -60,28 +63,44 @@ const PromptDetail = () => {
 
           <div className="detail-body">
             <section className="detail-preview" aria-label="Component preview">
-              <div className="detail-preview-frame">
-                <PromptThumb entry={entry} eager />
+              <div className={`detail-preview-frame${entry.youtube ? " detail-preview-frame--video" : ""}`}>
+                {entry.youtube ? (
+                  <VideoStage entry={entry} className="detail-video" />
+                ) : (
+                  <PromptThumb entry={entry} eager />
+                )}
               </div>
               <p className="detail-preview-caption">
-                {entry.video ? "RENDERED PREVIEW" : entry.thumbnail ? "LIVE SCREENSHOT" : "WIREFRAME PREVIEW"}
+                {entry.youtube ? "VIDEO" : entry.video ? "RENDERED PREVIEW" : entry.thumbnail ? "LIVE SCREENSHOT" : "WIREFRAME PREVIEW"}
               </p>
             </section>
 
             <aside className="detail-meta">
               <dl>
                 <div><dt>CATEGORY</dt><dd><Link to={categoryHref(entry.category)}>{entry.categoryLabel}</Link></dd></div>
-                <div><dt>PREVIEW</dt><dd>{entry.preview.replace("-", " ").toUpperCase()}</dd></div>
-                <div><dt>TILE</dt><dd>{entry.variant.toUpperCase()}</dd></div>
+                {entry.youtube ? (
+                  <div><dt>SOURCE</dt><dd>YOUTUBE</dd></div>
+                ) : (
+                  <>
+                    <div><dt>PREVIEW</dt><dd>{entry.preview.replace("-", " ").toUpperCase()}</dd></div>
+                    <div><dt>TILE</dt><dd>{entry.variant.toUpperCase()}</dd></div>
+                  </>
+                )}
                 <div><dt>ADDED</dt><dd>{entry.added}</dd></div>
-                <div><dt>LENGTH</dt><dd>{entry.prompt.length} CHARS</dd></div>
+                {!entry.youtube && <div><dt>LENGTH</dt><dd>{entry.prompt.length} CHARS</dd></div>}
                 {entry.demo && <div><dt>DEMO</dt><dd>SINGLE FILE</dd></div>}
                 {entry.repoUrl && <div><dt>SOURCE</dt><dd>GITHUB REPO</dd></div>}
               </dl>
-              <button className="detail-copy-btn" onClick={handleCopy}>
-                {copied ? <Check size={14} /> : <Copy size={14} />}
-                {copied ? "COPIED" : "COPY PROMPT"}
-              </button>
+              {entry.youtube ? (
+                <a className="detail-demo-btn" href={`https://www.youtube.com/watch?v=${entry.youtube}`} target="_blank" rel="noreferrer">
+                  WATCH ON YOUTUBE <ExternalLink size={12} />
+                </a>
+              ) : (
+                <button className="detail-copy-btn" onClick={handleCopy}>
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                  {copied ? "COPIED" : "COPY PROMPT"}
+                </button>
+              )}
               {entry.demo && (
                 <a className="detail-demo-btn" href={entry.demo} target="_blank" rel="noreferrer">
                   OPEN LIVE DEMO <ExternalLink size={12} />
@@ -110,17 +129,19 @@ const PromptDetail = () => {
             </aside>
           </div>
 
-          <section className="detail-prompt" aria-label="One-shot prompt">
-            <div className="detail-prompt-head">
-              <h2>ONE-SHOT PROMPT</h2>
-              <button className="detail-copy-btn detail-copy-btn--ghost" onClick={handleCopy}>
-                {copied ? <Check size={12} /> : <Copy size={12} />}
-                {copied ? "COPIED" : "COPY"}
-              </button>
-            </div>
-            <pre className="detail-prompt-body">{entry.prompt}</pre>
-            <p className="detail-prompt-hint">Paste it into your AI builder as-is, then iterate.</p>
-          </section>
+          {!entry.youtube && (
+            <section className="detail-prompt" aria-label="One-shot prompt">
+              <div className="detail-prompt-head">
+                <h2>ONE-SHOT PROMPT</h2>
+                <button className="detail-copy-btn detail-copy-btn--ghost" onClick={handleCopy}>
+                  {copied ? <Check size={12} /> : <Copy size={12} />}
+                  {copied ? "COPIED" : "COPY"}
+                </button>
+              </div>
+              <pre className="detail-prompt-body">{entry.prompt}</pre>
+              <p className="detail-prompt-hint">Paste it into your AI builder as-is, then iterate.</p>
+            </section>
+          )}
 
           {related.length > 0 && (
             <section className="detail-related" aria-label="More in this category">
