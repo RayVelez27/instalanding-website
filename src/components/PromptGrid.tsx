@@ -10,11 +10,13 @@ import { copyText } from "@/lib/copyText";
 interface TileProps extends PromptEntry {
   onCopy: (entry: PromptEntry) => void;
   copied: boolean;
+  /** Columns this tile stretches over in the 3- and 2-column grids, so the last row is full. */
+  fill?: { three: number; two: number };
 }
 
 const GridTile = (entry: TileProps) => {
   const [touchActive, setTouchActive] = useState(false);
-  const { onCopy, copied } = entry;
+  const { onCopy, copied, fill } = entry;
   // Handed to the prompt route so it opens over this grid instead of replacing it.
   const location = useLocation();
   const asModal = { backgroundLocation: location };
@@ -22,6 +24,8 @@ const GridTile = (entry: TileProps) => {
   return (
     <div
       className={`grid-item grid-item--${entry.variant} ${entry.videoAspect === "portrait" ? "grid-item--portrait" : ""} ${touchActive ? "touch-active" : ""}`}
+      data-fill3={fill && fill.three > 1 ? fill.three : undefined}
+      data-fill2={fill && fill.two > 1 ? fill.two : undefined}
       onTouchStart={() => setTouchActive(true)}
       onTouchEnd={() => setTimeout(() => setTouchActive(false), 600)}
     >
@@ -98,6 +102,13 @@ const PromptGrid = ({ category }: { category?: string }) => {
   // alternating run closes the gaps and the themes clump again.
   const items = category ? promptsInCategory(category) : feedPrompts;
 
+  // The video that closes the feed stretches over whatever columns its row has
+  // left, so the grid always ends on a full row however many templates there are.
+  const lastIndex = items.length - 1;
+  const closer = !category && items[lastIndex]?.youtube
+    ? { three: 3 - (lastIndex % 3), two: 2 - (lastIndex % 2) }
+    : undefined;
+
   const handleCopy = async (entry: PromptEntry) => {
     await copyText(entry.prompt);
     setCopiedSlug(entry.slug);
@@ -107,8 +118,8 @@ const PromptGrid = ({ category }: { category?: string }) => {
   return (
     <div className="media-grid">
       <div className="grid-container">
-        {items.map((p) => (
-          <GridTile key={p.slug} {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} />
+        {items.map((p, i) => (
+          <GridTile key={p.slug} {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} fill={i === lastIndex ? closer : undefined} />
         ))}
       </div>
     </div>

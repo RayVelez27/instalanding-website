@@ -105,6 +105,154 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Blackletter Biology Workbench",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A computational biology platform set like an illuminated manuscript: blackletter headings lit by a WebGL shader, spinning conic frame borders, and hand-drawn lab sketches in the margins",
+    prompt: `Build a single-file HTML landing page for "Mistfold", a fictional computational biology workbench (protein structure prediction, genomic alignment, molecular docking, single-cell analysis). The look is an illuminated manuscript on warm paper: blackletter headings, a serif body, framed panels with ornaments, and pale hand-drawn lab sketches drifting in the side margins. Google Fonts: UnifrakturMaguntia (headings and logo), Fanwood Text (body, 17px, line-height 1.55), Cinzel (numbers and small caps labels), JetBrains Mono (code). Rough.js 4.6.6 from jsDelivr for the sketches; everything else is hand-written CSS, inline SVG and one WebGL shader. Fictional brand, numbers and testimonial, labelled as such.
+
+THE SYSTEM
+- Tokens on :root: paper #f4f2ec, card #fdfcf9, tint #eef2ef, ink #4d524f / strong #1d2420 / soft #7a7f7b, lines #e2ded3 and #d3cec1, and the accents green #4c7264 (primary), blue #4c6d7b, violet #675a7c, mauve #86667f, mint #8fbcaa, lilac #b3a3c6. Three faint radial washes on a fixed body background.
+- An SVG <symbol> sprite of 24x24 line icons (lens with a helix, microscope, hexagon, atom, folio, funnel, branching nodes, hexagon with a spark, open codex, sealed envelope), all stroked with one green-blue-violet userSpaceOnUse gradient.
+- A four-point star as a data-URI SVG used as a CSS mask for every bullet, so bullets take any colour or gradient.
+- Buttons: small uppercase serif, 1px green border, radius 6px with corner-shape: scoop (progressive), solid variant with a soft green shadow.
+- Frames (.wbbase): 760px panels, padding 40px 30px, an inner 1px outline inset 7px, and a moving border: an @property --angle animated 0 to 360deg drives a conic gradient of greys with green-mint-blue and violet-lilac arcs, painted on a ::before with the padding-box/border-box background trick, plus a blurred copy at 28% opacity behind it as a glow. Stagger each frame's animation-delay so they are out of phase.
+
+THE SECTIONS
+- Sticky frosted nav: blackletter "Mistfold" logo, four uppercase links (hidden under 760px), a solid "Request access" button.
+- Hero frame: the h1 "From Sequence to Structure" in 58px blackletter, an italic subtitle, a 60px vertical rule that draws down on load with a glowing spark that keeps travelling down it, an intro paragraph with a gradient left rule and a light sweep that runs down it every few seconds, four stats (0.92 median pLDDT, 40x faster alignment, 12M cells indexed, 100% reproducible runs) that rise in one by one with shimmering separators, and two CTAs.
+- Modules frame: a small green label pill ("the instruments"), a 44px h2, an intro, a fleuron divider (❦ between fading rules), then four cards, each in its own accent via --accent: blackletter name, "compute intensity" as one to three filled hexagons, a description, star-bullet list, and a tinted footer split in two ("built on" / "outputs" with icons). Cards fade up as they enter with an IntersectionObserver.
+- Workflow frame: four tinted steps (Ingest, Compose, Run, Publish), each with a pearl medal holding an icon inside a conic gradient ring cut out with mask-composite (it spins on hover), then a short Python SDK snippet in a paper-coloured code block with a green left rule and keyword, string and comment colours.
+- Pricing frame: three tiers (Academic free, Lab $490/month featured with its own faster moving border, Enterprise custom) with star bullets, then an italic blockquote clearly labelled as an example testimonial.
+- Finale: one wide frame that is both the CTA and the footer. A soft drifting aurora behind "Begin Your First Fold", a lead, an email + button form in one scooped pill (local only: on submit it shows an italic thank-you line in an aria-live region), three star-bulleted assurances, a fleuron rule, a four-column footer, a legal bar, and the "Mistfold" wordmark at the full width of the panel.
+
+THE SHADER TEXT
+One hidden WebGL canvas renders every blackletter heading, the nav logo and the footer wordmark. For each, rasterise the text into an offscreen 2D canvas as white on transparent (for headings, walk the text nodes and use Range.getClientRects so each word lands exactly where the DOM laid it out), upload it as a texture, and run a fragment shader that only draws where alpha is set: domain-warped fbm noise mapped through the five-colour green-mint-blue-violet-lilac palette, a bevel normal from the alpha gradient lit by a light that drifts and follows the pointer, a specular glint, a diagonal light band that sweeps across, and a little grain. Copy each result into a 2D canvas laid over the heading. Only after drawing, add a class that makes the real text transparent, so the CSS gradient text stays as the fallback and screen readers still read the real heading.
+
+THE SKETCHES
+A fixed full-viewport canvas behind the content, desktop only (min-width 1100px): twelve 24x24 biology icons (helix, benzene, atom, flask, cell, microscope, lens, petri dish, ribbon, virus, branching nodes, pipette) drawn with Rough.js in six muted inks at 32-54% alpha. Place them on a seeded grid in the two side margins, skipping any spot that would overlap a frame. Pre-render four rough "takes" of each and swap between them about seven times a second for a hand-drawn boil, with a slow bob and tilt.
+
+THINGS THAT BREAK
+- Wait for the blackletter font (document.fonts.load, with a timeout) before rasterising text, or the first frame is drawn in the fallback serif; re-layout on resize with a ResizeObserver.
+- Never hide the headings in CSS up front: if WebGL is missing or the program fails to link, the gradient text must still be there.
+- Cap the shader canvases at 1.5x DPR, pause any that are off screen with an IntersectionObserver, and skip frames while document.hidden.
+- Load Rough.js with defer and start the sketches on DOMContentLoaded; guard on typeof rough so the page still works without it.
+- Use overflow-x: clip on html and body (not hidden) so the sticky nav keeps sticking.
+- Do not hotlink fonts or images from other sites: Google Fonts and a CDN script are the only external requests.
+
+THE FLOOR
+One h1, a main, data-section on every region, aria-hidden on the shader canvases, sketches and icons, a labelled email input, visible focus rings. Under prefers-reduced-motion every CSS animation and transition stops, the frames show a fixed ring angle, the cards are visible at once, and the shader renders one still frame. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 15, 2026",
+    demo: "/demos/mistfold-biology-workbench.html",
+    credits: [
+      {
+        label: "Rough.js by Preet Shihn",
+        href: "https://roughjs.com",
+        note: "The hand-drawn rendering library behind the margin sketches (MIT)",
+      },
+    ],
+    bestFor: ["biotech and life-science platforms","scientific and research software","computational tools for academic labs","brands with a literary or archival voice"],
+    style: ["light","editorial","blackletter","webgl","hand-drawn","manuscript"],
+    thumbnail: "/thumbs/mistfold-biology-workbench.jpg",
+    theme: "light",
+  },
+  {
+    title: "LED Metro Tech Storefront",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A big-tech devices homepage in warm clay and glass, with a live LED metro map for a hero, a Personal/Business switch that rewrites the page, and a dot-matrix ticker",
+    prompt: `Build a single-file HTML homepage for "Meridian", a fictional devices, apps and AI company (laptops, a tablet, a productivity suite, an AI assistant called Assist). Warm paper page, clay and frosted-glass surfaces, and one dark LED dot-matrix panel as the hero visual. GSAP 3.12.2 and ScrollTrigger from cdnjs; Google Fonts Bricolage Grotesque (headings), Fraunces italic (accent words), Instrument Sans (body copy), Inter as the fallback. No images: every device, icon and logo is CSS or inline SVG. Fictional brand, offers and copy, with a footnote saying so.
+
+THE SYSTEM
+- Tokens on :root: page #f6f5f1, ink #111317, grey #6f747c, hairline rgba(17,19,23,0.08), purple #9d8cdc / deep #6c5bbd, mint #8fdea0, near-black #16191e, clay-light #f1f0ec. Four clay shadow recipes (light, dark, purple, green: one outer drop plus an inset highlight top-left and an inset shade bottom-right) and a three-layer soft shadow for cards.
+- A fixed SVG fractal-noise grain at 3.5% over everything, and three blurred colour blobs (purple, mint, peach) behind the hero.
+- Every heading pairs a Bricolage word with one Fraunces italic accent filled with a purple gradient via background-clip:text and lit by an SVG glow filter (stacked feGaussianBlur + feColorMatrix + feOffset layers merged under the source). Dark surfaces use a warm white glow, the ballot banner a green one. Descriptions are a grey gradient clipped to text with one phrase in .hl set solid ink and bolder.
+- Primary CTA: a dark pill with the label left and a 51px pink circle right holding a 2-column dotted arrow that slides on hover. On dark surfaces it inverts to a white pill.
+
+THE HERO
+- A sticky frosted nav (radius 22px, top 14px): globe-with-meridians brandmark + "meridian" wordmark, five links, a Personal/Business segmented control with a white thumb that GSAP slides between buttons, a search button, and a hamburger under 1024px.
+- Left: a NEW badge pill, the h1 "Meridian Book Ultra" at 88px with "Ultra" as the accent, a lede, the CTA plus an underlined text link, and an "AI-powered suggestions" glass card with three chip links.
+- Right: a small pixel-art glyph with a caption, then the LED panel: a dark rounded bezel with a white 6px ring and purple glow, a header row ("LIVE NETWORK" with a blinking green dot, Chase/Rainbow/Breathe mode buttons, six colour swatches that filter lines), and a 36x20 dot grid. Six metro lines are waypoint lists whose segments are straight or exactly 45 degrees; each is expanded to one LED per cell. Each LED is an <i> placed by --x/--y custom properties and sized from a --pitch that a ResizeObserver computes from the screen box. Cells shared by two lines get interchange rings, and a glowing white "train" per line rides a looping GSAP timeline along the waypoints. Chase is a per-LED opacity keyframe delayed by index; Rainbow sets hsl(i*9deg) and hue-rotates the layer; Breathe pulses the whole layer. On boot the LEDs scale in, staggered by index.
+- Floating over the panel: a rotated black PRE-ORDER sticker, a white "$1,000 back" trade-in pill and a "Secure" pill, each on its own sine float. Below, a timeline rule ending in a mint "NEW RELEASE" clay tile, and a short h3 + paragraph.
+
+THE REST
+- Quick links: six white cards whose dark fill slides up from the bottom on hover while the icon tile turns mint and the arrow rotates -45deg.
+- Featured: a 600px slider with three slides (dark laptop slide whose screen is a second LED map in Rainbow mode, a lavender tablet slide, a mint slide with three stacked laptops and a chip badge), a 6s progress bar, a count, and pause/prev/next buttons; the UI turns light on the dark slide.
+- Travel light: a two-column card with three serif specs and a CSS laptop whose lid opens (rotateX -88 to 0) scrubbed by scroll, inside concentric rings.
+- Three AI article cards with a cursor-following radial spotlight: orbiting satellites round a shield, a third LED map, and datacenter towers growing out of the ground with leaves.
+- FAQ: a sticky intro column and a GSAP height accordion (one open at a time, aria-expanded, aria-controls).
+- A dark ballot banner topped by a dot-matrix ticker: a 5x7 bitmap font rendered as SVG circles, doubled, and scrolled with steps() easing so it moves one LED column at a time.
+- Footer: "Follow" plus the brandmark, socials, six link columns, a bottom bar and the fictional-brand footnote.
+
+PERSONAL / BUSINESS
+Both copies of every audience-specific string live in the DOM as [data-for="personal"] and [data-for="business"]; a body class hides one set. Business also swaps the accent to blue (#2f6fe0, its own glow filter, blue badge dot and button accent). Switching staggers the new copy in, shows a toast, and saves the choice to localStorage inside try/catch.
+
+THINGS THAT BREAK
+- body must use overflow-x: clip, not hidden, or the sticky nav stops sticking.
+- ScrollTrigger.batch with once: true never fires for elements already past its start when the page loads scrolled or jumps to an anchor; also sweep on ScrollTrigger refresh and scrollEnd and reveal anything on screen.
+- Never put a float loop and a scrubbed parallax on the same element's y: the LED panel gets only the parallax, the pills only the float, and the floating suggestion card gets no hover lift.
+- In the single-column slide layout use grid-template-columns: minmax(0, 1fr); a bare 1fr grows to the 460px laptop and the slider clips it at 390px.
+- Pause each map's train timelines while its screen is off screen, and re-place the segmented thumb after document.fonts.ready because the web fonts change the button widths.
+
+THE FLOOR
+One h1, a main, data-section on every region, aria-pressed on the toggles and swatches, aria-label on icon-only buttons, aria-hidden on decorative art, visible focus rings. Under prefers-reduced-motion: no intro, floats, trains or reveals, the slider does not autoplay, and the LED boards render fully formed. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 15, 2026",
+    demo: "/demos/meridian-led-storefront.html",
+    credits: [
+      {
+        label: "CSS LED Challenge by Ben Evans (ivorjetski) on CodePen",
+        href: "https://codepen.io/editor/ivorjetski/pen/01a07dcf-a1e8-7ab6-aea1-aa98135803b3",
+        note: "The LED dot-matrix style the metro maps are adapted from",
+      },
+    ],
+    bestFor: ["consumer electronics and hardware launches","big-tech style company homepages","software suites with personal and business audiences","AI assistant announcements"],
+    style: ["light","claymorphism","glassmorphism","led-dot-matrix","editorial","gsap"],
+    thumbnail: "/thumbs/meridian-led-storefront.jpg",
+    theme: "light",
+  },
+  {
+    title: "Hazard Terminal Security Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "Antivirus as an amber hazard terminal: a spinning seal HUD, a live scan where three cores vote, and a searchable grid of 72 spirits, each guarding a threat",
+    prompt: `Build a single-file HTML landing page for "Lemegeton", a fictional antivirus whose 72 protection modules are the 72 spirits of the Ars Goetia (public-domain names). The look is a sci-fi hazard terminal: amber glow on black, hazard stripes, hex cells and kanji labels. System font stacks only (a condensed sans for UI, a Mincho serif for headings and kanji, a monospace for readouts); no libraries, no images. Fictional brand, pricing and copy.
+
+THE SYSTEM
+- Tokens on body: an amber glow (rgb 255,102,0; text #fa0), a danger red (#f30, fill #f23), an ok green (#3f6), warm off-white body text, and a 36px faint amber grid behind everything with CRT scanlines on top.
+- Seven rank colours (King amber, Duke orange, Prince violet, Marquis cyan, President green, Earl yellow, Knight white), each a class that sets --accent/--accent-rgb, all at 7:1 or better on black.
+- Reusable pieces: a double glowing border (.-bordered with danger/ok/rank variants), diagonal hazard stripes with glowing edges, condensed uppercase labels with a 1px glow outline (mini, small, short and blinking sizes), a kanji label with a striped decal, hex-cell grids drawn from a data attribute (some cells off, the rest blinking out of step), and corner brackets.
+- An Alert mode toggle turns the whole terminal red.
+
+THE HERO
+- A fixed 70px top bar: a kanji brand tile, "LEMEGETON" with a tiny "the lesser key to your system" over it, status labels ("seal status: nominal" in green with a blinking dot, "72 / 72 bound"), and Pause motion, Alert mode and Menu buttons (icon-only on phones).
+- The page scrolls inside a container under the bar. Left: an eyebrow with a kanji block, the h1 "72 spirits. Zero infections." in huge uppercase serif with "Zero" in glowing red and indented, a lede, two CTAs and platform labels; a giant outlined vertical 七十二 sits behind it.
+- Right: a "Seal analysis display" HUD with blinking "Approaching limits" and "Danger" labels, a crosshair, and an SVG seal: two counter-rotating rings, one carrying all 72 spirit names round its edge and one with a red text ring and a hexagram, plus HUD readouts, a hex grid and an "Internal" kanji label. Clicking the HUD pauses motion.
+- A full-screen overlay menu: the kings as cards with generated sigils, three link columns, a "Season of SAMHAIN" name that is fitted to its box, font size and scanline controls, and a striped "current event" card.
+
+THE REST
+- A sticky section nav with kanji link prefixes that highlights the section in view, an "all systems nominal" status, and up/down buttons.
+- A readout strip: four big monospace stats with progress bars.
+- The three wards (firewall, sandbox, encrypted backup) as cards, each in its own rank colour with an animated SVG emblem, a readout, a status label, spec labels and a link.
+- A live scan: a terminal that streams scanned file paths, with every third line binding a spirit to a threat in red, three "core" boxes that flip to BANISH together, a progress meter, and a tally of spirits per rank.
+- The 72: a search box, rank filter buttons with counts, a large "summoned" panel (sigil, number, rank, name, lore, what it binds, stats), and a grid of all 72 spirit buttons. Each sigil is generated by tracing the spirit's letters round a 26-point wheel, inside rings and tick marks.
+- Four directives, three pricing pacts (the middle one featured with a blinking "recommended" tag), a striped final CTA with a giant outlined 結界, and a footer that credits the public-domain names.
+
+THE FLOOR
+One h1, a main, data-section on every region, real buttons with aria-pressed, a skip link, visible focus, labelled search, aria-live on the count and the summon panel. Pause motion, alert mode, scanlines and font size are saved to localStorage inside try/catch. Under prefers-reduced-motion nothing spins or blinks. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 14, 2026",
+    demo: "/demos/lemegeton-antivirus.html",
+    bestFor: ["security and antivirus products","developer tools with a strong theme","games and occult or horror brands","sci-fi or HUD-heavy launches"],
+    style: ["dark","hud","terminal","amber","occult","interactive-demo"],
+    thumbnail: "/thumbs/lemegeton-antivirus.jpg",
+    theme: "dark",
+  },
+  {
     title: "Purple Rain in the Rain",
     category: "gospel",
     categoryLabel: "GOSPEL",

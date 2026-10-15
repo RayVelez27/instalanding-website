@@ -863,6 +863,19 @@ html {
   .media-grid .grid-container { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* The closing video tile (data-fill set in PromptGrid) spans the columns its
+   row has left. Sharing a row it stretches to that row's height; alone on a
+   row it becomes a cinematic strip with the frame cropped from the middle. */
+@media (min-width: 1024px) {
+  .grid-item[data-fill3="2"] { grid-column: span 2; aspect-ratio: auto; }
+  .grid-item[data-fill3="3"] { grid-column: span 3; aspect-ratio: 6 / 1; }
+  .grid-item[data-fill3] .prompt-thumb { object-position: 50% 45%; }
+}
+@media (min-width: 721px) and (max-width: 1023px) {
+  .grid-item[data-fill2="2"] { grid-column: span 2; aspect-ratio: 4 / 1; }
+  .grid-item[data-fill2] .prompt-thumb { object-position: 50% 45%; }
+}
+
 .grid-item {
   position: relative;
   aspect-ratio: 2 / 1;
