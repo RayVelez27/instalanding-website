@@ -4,7 +4,11 @@ import { ArrowRight, Bot, Check, Copy } from "lucide-react";
 import { copyText } from "@/lib/copyText";
 import { MCP_CLIENTS, MCP_URL, SITE_URL, setAgentMode, useAgentMode } from "@/lib/agentMode";
 
-/** AGENT MODE switch, top right of the library beside GITHUB. */
+/**
+ * AGENT MODE switch, top right of the library beside GITHUB. The neo switch
+ * look is after Uiverse.io by chicogale, driven by a class instead of a hidden
+ * checkbox so it stays one real button with role="switch".
+ */
 export const AgentModeToggle = () => {
   const on = useAgentMode();
   return (
@@ -16,10 +20,29 @@ export const AgentModeToggle = () => {
       onClick={() => setAgentMode(!on)}
       title={on ? "Back to the library for people" : "Show the library the way your agent uses it"}
     >
-      <Bot size={13} aria-hidden="true" />
-      <span>AGENT MODE</span>
-      <span className="agent-toggle-track" aria-hidden="true">
-        <span className="agent-toggle-knob" />
+      <span className="agent-toggle-label">
+        <span className="agent-toggle-name">
+          <Bot size={12} aria-hidden="true" />
+          AGENT MODE
+        </span>
+        <span className="agent-toggle-status" aria-hidden="true">
+          <span className="agent-toggle-dot" />
+          {on ? "ACTIVE" : "STANDBY"}
+        </span>
+      </span>
+      <span className="neo-track" aria-hidden="true">
+        <span className="neo-grid" />
+        <span className="neo-spectrum">
+          <span /><span /><span /><span /><span />
+        </span>
+        <span className="neo-highlight" />
+        <span className="neo-thumb">
+          <span className="neo-thumb-ring" />
+          <span className="neo-thumb-core">
+            <span className="neo-thumb-wave" />
+            <span className="neo-thumb-pulse" />
+          </span>
+        </span>
       </span>
     </button>
   );
