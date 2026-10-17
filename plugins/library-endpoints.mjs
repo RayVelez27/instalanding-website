@@ -159,8 +159,9 @@ const buildManifest = ({ prompts, categories }, base, siteName, root) => ({
     promptJson: `${base}p/<slug>.json`,
     index: `${base}llms.txt`,
     skill: `${base}SKILL.md`,
+    mcp: `${base}mcp`,
+    mcpInstall: `claude mcp add --transport http instalanding ${base}mcp`,
     cli: "npx -y instalanding search <words>",
-    mcp: "npx -y instalanding mcp",
   },
   categories: categories.map((c) => ({
     slug: c.slug,
@@ -182,8 +183,9 @@ const buildLlmsTxt = (manifest, { prompts }) => {
     `- Manifest (all metadata, one fetch): ${manifest.url}prompts.json`,
     `- Any prompt, raw text: ${manifest.url}p/<slug>.txt`,
     `- Agent skill (how to use this library, step by step): ${manifest.url}SKILL.md`,
+    `- MCP server, hosted (Streamable HTTP, no install, no key): ${manifest.url}mcp`,
+    `  Claude Code: claude mcp add --transport http instalanding ${manifest.url}mcp`,
     `- CLI: npx -y instalanding search "dark technical ai" · inspect <slug> · get <slug> · add <slug>`,
-    `- MCP server (the same tools, no browser): npx -y instalanding mcp`,
     "",
   ];
 

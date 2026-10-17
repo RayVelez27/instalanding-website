@@ -36,8 +36,10 @@ instalanding add <slug> ./public                            # writes ./public/<s
 
 Every command takes `--json`. `get` prints the brief and nothing else, so it pipes.
 
-With the MCP server (`npx -y instalanding mcp`): `search_prompts`, `inspect_prompt`,
-`get_prompt`, `get_demo_source`, `list_categories`.
+With the MCP server — hosted at `https://instalanding.ai/mcp`, nothing to install
+(`claude mcp add --transport http instalanding https://instalanding.ai/mcp`), or locally with
+`npx -y instalanding mcp`: `search_prompts`, `inspect_prompt`, `get_prompt`, `get_demo_source`,
+`list_categories`.
 
 Over plain HTTP, when neither is installed — every endpoint is static and CORS-open:
 

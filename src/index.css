@@ -1156,37 +1156,70 @@ html {
 }
 .library-intro-text { min-width: 0; }
 
-/* GITHUB button + star count, top right of the library. */
-.star-btn {
+/* STAR ON GITHUB, top right of the library: dark fill, a rainbow border that
+   drifts, and a blurred rainbow glow underneath (after Uiverse.io by elijahgummer). */
+.rainbow-btn {
+  --rainbow: linear-gradient(90deg, hsl(0 100% 63%), hsl(90 100% 63%), hsl(210 100% 63%), hsl(195 100% 63%), hsl(270 100% 63%));
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   flex-shrink: 0;
-  padding: 8px 12px;
-  border: 1px solid #000;
-  background: #fff;
-  color: #000;
+  gap: 10px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1.5px solid transparent;
+  border-radius: 6px;
+  background:
+    linear-gradient(#121213, #121213) padding-box,
+    linear-gradient(#121213 50%, rgba(18, 18, 19, 0.6) 80%, rgba(18, 18, 19, 0)) border-box,
+    var(--rainbow) border-box;
+  background-size: 200%;
+  color: #fff;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 160ms ease, color 160ms ease;
+  animation: rainbow 2s linear infinite;
+  transition: transform 200ms ease;
 }
-.star-btn:hover { background: #000; color: #fff; }
-.star-btn:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
-/* GITHUB link + live star count, joined like GitHub's own star button. */
-.star-group { display: inline-flex; flex-shrink: 0; }
-.star-group .star-count {
-  border-left: 0;
-  gap: 5px;
+.rainbow-btn::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  bottom: -20%;
+  left: 50%;
+  width: 60%;
+  height: 20%;
+  transform: translateX(-50%);
+  background: var(--rainbow);
+  background-size: 200%;
+  filter: blur(12px);
+  animation: rainbow 2s linear infinite;
+}
+.rainbow-btn:hover { transform: scale(1.05); }
+.rainbow-btn:active { transform: scale(0.95); }
+.rainbow-btn:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+.rainbow-btn-label { display: inline-flex; align-items: center; gap: 7px; }
+.rainbow-btn-mark { width: 15px; height: 15px; }
+.rainbow-btn-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
   animation: star-count-in 240ms ease both;
 }
-.star-group .star-count:hover svg { fill: currentColor; }
+.rainbow-btn-count svg { color: #6b7280; transition: color 200ms ease; }
+.rainbow-btn:hover .rainbow-btn-count svg { color: #fde047; }
+@keyframes rainbow { from { background-position: 0%; } to { background-position: 200%; } }
 @keyframes star-count-in { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .star-group .star-count { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .rainbow-btn, .rainbow-btn::before, .rainbow-btn-count { animation: none; }
+  .rainbow-btn:hover, .rainbow-btn:active { transform: none; }
+}
 .library-intro-kicker {
   margin: 0 0 6px;
   font-family: 'IBM Plex Mono', monospace;
@@ -1205,8 +1238,148 @@ html {
 }
 @media (max-width: 640px) {
   .library-intro { padding: 8px 18px 4px; }
-  .star-btn { padding: 7px 10px; gap: 6px; }
+  .rainbow-btn { padding: 0 11px; gap: 8px; }
   .library-intro-kicker { font-size: 16px; }
+}
+
+/* ── Agent Mode: switch beside GITHUB, connect strip above the grid ── */
+/* Own stacking context, so the GitHub glow (z-index -1) sits above the page but under the button. */
+.library-intro-actions { position: relative; z-index: 0; display: flex; align-items: flex-start; gap: 8px; flex-shrink: 0; }
+.agent-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 8px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  transition: background 160ms ease, color 160ms ease;
+}
+.agent-toggle:hover { background: #f2f2f2; }
+.agent-toggle:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.agent-toggle--on, .agent-toggle--on:hover { background: #000; color: #fff; }
+.agent-toggle-track {
+  position: relative;
+  width: 24px;
+  height: 12px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+}
+.agent-toggle-knob {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: transform 180ms ease;
+}
+.agent-toggle--on .agent-toggle-knob { transform: translateX(12px); background: #3ddc84; }
+
+.agent-panel {
+  margin: 14px 6px 6px; /* flush with the grid tiles below (.media-grid pads 6px) */
+  padding: 18px;
+  border: 1px solid #000;
+  background: #0a0a0a;
+  color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+  animation: agent-panel-in 220ms ease both;
+}
+@keyframes agent-panel-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.agent-panel-head { margin-bottom: 14px; }
+.agent-panel-title { margin: 0 0 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; }
+.agent-panel-title::before { content: "● "; color: #3ddc84; }
+.agent-panel-sub { margin: 0; font-size: 11.5px; color: #9a9a9a; letter-spacing: 0.02em; }
+.agent-routes { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+.agent-route { min-width: 0; }
+.agent-route-stack { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.agent-clients { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.agent-client {
+  padding: 5px 9px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #9a9a9a;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+.agent-client:hover { color: #fff; border-color: #666; }
+.agent-client--on, .agent-client--on:hover { background: #fff; border-color: #fff; color: #000; font-weight: 600; }
+.agent-client:focus-visible { outline: 2px solid #3ddc84; outline-offset: 1px; }
+.agent-route-where { margin: 0 0 6px; font-size: 10px; color: #777; letter-spacing: 0.04em; }
+.agent-route-tools { margin: 8px 0 0; font-size: 10px; color: #777; letter-spacing: 0.02em; }
+.agent-route-label { margin: 0 0 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; }
+.agent-route-label span { color: #777; font-weight: 400; letter-spacing: 0.04em; margin-left: 4px; }
+.agent-route-row { display: flex; align-items: stretch; border: 1px solid #333; background: #141414; }
+.agent-route-row pre {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 9px 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  line-height: 1.55;
+  color: #e6e6e6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.agent-route-copy {
+  flex-shrink: 0;
+  width: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid #333;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.agent-route-copy:hover { background: #fff; color: #000; }
+.agent-route-copy:focus-visible { outline: 2px solid #3ddc84; outline-offset: -2px; }
+.agent-panel-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 1px solid #555;
+}
+.agent-panel-more:hover { border-bottom-color: #fff; }
+.tile-agent-cmd {
+  display: block;
+  max-width: 100%;
+  margin: 0 0 4px;
+  padding: 5px 8px;
+  background: #000;
+  color: #3ddc84;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 900px) {
+  .agent-routes { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .library-intro-actions { flex-direction: column; align-items: flex-end; }
+  .agent-panel { margin: 10px 6px 4px; padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agent-panel { animation: none; }
+  .agent-toggle-knob { transition: none; }
 }
 
 /* ── CSS shims (aspect ratios without images) ── */

@@ -45,6 +45,16 @@ over the CLI, the MCP server or plain HTTP, whichever the agent has. It is also 
 
 ## MCP install
 
+The server is hosted at `https://instalanding.ai/mcp` (Streamable HTTP, no key), so most
+clients need only the URL:
+
+```bash
+claude mcp add --transport http instalanding https://instalanding.ai/mcp
+```
+
+Cursor, VS Code, Codex, OpenCode and the Claude app take the same URL in their MCP settings —
+see [instalanding.ai/agents](https://instalanding.ai/agents). To run it locally over stdio instead:
+
 <details open>
 <summary><b>Claude Code</b></summary>
 

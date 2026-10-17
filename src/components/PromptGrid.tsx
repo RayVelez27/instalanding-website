@@ -4,19 +4,22 @@ import { Link, useLocation } from "react-router-dom";
 import { feedPrompts, promptsInCategory, type PromptEntry } from "@/data/prompts";
 import PromptThumb from "@/components/PromptThumb";
 import { copyText } from "@/lib/copyText";
+import { agentCommand, agentHandoff, useAgentMode } from "@/lib/agentMode";
 
 /* ── Tile ── */
 
 interface TileProps extends PromptEntry {
   onCopy: (entry: PromptEntry) => void;
   copied: boolean;
+  /** Agent Mode: the copy button hands over a task for the user's agent instead of the raw brief. */
+  agent: boolean;
   /** Columns this tile stretches over in the 3- and 2-column grids, so the last row is full. */
   fill?: { three: number; two: number };
 }
 
 const GridTile = (entry: TileProps) => {
   const [touchActive, setTouchActive] = useState(false);
-  const { onCopy, copied, fill } = entry;
+  const { onCopy, copied, fill, agent } = entry;
   // Handed to the prompt route so it opens over this grid instead of replacing it.
   const location = useLocation();
   const asModal = { backgroundLocation: location };
@@ -44,7 +47,11 @@ const GridTile = (entry: TileProps) => {
             aria-label={`Open ${entry.title}`}
           />
           <h3 className="title">{entry.title}</h3>
-          <p className="prompt-desc">{entry.description}</p>
+          {agent && !entry.youtube ? (
+            <code className="tile-agent-cmd">{agentCommand(entry.slug)}</code>
+          ) : (
+            <p className="prompt-desc">{entry.description}</p>
+          )}
           <div className="tile-actions">
             {entry.youtube ? (
               <>
@@ -68,7 +75,7 @@ const GridTile = (entry: TileProps) => {
                   onClick={(e) => { e.stopPropagation(); onCopy(entry); }}
                 >
                   {copied ? <Check size={12} /> : <Copy size={12} />}
-                  {copied ? "COPIED" : "COPY"}
+                  {copied ? "COPIED" : agent ? "COPY FOR AGENT" : "COPY"}
                 </button>
                 <Link to={`/prompt/${entry.slug}`} state={asModal} className="view-prompt-btn">
                   VIEW <ArrowRight size={12} />
@@ -97,6 +104,7 @@ const GridTile = (entry: TileProps) => {
 
 const PromptGrid = ({ category }: { category?: string }) => {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const agent = useAgentMode();
 
   // promptsInCategory, not a filter over the interleaved list: filtering an
   // alternating run closes the gaps and the themes clump again.
@@ -110,7 +118,7 @@ const PromptGrid = ({ category }: { category?: string }) => {
     : undefined;
 
   const handleCopy = async (entry: PromptEntry) => {
-    await copyText(entry.prompt);
+    await copyText(agent ? agentHandoff(entry) : entry.prompt);
     setCopiedSlug(entry.slug);
     setTimeout(() => setCopiedSlug((s) => (s === entry.slug ? null : s)), 2000);
   };
@@ -119,7 +127,7 @@ const PromptGrid = ({ category }: { category?: string }) => {
     <div className="media-grid">
       <div className="grid-container">
         {items.map((p, i) => (
-          <GridTile key={p.slug} {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} fill={i === lastIndex ? closer : undefined} />
+          <GridTile key={p.slug} {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} agent={agent} fill={i === lastIndex ? closer : undefined} />
         ))}
       </div>
     </div>

@@ -24,10 +24,15 @@ src/index.css              all app styling (plain CSS, not Tailwind classes, for
 public/demos/*.html        single-file reference implementations
 public/thumbs/*.jpg        tile screenshots, 1200x600 (2:1)
 plugins/library-endpoints.mjs   emits the agent-readable endpoints at build, serves them in dev
-mcp/                       the `instalanding` npm package: CLI (src/cli.js), MCP server
-                           (src/index.js), shared reader (src/library.js) and SKILL.md.
-                           Its own package, own node_modules. Not yet published to npm.
-src/pages/Agents.tsx       /agents, the manifesto. NPM_PUBLISHED at the top gates the npx note
+mcp/                       the `instalanding` npm package: CLI (src/cli.js), MCP tools
+                           (src/server.js), stdio boot (src/index.js), shared reader
+                           (src/library.js) and SKILL.md. Own package, own node_modules.
+                           Not yet published to npm.
+netlify/functions/mcp.mjs  the hosted MCP server at /mcp: mcp/src/server.js over Streamable
+                           HTTP, stateless. Needs @modelcontextprotocol/sdk in the ROOT package
+src/pages/Agents.tsx       /agents, the manifesto
+src/lib/agentMode.ts       Agent Mode state, MCP_URL and the per-client configs (shared with
+                           /agents), and NPM_PUBLISHED, which gates every npx line
 ```
 
 ## Commands
@@ -346,6 +351,7 @@ Generated at build by `plugins/library-endpoints.mjs`, served from memory in dev
 | `/llms.txt` | markdown index of the library, per the llms.txt convention |
 | `/SKILL.md` | the agent skill, from `mcp/SKILL.md` with URLs rewritten to `SITE_URL` |
 | `/sitemap.xml` | every crawlable route: library, categories, agents, builder pages, about |
+| `/mcp` | the hosted MCP server (a Netlify Function, not a static file — not served by `npm run dev`) |
 
 Entries carry `videoUrl` and `repoUrl` in the manifest, so an agent can tell a repo-hosted
 template from a single-file demo without fetching anything.
@@ -353,7 +359,9 @@ template from a single-file demo without fetching anything.
 The CLI and the MCP server both read these files through `mcp/src/library.js`, and share its
 `rank` and `formatInspect`, so `instalanding inspect` and the `inspect_prompt` tool always
 agree. Test both against the dev server: `node mcp/test/cli.js http://localhost:8081` and
-`node mcp/test/smoke.js http://localhost:8081`.
+`node mcp/test/smoke.js http://localhost:8081`. The hosted `/mcp` runs the same `server.js`;
+it reads the library from the origin that received the request, so a deploy preview's `/mcp`
+serves that preview's prompts.
 
 Keep these promises when changing the plugin: `prompts.json` always has a `prompts` array, slugs
 are stable, `/p/<slug>.txt` is the prompt **and nothing else** (no header, no banner — it gets

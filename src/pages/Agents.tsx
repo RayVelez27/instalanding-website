@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import { copyText } from "@/lib/copyText";
 import { useDemoSource } from "@/lib/demoSource";
 import { useSeo } from "@/hooks/useSeo";
+import { MCP_CLIENTS, MCP_URL, NPM_PUBLISHED } from "@/lib/agentMode";
 
 /**
  * The manifesto for agents: why the library is built for them, the loop to
@@ -11,11 +12,8 @@ import { useSeo } from "@/hooks/useSeo";
  * file it names is served — the page is documentation an agent can act on,
  * so it must never describe something that does not exist yet.
  *
- * The CLI and MCP server ship as one npm package, `instalanding`. Until it is
- * published, the npx lines would fail, so they carry a note and the HTTP and
- * SKILL.md routes (which work today) lead. Flip this when the package is live.
+ * NPM_PUBLISHED (src/lib/agentMode.ts) gates the npx lines here and in Agent Mode.
  */
-const NPM_PUBLISHED = false;
 
 /** Demo whose header comment is shown as the "every file is a map" exhibit. */
 const EXHIBIT_DEMO = "/demos/fire-button.html";
@@ -78,44 +76,11 @@ curl -s https://instalanding.ai/p/monax-analytics-landing-page.txt
 # the same brief with its metadata
 curl -s https://instalanding.ai/p/monax-analytics-landing-page.json`;
 
-const MCP_CLIENTS: { name: string; where: string; block: string }[] = [
-  {
-    name: "Claude Code",
-    where: "terminal",
-    block: "claude mcp add instalanding -- npx -y instalanding mcp",
-  },
-  {
-    name: "Codex",
-    where: "~/.codex/config.toml",
-    block: `[mcp_servers.instalanding]
-command = "npx"
-args = ["-y", "instalanding", "mcp"]`,
-  },
-  {
-    name: "Cursor",
-    where: ".cursor/mcp.json",
-    block: `{
-  "mcpServers": {
-    "instalanding": { "command": "npx", "args": ["-y", "instalanding", "mcp"] }
-  }
-}`,
-  },
-  {
-    name: "OpenCode",
-    where: "opencode.json",
-    block: `{
-  "mcp": {
-    "instalanding": { "type": "local", "command": ["npx", "-y", "instalanding", "mcp"] }
-  }
-}`,
-  },
-];
-
 const SKILL_BLOCK = `# Claude Code and other SKILL.md-aware agents
-npx -y instalanding skill --install          # → .claude/skills/instalanding/SKILL.md
+${NPM_PUBLISHED ? `npx -y instalanding skill --install          # → .claude/skills/instalanding/SKILL.md
 
 # or without npm
-mkdir -p .claude/skills/instalanding
+` : ""}mkdir -p .claude/skills/instalanding
 curl -s https://instalanding.ai/SKILL.md -o .claude/skills/instalanding/SKILL.md
 
 # Codex, OpenCode, Cursor and anything that reads AGENTS.md — add one line:
@@ -148,6 +113,35 @@ const Block = ({ label, code }: { label: string; code: string }) => {
   );
 };
 
+/** One tab per client, each with that client's config for the hosted server. */
+const McpTabs = () => {
+  const [client, setClient] = useState(0);
+  return (
+    <>
+      <div className="agents-tabs" role="tablist" aria-label="MCP client">
+        {MCP_CLIENTS.map((c, i) => (
+          <button
+            key={c.name}
+            type="button"
+            role="tab"
+            id={`mcp-tab-${i}`}
+            aria-selected={client === i}
+            aria-controls="mcp-panel"
+            className={client === i ? "agents-tab agents-tab--on" : "agents-tab"}
+            onClick={() => setClient(i)}
+          >
+            {c.name}
+          </button>
+        ))}
+      </div>
+      <div id="mcp-panel" role="tabpanel" aria-labelledby={`mcp-tab-${client}`}>
+        <p className="agents-where">{MCP_CLIENTS[client].where}</p>
+        <Block label={`${MCP_CLIENTS[client].name} MCP config`} code={MCP_CLIENTS[client].block} />
+      </div>
+    </>
+  );
+};
+
 /** The live header comment of one reference build, so the exhibit can't drift from the file. */
 const Exhibit = () => {
   const state = useDemoSource(EXHIBIT_DEMO, true);
@@ -170,8 +164,6 @@ const Agents = () => {
       "INSTALANDING.AI is a library of landing pages and UI components written for coding agents: a CLI, an MCP server, plain HTTP and a SKILL.md, all reading the same one-shot briefs and single-file reference builds.",
     canonical: "/agents",
   });
-  const [client, setClient] = useState(0);
-
   return (
     <div className="app-layout">
       <Sidebar />
@@ -220,12 +212,14 @@ const Agents = () => {
 
           <section className="builder-section" aria-labelledby="agents-ways">
             <h2 id="agents-ways">Four ways in, one library</h2>
-            {!NPM_PUBLISHED && (
-              <p className="builder-gotcha">
-                <strong>The npm package lands with launch.</strong> Until then the CLI and MCP lines
-                below will not resolve; HTTP and SKILL.md work today and cover everything the CLI does.
-              </p>
-            )}
+            <h3 className="agents-h3">MCP — one URL, nothing to install</h3>
+            <p>
+              Hosted at <code>{MCP_URL}</code> over Streamable HTTP, CORS-open, no key. Tools:{" "}
+              <code>search_prompts</code>, <code>inspect_prompt</code>, <code>get_prompt</code>,{" "}
+              <code>get_demo_source</code>, <code>list_categories</code>. Every prompt is also a
+              resource at <code>instalanding://prompt/&lt;slug&gt;</code>.
+            </p>
+            <McpTabs />
 
             <h3 className="agents-h3">HTTP — works with anything that can fetch</h3>
             <Block label="HTTP commands" code={HTTP_BLOCK} />
@@ -234,38 +228,20 @@ const Agents = () => {
             <Block label="skill install" code={SKILL_BLOCK} />
 
             <h3 className="agents-h3">CLI — for agents with a shell</h3>
-            <p>
-              Results on stdout, everything else on stderr, <code>--json</code> on every command,
-              exit codes 0 / 1 / 2. <code>get</code> prints the brief and nothing else, so it pipes.
-            </p>
-            <Block label="CLI commands" code={CLI_BLOCK} />
-
-            <h3 className="agents-h3">MCP — for tool-aware clients</h3>
-            <p>
-              Tools: <code>search_prompts</code>, <code>inspect_prompt</code>, <code>get_prompt</code>,{" "}
-              <code>get_demo_source</code>, <code>list_categories</code>. Every prompt is also a
-              resource at <code>instalanding://prompt/&lt;slug&gt;</code>.
-            </p>
-            <div className="agents-tabs" role="tablist" aria-label="MCP client">
-              {MCP_CLIENTS.map((c, i) => (
-                <button
-                  key={c.name}
-                  type="button"
-                  role="tab"
-                  id={`mcp-tab-${i}`}
-                  aria-selected={client === i}
-                  aria-controls="mcp-panel"
-                  className={client === i ? "agents-tab agents-tab--on" : "agents-tab"}
-                  onClick={() => setClient(i)}
-                >
-                  {c.name}
-                </button>
-              ))}
-            </div>
-            <div id="mcp-panel" role="tabpanel" aria-labelledby={`mcp-tab-${client}`}>
-              <p className="agents-where">{MCP_CLIENTS[client].where}</p>
-              <Block label={`${MCP_CLIENTS[client].name} MCP config`} code={MCP_CLIENTS[client].block} />
-            </div>
+            {NPM_PUBLISHED ? (
+              <>
+                <p>
+                  Results on stdout, everything else on stderr, <code>--json</code> on every command,
+                  exit codes 0 / 1 / 2. <code>get</code> prints the brief and nothing else, so it pipes.
+                </p>
+                <Block label="CLI commands" code={CLI_BLOCK} />
+              </>
+            ) : (
+              <p className="builder-gotcha">
+                <strong>The CLI lands with the npm release.</strong> Until then, the hosted MCP server
+                and plain HTTP above do everything it does.
+              </p>
+            )}
           </section>
 
           <section className="builder-section" aria-labelledby="agents-file">
