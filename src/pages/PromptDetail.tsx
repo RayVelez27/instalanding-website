@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Copy, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Copy, ExternalLink, MessageSquare } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import PromptThumb from "@/components/PromptThumb";
-import VideoStage from "@/components/VideoStage";
+import PromptStage from "@/components/PromptStage";
+import TemplateFeedback from "@/components/TemplateFeedback";
 import { copyText } from "@/lib/copyText";
+import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, getRelatedPrompts, visiblePrompts, categoryHref } from "@/data/prompts";
 import { useSeo } from "@/hooks/useSeo";
 
+/**
+ * The standalone /prompt/:slug page: what a shared link, a refresh, a new tab
+ * or a crawler gets. It shows the same live preview and the same main actions
+ * as the dialog (PromptStage and useCopyCode are shared, so the two cannot
+ * drift), plus what only a page needs: breadcrumbs, the details, the full
+ * prompt text and related entries.
+ */
 const PromptDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const entry = getPromptBySlug(slug);
-  const [copied, setCopied] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
+  const [feedback, setFeedback] = useState(false);
+  const { copy, copied, label: copyLabel, text: copyCaption, source } = useCopyCode(entry);
 
   // Called before the not-found redirect below: hooks cannot be conditional.
   useSeo({
@@ -26,8 +37,11 @@ const PromptDetail = () => {
     imageSize: entry?.thumbnail ? [1200, 600] : undefined,
   });
 
-  // Reset the copied flag when navigating between prompts
-  useEffect(() => setCopied(false), [slug]);
+  // Reset the per-entry state when navigating between prompts
+  useEffect(() => {
+    setPromptCopied(false);
+    setFeedback(false);
+  }, [slug]);
 
   if (!entry) return <Navigate to="/" replace />;
 
@@ -36,10 +50,11 @@ const PromptDetail = () => {
   const next = index >= 0 && index < visiblePrompts.length - 1 ? visiblePrompts[index + 1] : null;
   const related = getRelatedPrompts(entry);
 
-  const handleCopy = async () => {
+  // The prompt section's own button always copies the brief, whatever the main button copies
+  const handleCopyPrompt = async () => {
     await copyText(entry.prompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setPromptCopied(true);
+    setTimeout(() => setPromptCopied(false), 2000);
   };
 
   return (
@@ -56,86 +71,107 @@ const PromptDetail = () => {
           </nav>
 
           <header className="detail-head">
-            <p className="detail-kicker">{entry.categoryLabel} · ADDED {entry.added.toUpperCase()}</p>
+            <p className="detail-kicker">
+              {entry.categoryLabel} · ADDED {entry.added.toUpperCase()}
+              {entry.theme && (
+                <span className={`pmodal-theme pmodal-theme--${entry.theme}`}>
+                  <span className="pmodal-theme-dot" aria-hidden="true" />
+                  {entry.theme === "dark" ? "DARK" : "LIGHT"}
+                </span>
+              )}
+            </p>
             <h1 className="detail-title">{entry.title}</h1>
             <p className="detail-desc">{entry.description}</p>
           </header>
 
-          <div className="detail-body">
-            <section className="detail-preview" aria-label="Component preview">
-              <div className={`detail-preview-frame${entry.youtube ? " detail-preview-frame--video" : ""}`}>
-                {entry.youtube ? (
-                  <VideoStage entry={entry} className="detail-video" />
-                ) : (
-                  <PromptThumb entry={entry} eager />
-                )}
-              </div>
-              <p className="detail-preview-caption">
-                {entry.youtube ? "VIDEO" : entry.video ? "RENDERED PREVIEW" : entry.thumbnail ? "LIVE SCREENSHOT" : "WIREFRAME PREVIEW"}
-              </p>
-            </section>
+          <div className="pmodal-actions detail-actions">
+            {entry.youtube ? (
+              <a
+                className="pmodal-btn pmodal-btn--solid"
+                href={`https://www.youtube.com/watch?v=${entry.youtube}`}
+                target="_blank"
+                rel="noreferrer"
+                title="Watch on YouTube"
+              >
+                <span className="pmodal-label">WATCH ON YOUTUBE</span> <ExternalLink size={12} aria-hidden="true" />
+              </a>
+            ) : (
+              <button className="pmodal-btn pmodal-btn--solid" onClick={copy} aria-live="polite" title={copyLabel}>
+                {copied === "done" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
+                <span className="pmodal-label">{copyCaption}</span>
+              </button>
+            )}
+            {entry.demo && (
+              <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab">
+                <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
+              </a>
+            )}
+            {!entry.demo && entry.repoUrl && (
+              <a className="pmodal-btn" href={entry.repoUrl} target="_blank" rel="noreferrer" title="View code">
+                <span className="pmodal-label">VIEW CODE</span> <ExternalLink size={12} aria-hidden="true" />
+              </a>
+            )}
+            <button
+              className="pmodal-btn"
+              aria-pressed={feedback}
+              aria-controls="detail-feedback"
+              onClick={() => setFeedback((f) => !f)}
+              title="Send feedback on this template"
+            >
+              <MessageSquare size={12} aria-hidden="true" />
+              <span className="pmodal-label">FEEDBACK</span>
+            </button>
+          </div>
 
+          {feedback && (
+            <section className="detail-feedback" id="detail-feedback" aria-label="Feedback">
+              <TemplateFeedback key={entry.slug} entry={entry} onDone={() => setFeedback(false)} />
+            </section>
+          )}
+
+          <div className="detail-stage">
+            <PromptStage entry={entry} source={source} />
+          </div>
+
+          <div className="detail-body">
             <aside className="detail-meta">
               <dl>
                 <div><dt>CATEGORY</dt><dd><Link to={categoryHref(entry.category)}>{entry.categoryLabel}</Link></dd></div>
                 {entry.youtube ? (
                   <div><dt>SOURCE</dt><dd>YOUTUBE</dd></div>
                 ) : (
-                  <>
-                    <div><dt>PREVIEW</dt><dd>{entry.preview.replace("-", " ").toUpperCase()}</dd></div>
-                    <div><dt>TILE</dt><dd>{entry.variant.toUpperCase()}</dd></div>
-                  </>
+                  <div><dt>PREVIEW</dt><dd>{entry.demo ? "LIVE DEMO" : entry.preview.replace("-", " ").toUpperCase()}</dd></div>
                 )}
                 <div><dt>ADDED</dt><dd>{entry.added}</dd></div>
                 {!entry.youtube && <div><dt>LENGTH</dt><dd>{entry.prompt.length} CHARS</dd></div>}
                 {entry.demo && <div><dt>DEMO</dt><dd>SINGLE FILE</dd></div>}
                 {entry.repoUrl && <div><dt>SOURCE</dt><dd>GITHUB REPO</dd></div>}
               </dl>
-              {entry.youtube ? (
-                <a className="detail-demo-btn" href={`https://www.youtube.com/watch?v=${entry.youtube}`} target="_blank" rel="noreferrer">
-                  WATCH ON YOUTUBE <ExternalLink size={12} />
-                </a>
-              ) : (
-                <button className="detail-copy-btn" onClick={handleCopy}>
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? "COPIED" : "COPY PROMPT"}
-                </button>
-              )}
-              {entry.demo && (
-                <a className="detail-demo-btn" href={entry.demo} target="_blank" rel="noreferrer">
-                  OPEN LIVE DEMO <ExternalLink size={12} />
-                </a>
-              )}
-              {!entry.demo && entry.repoUrl && (
-                <a className="detail-demo-btn" href={entry.repoUrl} target="_blank" rel="noreferrer">
-                  VIEW CODE ON GITHUB <ExternalLink size={12} />
-                </a>
-              )}
-              {entry.credits && entry.credits.length > 0 && (
-                <div className="detail-credits">
-                  <h2>BUILT ON</h2>
-                  <ul>
-                    {entry.credits.map((credit) => (
-                      <li key={credit.href}>
-                        <a href={credit.href} target="_blank" rel="noreferrer">
-                          {credit.label} <ExternalLink size={11} />
-                        </a>
-                        {credit.note && <span>{credit.note}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </aside>
+            {entry.credits && entry.credits.length > 0 && (
+              <div className="detail-credits">
+                <h2>BUILT ON</h2>
+                <ul>
+                  {entry.credits.map((credit) => (
+                    <li key={credit.href}>
+                      <a href={credit.href} target="_blank" rel="noreferrer">
+                        {credit.label} <ExternalLink size={11} />
+                      </a>
+                      {credit.note && <span>{credit.note}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {!entry.youtube && (
             <section className="detail-prompt" aria-label="One-shot prompt">
               <div className="detail-prompt-head">
                 <h2>ONE-SHOT PROMPT</h2>
-                <button className="detail-copy-btn detail-copy-btn--ghost" onClick={handleCopy}>
-                  {copied ? <Check size={12} /> : <Copy size={12} />}
-                  {copied ? "COPIED" : "COPY"}
+                <button className="detail-copy-btn detail-copy-btn--ghost" onClick={handleCopyPrompt}>
+                  {promptCopied ? <Check size={12} /> : <Copy size={12} />}
+                  {promptCopied ? "COPIED" : "COPY PROMPT"}
                 </button>
               </div>
               <pre className="detail-prompt-body">{entry.prompt}</pre>

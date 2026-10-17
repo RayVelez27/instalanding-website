@@ -90,7 +90,7 @@ const GithubButton = () => {
     >
       <span className="rainbow-btn-label">
         <GithubMark />
-        <span>STAR ON GITHUB</span>
+        <span>GITHUB</span>
       </span>
       {stars !== null && (
         <span className="rainbow-btn-count" aria-hidden="true">

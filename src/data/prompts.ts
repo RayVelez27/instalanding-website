@@ -105,6 +105,289 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Peptide Skincare Store Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A warm, cream-toned peptide skincare store whose hero is a spinning sphere of code-drawn product tiles behind a glass search bar that types its own queries, with springy lab-style product renders, a draggable Dose lab vial, bubble-popping add-to-bag and a day-to-night routine",
+    prompt: `Build a single-file HTML landing page for "Cosmos", a fictional peptide skincare brand that lists every peptide at its exact dose. The look is a quiet premium beauty store: warm cream ground, near-black ink, Wix Madefor type set tight, IBM Plex Mono for every number, glass pills, soft studio shadows and one amber accent. Every image on the page is an SVG drawn from code; there are no photos. Fictional brand, products, prices and journal issues; the peptide INCI names are real ingredients but doses and claims are illustrative.
+
+STACK
+- GSAP 3.12.5 and ScrollTrigger from cdnjs, then one inline script. Google Fonts: Wix Madefor Display 500-800 (headlines, buttons), Wix Madefor Text 400-600 (body), IBM Plex Mono 400-500 (eyebrows, doses, specs).
+- Every visual is generated: a MODULES map of functions (u, r) => SVG markup, where u is a per-instance id prefix and r a seeded mulberry32 random. moduleSVG(name, seed, hue, viewBox) wraps it in an <svg preserveAspectRatio="xMidYMid slice">. Any element with data-module is filled on load.
+
+THE SYSTEM
+- Tokens on :root: bg #f4f2ec, bg-soft #faf8f1, surface #fff, ink #0a0a0a, ink-2 #3d3b36, muted #6f6c64, line #dedad0, amber #a85a22, glass rgba(190,184,170,.45) with a 45% white border. Safe-area gutters max(24px, env(safe-area-inset-*)), 16px under 720px.
+- body::before is a fixed layer of three soft radial washes (white centre, peach lower-left, blue upper-right).
+- Headlines Wix Madefor Display, letter-spacing -0.025em, line-height 1.02, text-wrap balance. Pill buttons 48px: a black primary, a 1px ghost. Mono eyebrows 12px, 0.08em, uppercase.
+
+SECTIONS
+1. nav: sticky, a 60px glass pill (72% cream, blur 18px), the logo (a ringed planet mark + "Cosmos" at 800), four links, a black "Bag" pill with a white mono count badge that pops (GSAP back.out) when items are added.
+2. hero: a two-column head ("Peptides, by the percent." at clamp(48px, 8vw, 112px)/800, an intro and two buttons), then a 16:9 stage (max 760px tall):
+   - a 540px white sphere with overflow hidden and an inner vignette, holding a rotated 4x4 grid of 16 small generative tiles (serum bottle, peptide bead chain, orbit, jar, faceted crystal, linen bag, kit, tube, blurred blob, drop, arch) at inset -8%. GSAP turns the grid 360deg over 200s; clicking the sphere spins it 90deg, pulses the tiles and reshuffles them with new seeds.
+   - a 620x78 glass search bar centred on top: white icon, a blinking 1px caret divider, a readonly input whose placeholder types and erases a cycle of queries ("Copper peptides", "Matrixyl for firmness", "Argireline for lines"...), and a 60px white round button with a 3x2 dot grid that spins and pulses the cards. Clicking the input scrolls to the formulas.
+   - six float cards around the sphere (rotated -4 to 4deg, 14px radius, a white 4px halo, a glass sheen and a bottom fade), each a cropped product render (data-vb is the viewBox) with a "Name | dose" mono label. They bob, follow the mouse with parallax, scale on hover, spin and re-render on click, and scatter outward as the stage scrolls (ScrollTrigger scrub).
+   - Intro timeline: the sphere scales and rotates in, tiles pop from the centre, the bar stretches in, the cards land at random. .js-ready hides these only when GSAP loaded and motion is allowed.
+3. ticker: a mono marquee of peptide INCI names, each dose in amber, duplicated group with aria-hidden, 50s loop.
+4. how-it-works: three steps with a 1px ink top rule, mono numbers 01-03, 26px titles.
+5. formulas: "Six peptide formulas. No filler." Filter chips (All, Fine lines, Firmness, Barrier, Recovery; aria-pressed) with a live mono count and an empty state. Six product cards in a 3/2/1 grid: a 26px-radius card with a 10px inset media plate (4:4.2, 18px radius, studio light overlay) holding an animated render, a mono "No. 0X" index, a glass class pill (Carrier, Signal, Neuropeptide...), a big white dose ("10%" + mono label); then name and price, a one-line description, a three-column spec ledger (Peptide / pH / Size) with hairlines, concern tags and an "Add" pill whose + icon turns 90deg on hover and swaps to a check on amber for 1.6s.
+6. dose-lab: "Slide the vial. Meet the formula." A 30px-radius deep-teal slab (radial #2c6a8c → #1B4965 → #0F2939, cream #FFFCF9 ink, 8% noise): on the left an 800x420 SVG scale from 0 to 10% with ticks, a cream rail, a progress line and five coloured stop dots (1% GHK-Cu, 2% Tripeptide-8, 3% Matrixyl 3000, 5% Matrixyl, 10% Argireline); a big graduated test-tube vial rides the rail as a role="slider" handle. Dragging it moves a spring follower (velocity += (target - x) * .3, then *= .82) so the tube swings, the liquid tilts with velocity and its level rises with the dose, bubbles stream off it, a ghost 230px dose watermark changes behind, and on release it elastic-snaps to the nearest stop and pops a value bubble. Arrow keys, Home and End step between stops. On the right a readout (dose at up to 104px, class pill, INCI, trade name, what it does, "Found in" formula, a cream button) that restaggers in on each stop. On first view the vial slides in from 10% to 5%.
+7. ingredients: a sticky labelled peptide figure beside a table (Peptide INCI + trade name, Class, What it does, Found in, Dose right-aligned tabular) in an 18px-radius box that scrolls sideways on its own at min-width 680px. Each dose cell becomes a small outlined vial filled to the dose in its class colour, with rising bubbles; the vials drop in with an elastic settle when the table scrolls into view and slosh when a row is hovered.
+8. routine: a black 28px-radius slab: an animated plinth render on the left, then "Four peptide formulas, already in order.", Morning and Evening numbered lists, a cream "Add the routine" button and $148 with $170 struck through.
+9. journal-footer: one dark 36px-radius card (#0c0b0a, amber and blue radial glows, a noise overlay): a pulsing-dot eyebrow, a gradient-clipped headline, an email pill form with an inline mail icon and a validating submit (amber note, aria-live), three check perks; a fanned stack of three journal covers (renders with masthead, issue number, title) that floats and spreads on hover; four link columns; a base row with a back-to-top link; a giant clipped "Cosmos" wordmark with a sweeping shine.
+
+THE PRODUCT RENDERS (SMIL, each in a 0-100 viewBox)
+- The six product cards use a lab style that matches the Dose lab vial: cream outlines, flat cel-shaded fills with a darker side band, a long offset drop shadow (feOffset dy 3.6), a graduated measuring shelf, dashed shines, rising bubbles with a dashed highlight arc, a slow dotted ring behind. Each product sits in a .tilt group with its liquid in a clipped .slosh group (data-cy = the surface), so script can tilt and slosh it.
+- Each card has data-accent. Moving the cursor across the media drives the same spring follower: the bottle tilts up to 7deg, the liquid sloshes up to 24deg and fast moves stream accent bubbles; it settles back when the pointer leaves.
+- Shared studio helpers: a radial backdrop, a floor glow, a top spotlight, a vignette and 6% fractal grain on top; an animated contact shadow that shrinks as the product bobs; a skewed light sweep clipped to the product; glossy radial beads; twinkling dust; and an orbit() helper that draws beads on a tilted ellipse twice, once behind and once clipped to the near half in front, so they pass around the bottle.
+- pCopper: a dropper bottle of blue serum with a sloshing surface, copper ions orbiting, blue spheres floating. pMatrixyl: a cream jar under a floating gold lid, a collagen triple helix scrolling behind. pArgireline: an amber bottle while three expression lines smooth flat and return, and a drop falls and ripples. pEyeGel: a tube in a field of rising gel bubbles with cooling floor ripples. pBarrier: a green-lidded jar under a hexagon lattice that lights up in waves from the centre. pBooster: a gold-serum bottle with six coloured peptide beads orbiting. pPeptide: Pal-KTTKS as five glossy labelled amino acids on a bobbing backbone with a wavy C16 tail, dimension brackets and a scanning line. pRoutine: four products on a plinth while a sun then a crescent moon cross a dotted arc, the sky shifts from warm to night over 16s, MORNING/EVENING swap and the AM or PM products brighten.
+
+FX LAYER
+- A fixed, pointer-events-none SVG overlay (z-index 80) with a long soft shadow filter. Helpers: bubbleCloud (small circles that drift up with expo.out and shrink away), valueBubble (a coloured circle with a dashed arc and a label that squash-and-stretches in with two elastic eases, rises, then pops) and popBurst (eight radial strokes that travel outward and vanish). "Add" fires a "+1" bubble in the card's accent from the button, the routine button an amber one, the search button a bubble cloud, a valid signup a burst.
+
+MOTION AND PERFORMANCE
+- An IntersectionObserver pauses each render's SMIL clock (pauseAnimations) when it is off screen.
+- Reduced motion: renders jump to 2s and pause, the CSS spins, ticker, caret and wordmark shine stop, and the GSAP intro, parallax, bobbing and scroll scatter are skipped.
+
+RESPONSIVE
+- Under 1100px the sphere is 460px, cards shrink and lose labels, the ingredient figure and routine stack. Under 860px the nav links hide and steps stack. Under 720px the stage drops its aspect ratio, the sphere is 320px, only two float cards remain, tucked into opposite corners. No horizontal scroll at 390px.
+
+THINGS THAT BREAK
+- Every gradient, clip and filter id inside a render must start with u, or two copies of the same module on the page steal each other's defs.
+- The float cards are absolutely placed inside the stage; keep only two under 720px or they push the page wider than the viewport.
+- Don't hide the hero in CSS alone: only add .js-ready once GSAP has loaded, or a CDN failure leaves a blank stage.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 17, 2026",
+    demo: "/demos/cosmos-peptides.html",
+    bestFor: ["skincare and beauty brands","DTC ecommerce stores","ingredient-led or science-backed products","product catalogs with filters"],
+    style: ["light","warm","premium","glassmorphism","svg","generative","gsap"],
+    thumbnail: "/thumbs/cosmos-peptides.jpg",
+    theme: "light",
+  },
+  {
+    title: "AI Work Assistant Chat Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A soft pastel AI-assistant launch page whose hero is a working chat: it types its own first question, streams answers with thread cards, drafts and calendar slots, and is ringed by agent badges that spin, tick and fail on their own",
+    prompt: `Build a single-file HTML landing page for "Tidewell", a fictional AI assistant for work that reads your inbox, calendar and docs, then summarizes, drafts and schedules. The look is quiet, light and pastel: a near-black ink on white, Geist type set tight, soft blue and violet gradients, a faint page-wide grid that lights up around the cursor, two blurred glows behind a centred hero, and a real, scripted chat as the centrepiece. Full dark theme included. Fictional brand, investor, customers, inbox senders and testimonials, labelled as such in the footer.
+
+STACK
+- No libraries. Google Fonts: Geist 400-700 for everything, Geist Mono for times, step numbers and keycaps.
+- One inline script. Avatars are gradients, icons are inline 24px stroke SVGs, integration marks are letters on tints.
+
+THE SYSTEM
+- Tokens on :root: bg #ffffff, bg-soft #f7f7f8, surface #ffffff, ink #0f1115, ink-2 #4f535b, ink-3 #9b9b9b, line #ececee, line-strong #e2e2e5, badge #f5f5f5, blue-1 #dbe5ff / blue-2 #cbdaff / blue-ink #1d6ad9, violet-1 #dfceff / violet-2 #d4bbff / violet-ink #422c6f, mint-1 #d3f5e4 / mint-ink #136c45, amber #d97706 / amber-soft #fff4e0, red-soft #ffe2e0 / red-ink #b42318, button #0f1115 on #fff.
+- Two shadows: sm (0 1px 2px, 0 2px 8px at 4-5%) and lg (a three-layer drop out to 0 40px 80px -24px at 18%), plus two glows rgba(134,169,255,.45) and rgba(192,159,255,.45).
+- A dark set (bg #0c0d10, surface #16171b, ink #f3f3f4, darker pastels, inverted button) applied by prefers-color-scheme: dark unless :root[data-theme="light"], and by :root[data-theme="dark"].
+- Headlines are Geist 600-700 with letter-spacing -0.05em to -0.065em; the hero h1 "the ai for work" is clamp(48px, 9vw, 112px)/0.92 with "work" in ink-3. Pills everywhere: 40px buttons (48px large), a black primary with an inset highlight, a ghost with a 1px line.
+- The logo is two overlapping 18px rounded squares, a blue gradient over a violet one with mix-blend-mode multiply (screen in dark).
+
+SECTIONS (data-section in order)
+1. nav: sticky, 78% bg via color-mix with saturate(180%) blur(14px), a hairline after 8px of scroll. Logo, Product / Integrations / Customers / Pricing, Sign in, Start free. Links hide under 860px.
+2. hero, from back to front:
+   - the two blurred glows (the grid now belongs to the whole page, below)
+   - an amber eyebrow pill ("backed by foundry row", with an orange F tile), the h1, a sub, two CTAs and a small note
+   - a 620px chat card (28px radius, the lg shadow, a top-light gradient border via mask-composite). Its header has an avatar, "Connected to your workspace" with a live green dot, and Mail / Calendar / Docs source pills. A 400px scrolling body starts with "Good afternoon, Jordan". The footer holds three suggestion chips, a composer (input plus a black send button, disabled when empty) and a hint row with an Enter keycap.
+   - floating cards hanging off the chat edges, each bobbing with its own rotation through a --r variable: an email preview (left -170px, -4deg), a blue "Summarize this email…" command (top right, 3deg) and a violet AI summary (right -190px, 3.5deg)
+   - six agent badges scattered around the stage (Analyze, Categorize, Summarize, Reply, Schedule, Archive)
+3. logos: a muted row of six fictional wordmarks in varied faces.
+4. product: three alternating feature rows, copy plus a 1/0.86 rounded canvas tinted with a radial pastel:
+   - a stack of an email card, a command pill that types and erases three commands with a blinking caret, and a summary card, all floating
+   - an inbox with category tabs (All / Needs reply / FYI / Later, with mono counts) that filter seven rows with coloured tags
+   - a draft with Direct / Warm / Brief tone buttons that cross-fade the body text
+5. how-it-works: three bordered step cards with mono 01-03.
+6. integrations: a hub panel (36px radius, pastel radial washes, a masked dot grid): three tiles each side (Mail, Calendar, Team chat / Docs, Wiki, Tasks), each a 44px tinted icon tile coloured by its own --c, a name, a one-line meta and a mint "Live" chip, wired to a central 132px Tidewell mark with two expanding rings and a "6 sources in sync" label. The wires are one SVG with a 0-100 viewBox stretched over the panel (preserveAspectRatio none, vector-effect non-scaling-stroke): faint base curves plus gradient pulses that travel along them using pathLength=100 and a 10/90 dash. A footer strip lists the trust points and "40+ more via API". Under 900px the hub moves on top, the tiles go two then one per row, and the wires hide.
+7. testimonials: a header with prev/next arrows and a full-bleed scroll-snap rail of eight 360px quote cards with gradient initials avatars. The rail pads itself to the content column with max(24px, (100vw - 1112px) / 2).
+8. pricing: a Monthly / Yearly toggle (-20% in mint) that swaps prices from data-m / data-y. Starter $0, Pro $20 or $16 (violet-washed, "Most popular", lg shadow), Team $32 or $26 per seat.
+9. faq: four native details rows with a + in a ring that rotates 45deg.
+10. cta: a dark rounded card (ink background, bg text) with the two glows blurred inside, "get your afternoons back".
+11. footer: brand blurb, three link columns, and a base row with the fictional notice.
+
+PAGE GRID SPOTLIGHT
+- One absolutely positioned layer behind main and footer (z-index 0 vs 1): a 64px grid at 4% ink, centred and faded in over the first 160px. On fine pointers a 520px patch of the same grid in blue with violet dots at the crossings, masked to a soft circle, plus a 560px blurred blue-violet glow, ease toward the cursor (12% per frame) in page coordinates, so they stay put while you scroll. Offset the patch's background-position by the base grid's centring so its lit lines land exactly on the base lines. Fade both out when the pointer leaves the window.
+
+THE SCRIPTED CHAT
+- When the chat is 40% on screen, wait 0.9s, type "Summarize what I missed this morning" into the composer character by character, then send it. Stop if the visitor has touched the input or a chip.
+- A keyword router sends a prompt to one of four canned responses: draft/reply, summary/missed, afternoon/schedule/calendar, or a fallback that explains it is a demo inbox.
+- Each response shows a small spinner with a "thinking" line (Reading 14 new emails…) for 1.1s, then streams its text word by word, 22-52ms per word. Rich blocks drop in between:
+  - three thread cards with avatar, sender, subject, a one-line note and a Reply / Approve / Conflict tag
+  - a draft card whose Send button turns mint and says Sent
+  - three calendar slots, one protected violet focus block
+- User bubbles are blue gradients with a 6px tail corner. Messages enter with a short translate-and-fade.
+- Scroll the chat with its own scrollTop. scrollIntoView would also scroll any page embedding this one.
+
+AGENT BADGES
+- Each badge is a pill with an icon slot that expands from width 0 to 18px with an overshoot curve, and a label whose width animates.
+- Each one loops on its own: idle, then processing (a spinning arc, "Reading…"), then success (a tick drawn with stroke-dashoffset, a small pop) or, about 6% of the time, error (a drawn cross and a shake), then back to idle.
+- Labels swap with a blur: the old one slides down and out, the new one drops in. Measure the new label in a hidden span first and set the width before the swap, or the pill snaps instead of stretching. Clicking a badge steps it through the states.
+
+THINGS THAT BREAK
+- body needs overflow-x: clip, not hidden, or the sticky nav stops sticking.
+- The floating cards and badges hang outside the chat. Hide the cards under 1040px and the badges under 1180px, or they cause horizontal scroll at 390px.
+- The floating animation and the static rotation share transform, so the keyframes must include rotate(var(--r)). Otherwise the cards snap upright while they bob.
+- The inbox and voice buttons need role=tab / aria-selected and aria-pressed kept in sync by the script, not only a visual .on class.
+
+THE FLOOR
+- One h1, a main, labelled send and arrow buttons, aria-live on the chat body, decorative badges aria-hidden and out of the tab order, visible focus rings.
+- prefers-reduced-motion collapses every animation and transition, caps each scripted wait at 40ms, skips the badge loops and stops the typing loop after one command.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 16, 2026",
+    demo: "/demos/tidewell-ai-for-work.html",
+    bestFor: ["AI assistants and copilots","email and productivity apps","B2B SaaS launches","products with a demoable chat"],
+    style: ["light","minimal","pastel","chat-ui","dark-mode","interactive"],
+    thumbnail: "/thumbs/tidewell-ai-for-work.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Maasai-Inspired Event Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A cultural events studio page on Maasai-inspired dusk: a Rive hero rebuilt in SVG where four warriors leap into the adumu, a scroll-driven frieze of leaping silhouettes, generated beadwork and gala art, and textures cut from the warriors' own shapes",
+    prompt: `Build a single-file HTML landing page for "Sundune Events", a fictional studio that hosts festivals, retreats, ceremonies and galas co-hosted with Maasai communities in Narok, Kajiado and Laikipia. The hero recreates a Rive animation (a Maasai-inspired event hero banner) without any Rive runtime, and every texture and illustration on the page is drawn in code: no image files. Warm dusk palette, an editorial serif, and copy that presents community hosts as partners, not performers. Fictional studio, clients, dates and numbers, labelled as such, with a credit line for the Rive design it recreates.
+
+STACK
+- No libraries. Google Fonts: Instrument Serif (headlines, numbers, the giant footer wordmark), Jost 400-600 (body 17px/1.65, nav, labels), Archivo Black (the giant MAASAI word in the hero).
+- One inline SVG sprite: a front-facing warrior, a profile warrior, a bird, a cattail reed and an acacia as <symbol>s, plus the paints the generated art shares (gradients, patterns, blur and bead-shadow filters, an feTurbulence grain).
+
+THE SYSTEM
+- Tokens on :root: bg #ead5b8, surface #f2e3cd, ink #1c0b06, ink-soft #5e3d2c, accent #b3261e, hairlines at 18% and 38% ink, the shuka-red band set (red #b3261e, red-ink #f8e9d4, red-soft #f3cdb8, a translucent red-line and red-tex), and the dusk sky #cf7f3c / #e19a57 / #efbd85. A full dark set (bg #140805, ink #f1e2cc, accent #e5574a, red #9c1f18) under prefers-color-scheme and :root[data-theme="dark"].
+- Layout is editorial: hairline rules instead of cards, big serif headlines (clamp(52px, 6.6vw, 108px), line-height .94, tracking -.018em), pill buttons, underline links that wipe away on hover.
+- Textures cut from the warriors' own geometry, built once in the script as SVG data URIs and used as CSS masks so their colour comes from tokens: --m-shuka (the three folded-cloth panels of the front warrior's shuka, mirrored and tiled), --m-spear (tip, shaft and butt spike, repeated as a fence-like rule), --m-collar (the beaded collar V, as a chevron row). The footer wordmark uses the shuka texture through background-clip:text.
+
+THE HERO
+- A fixed 1672x940 stage (the original artboard), aspect-ratio 1672/940, width max(100%, hero height x 1.7787), anchored to the bottom and centred; every part inside is positioned in % of that box. Layers back to front, each with a data-depth for pointer parallax: sky (sun glow, a breathing sun disc, drifting flat clouds), faceted mountains with a haze band, the ground with flat-topped acacias, rocks and tufts, the word MAASAI in Archivo Black (x 600, y 773, textLength 1000, a cream-to-peach gradient, rising in on load), four warriors as buttons, a flapping bird flock drifting west, swaying reeds and seeded spiky grass clumps, then grain.
+- Warriors: two front-facing (black and rust shuka, red belt, white edge lines, diamond-tipped spear) and two in profile (long rust robe, ochre sash, bracelets), at left 51.02% / 59.92% / 66.18% / 75.27% of the stage, two of them mirrored by flipping the inner <svg>.
+- Copy on the left: a place line with a rule ("Narok, Kajiado and Laikipia, Kenya"), the h1 "Gatherings / that rise." whose two lines slide up out of masks, a lede, a dark pill "Plan your event", an underline link to the season, and a hint "Tap a warrior to see the adumu, the jumping dance" with a small spear icon.
+- The adumu: one Web Animations leap shared by the hero warriors, the frieze silhouettes and the enquiry warrior: a crouch (translateY 2%, scaleY .93), a straight-legged spring to about -62% of its height, a short hang, an ease-in fall and a landing squash, with the shadow shrinking. On load the four leap left to right once the word has risen; after that one random warrior leaps every 9-13s while nobody is interacting.
+
+SECTIONS (data-section in order)
+1. nav: fixed, transparent over the hero; after 40px it gets a blurred bg and shrinks from 84 to 66px. Logo is three beads plus "Sundune" in the serif. Under 900px a Menu button opens a full-screen shuka-red sheet with huge serif links.
+2. hero as above. A fixed spear on the right edge (wide screens) tracks scroll progress.
+3. frieze: a shuka-red band where huge serif words (Story, Song, Fire, Land, Welcome) alternate with black warrior silhouettes. It drifts sideways with scroll and the silhouettes leap in a wave whenever you scroll, with a note about the adumu.
+4. approach: a manifesto paragraph whose words light up one by one as you read down, then three principles with line icons in a ruled row (Community-led, A fair share, Light on the land).
+5. experiences: a list of four big serif rows (Cultural festivals, Leadership retreats, Weddings and ceremonies, Sunset galas) with guest counts. Hovering or scrolling a row swaps a sticky 4:5 frame of generated art and its caption:
+   - a beaded collar of nine rings in the six bead colours with a fringe of strands and metal drops, every bead placed by code on leather
+   - a dawn ridge over the Laikipia plateau with mist, acacias and three walkers
+   - two interlocked beaded bangles on a checked shuka
+   - a long gala table in true perspective running down to a fire at dusk, with guests, plates, glasses, hurricane candles, strings of lights on posts, stars, a crescent moon and rising sparks
+   On phones each row carries its own copy of the art inline.
+6. stats: a serif sentence with counted-up accent numbers (140 gatherings, 9,400 guests, 6 partner communities), then ten bead circles where three fill in red, blue and orange beside "30% of every fee goes straight to the host community's own fund". A spear rule follows.
+7. season: the 2027 season as a ruled list of six dates with a serif date, the event, a strand of 12 beads filled for places taken, a status (accent when few places are left) and an Enquire or Join waitlist button that prefills the form.
+8. process: three steps whose top rule draws itself left to right and ends in a spearhead.
+9. testimonial: a collar-chevron rule, a large serif quote and a named fictional client.
+10. cta: on shuka red, "Let's plan something that lasts", a black warrior who leaps when the form is sent, and a local-only form: occasion chips (radio inputs), a guests range with a serif readout, a month select and underline inputs for name and email (placeholder you@company.example). It validates and thanks the person by first name; nothing is sent.
+11. footer: four columns, then a giant "Sundune" wordmark filled with the shuka texture, the legal line with the Rive Marketplace credit, and Back to top.
+
+THINGS THAT BREAK
+- A <use> inside its own <svg> needs viewBox "0 0 w h". Copying the symbol's own viewBox onto the instance draws the shape outside its frame.
+- Scope full-size SVG rules to direct children (.layer > svg) or the nested reed and bird SVGs collapse to zero height. Give the grain SVG an explicit width and height or it renders at 300x150.
+- Mirror a warrior by flipping its inner <svg>, never the button, so the leap's translate and transform-origin stay upright.
+- The masks only exist after the script sets them; set them first thing so nothing paints blank.
+- Clone the experience art for phones after the generated beads, stars and lights are drawn, or the clones are empty.
+- The frieze moves the track with transform from a rAF-throttled scroll handler, and its leaps are rate-limited to one wave every 1.5s.
+
+THE FLOOR
+- One h1, a main, labelled warrior buttons, a dialog role on the menu sheet with Escape to close and focus moved in and back, role=img with labels on the bead strands and the share beads, role=status on the form message, visible focus rings.
+- Under 900px the hero stacks the copy over a window onto the stage centred on the warriors; no horizontal scroll at 390px.
+- prefers-reduced-motion stops the flock, sway, sparks, flicker, frieze drift and ambient leaps, shows the counted numbers at once and lights the whole manifesto; a press still plays one leap.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 16, 2026",
+    demo: "/demos/maasai-event-hero.html",
+    credits: [
+      {
+        label: "Maasai-Inspired Event Hero Banner Concept — Rive Marketplace",
+        href: "https://rive.app/marketplace/27773-52471-maasai-inspired-event-hero-banner-concept/",
+        note: "The Rive file whose hero this page recreates in plain SVG and CSS, with no Rive runtime",
+      },
+    ],
+    bestFor: ["event and experience studios","cultural festivals and tourism","hospitality and destination brands","interactive illustrated heroes"],
+    style: ["light","warm","editorial","illustrated","svg","dark-mode"],
+    thumbnail: "/thumbs/maasai-event-hero.jpg",
+    theme: "light",
+  },
+  {
+    title: "Sakura Corgi Game Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A cozy game launch page whose hero is the game: a toon-shaded three.js corgi dancing down a low-poly cherry-blossom road under bloom and tilt-shift, an opening crane shot past a great weeping cherry, a playable lap, in-engine card stills, a 3D coat turntable and generated sound",
+    prompt: `Build a single-file HTML landing page for "Corgi Road", a fictional cozy third-person walking game by the fictional studio "Petalfold Games": you are a corgi, dancing down one very long cherry-blossom road towards an eighty-metre corgi standing at the far end. The hero is not a screenshot but a small live slice of the game in three.js, and the visitor can take the controls without leaving the page. Fictional game, studio, press quotes, numbers and release date, labelled as such in the footer.
+
+STACK
+- three.js 0.170.0 as an ES module through an import map: "three" maps to https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js and "three/addons/" to .../examples/jsm/ (EffectComposer, RenderPass, UnrealBloomPass, ShaderPass, OutputPass, Horizontal/VerticalTiltShiftShader). The map must come before the module script. Everything is generated in code: no models, textures, images or audio files.
+- Google Fonts: Fredoka 500/600/700 for display (rounded, game-like), Nunito 400/600/800 for body at 17px/1.6, and M PLUS Rounded 1c 700 subset with the text= parameter to only the kana on the station signs.
+- One classic script for the page chrome and one module script for the world. They talk through two CustomEvents on document: "corgi:coat" (detail is a coat key) and "corgi:play".
+
+THE SYSTEM
+- Tokens on :root: sky #8fbdea, sky-2 #c9def3, haze #f3e1de, peach #f6dccd, paper #fbf6ee, card #fffdf9, ink #39324f, ink-soft #6d6680, line #eadfd2, corgi orange #e08a3c / deep #b9652a, blossom #f6b6c8 / deep #e7839f, leaf #5aa578 / deep #3f6b4f, gold #f2a93b, radius 22px, easing cubic-bezier(.2,.8,.2,1).
+- Everything is outlined in ink like the game: cards and buttons have a 2-3px ink border and a hard 5-6px ink drop shadow (box-shadow 0 6px 0 ink) that grows on hover and collapses on press. Primary buttons are gold pills, ghost buttons translucent white.
+- The headline is styled like the game's subtitle bubbles: Fredoka 700 at clamp(50px, 7.6vw, 108px), gold fill, the second line corgi orange, a thick white rim built from sixteen 5px text-shadow offsets, then a soft orange drop. No background-clip tricks: they fight the rim.
+- One inline SVG <symbol> of a corgi face (ears, head, saddle cap, white blaze, cheeks, nose, tongue, eyes), filled with var(--coat), var(--saddle) and var(--white). Custom properties inherit into <use> instances, so one symbol draws all four roster portraits, the dossier face, the CTA mascot and the hero fallback.
+
+THE WORLD (module script)
+- An opaque renderer cleared to the horizon peach; the CSS sky gradient on the hero (sky, sky-2 30%, haze 54%, peach 72%) is only the fallback behind the canvas. Fog colour peach #f6dccd from 34 to 118 so the far hills melt into the shader sky. DPR capped at 1.5, PCF soft shadows from the sun, which follows the corgi (shadow camera +/-22).
+- Hemisphere fill #e2ecff over #9a7fa0 at 1.5. The corgi uses MeshToonMaterial with a 3-texel ramp (120, 185, 255, NearestFilter); the world uses flat-shaded MeshLambertMaterial for the faceted low-poly look.
+- Ink outlines by inverted hull: a back-faced ink copy of each mesh scaled ~1.07. For instanced trees, a second InstancedMesh of the same geometry with the ink material and every matrix scaled up.
+- Terrain: a 260x260 plane, 84 segments (64 on phones), height = 2.4 sin(0.045x) cos(0.05z) + 1.3 sin(0.075(x+z)) + 0.55 sin(0.16x - 0.12z), plus jitter away from the road. Convert to non-indexed and give each triangle one colour from five greens (a pale verge green near the road).
+- The road is one closed centripetal CatmullRomCurve3 through 14 points on a wobbly ellipse, so the corgi can walk forever. Sample it 720 times and draw three ribbons at the true terrain height, each with polygonOffset: an ink edge (half-width 2.9), a pale shoulder (2.7) and a lavender-grey surface (2.15). Dip terrain vertices within 4.2 of the road below it, or a faceted hill will poke through the ribbon.
+- Trees: about 190 (120 on phones), placed by a seeded PRNG so every load and the thumbnail match. Keep them at least 7 units off the road, because the camera rides it and a closer canopy fills the frame. 30% sakura (a trunk plus three pink icosahedron blobs), 15% pines (three stacked 7-sided cones), the rest round trees (icosahedron detail 1). Instanced, per-instance colours, cast shadows.
+- Nine unfogged cloud clusters far out. 380 falling petals (160 on phones) in one InstancedMesh, wrapping in a 50-unit box that follows the corgi.
+- The corgi, built from primitives facing +z: a capsule body, a flattened saddle capsule and head cap shown only when the coat has a separate saddle colour (otherwise it z-fights), a white belly, bib, butt fluff and blaze, a coat-coloured tail nub, a sphere head with white cheeks and muzzle, black nose and eyes, four-sided cone ears with pink inner cones, a tongue, and four short white legs whose geometry is translated down so they pivot at the hip. It always dances: legs swing in diagonal pairs, the body bobs and waggles, the head tilts, the fluff and tail wag. It dances faster when it walks.
+- The great tree: one ancient weeping cherry (a leaning trunk, five limbs, a wide low crown of 26 outlined blossom blobs and an 18-strand weeping fringe, scaled 3.6) stands on the horizon on the camera's line of sight past the corgi (88 units, 108 on tall screens, 96 while playing), softened by the fog, so it is always in shot.
+- Instead of an alpha canvas, a BackSide sphere with a gradient shader sky (horizon, haze, mid and top blues, plus a soft sun glow along SUN_OFF) follows the camera; flat far fields at y -4.6 run past the terrain edge into the haze.
+- Light is a low golden sun (#ffe0b0, 2.6, offset 26/15/12 from the corgi, long soft shadows) plus a warm rim light (#ffb27a) from behind the corgi along the line of sight, and a cool hemisphere fill.
+- Post: an EffectComposer with UnrealBloomPass (0.32 strength, desktop only), then horizontal and vertical tilt-shift whose focus band follows the corgi's screen position, then OutputPass; petal tokens are slightly emissive so the bloom finds them.
+- Wind: canopies, their ink hulls and 1,100 verge grass tufts sway in the vertex shader (onBeforeCompile), phase-shifted by each instance's position; key customProgramCacheKey on the sway amount.
+- 24 petal tokens: pink pentagonal coins with outlines, spinning and bobbing along the road. Walking into one collects it and updates the HUD. While watching they grow back after 9 seconds; while playing they stay gone until all 24 are taken, then a toast says the big corgi approves and they return.
+
+CAMERA AND PLAY MODE
+- Opening shot (skipped under reduced motion): over 3.8s the camera drops from 30 units up, looking at the great tree's crown, and settles into the hero framing with an ease-in-out; the kicker and headline pop just as it lands.
+- Watching: the corgi walks the loop at 2.6 m/s and the camera takes a three-quarter front view (6.4 ahead, 2.8 to the side, 2.1 up, 1.55x further on tall screens), so the hero shows its face. On screens 900px and wider, setViewOffset shifts the frame by -17% of the width so the corgi walks to the right of the copy. Under 900px, shift it vertically by -30% of the height so the corgi walks below the copy. Ease the offset rather than snapping it.
+- Playing ("Play a lap, right here", or "Try it in the hero" further down): the game's chase camera, about 3 m up and 7 m back, trailing with exponential smoothing. W/Up walks, S/Down backs up, A/D or Left/Right turn, Shift runs. Keep it inside a 100-unit radius.
+- Capture keys only while playing, and preventDefault only on arrows and space, so the page never loses its scroll keys. Esc or the "Stop playing" button exits. On touch screens a four-button pad appears, driven by pointer capture.
+- On exit, ease the corgi back onto the nearest road sample over 1.2s instead of teleporting. Return focus to the hero's play button.
+
+SECTIONS (data-section in order)
+1. nav: fixed, transparent over the hero, paper with blur after 40px of scroll. Paw-print logo, World / Corgis / Controls / FAQ, a gold "Wishlist" pill.
+2. hero: full viewport (min 640px). Kicker pill, the headline "You are / the corgi.", a sub, the play button (hidden until the world renders) and "Wishlist the full game", a note about the controls and platform chips. A HUD chip shows petals collected (and "/ 24" while playing) and which corgi is walking. A toast and a play bar with key hints and the stop button sit on top. A soft radial white wash behind the copy keeps it legible over the scene.
+3. world: three ink-bordered cards with small inline SVG illustrations: "The long road west", "Dancing is the only verb", "Something very large" (a huge faded corgi face rising behind a hill).
+4. corgis: a radiogroup of four coats (Mochi red & white #e08a3c, Kinako sable #cf9150 with saddle #7a5236, Azuki tricolour tan #c98545 with saddle #3a3440, Yuki cream #f0d6ad). Roving tabindex and arrow keys. A dossier card shows the face, name, coat, a one-line bio and Wiggle / Zoomies / Loaf bars out of 5. Choosing one fires "corgi:coat" and both the hero corgi and a dossier turntable change coat live. The turntable is a second small WebGLRenderer with its own corgi sharing the coat materials, slowly spinning and dancing on a pink disc, with its own IntersectionObserver.
+5. controls: copy plus a dark keymap card of white keycaps (WASD, Shift, Mouse, Wheel, Esc).
+6. stats: an ink band of four gold numbers (12 km of road, 40 dancing corgis, 1,800 petals, 80 m of very old cherry tree) that count up once when they arrive, and read correctly before that.
+7. press: one big pull quote with stars and a giant blossom quote mark, three laurel badges (the branch drawn once along a quadratic curve and mirrored), and two short quotes.
+8. faq: native details/summary with a + that rotates to x.
+9. cta: a store-style card: platform pills with line icons, a local-only email form (placeholder you@studio.example, nothing is sent) with a dark "Add to wishlist" store button, and a 4:3 key-art capsule rendered from the scene with the logo and date over it.
+10. footer: logo, links and the fictional legal line.
+
+PREMIUM DETAILS
+- Station signs as section labels: each section is a stop on the line (CR02 to CR07) with a green-bordered code, the name in kana, the English name and a green band linking to the neighbouring stations. A vertical white nameboard reading コーギーロード sits in the hero on wide screens.
+- In-engine stills: 0.7s after load, render four fixed shots through the main renderer (down the blossom tunnel, a close dance, the great tree in the haze, and the capsule key art) with toDataURL, restore the hero, and hand them to the page in a "corgi:shots" event; the inline SVG art stays until each image loads, then cross-fades.
+- Sound with Web Audio, off by default (a toggle in the HUD, or M): brown-noise wind through a wandering band-pass, pentatonic chimes, a far level-crossing bell every 30-60s, and a pluck on each petal; suspended while the tab is hidden.
+- Paper grain (an feTurbulence data URI) on the page and the roster, a slight 3D tilt toward the pointer on cards and the capsule, a pop on the petal counter, and a loading shimmer card while three.js arrives.
+
+THINGS THAT BREAK
+- Never give two elements the same id. A canvas and a section both called "world" let a chrome script turn the canvas into a flow element, and a ResizeObserver on the hero then grew the canvas, the hero and the canvas again until the page was 20,000px tall.
+- Keep the static fallback (the sky gradient, two CSS hills and the big SVG corgi) visible until the module has rendered a frame and added html.gl-on. Gate the play buttons on that class too, so a failed CDN or missing WebGL never leaves a blank hero or a dead button.
+- Pause the loop when the hero is off screen (IntersectionObserver) or the tab is hidden. Under prefers-reduced-motion, render one still frame and stop. Play mode still animates because the visitor asked for it.
+- The play button scrolls with window.scrollTo, not scrollIntoView, which would also scroll any page embedding this one.
+- Section reveals use IntersectionObserver, whose first callback reports what is already on screen, so arriving via an anchor never leaves a section invisible.
+
+THE FLOOR
+- One h1, a main, aria-hidden on the canvas and decorative SVGs, labels on the movement pad, role=status on the toast and form message, visible focus rings.
+- No horizontal scroll at 390px: grids collapse to one column under 1000px, the nav links hide under 760px, the HUD moves left.
+- Reduced motion also turns off the CSS petal drift, reveals and button transitions.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 16, 2026",
+    demo: "/demos/corgi-road-game.html",
+    bestFor: ["indie game launches and wishlist pages","cozy and casual games","interactive product heroes","playful consumer brands"],
+    style: ["light","playful","three.js","low-poly","toon-shaded","interactive"],
+    thumbnail: "/thumbs/corgi-road-game.jpg",
+    theme: "light",
+    hidden: true,
+  },
+  {
     title: "Blackletter Biology Workbench",
     category: "web",
     categoryLabel: "WEB",

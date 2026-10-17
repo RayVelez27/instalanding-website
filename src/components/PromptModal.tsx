@@ -1,34 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams, type Location } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  Code2,
-  Copy,
-  Eye,
-  ExternalLink,
-  MessageSquare,
-  Monitor,
-  Smartphone,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Copy, ExternalLink, MessageSquare, X } from "lucide-react";
 import PromptThumb from "@/components/PromptThumb";
-import DemoCode from "@/components/DemoCode";
+import PromptStage from "@/components/PromptStage";
 import TemplateFeedback from "@/components/TemplateFeedback";
-import VideoStage from "@/components/VideoStage";
-import { loadDemoSource, useDemoSource } from "@/lib/demoSource";
-import { copyText } from "@/lib/copyText";
+import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/data/prompts";
-
-/** Logical widths the preview renders the demo at, before it is scaled to fit. */
-const VIEWPORTS = {
-  desktop: { label: "Desktop", width: 1440, icon: Monitor },
-  mobile: { label: "Mobile", width: 390, icon: Smartphone },
-} as const;
-
-type ViewportKey = keyof typeof VIEWPORTS;
 
 /**
  * The detail view as a dialog over the grid.
@@ -46,14 +24,8 @@ const PromptModal = () => {
   const entry = getPromptBySlug(slug);
   const entryCategory = entry?.category;
 
-  const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
-  const copyTimer = useRef<number>();
-  const [view, setView] = useState<ViewportKey>("desktop");
-  const [mode, setMode] = useState<"preview" | "code">("preview");
-  const [stage, setStage] = useState({ width: 0, height: 0 });
   /* FEEDBACK swaps the MORE ONE-SHOTS list for a feedback form about this template. */
   const [panel, setPanel] = useState<"more" | "feedback">("more");
-  const observer = useRef<ResizeObserver>();
 
   /* What to show instead of the prompt text: a handful of other one-shots,
      same category first so the suggestion is relevant, each group shuffled so
@@ -82,37 +54,10 @@ const PromptModal = () => {
   const go = (to: string) =>
     navigate(`/prompt/${to}`, { state: { backgroundLocation: background }, replace: true });
 
-  useEffect(() => {
-    setCopied("idle");
-    setView("desktop");
-    setMode("preview");
-    setPanel("more");
-  }, [slug]);
+  useEffect(() => setPanel("more"), [slug]);
 
-  useEffect(() => () => window.clearTimeout(copyTimer.current), []);
-
-  /* Loaded whenever there is a demo, not only on the CODE tab: COPY CODE is
-     always on screen, and the clipboard write should happen inside the click
-     (Safari drops it after an await on the network). The preview iframe has
-     already requested the same file, so this is normally a cache hit. */
-  const source = useDemoSource(entry?.demo, Boolean(entry?.demo));
-
-  /* The preview is a real page scaled to fit, so the stage has to be measured.
-     This is a callback ref rather than an effect on purpose: the dialog mounts
-     inside a portal, so a layout effect can run before the node exists — and
-     then the observer is never attached and the frame stays at scale 1. */
-  const attachStage = useCallback((node: HTMLDivElement | null) => {
-    observer.current?.disconnect();
-    if (!node) return;
-    const measure = () => setStage({ width: node.clientWidth, height: node.clientHeight });
-    measure();
-    if ("ResizeObserver" in window) {
-      observer.current = new ResizeObserver(measure);
-      observer.current.observe(node);
-    }
-  }, []);
-
-  useEffect(() => () => observer.current?.disconnect(), []);
+  /* The same copy action and preview stage as the standalone page. */
+  const { copy, copied, label: copyLabel, text: copyCaption, source } = useCopyCode(entry);
 
   /* Arrow keys walk the library without closing. */
   useEffect(() => {
@@ -127,28 +72,6 @@ const PromptModal = () => {
 
   if (!entry) return null;
 
-  const code = source.status === "ready" ? source.code : null;
-
-  /* COPY CODE puts the demo's whole HTML file on the clipboard. An entry with
-     no single-file demo (code in its own repo) has no HTML to copy, so it
-     keeps COPY PROMPT instead. */
-  const handleCopy = async () => {
-    try {
-      if (!entry.demo) await copyText(entry.prompt);
-      else await copyText(code ?? (await loadDemoSource(entry.demo)));
-      setCopied("done");
-    } catch {
-      setCopied("failed");
-    }
-    window.clearTimeout(copyTimer.current);
-    copyTimer.current = window.setTimeout(() => setCopied("idle"), 2000);
-  };
-  const copyLabel = entry.demo ? "COPY CODE" : "COPY PROMPT";
-
-  const logical = VIEWPORTS[view].width;
-  // Never scale up: at mobile width the frame sits at 1:1 and is centred.
-  const scale = stage.width ? Math.min(1, stage.width / logical) : 1;
-  const frameHeight = scale ? stage.height / scale : stage.height;
 
   return (
     <Dialog.Root open onOpenChange={(open) => !open && close()}>
@@ -177,83 +100,7 @@ const PromptModal = () => {
           </header>
 
           <div className="pmodal-main">
-            <section className="pmodal-stage-col" aria-label="Preview">
-              <div className="pmodal-toolbar">
-                {entry.demo && (
-                  <div className="pmodal-views" role="group" aria-label="Show">
-                    <button className="pmodal-view" aria-pressed={mode === "preview"} onClick={() => setMode("preview")} title="Preview">
-                      <Eye size={13} aria-hidden="true" />
-                      <span className="pmodal-label">Preview</span>
-                    </button>
-                    <button className="pmodal-view" aria-pressed={mode === "code"} onClick={() => setMode("code")} title="Code">
-                      <Code2 size={13} aria-hidden="true" />
-                      <span className="pmodal-label">Code</span>
-                    </button>
-                  </div>
-                )}
-                {entry.youtube ? (
-                  <span className="pmodal-note">{entry.youtubeEmbed === false ? "YOUTUBE · OPENS IN A NEW TAB" : "YOUTUBE · PLAYS HERE"}</span>
-                ) : entry.demo && mode === "code" ? null : entry.demo ? (
-                  <div className="pmodal-views" role="group" aria-label="Preview width">
-                    {(Object.keys(VIEWPORTS) as ViewportKey[]).map((key) => {
-                      const Icon = VIEWPORTS[key].icon;
-                      return (
-                        <button
-                          key={key}
-                          className={`pmodal-view pmodal-view--${key}`}
-                          aria-pressed={view === key}
-                          onClick={() => setView(key)}
-                          title={VIEWPORTS[key].label}
-                        >
-                          <Icon size={13} aria-hidden="true" />
-                          <span className="pmodal-label">{VIEWPORTS[key].label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <span className="pmodal-note">WIREFRAME PREVIEW</span>
-                )}
-                {entry.demo && mode === "preview" && (
-                  <span className="pmodal-note">{logical}px · scroll inside the frame</span>
-                )}
-              </div>
-
-              <div
-                className={`pmodal-stage pmodal-stage--${entry.youtube ? "video" : mode === "code" ? "code" : view}`}
-                ref={attachStage}
-              >
-                {entry.youtube ? (
-                  <VideoStage entry={entry} className="pmodal-video" />
-                ) : entry.demo && mode === "code" ? (
-                  code ? (
-                    <DemoCode code={code} file={entry.demo.split("/").pop() ?? "index.html"} />
-                  ) : (
-                    <p className="pcode-status">
-                      {source.status === "error" ? "Couldn't load the source. Try NEW TAB instead." : "Loading source…"}
-                    </p>
-                  )
-                ) : entry.demo ? (
-                  <iframe
-                    /* Keyed by view so the demo re-runs anything it measured on load. */
-                    key={`${entry.slug}-${view}`}
-                    className="pmodal-frame"
-                    src={entry.demo}
-                    title={`${entry.title} live preview`}
-                    loading="lazy"
-                    style={{
-                      width: logical,
-                      height: frameHeight || "100%",
-                      transform: `scale(${scale})`,
-                    }}
-                  />
-                ) : (
-                  <div className="pmodal-fallback">
-                    <PromptThumb entry={entry} eager />
-                  </div>
-                )}
-              </div>
-            </section>
+            <PromptStage entry={entry} source={source} />
 
             <section className="pmodal-side" aria-label="Prompt">
               <div className="pmodal-actions">
@@ -268,11 +115,9 @@ const PromptModal = () => {
                     <span className="pmodal-label">WATCH ON YOUTUBE</span> <ExternalLink size={12} aria-hidden="true" />
                   </a>
                 ) : (
-                  <button className="pmodal-btn pmodal-btn--solid" onClick={handleCopy} aria-live="polite" title={copyLabel}>
+                  <button className="pmodal-btn pmodal-btn--solid" onClick={copy} aria-live="polite" title={copyLabel}>
                     {copied === "done" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
-                    <span className="pmodal-label">
-                      {copied === "done" ? "COPIED" : copied === "failed" ? "COPY FAILED" : copyLabel}
-                    </span>
+                    <span className="pmodal-label">{copyCaption}</span>
                   </button>
                 )}
                 {entry.demo && (

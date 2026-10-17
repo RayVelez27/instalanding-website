@@ -1814,6 +1814,12 @@ html {
   color: #aaa;
 }
 
+/* The standalone page shares the dialog's stage and actions (PromptStage, useCopyCode);
+   only the stage's height is the page's own. */
+.detail-actions { margin-top: 22px; }
+.detail-feedback { margin-top: 14px; padding: 18px; border: 1px solid #e4e4e4; max-width: 560px; }
+.detail-stage { height: clamp(420px, 72vh, 820px); margin-top: 14px; }
+.detail-stage .pmodal-stage-col { height: 100%; }
 .detail-meta { border: 1px solid #e4e4e4; padding: 18px; }
 .detail-meta dl { margin: 0; display: flex; flex-direction: column; gap: 12px; }
 .detail-meta dl > div {
