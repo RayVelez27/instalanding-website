@@ -14,13 +14,11 @@ interface TileProps extends PromptEntry {
   copied: boolean;
   /** Agent Mode: the copy button hands over a task for the user's agent instead of the raw brief. */
   agent: boolean;
-  /** Columns this tile stretches over in the 3- and 2-column grids, so the last row is full. */
-  fill?: { three: number; two: number };
 }
 
 const GridTile = (entry: TileProps) => {
   const [touchActive, setTouchActive] = useState(false);
-  const { onCopy, copied, fill, agent } = entry;
+  const { onCopy, copied, agent } = entry;
   // Handed to the prompt route so it opens over this grid instead of replacing it.
   const location = useLocation();
   const asModal = { backgroundLocation: location };
@@ -28,8 +26,6 @@ const GridTile = (entry: TileProps) => {
   return (
     <div
       className={`grid-item grid-item--${entry.variant} ${entry.videoAspect === "portrait" ? "grid-item--portrait" : ""} ${touchActive ? "touch-active" : ""}`}
-      data-fill3={fill && fill.three > 1 ? fill.three : undefined}
-      data-fill2={fill && fill.two > 1 ? fill.two : undefined}
       // Start fetching the demo on hover, so COPY CODE has the file by the time it is clicked.
       onPointerEnter={() => {
         if (entry.demo && !agent) loadDemoSource(entry.demo).catch(() => {});
@@ -115,13 +111,6 @@ const PromptGrid = ({ category }: { category?: string }) => {
   // alternating run closes the gaps and the themes clump again.
   const items = category ? promptsInCategory(category) : feedPrompts;
 
-  // The video that closes the feed stretches over whatever columns its row has
-  // left, so the grid always ends on a full row however many templates there are.
-  const lastIndex = items.length - 1;
-  const closer = !category && items[lastIndex]?.youtube
-    ? { three: 3 - (lastIndex % 3), two: 2 - (lastIndex % 2) }
-    : undefined;
-
   /* COPY puts the demo's whole HTML file on the clipboard, like the detail
      view's COPY CODE. An entry with no single-file demo (code in its own repo)
      has no HTML to copy, so it copies the prompt. Agent Mode copies a task. */
@@ -140,8 +129,8 @@ const PromptGrid = ({ category }: { category?: string }) => {
   return (
     <div className="media-grid">
       <div className="grid-container">
-        {items.map((p, i) => (
-          <GridTile key={p.slug} {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} agent={agent} fill={i === lastIndex ? closer : undefined} />
+        {items.map((p) => (
+          <GridTile key={p.slug} {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} agent={agent} />
         ))}
       </div>
     </div>
