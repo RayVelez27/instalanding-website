@@ -3,7 +3,8 @@ import { Copy, Check, ArrowRight, ExternalLink, Play } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { feedPrompts, promptsInCategory, type PromptEntry } from "@/data/prompts";
 import PromptThumb from "@/components/PromptThumb";
-import { copyText } from "@/lib/copyText";
+import { copyText, copyTextLater } from "@/lib/copyText";
+import { loadDemoSource } from "@/lib/demoSource";
 import { agentCommand, agentHandoff, useAgentMode } from "@/lib/agentMode";
 
 /* ── Tile ── */
@@ -29,6 +30,10 @@ const GridTile = (entry: TileProps) => {
       className={`grid-item grid-item--${entry.variant} ${entry.videoAspect === "portrait" ? "grid-item--portrait" : ""} ${touchActive ? "touch-active" : ""}`}
       data-fill3={fill && fill.three > 1 ? fill.three : undefined}
       data-fill2={fill && fill.two > 1 ? fill.two : undefined}
+      // Start fetching the demo on hover, so COPY CODE has the file by the time it is clicked.
+      onPointerEnter={() => {
+        if (entry.demo && !agent) loadDemoSource(entry.demo).catch(() => {});
+      }}
       onTouchStart={() => setTouchActive(true)}
       onTouchEnd={() => setTimeout(() => setTouchActive(false), 600)}
     >
@@ -75,7 +80,7 @@ const GridTile = (entry: TileProps) => {
                   onClick={(e) => { e.stopPropagation(); onCopy(entry); }}
                 >
                   {copied ? <Check size={12} /> : <Copy size={12} />}
-                  {copied ? "COPIED" : agent ? "COPY FOR AGENT" : "COPY"}
+                  {copied ? "COPIED" : agent ? "COPY FOR AGENT" : entry.demo ? "COPY CODE" : "COPY PROMPT"}
                 </button>
                 <Link to={`/prompt/${entry.slug}`} state={asModal} className="view-prompt-btn">
                   VIEW <ArrowRight size={12} />
@@ -117,8 +122,17 @@ const PromptGrid = ({ category }: { category?: string }) => {
     ? { three: 3 - (lastIndex % 3), two: 2 - (lastIndex % 2) }
     : undefined;
 
+  /* COPY puts the demo's whole HTML file on the clipboard, like the detail
+     view's COPY CODE. An entry with no single-file demo (code in its own repo)
+     has no HTML to copy, so it copies the prompt. Agent Mode copies a task. */
   const handleCopy = async (entry: PromptEntry) => {
-    await copyText(agent ? agentHandoff(entry) : entry.prompt);
+    try {
+      if (agent) await copyText(agentHandoff(entry));
+      else if (entry.demo) await copyTextLater(loadDemoSource(entry.demo));
+      else await copyText(entry.prompt);
+    } catch {
+      return;
+    }
     setCopiedSlug(entry.slug);
     setTimeout(() => setCopiedSlug((s) => (s === entry.slug ? null : s)), 2000);
   };
