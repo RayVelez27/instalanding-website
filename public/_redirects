@@ -14,4 +14,16 @@
 /prompt/driving-cluster-landing-page  /prompt/driving-cluster-dashboard  301
 /p/driving-cluster-landing-page.txt   /p/driving-cluster-dashboard.txt   301
 /p/driving-cluster-landing-page.json  /p/driving-cluster-dashboard.json  301
+# Search landing pages (src/data/seoPages.ts) are static files at /<slug>/.
+# Close variants of their search terms point at the one page instead of
+# getting thin copies of their own.
+/1-shot-html                         /one-shot-html/                  301
+/oneshot-html                        /one-shot-html/                  301
+/one-shot-html-landing-pages         /one-shot-html/                  301
+/instant-landing-page                /instant-landing-pages/          301
+/single-file-html-landing-page       /single-file-html/               301
+/one-shot-landing-page-prompt        /one-shot-landing-page-prompts/  301
+/free-html-landing-page-template     /free-html-landing-page-templates/  301
+/ai-landing-page-template            /ai-landing-page-templates/      301
+
 /*  /index.html  200

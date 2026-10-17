@@ -15,6 +15,7 @@
     "mcp:smoke": "node mcp/test/smoke.js http://localhost:8080"
   },
   "dependencies": {
+    "@datafast/ai-crawl": "^1.0.9",
     "@hookform/resolvers": "^3.10.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@radix-ui/react-accordion": "^1.2.11",

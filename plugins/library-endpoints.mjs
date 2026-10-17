@@ -7,6 +7,7 @@
  *   /llms.txt            a markdown index, per the llms.txt convention
  *   /SKILL.md            the agent skill (source: mcp/SKILL.md, also shipped with the CLI)
  *   /sitemap.xml         every crawlable route: the library, the builder pages, the rest
+ *   /<slug>/index.html   static search landing pages (src/data/seoPages.ts, see seo-pages.mjs)
  *
  * Everything is derived from src/data/prompts.ts at build time, so adding an
  * entry there is the only step needed to publish it — nothing here to update.
@@ -17,9 +18,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { transformSync } from "esbuild";
+import { renderSeoPages, seoSitemapUrls, seoLlmsLines } from "./seo-pages.mjs";
 
 const DATA_FILE = "src/data/prompts.ts";
 const BUILDERS_FILE = "src/data/builders.ts";
+const SEO_FILE = "src/data/seoPages.ts";
 const SKILL_FILE = "mcp/SKILL.md";
 
 /** Load a TS data module without a bundler: they have no imports by design. */
@@ -219,7 +222,7 @@ const buildLlmsTxt = (manifest, { prompts }) => {
  * they live at their own search terms and are only linked from the menu and
  * each other, so a sitemap is the difference between ten pages and none.
  */
-const buildSitemap = (library, builders, base) => {
+const buildSitemap = (library, builders, base, seoPages = []) => {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     { loc: base, priority: "1.0" },
@@ -230,6 +233,7 @@ const buildSitemap = (library, builders, base) => {
     { loc: `${base}sponsor`, priority: "0.4" },
     { loc: `${base}contact`, priority: "0.3" },
     ...builders.map((b) => ({ loc: `${base}${b.path.replace(/^\//, "")}`, priority: "0.9" })),
+    ...seoSitemapUrls(seoPages, base),
     // product has a section route of its own; the rest sit under /category/
     ...library.categories.map((c) => ({
       loc: c.slug === "product" ? `${base}product` : `${base}category/${c.slug}`,
@@ -256,10 +260,15 @@ const buildSitemap = (library, builders, base) => {
 /** Build every published file as { path: contents }. */
 const renderFiles = (library, builders, base, siteName, root) => {
   const manifest = buildManifest(library, base, siteName, root);
+  const { seoPages = [] } = existsSync(path.resolve(root, SEO_FILE)) ? loadData(root, SEO_FILE) : {};
+  const live = String(library.prompts.filter((p) => !p.hidden && p.demo && p.thumbnail).length);
+  // Guides go in llms.txt just ahead of the notes, so AI tools that read the index find them.
+  const llms = buildLlmsTxt(manifest, library).replace("## Notes", () => [...seoLlmsLines(seoPages, base, live), "## Notes"].join("\n"));
   const files = {
     "prompts.json": JSON.stringify(manifest, null, 2),
-    "llms.txt": buildLlmsTxt(manifest, library),
-    "sitemap.xml": buildSitemap(library, builders, base),
+    "llms.txt": llms,
+    "sitemap.xml": buildSitemap(library, builders, base, seoPages),
+    ...renderSeoPages({ pages: seoPages, library, builders, base, readDemo: (demo) => readDemo(root, demo) }),
   };
   // The skill names the library by URL; point it at wherever this build is served.
   const skill = path.resolve(root, SKILL_FILE);
@@ -278,7 +287,9 @@ const renderFiles = (library, builders, base, siteName, root) => {
 };
 
 const contentType = (file) =>
-  file.endsWith(".md")
+  file.endsWith(".html")
+    ? "text/html; charset=utf-8"
+    : file.endsWith(".md")
     ? "text/markdown; charset=utf-8"
     : file.endsWith(".json")
     ? "application/json; charset=utf-8"
@@ -305,8 +316,11 @@ export default function libraryEndpoints(options = {}) {
       // Registered directly (not in a returned hook) so it runs before the SPA
       // fallback, which would otherwise answer /p/*.txt with index.html.
       server.middlewares.use((req, res, next) => {
-        const pathname = decodeURIComponent((req.url ?? "").split("?")[0]).replace(/^\/+/, "");
-        if (!/^(prompts\.json|llms\.txt|SKILL\.md|sitemap\.xml|p\/[^/]+\.(txt|json))$/.test(pathname))
+        let pathname = decodeURIComponent((req.url ?? "").split("?")[0]).replace(/^\/+/, "");
+        const seo = existsSync(path.resolve(root, SEO_FILE)) ? loadData(root, SEO_FILE).seoPages : [];
+        const seoHit = seo.find((p) => pathname === p.slug || pathname === `${p.slug}/`);
+        if (seoHit) pathname = `${seoHit.slug}/index.html`;
+        else if (!/^(prompts\.json|llms\.txt|SKILL\.md|sitemap\.xml|p\/[^/]+\.(txt|json))$/.test(pathname))
           return next();
         let files;
         try {
