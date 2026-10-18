@@ -1,11 +1,12 @@
 import { Fragment, useState } from "react";
-import { Copy, Check, ArrowRight, ArrowUp, ExternalLink, Play, Share2 } from "lucide-react";
+import { Copy, Check, ArrowRight, ArrowUp, ExternalLink, Play } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { feedPrompts, promptsInCategory, type PromptEntry } from "@/data/prompts";
 import PromptThumb from "@/components/PromptThumb";
 import { copyText, copyTextLater } from "@/lib/copyText";
 import { loadDemoSource } from "@/lib/demoSource";
-import { agentCommand, agentHandoff, useAgentMode, SITE_URL } from "@/lib/agentMode";
+import { agentCommand, agentHandoff, useAgentMode } from "@/lib/agentMode";
+import { useIsPhone } from "@/hooks/useIsPhone";
 
 /* ── Tile ── */
 
@@ -20,8 +21,10 @@ const GridTile = (entry: TileProps) => {
   const [touchActive, setTouchActive] = useState(false);
   const { onCopy, copied, agent } = entry;
   // Handed to the prompt route so it opens over this grid instead of replacing it.
+  // Phones skip the dialog and go to the full page, which is built for them.
   const location = useLocation();
-  const asModal = { backgroundLocation: location };
+  const phone = useIsPhone();
+  const asModal = phone ? undefined : { backgroundLocation: location };
 
   return (
     <div
@@ -104,19 +107,9 @@ const GridTile = (entry: TileProps) => {
   );
 };
 
-/* ── Phone caption: title, tags and the two actions that make sense on a phone ── */
+/* ── Phone caption: title, tags and the one action that makes sense on a phone ── */
 
-const share = async (entry: PromptEntry) => {
-  const url = `${SITE_URL}/prompt/${entry.slug}`;
-  try {
-    if (navigator.share) await navigator.share({ title: entry.title, text: entry.description, url });
-    else await copyText(url);
-  } catch {
-    /* share sheet dismissed */
-  }
-};
-
-const TileCaption = ({ entry, asModal }: { entry: PromptEntry; asModal: object }) => {
+const TileCaption = ({ entry, asModal }: { entry: PromptEntry; asModal?: object }) => {
   const tags = (entry.style ?? []).filter((t) => t !== "dark" && t !== "light").slice(0, 2);
   return (
     <div className="tile-caption">
@@ -140,9 +133,6 @@ const TileCaption = ({ entry, asModal }: { entry: PromptEntry; asModal: object }
             VIEW <ArrowRight size={11} aria-hidden="true" />
           </Link>
         )}
-        <button className="tile-caption-btn tile-caption-btn--icon" onClick={() => share(entry)} aria-label={`Share ${entry.title}`}>
-          <Share2 size={14} aria-hidden="true" />
-        </button>
       </div>
     </div>
   );

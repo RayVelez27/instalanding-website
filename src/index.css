@@ -3715,3 +3715,211 @@ html.agent-dark .site-footer-links a:hover { color: #fff; }
   .site-footer-links { gap: 10px 18px; }
   .site-footer-links a { display: inline-block; padding: 4px 0; }
 }
+
+/* ── Prompt page on a phone (PromptDetailPhone) ──────────────────────────
+   Only rendered under 720px. One column, generous tap targets, one action
+   bar pinned to the bottom of the screen. */
+/* Fills the screen under the header, so on a short page the action bar still sits at the bottom */
+.pdm { display: flex; flex-direction: column; min-height: calc(100svh - 72px); padding: 8px 16px 0; font-family: 'IBM Plex Mono', monospace; }
+.pdm-kicker { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 10px; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #888; }
+.pdm-kicker a { color: #000; font-weight: 700; text-decoration: none; }
+.pdm-kicker span::before { content: "·"; margin-right: 10px; color: #ccc; }
+.pdm-title { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.2; letter-spacing: 0.04em; text-transform: uppercase; }
+.pdm-desc { margin: 10px 0 0; font-size: 12px; line-height: 1.6; color: #555; }
+
+/* Preview: the phone-size poster, then the live demo at 1:1 on tap */
+.pdm-preview { position: relative; margin: 18px 0 0; border: 1px solid #000; background: #f2f2f0; overflow: hidden; }
+.pdm-poster { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; padding: 0; border: 0; background: #f2f2f0; cursor: pointer; }
+.pdm-preview--video .pdm-poster { aspect-ratio: 16 / 9; background: #000; }
+.pdm-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
+.pdm-try {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  translate: -50% 0;
+  padding: 11px 16px;
+  background: #000;
+  color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.pdm-play { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; margin: -29px 0 0 -29px; display: grid; place-items: center; padding-left: 3px; border-radius: 50%; background: rgba(0, 0, 0, 0.62); border: 1px solid rgba(255, 255, 255, 0.6); color: #fff; }
+.pdm-frame { display: block; width: 100%; height: min(78vh, 720px); border: 0; background: #fff; }
+.pdm-video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; }
+.pdm-preview--static { aspect-ratio: 2 / 1; }
+.pdm-live-bar { display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 9px 12px; border-top: 1px solid #000; background: #fff; font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; }
+.pdm-live-bar span { display: inline-flex; align-items: center; gap: 6px; }
+.pdm-live-bar i { width: 7px; height: 7px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2); }
+.pdm-live-bar a { display: inline-flex; align-items: center; gap: 5px; color: #000; text-decoration: none; padding: 6px 0; }
+
+.pdm-system { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding: 13px 14px; border: 1px solid #e2e2e2; color: #000; text-decoration: none; font-size: 11px; }
+.pdm-system b { margin-right: 6px; font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #15803d; }
+
+/* The prompt, folded away */
+.pdm-prompt { margin-top: 12px; border: 1px solid #000; }
+.pdm-prompt summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 0 14px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pdm-prompt summary::-webkit-details-marker { display: none; }
+.pdm-prompt summary::after { content: "+"; font-size: 18px; font-weight: 400; line-height: 1; }
+.pdm-prompt[open] summary::after { content: "−"; }
+.pdm-prompt-len { margin-left: auto; font-size: 9.5px; font-weight: 500; letter-spacing: 0.1em; color: #888; }
+.pdm-prompt-body { padding: 0 14px 14px; }
+.pdm-prompt-body pre {
+  max-height: 420px;
+  overflow: auto;
+  margin: 0 0 12px;
+  padding: 14px;
+  background: #0d0d0d;
+  color: #eaeaea;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.pdm-prompt-ref { margin: 0 0 12px; font-size: 10.5px; line-height: 1.6; color: #555; }
+.pdm-credits { margin: 14px 0 0; font-size: 10.5px; color: #777; }
+.pdm-credits a { color: #000; }
+
+.pdm-section-head { display: flex; justify-content: space-between; align-items: center; margin: 30px 0 12px; }
+.pdm-section-head h2 { margin: 0; font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.pdm-icon { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #000; background: #fff; cursor: pointer; }
+.pdm-feedback { scroll-margin-top: 12px; }
+
+/* Related: one sideways row */
+.pdm-related-row { display: flex; gap: 10px; margin: 0 -16px; padding: 0 16px 6px; overflow-x: auto; list-style: none; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; scrollbar-width: none; }
+.pdm-related-row::-webkit-scrollbar { display: none; }
+.pdm-related-row li { flex: 0 0 72%; scroll-snap-align: start; }
+.pdm-card { display: grid; gap: 8px; color: #000; text-decoration: none; }
+.pdm-card-thumb { position: relative; display: block; aspect-ratio: 2 / 1; overflow: hidden; border: 1px solid #dcdcdc; background: #f2f2f2; }
+.pdm-card-title { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; line-height: 1.4; text-transform: uppercase; }
+
+/* Previous / next */
+.pdm-pager { display: grid; gap: 8px; margin: 30px 0 28px; }
+.pdm-pager-link { display: grid; gap: 4px; padding: 14px; border: 1px solid #000; color: #000; text-decoration: none; }
+.pdm-pager-link--next { text-align: right; }
+.pdm-pager-dir { display: inline-flex; align-items: center; gap: 6px; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #888; }
+.pdm-pager-link--next .pdm-pager-dir { justify-content: flex-end; }
+.pdm-pager-title { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* The action bar, pinned to the bottom of the screen */
+.pdm-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+  margin: auto -16px 0;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid #e4e4e4;
+}
+.pdm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  cursor: pointer;
+}
+.pdm-btn--solid { background: #000; color: #fff; }
+.pdm-btn--grow { flex: 1; }
+.pdm-btn--wide { width: 100%; }
+.pdm-btn--more { width: 48px; padding: 0; flex: 0 0 auto; }
+.pdm-btn:focus-visible, .pdm-icon:focus-visible, .pdm-poster:focus-visible, .pdm-prompt summary:focus-visible, .pdm-card:focus-visible, .pdm-pager-link:focus-visible, .pdm-system:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.pdm-menu {
+  position: absolute;
+  right: 16px;
+  bottom: calc(100% + 6px);
+  min-width: 210px;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 6px 6px 0 #000;
+}
+.pdm-menu button, .pdm-menu a {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  border: 0;
+  background: none;
+  color: #000;
+  text-align: left;
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.pdm-menu button:active, .pdm-menu a:active { background: #f2f2f2; }
+
+/* Agent Mode dark */
+html.agent-dark .pdm-title, html.agent-dark .pdm-kicker a, html.agent-dark .pdm-card, html.agent-dark .pdm-pager-link, html.agent-dark .pdm-system, html.agent-dark .pdm-prompt summary { color: #fff; }
+html.agent-dark .pdm-desc { color: #aaa; }
+html.agent-dark .pdm-prompt, html.agent-dark .pdm-pager-link, html.agent-dark .pdm-preview { border-color: #444; }
+html.agent-dark .pdm-bar { background: rgba(0, 0, 0, 0.94); border-top-color: #222; }
+html.agent-dark .pdm-btn { background: #000; color: #fff; border-color: #fff; }
+html.agent-dark .pdm-btn--solid { background: #fff; color: #000; }
+
+/* Phone prompt page: the two things people come for, right under the preview.
+   COPY CODE is the solid action; SHOW CODE is a quiet fold attached beneath it. */
+.pdm-copy-code { margin-top: 16px; min-height: 54px; gap: 10px; font-size: 12px; letter-spacing: 0.18em; }
+.pdm-code { border: 1px solid #000; border-top: 0; }
+.pdm-code summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #444;
+}
+.pdm-code summary::-webkit-details-marker { display: none; }
+.pdm-code summary::after { content: "+"; font-size: 18px; font-weight: 400; line-height: 1; color: #000; }
+.pdm-code[open] summary::after { content: "−"; }
+.pdm-code summary:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.pdm-code-body { display: grid; height: min(460px, 62vh); margin: 0 12px 12px; background: #0d0d10; border: 1px solid #000; }
+.pdm-code-body .pcode-wrap { min-height: 0; }
+.pdm-code-body .pcode { font-size: 10.5px; }
+.pdm-code-body .pcode-meta { display: none; }
+/* The prompt now follows the related row, so it opens its own section */
+.pdm-related + .pdm-prompt { margin-top: 28px; }
+html.agent-dark .pdm-code { border-color: #444; }
+html.agent-dark .pdm-code summary { color: #ccc; }
+html.agent-dark .pdm-code summary::after { color: #fff; }

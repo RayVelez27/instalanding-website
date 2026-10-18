@@ -23,6 +23,9 @@ src/pages/                 Index, Category, PromptDetail
 src/index.css              all app styling (plain CSS, not Tailwind classes, for the library chrome)
 public/demos/*.html        single-file reference implementations
 public/thumbs/*.jpg        tile screenshots, 1200x600 (2:1)
+public/thumbs-m/*.jpg      phone previews, 480x600 (4:5): the demo at 390px wide, the poster on the
+                           phone prompt page; listed in src/data/mobileThumbs.ts (capture at
+                           390x844 @2x, crop the top 780x975, scale to 480x600)
 plugins/library-endpoints.mjs   emits the agent-readable endpoints at build, serves them in dev
 mcp/                       the `instalanding` npm package: CLI (src/cli.js), MCP tools
                            (src/server.js), stdio boot (src/index.js), shared reader

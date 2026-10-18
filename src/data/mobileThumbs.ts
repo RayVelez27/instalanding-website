@@ -1,0 +1,57 @@
+/**
+ * Phone-width captures of each demo (public/thumbs-m/, 4:5, the top of the
+ * page at 390px wide). The phone prompt page shows one as the preview poster
+ * before the live demo is loaded; a template without one shows its desktop
+ * screenshot instead.
+ */
+const PHONE: ReadonlySet<string> = new Set([
+  "arcline-neon-glass.jpg",
+  "bigred-runbooks.jpg",
+  "clay-pharma-landing-hero.jpg",
+  "corgi-road-game.jpg",
+  "cosmos-peptides.jpg",
+  "craft-studio.jpg",
+  "daybreak-night-shift.jpg",
+  "drift-wind-routing.jpg",
+  "drive-cluster.jpg",
+  "fire-button.jpg",
+  "footnote-grounding.jpg",
+  "grain-motion-system.jpg",
+  "halcyon-orbital.jpg",
+  "halcyra-agents.jpg",
+  "haunt-agents.jpg",
+  "hollr-messenger.jpg",
+  "kiln-panel.jpg",
+  "kindswarm-casework.jpg",
+  "launch-form.jpg",
+  "lemegeton-antivirus.jpg",
+  "maasai-event-hero.jpg",
+  "marquee-wall.jpg",
+  "maverick-console.jpg",
+  "meridian-led-storefront.jpg",
+  "mistfold-biology-workbench.jpg",
+  "mnemo-context-window.jpg",
+  "modelyard-router.jpg",
+  "monax-analytics.jpg",
+  "murmur-swarm-tickets.jpg",
+  "nova-agentic-finance.jpg",
+  "overclock-deploy.jpg",
+  "prism-evals-editorial.jpg",
+  "proxima-edge.jpg",
+  "smartcare-ai.jpg",
+  "solstice-fusion.jpg",
+  "sortie-game-agent.jpg",
+  "spool-run-transcript.jpg",
+  "starfork-studio.jpg",
+  "throughline-scroll-stack.jpg",
+  "tidewell-ai-for-work.jpg",
+  "timbre-console.jpg",
+  "traffo-constellation.jpg",
+  "umbra-eclipse.jpg",
+  "undertow-agents.jpg",
+]);
+
+export const mobileThumbFor = (thumbnail: string) => {
+  const name = thumbnail.split("/").pop() ?? "";
+  return PHONE.has(name) ? `/thumbs-m/${name}` : undefined;
+};

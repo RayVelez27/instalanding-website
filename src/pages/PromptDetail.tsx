@@ -11,6 +11,8 @@ import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, getRelatedPrompts, visiblePrompts, categoryHref } from "@/data/prompts";
 import { getSystemForTemplate } from "@/data/systems";
 import { useSeo } from "@/hooks/useSeo";
+import { useIsPhone } from "@/hooks/useIsPhone";
+import PromptDetailPhone from "@/components/PromptDetailPhone";
 
 /**
  * The standalone /prompt/:slug page: what a shared link, a refresh, a new tab
@@ -26,6 +28,7 @@ const PromptDetail = () => {
   const [promptCopied, setPromptCopied] = useState(false);
   const [feedback, setFeedback] = useState(false);
   const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(entry);
+  const phone = useIsPhone();
 
   // Called before the not-found redirect below: hooks cannot be conditional.
   useSeo({
@@ -72,6 +75,31 @@ const PromptDetail = () => {
     setPromptCopied(true);
     setTimeout(() => setPromptCopied(false), 2000);
   };
+
+  // Phones get their own page: a preview to try, one action bar, the rest folded away
+  if (phone) {
+    return (
+      <div className="app-layout">
+        <Sidebar />
+        <main>
+          <PromptDetailPhone
+            entry={entry}
+            prev={prev}
+            next={next}
+            related={related}
+            system={system}
+            file={file}
+            code={code}
+            promptCopied={promptCopied}
+            onCopyPrompt={handleCopyPrompt}
+            onCopyCode={copy}
+            codeCopied={copied}
+            codeFailed={source.status === "error"}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="app-layout">
