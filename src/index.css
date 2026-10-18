@@ -2051,6 +2051,26 @@ html {
   word-break: break-word;
   overflow-x: auto;
 }
+.detail-prompt-sub {
+  margin: 0;
+  padding: 10px 20px;
+  background: #0d0d0d;
+  border-top: 1px solid #24242b;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: #8b8b98;
+}
+/* Capped so a 300KB file doesn't bury the related entries; it scrolls inside. */
+.detail-code {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  height: min(640px, 75vh);
+  background: #0d0d10;
+  border: 1px solid #000;
+}
+.detail-code .pcode-wrap { min-height: 0; }
 .detail-prompt-hint { margin: 8px 0 0; font-size: 10px; letter-spacing: 0.1em; color: #999; }
 
 .detail-related { margin-top: 40px; }
@@ -3038,3 +3058,47 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .pmodal-dialog[data-state="open"], .pmodal-overlay[data-state="open"] { animation: none; }
 }
+
+/* ── Agent Mode dark: the home page follows the dark connect panel ──
+   Index.tsx puts .agent-dark on <html> while Agent Mode is on. The page goes
+   pure black so the #0a0a0a panel still reads as a panel. */
+.app-layout,
+.sidebar,
+.media-grid { transition: background-color 300ms ease; }
+html.agent-dark { color-scheme: dark; background: #000; }
+html.agent-dark body,
+html.agent-dark .app-layout,
+html.agent-dark .sidebar,
+html.agent-dark .media-grid,
+html.agent-dark .mobile-overlay { background: #000; }
+html.agent-dark .sidebar-brand,
+html.agent-dark .brand-mark,
+html.agent-dark .library-intro-kicker,
+html.agent-dark .agent-toggle,
+html.agent-dark .signup-label,
+html.agent-dark .signup-done { color: #fff; }
+html.agent-dark .sidebar-nav a,
+html.agent-dark .mobile-overlay-nav a,
+html.agent-dark .sidebar-social-link,
+html.agent-dark .sidebar-hamburger,
+html.agent-dark .mobile-overlay-close { color: #8a8a8a; }
+html.agent-dark .sidebar-nav a:hover,
+html.agent-dark .mobile-overlay-nav a:hover,
+html.agent-dark .sidebar-nav a.sidebar-nav-active,
+html.agent-dark .mobile-overlay-nav a.sidebar-nav-active,
+html.agent-dark .sidebar-social-link:hover,
+html.agent-dark .mobile-overlay-close:hover { color: #fff; }
+html.agent-dark .sidebar-nav a.sidebar-nav-active { box-shadow: inset 3px 0 0 #fff; }
+html.agent-dark .library-intro-sub,
+html.agent-dark .signup-hint { color: #8a8a8a; }
+html.agent-dark .agent-toggle:focus-visible,
+html.agent-dark .sidebar-social-link:focus-visible { outline-color: #fff; }
+/* On black the switch's own mint reads as text, so the status can use it */
+html.agent-dark .agent-toggle--on .agent-toggle-status { color: var(--neo-on); }
+html.agent-dark .agent-panel { border-color: #262626; }
+html.agent-dark .signup-row { border-color: #3a3a3a; background: #0a0a0a; }
+html.agent-dark .signup-row:focus-within { box-shadow: 0 0 0 1px #fff; }
+html.agent-dark .signup-row input { color: #fff; }
+html.agent-dark .signup-row input::placeholder { color: #666; }
+html.agent-dark .signup-row button { border-left-color: #3a3a3a; background: #fff; color: #000; }
+html.agent-dark .signup-row button:focus-visible { outline-color: #fff; }

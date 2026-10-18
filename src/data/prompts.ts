@@ -105,6 +105,108 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Starfork Game Studio Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A premium indie game studio page set in a cosmic toy world: eight sprite-rigged characters with real animation poses standing on a glowing planet, a character select with pose and frame-rate controls, a playable 30-second endless runner with coins and fireworks, live game cards, and a careers quiz",
+    prompt: `Build a single-file HTML landing page for "Starfork Studio", a fictional nine-person indie game studio, and its upcoming game "Desk Dash!", a cosmic endless runner across the messiest desk in the galaxy. The page should feel like the game's own menus: a deep indigo night full of floating toy shapes, a cast of cute object characters that are properly animated like sprite sheets, white glossy pill buttons, and something you can actually play. Fictional studio, games, team, players and roles, labelled as such in the footer. No images and no canvas: every character, prop, cube, ring and the planet are inline SVG or CSS, driven by one inline script.
+
+STACK
+- Google Fonts: Bricolage Grotesque 400-800 with the optical-size axis (all text; big headings at weight 700, letter-spacing -0.045em), Lilita One (the game logo and game titles), JetBrains Mono 500/700 (eyebrows, labels, HUD).
+
+THE SYSTEM
+- Colours: page #07041a, text #f4f1ff, muted #aaa4d8 / #9d96cf, mint #93f7cc (eyebrows, selection, focus rings), pink #ff8fd8, lilac #c9b8ff, sky #86b6ff, coin orange #ffb347 / #ffc46b. Sections sit on soft radial glows of violet, pink and mint.
+- Buttons: the primary is a white-to-lilac vertical gradient pill (#fff to #e6defc) with dark ink text, an inset bottom shade and a lilac glow, lifting 2px on hover. Ghost buttons are translucent white with a blurred backdrop.
+- Eyebrows are "01 — The crew" style mono labels in mint. Gradient words use a pink, lilac, sky clipped gradient in Lilita One.
+- A .stars utility paints a field of dot stars from stacked radial gradients.
+
+THE CHARACTER RIG
+- sprite(el, kind, pose, fps, once, inplace) draws one of eight characters in a 120x120 viewBox with feet on the same line: Pip (orange pumpkin wizard, blue hat with a glowing tip, magic pen), Nib (pink spiral notebook with a green shield), Volt (green TV robot with a dark screen face and orange arms), Drip (blue drop in a party hat and bow tie), Gem (green cube with a plus badge), Puff (peach flower cloud with blush), Kit (red toolbox with a sprout) and Tome (pink book with a bookmark).
+- Each instance gets its own gradient ids: a body gradient, a core whose colours slowly hue-shift (SMIL), a rim light, a sheen, glowing eyes with lids in a body-mix colour, a soft shadow. A palette per character (light, mid, deep) and a "feel" (bob height, squash, lean) make each move differently.
+- Poses are CSS classes on the root: idle, walk, talk, run, punch, jump, death. Every keyframe holds whole frames with steps(1, end), like a hand-timed sprite sheet; frames per cycle are idle 24, walk 16, talk 8, run 8, punch 8, jump 8, death 16, and --dur = frames / fps. Body, feet, shadow, accessory, eyes, mouths and an impact sparkle each have their own track. Idle has a signature fidget per character (Pip twirls the pen, Nib hops, Volt waves, Drip jiggles, Gem rocks, Puff breathes, Kit rustles, Tome swings), and death has specials (Drip melts, Puff poofs, Volt's screen switches off). Jump and death can play once and hold the last frame.
+
+THE LOADER (covers the first seconds)
+- A tiny inline script in <head> adds .sf-wait to <html>, which hides the page and shows a full-screen loader, so the first paint is cheap. The loader is a mini lap of the game on the hero's night sky with a planet rim: the "Starfork Studio presents" pill, the gradient "Desk Dash!" logo, and Pip running a purple track with moving seams, collecting six coins while a six-slot coin meter fills, with a status line (Waking the crew…, Polishing the cubes…, Stacking the desk clutter…, Tuning the jump…) and a mono percentage.
+- Progress is real: the main script dispatching 'sf:ready' once every character is drawn, the display fonts loading (document.fonts.load), and window load. It also creeps on its own, holds at 97% until all three are in, shows at least ~0.9s, then Pip throws the victory punch, "Ready!", and the loader fades and scales out while the page fades in. Fallbacks at 12s and 15s so it can never trap the page.
+
+SECTIONS (data-section in order)
+1. nav: a fixed floating glass pill (blurred, hairline border) with a star logo mark, five links and a "Play the demo" button.
+2. hero: full height, a radial indigo sky with stars, pink and blue glow blobs, and five glossy floating toys drawn in the same style as the characters (a mint crystal block, a magenta ring, a small blue gem, an orange hourglass coin and a violet cube): each has a body gradient, a sheen, a rim light and a molten core of rotating triangles merged by an animated goo filter, glowing in its own colour; plus twinkling four-point sparkles, all drifting. A "NEW · Starfork Studio presents" pill, then the h1 game logo "Desk Dash!" in Lilita One at clamp(114px, min(21vw, 25.5vh), 276px), line-height 0.84, each letter its own pastel gradient with a small offset and tilt that bobs out of phase (the "!" in a pale-to-periwinkle blue), with a hard and a soft drop shadow. A sub, "Play a lap" and a ghost "Meet the crew", and "Coming 2026 · PC · Switch". At the bottom, the curve of a planet: an SVG circle of radius 1700 with a hazy violet halo, a radial fill, faint latitude and meridian lines, a sheen and a pink-white-blue rim light. The eight characters stand on it at staggered heights following the curve, and every 2.6s a random one throws a punch.
+3. crew: "Pick a character." A panel with a 4x2 radiogroup of square portraits (arrow keys; the picked one gets a mint border and glow) beside a preview card: a mini stage with stars and a grid floor showing the character large (popping in on change), a "pose · frames" label and a live fps readout, seven segmented pose buttons, a frame-rate select (6, 12, 24, 60 f/s), name, role, a quote, three gradient stat bars, and a button that reads "Accept Nib" (or "Ready to run" once accepted), which makes them the runner, shows a toast and scrolls to the demo.
+4. play: "Thirty seconds of Desk Dash!" with keycaps for Space, Up and W. A 420px stage in a glass bezel: stars, a far layer of desk lamps, desks and a moon scrolling at 0.18x, a purple ground with moving seams, and a HUD with a conic countdown dial and a six-slot coin meter. The runner uses the rig (run, jump once, punch on a win, death once on a crash) at the frame rate picked above, jumps with Space, Up, W, a click or a tap (gravity 2100, jump 760 scaled by the character), and meets desk clutter (books, mug, no-wifi sign, hurdle, speaker) every 1.1-2.1s, none in the last two seconds, with six bobbing coins (hourglass, pencil) at two heights. Speed ramps up. A crash ends on "Crunch!"; reaching 30s ends on "Shipped!", or "Perfect run!" with all six coins: up to three stars, firework bursts and confetti, and "Run it back". A "Ready?" overlay names the runner before the start.
+5. games: "Tiny worlds, big runs." Three cards with live character scenes: Desk Dash! (Drip walking, Pip running and Volt talking on a planet; a mint "Coming 2026" tag), Moonmilk (Puff under a big moon, 2024) and Paper Comets (a cube, a ring and Nib jumping, 2022). Cards lift on hover.
+6. studio: "Nine people, one cat, a lot of cubes." Copy beside a 2x2 grid of big coloured numbers (9 people on the team, 3 games shipped, 2.4M players so far, 1 office cat), then three value cards (Makers, Thinkers, Organizers) with small geometric icons.
+7. careers: "Find your role." A three-question quiz in a glass card (Are you a Maker, Thinker, or Organizer? / A build breaks at 6pm… / Your favourite part of a game is…), radio rows that light up mint, Back and Next (disabled until answered, "See my role" last), progress dashes. The result shows the matching character talking, "You are a thinker", the role (Gameplay animator, Systems designer, Associate producer), who you would work with, tags, Retake and a demo-only Apply.
+8. footer: a CTA card ("Take one more lap.") with the whole crew lined up and two buttons, then the logo, a pulsing "Now building: Desk Dash!" pill, three link columns, the fictional legal line and a back-to-top pill.
+
+THINGS THAT BREAK
+- Give every character instance unique gradient, mask and filter ids, or all copies paint with the first one's colours.
+- Size every mask region to the art (maskUnits userSpaceOnUse with a box just past the viewBox). A huge default region is rasterised every frame for every character and drops the page to about 10fps.
+- Pose changes must swap the root's classes, not rebuild the SVG, so the keyframes restart cleanly and the colour cycle keeps its phase.
+- Move the runner, obstacles and coins with transforms each frame; do not re-render the stage.
+- Inline-block letter spans in the logo must have no whitespace between them, or the word spreads apart.
+- The hidden toast sits below the fold with opacity 0 and no pointer events.
+
+THE FLOOR
+- One h1 (the game logo, with a visually hidden text copy), real buttons, a radiogroup with arrow keys, native radios for poses and quiz answers, a labelled stage with role=application, a status line for run results, visible mint focus rings.
+- Under 1000px the hero shows six of the cast; under 760px the nav links and floating pieces hide, four of the cast remain and the stage is 340px tall. No horizontal scroll at 390px.
+- Reduced motion stops the drift, twinkles, cubes, logo bob, character poses and fireworks; the runner still plays because the visitor starts it.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 17, 2026",
+    demo: "/demos/starfork-studio.html",
+    bestFor: ["game studios and indie games","playful product launches","interactive brand pages","careers and recruiting pages"],
+    style: ["dark","playful","cosmic","characters","sprite-animation","interactive"],
+    thumbnail: "/thumbs/starfork-studio.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Social Work Agent Swarm Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A loud neo-brutalist page for a swarm of AI agents that help social workers: huge stencil type over op-art ring patterns, animoji characters whose eyes follow the cursor, a filterable crew of eight agent cards, an approval queue, guardrails and pricing",
+    prompt: `Build a single-file HTML landing page for "Kind Swarm", a fictional swarm of small AI agents for social work: they draft intake notes, find benefits, watch housing waitlists, keep court dates, translate and chase follow-ups, and a person approves everything. The look is loud and warm: flame-orange and lime blocks covered in concentric op-art ring patterns, huge stencil type, hard offset shadows, cream cards, and every agent is an animoji character, a glossy rounded diamond with big cartoon eyes. Fictional product, agents, prices and numbers, labelled as such in the footer. No images and no canvas: the characters are inline SVG with CSS and a few lines of JS.
+
+STACK
+- Google Fonts: Stardos Stencil 400/700 (display, uppercase, line-height .92), IBM Plex Sans Condensed 400-700 with italics (text, and an italic "serif" accent for second lines), IBM Plex Mono 500/600 (labels, tags, prices).
+
+THE SYSTEM
+- Colours: ink #15111F, cream #F4EFE6, flame #FF5A3C (deep #F0361A), lime #D4FF3A, focus blue #3D7BFF, muted lilac #B9B0CC / #CFC6E8.
+- The .rings background: concentric arcs built from radial gradients alternating two colours (--c1 / --c2) at a tile size (--s), with a faint shadow tone. Variants: flame for the hero and closing CTA, lime for the marquee and the "zero" band, ink for guardrails, and eight pastel stage colours for the agent cards (blue, butter, peach, lilac, pink, lime, sky, orchid).
+- A grain layer (an feTurbulence noise filter, multiplied at 22%) sits on the coloured bands.
+- Buttons are pills with a 3px ink border and an 8px hard offset shadow that grows on hover and collapses when pressed: ink, paper and lime variants; on dark sections the border and shadow turn lime.
+- Labels are mono, uppercase, letter-spaced ("02 — The crew").
+
+THE CHARACTERS
+- One hidden SVG holds shared gradients (blue to violet, sun, peach to pink, periwinkle, lilac), a gloss highlight and a shade. Each character is a glossy rounded-diamond body (most in blue-to-violet, the Benefits Navigator in sun, the Housing Scout in peach) with an ink outline offset as a hard shadow (drop-shadow 8px 8px 0 ink), big white eyes with ink pupils, and a face that tells its personality: the lead and the scribe have an antenna curl and a smile; the navigator sparkles with stars; the scout holds a magnifier; the court keeper holds a "31" calendar and looks anxious; crisis triage sweats with worried brows; the follow-up runner wears sunglasses and points; the interpreter winks with a thumbs up; the records clerk is exhausted, one eye an X and one heavy-lidded.
+- .bod bobs (squash and stretch, 3.4s), .eye blinks every 5.6s, .pupil follows the pointer through --px / --py set on <html> (up to 7px). .d1 to .d4 stagger the timing. Clicking a character replays a .react squash-and-jump.
+
+SECTIONS (data-section in order)
+1. hero (flame rings, with the nav inside): logo character and "KIND SWARM" wordmark, four links and an ink "Book a demo". Mono labels "Agent swarms for social work" and "Drafts, never decisions" over a 3px rule. Then the giant h1 "KIND / SWARM" in Stardos Stencil filled with a slowly drifting dark ring pattern (background-clip text), with the big lead character rising in beside "KIND". Under it the italic "They draft, fetch and remind." over "PEOPLE DECIDE.", a sub, "Meet the crew" and "See the guardrails", and an ink stats strip: 08 agents on the desk, 00 (lime) decisions without a person, 24/7 on call with a pulsing lime dot.
+2. marquee (lime rings): a slow edge-faded marquee of "Intake drafted · Benefits found · Court date kept · Housing matched · Follow-up sent · Human approved", alternating filled and outlined words, paused on hover.
+3. how (cream): "Many hands. one desk." Three numbered steps with huge outlined numerals: Say it plainly, Lanes not a chatbot (with a hand-off trace "scribe → navigator · 1.8s"), You sign it off.
+4. zero (lime band): a giant "0" and "Decisions made without a person. Not one."
+5. crew (ink): "Eight agents. one job each." with "Showing 08 of 08" and a row of filter pills (All, Intake, Benefits, Housing, Legal, Crisis, Language; aria-pressed, the active one lime). A grid of cream cards with a lime hard shadow: a ringed pastel stage with a white tag ("Most deployed", "Finds money"…), a black agent code (AGT-01…), the character (lifts and tilts on hover), the name, a black price pill ($14/mo, Free…), a description and a mono skills line. Agents: Intake Scribe, Benefits Navigator, Housing Scout, Court Date Keeper, Crisis Triage, Follow-up Runner, Interpreter, Records Clerk. Filtering hides cards whose jobs don't match and updates the count.
+6. queue (cream): "Nothing sends itself." beside an approval-queue panel with three drafts (SNAP application, hearing reminder in Spanish, three shelter options), each with the agent, the household, and Edit / Approve buttons; compliance chips (HIPAA, 42 CFR Part 2, SOC 2, State retention rules) and a testimonial.
+7. guardrails (ink rings): "Drafts. never decisions." and four rule cards: Consent, Approve, Escalate, Audit.
+8. pricing (cream): "Pick your crew." Three plans with hard shadows: Pick & mix (white, $9 from, per agent / month, Start small), Full swarm (ink with a flame shadow and lime bullets, per caseworker / month, a lime Book a demo) and Agency (white, Let's talk, Contact sales), each with a diamond-bullet list.
+9. book (flame rings): "Give the desk back." with "Book a demo" and "Thirty minutes. Bring a real case."
+10. footer: logo, links and the fictional legal line.
+
+THE FLOOR
+- One h1, real buttons and links, characters inside labelled buttons ("Poke the Intake Scribe"), the filter as a labelled group with aria-pressed and a polite live count, visible blue focus rings.
+- Grids collapse to one column on phones and the hero type scales with the viewport; no horizontal scroll at 390px.
+- Reduced motion stops every animation and transition: bob, blink, marquee, pattern drift, rise-in and poke.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 17, 2026",
+    demo: "/demos/kindswarm-casework.html",
+    bestFor: ["AI agent and multi-agent products","social services and nonprofit tech","B2B products with pricing tiers","character-led brands"],
+    style: ["bold","playful","neo-brutalist","stencil-type","characters","interactive"],
+    thumbnail: "/thumbs/kindswarm-casework.jpg",
+    theme: "light",
+  },
+  {
     title: "Game Dev Agent Landing Page",
     category: "web",
     categoryLabel: "WEB",

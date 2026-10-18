@@ -5,6 +5,8 @@ import Sidebar from "@/components/Sidebar";
 import PromptThumb from "@/components/PromptThumb";
 import PromptStage from "@/components/PromptStage";
 import TemplateFeedback from "@/components/TemplateFeedback";
+import DemoCode from "@/components/DemoCode";
+import { loadDemoSource } from "@/lib/demoSource";
 import { copyText } from "@/lib/copyText";
 import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, getRelatedPrompts, visiblePrompts, categoryHref } from "@/data/prompts";
@@ -15,14 +17,15 @@ import { useSeo } from "@/hooks/useSeo";
  * or a crawler gets. It shows the same live preview and the same main actions
  * as the dialog (PromptStage and useCopyCode are shared, so the two cannot
  * drift), plus what only a page needs: breadcrumbs, the details, the full
- * prompt text and related entries.
+ * prompt (the brief plus the demo's full source, which is what makes the
+ * output exact) and related entries.
  */
 const PromptDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const entry = getPromptBySlug(slug);
   const [promptCopied, setPromptCopied] = useState(false);
   const [feedback, setFeedback] = useState(false);
-  const { copy, copied, label: copyLabel, text: copyCaption, source } = useCopyCode(entry);
+  const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(entry);
 
   // Called before the not-found redirect below: hooks cannot be conditional.
   useSeo({
@@ -50,9 +53,21 @@ const PromptDetail = () => {
   const next = index >= 0 && index < visiblePrompts.length - 1 ? visiblePrompts[index + 1] : null;
   const related = getRelatedPrompts(entry);
 
-  // The prompt section's own button always copies the brief, whatever the main button copies
+  const file = entry.demo?.split("/").pop() ?? "index.html";
+
+  // A brief alone is ambiguous, so the prompt section copies the brief together
+  // with the reference source when the entry has a single-file demo.
+  const withSource = (src: string) =>
+    [
+      entry.prompt,
+      "---",
+      "REFERENCE BUILD. This is the exact expected output. Reproduce it faithfully, then adapt the content.",
+      `${file}:`,
+      "```html\n" + src + "\n```",
+    ].join("\n\n") + "\n";
   const handleCopyPrompt = async () => {
-    await copyText(entry.prompt);
+    if (!entry.demo) await copyText(entry.prompt);
+    else await copyText(withSource(code ?? (await loadDemoSource(entry.demo))));
     setPromptCopied(true);
     setTimeout(() => setPromptCopied(false), 2000);
   };
@@ -175,7 +190,25 @@ const PromptDetail = () => {
                 </button>
               </div>
               <pre className="detail-prompt-body">{entry.prompt}</pre>
-              <p className="detail-prompt-hint">Paste it into your AI builder as-is, then iterate.</p>
+              {entry.demo && (
+                <>
+                  <p className="detail-prompt-sub">REFERENCE BUILD · PART OF THE PROMPT</p>
+                  <div className="detail-code">
+                    {code ? (
+                      <DemoCode code={code} file={file} />
+                    ) : (
+                      <p className="pcode-status">
+                        {source.status === "error" ? "Couldn't load the source. Try NEW TAB instead." : "Loading source…"}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+              <p className="detail-prompt-hint">
+                {entry.demo
+                  ? "COPY PROMPT copies the brief and the full source together. Paste it into your AI builder as-is, then iterate."
+                  : "Paste it into your AI builder as-is, then iterate."}
+              </p>
             </section>
           )}
 
