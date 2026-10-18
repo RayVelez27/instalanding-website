@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Copy, ExternalLink, MessageSquare } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Copy, Download, ExternalLink, MessageSquare } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import PromptThumb from "@/components/PromptThumb";
 import PromptStage from "@/components/PromptStage";
 import TemplateFeedback from "@/components/TemplateFeedback";
-import DemoCode from "@/components/DemoCode";
 import { loadDemoSource } from "@/lib/demoSource";
 import { copyText } from "@/lib/copyText";
 import { useCopyCode } from "@/lib/useCopyCode";
@@ -180,38 +179,6 @@ const PromptDetail = () => {
             )}
           </div>
 
-          {!entry.youtube && (
-            <section className="detail-prompt" aria-label="One-shot prompt">
-              <div className="detail-prompt-head">
-                <h2>ONE-SHOT PROMPT</h2>
-                <button className="detail-copy-btn detail-copy-btn--ghost" onClick={handleCopyPrompt}>
-                  {promptCopied ? <Check size={12} /> : <Copy size={12} />}
-                  {promptCopied ? "COPIED" : "COPY PROMPT"}
-                </button>
-              </div>
-              <pre className="detail-prompt-body">{entry.prompt}</pre>
-              {entry.demo && (
-                <>
-                  <p className="detail-prompt-sub">REFERENCE BUILD · PART OF THE PROMPT</p>
-                  <div className="detail-code">
-                    {code ? (
-                      <DemoCode code={code} file={file} />
-                    ) : (
-                      <p className="pcode-status">
-                        {source.status === "error" ? "Couldn't load the source. Try NEW TAB instead." : "Loading source…"}
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-              <p className="detail-prompt-hint">
-                {entry.demo
-                  ? "COPY PROMPT copies the brief and the full source together. Paste it into your AI builder as-is, then iterate."
-                  : "Paste it into your AI builder as-is, then iterate."}
-              </p>
-            </section>
-          )}
-
           {related.length > 0 && (
             <section className="detail-related" aria-label="More in this category">
               <h2>MORE IN {entry.categoryLabel}</h2>
@@ -226,6 +193,38 @@ const PromptDetail = () => {
                   </li>
                 ))}
               </ul>
+            </section>
+          )}
+
+          {!entry.youtube && (
+            <section className="detail-prompt" aria-label="One-shot prompt">
+              <div className="detail-prompt-head">
+                <h2>ONE-SHOT PROMPT</h2>
+                <button className="detail-copy-btn detail-copy-btn--ghost" onClick={handleCopyPrompt}>
+                  {promptCopied ? <Check size={12} /> : <Copy size={12} />}
+                  {promptCopied ? "COPIED" : "COPY PROMPT"}
+                </button>
+              </div>
+              <pre className="detail-prompt-body">{entry.prompt}</pre>
+              {entry.demo && (
+                <div className="detail-prompt-ref">
+                  <p className="detail-prompt-ref-title">+ REFERENCE BUILD</p>
+                  <p>
+                    The full source of <b>{file}</b>
+                    {code && ` (${code.split("\n").length.toLocaleString()} lines · ${Math.round(code.length / 1024)} KB)`} is
+                    part of this prompt: COPY PROMPT adds it under the brief as the exact expected output.
+                  </p>
+                  <p className="detail-prompt-ref-links">
+                    <a href={entry.demo} target="_blank" rel="noreferrer">
+                      Open the live page <ExternalLink size={11} aria-hidden="true" />
+                    </a>
+                    <a href={entry.demo} download={file}>
+                      Download {file} <Download size={11} aria-hidden="true" />
+                    </a>
+                  </p>
+                </div>
+              )}
+              <p className="detail-prompt-hint">Paste it into your AI builder as-is, then iterate.</p>
             </section>
           )}
 

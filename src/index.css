@@ -2051,26 +2051,34 @@ html {
   word-break: break-word;
   overflow-x: auto;
 }
-.detail-prompt-sub {
-  margin: 0;
-  padding: 10px 20px;
+/* The demo's source is part of the prompt; the black box ends with a note that says so. */
+.detail-prompt-ref {
+  padding: 16px 20px 18px;
   background: #0d0d0d;
-  border-top: 1px solid #24242b;
+  border-top: 1px solid #2a2a2a;
+  color: #fff;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  color: #8b8b98;
+  font-size: 12px;
+  line-height: 1.7;
 }
-/* Capped so a 300KB file doesn't bury the related entries; it scrolls inside. */
-.detail-code {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  min-width: 0;
-  height: min(640px, 75vh);
-  background: #0d0d10;
-  border: 1px solid #000;
+.detail-prompt-ref p { margin: 0; }
+.detail-prompt-ref b { font-weight: 700; }
+.detail-prompt-ref-title { margin-bottom: 6px !important; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; }
+.detail-prompt-ref-links { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 10px !important; }
+.detail-prompt-ref-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.5);
 }
-.detail-code .pcode-wrap { min-height: 0; }
+.detail-prompt-ref-links a:hover { box-shadow: inset 0 -1px 0 #fff; }
+.detail-prompt-ref-links a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .detail-prompt-hint { margin: 8px 0 0; font-size: 10px; letter-spacing: 0.1em; color: #999; }
 
 .detail-related { margin-top: 40px; }
