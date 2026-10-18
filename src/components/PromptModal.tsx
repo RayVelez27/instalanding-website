@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams, type Location } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, type Location } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowLeft, ArrowRight, Check, Copy, ExternalLink, MessageSquare, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Copy, ExternalLink, MessageSquare, X } from "lucide-react";
 import PromptThumb from "@/components/PromptThumb";
 import PromptStage from "@/components/PromptStage";
 import TemplateFeedback from "@/components/TemplateFeedback";
 import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/data/prompts";
+import { getSystemForTemplate } from "@/data/systems";
 
 /**
  * The detail view as a dialog over the grid.
@@ -22,6 +23,7 @@ const PromptModal = () => {
   const location = useLocation();
   const background = (location.state as { backgroundLocation?: Location } | null)?.backgroundLocation;
   const entry = getPromptBySlug(slug);
+  const system = slug ? getSystemForTemplate(slug) : undefined;
   const entryCategory = entry?.category;
 
   /* FEEDBACK swaps the MORE ONE-SHOTS list for a feedback form about this template. */
@@ -129,6 +131,11 @@ const PromptModal = () => {
                   <a className="pmodal-btn" href={entry.repoUrl} target="_blank" rel="noreferrer" title="View code">
                     <span className="pmodal-label">VIEW CODE</span> <ExternalLink size={12} aria-hidden="true" />
                   </a>
+                )}
+                {system && (
+                  <Link className="pmodal-btn" to={`/systems/${system.slug}`} title={`The ${system.name} design system this template is built on`}>
+                    <span className="pmodal-label">VIEW DESIGN SYSTEM</span> <ArrowUpRight size={12} aria-hidden="true" />
+                  </Link>
                 )}
                 <button
                   className="pmodal-btn"

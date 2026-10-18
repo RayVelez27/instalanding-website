@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Copy, Download, ExternalLink, MessageSquare } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Copy, Download, ExternalLink, MessageSquare } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import PromptThumb from "@/components/PromptThumb";
 import PromptStage from "@/components/PromptStage";
@@ -9,6 +9,7 @@ import { loadDemoSource } from "@/lib/demoSource";
 import { copyText } from "@/lib/copyText";
 import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, getRelatedPrompts, visiblePrompts, categoryHref } from "@/data/prompts";
+import { getSystemForTemplate } from "@/data/systems";
 import { useSeo } from "@/hooks/useSeo";
 
 /**
@@ -51,6 +52,7 @@ const PromptDetail = () => {
   const prev = index > 0 ? visiblePrompts[index - 1] : null;
   const next = index >= 0 && index < visiblePrompts.length - 1 ? visiblePrompts[index + 1] : null;
   const related = getRelatedPrompts(entry);
+  const system = getSystemForTemplate(entry.slug);
 
   const file = entry.demo?.split("/").pop() ?? "index.html";
 
@@ -124,6 +126,11 @@ const PromptDetail = () => {
               <a className="pmodal-btn" href={entry.repoUrl} target="_blank" rel="noreferrer" title="View code">
                 <span className="pmodal-label">VIEW CODE</span> <ExternalLink size={12} aria-hidden="true" />
               </a>
+            )}
+            {system && (
+              <Link className="pmodal-btn" to={`/systems/${system.slug}`} title={`The ${system.name} design system this template is built on`}>
+                <span className="pmodal-label">VIEW DESIGN SYSTEM</span> <ArrowUpRight size={12} aria-hidden="true" />
+              </Link>
             )}
             <button
               className="pmodal-btn"

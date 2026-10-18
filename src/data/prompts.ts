@@ -2867,14 +2867,14 @@ export const shuffle = <T>(list: readonly T[]): T[] => {
  * every point in the run, not just overall, so the extra darks are spread
  * through the feed rather than pooled anywhere.
  */
-const interleaveByTheme = (list: readonly PromptEntry[]): PromptEntry[] => {
+export const interleaveByTheme = <T extends { theme?: string }>(list: readonly T[]): T[] => {
   const dark = shuffle(list.filter((p) => p.theme === "dark"));
   const light = shuffle(list.filter((p) => p.theme === "light"));
   // Anything untagged keeps its shuffled place at the end rather than being
   // dropped: a missing screenshot should not cost an entry its slot.
   const untagged = shuffle(list.filter((p) => p.theme !== "dark" && p.theme !== "light"));
 
-  const out: PromptEntry[] = [];
+  const out: T[] = [];
   let d = 0, l = 0;
   const total = dark.length + light.length;
   for (let i = 0; i < total; i++) {

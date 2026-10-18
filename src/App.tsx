@@ -17,9 +17,11 @@ import Sponsor from "./pages/Sponsor";
 import BuilderPage from "./pages/BuilderPage";
 import { builders } from "@/data/builders";
 import ComingSoon from "./pages/ComingSoon";
+import Systems from "./pages/Systems";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import SiteFooter from "@/components/SiteFooter";
 
 const queryClient = new QueryClient();
 
@@ -42,16 +44,19 @@ const AppRoutes = () => {
         <Route path="/category/product" element={<Navigate to="/product" replace />} />
         <Route path="/category/:slug" element={<Category />} />
         <Route path="/about" element={<About />} />
-        <Route
-          path="/systems"
-          element={<ComingSoon title="Systems" blurb="Whole design systems — tokens, components and the rules that hold them together — as one-shot prompts with a reference build." />}
-        />
+        {/* Design systems: the gallery, and each system's dialog at its own URL. */}
+        <Route path="/systems" element={<Systems />} />
+        <Route path="/systems/:slug" element={<Systems />} />
         {/* PRODUCT-PARKED: the section is announced but its entries are
             parked, so it serves the same ComingSoon page /systems does.
             Restoring it is one command — see memory/product-parked.md. */}
         <Route
           path="/product"
           element={<ComingSoon title="Product" blurb="Dashboards, consoles and in-app flows — the screens people use after they sign up — as one-shot prompts with a reference build." />}
+        />
+        <Route
+          path="/motion"
+          element={<ComingSoon title="Motion" blurb="Motion systems — scroll choreography, transitions, loaders and micro-interactions — as one-shot prompts with a reference build." />}
         />
         <Route
           path="/stack"
@@ -74,6 +79,7 @@ const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <SiteFooter />
 
       {background && (
         <Routes>

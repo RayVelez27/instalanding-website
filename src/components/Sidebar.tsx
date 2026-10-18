@@ -4,18 +4,23 @@ import { builders } from "@/data/builders";
 import { Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SignupField from "@/components/SignupField";
+import GithubButton from "@/components/GithubButton";
 
 /**
  * The menu is no longer one entry per category. PAGES is the whole library
- * and always will be; SYSTEMS, PRODUCT and STACK are announced but empty. The
+ * and always will be; SYSTEMS holds the design systems; MOTION is announced
+ * but empty (PRODUCT and STACK are parked out of the menu). The
  * category routes still resolve — the detail page links to them — they are
  * just not in the menu any more.
  */
-const NAV_LINKS: { to: string; label: string; soon?: boolean }[] = [
+const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[] = [
   { to: "/", label: "PAGES" },
-  { to: "/systems", label: "SYSTEMS", soon: true },
-  { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED
-  { to: "/stack", label: "STACK", soon: true },
+  { to: "/systems", label: "SYSTEMS", isNew: true },
+  { to: "/motion", label: "MOTION", soon: true },
+  // PRODUCT and STACK are out of the menu, not removed: /product and /stack
+  // still serve their ComingSoon pages, so nothing shared breaks.
+  // { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED
+  // { to: "/stack", label: "STACK", soon: true },
   { to: "/about", label: "ABOUT" },
   // CONTRIBUTE is hidden, not removed: /contribute still resolves and is in
   // the sitemap. Restore this line to bring it back.
@@ -79,6 +84,7 @@ const Sidebar = () => {
         location.pathname === "/builders" ||
         builders.some((b) => b.path === location.pathname)
       );
+    if (to === "/systems") return location.pathname === to || location.pathname.startsWith("/systems/");
     return location.pathname === to;
   };
 
@@ -103,6 +109,7 @@ const Sidebar = () => {
                 >
                   {link.label}
                   {link.soon && <span className="sidebar-nav-soon">SOON</span>}
+                  {link.isNew && <span className="sidebar-nav-new">NEW</span>}
                 </Link>
               </li>
             ))}
@@ -113,6 +120,11 @@ const Sidebar = () => {
         <div className="sidebar-bottom sidebar-bottom--desktop">
           <Socials size={13} className="sidebar-socials" />
           <SignupField />
+        </div>
+
+        {/* Phones: a compact GITHUB beside the hamburger (the intro's own is hidden there) */}
+        <div className="sidebar-github">
+          <GithubButton />
         </div>
 
         {/* Mobile hamburger button */}
@@ -145,6 +157,7 @@ const Sidebar = () => {
                 >
                   {link.label}
                   {link.soon && <span className="sidebar-nav-soon">SOON</span>}
+                  {link.isNew && <span className="sidebar-nav-new">NEW</span>}
                 </Link>
               </li>
             ))}

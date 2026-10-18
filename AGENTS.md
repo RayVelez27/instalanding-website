@@ -68,7 +68,7 @@ and the MCP server's results — derives from one object in `src/data/prompts.ts
 | `added` | e.g. `"Sep 22, 2026"` |
 | `demo` | `/demos/<name>.html` if a reference implementation ships |
 | `repoUrl` | Use instead of `demo` when the code lives in its own repository |
-| `thumbnail` | `/thumbs/<name>.jpg`, **1200x600** — or the poster frame for a clip |
+| `thumbnail` | `/thumbs/<name>.jpg`, **1200x600** — or the poster frame for a clip. |
 | `video` | `/previews/<name>.mp4` for a motion preview (see below) |
 | `videoAspect` | `portrait` \| `landscape` \| `square` |
 | `credits` | Required when the component is built on someone else's work (see below) |
@@ -282,6 +282,35 @@ credits: [
 ```
 
 Never invent a source URL. If you do not have the link, leave it out and say so.
+
+## Adding a design system (SYSTEMS)
+
+A template is a finished page; a system is its design language: tokens, working components and
+agent instructions. Systems are always extracted from a real template, never invented.
+
+1. Write `scripts/systems/<slug>.mjs` on the shared pipeline in `scripts/systems/lib.mjs` (see
+   `kind-swarm.mjs`, `kiln.mjs`, `footnote.mjs`). It reads the template's demo (never
+   edits it), slices real markup out of it, prefixes class and keyframe names (`ks-`), swaps literal
+   colours, fonts, radii, shadows and timings for tokens, and writes `public/systems/<slug>/`:
+   `specimen.html` (the specimen; never `index.html`, which the host would serve at `/systems/<slug>`, the dialog's URL), `tokens.css` and `<slug>.css`.
+2. Run it: `node scripts/systems/<slug>.mjs`. Re-run it after the template changes; never hand-edit
+   the generated files.
+3. Capture `public/systems/<slug>/preview.jpg` (1200x600) from the top of the specimen.
+4. Add the entry to `src/data/systems.ts`: components in specimen order, the playground controls the
+   system can really take, the palette, conventions for the agent instruction, and the template
+   slugs. The template's page then shows VIEW DESIGN SYSTEM automatically.
+   Lay out its dialog with `board` (numbered bento panels on a 12-column grid: `identity`,
+   `tokens:palette|type|shape|motion|layout|all`, `component:<id>`, `context`, `used`) and describe
+   the `context` app screen (real components re-composed, never new markup). Token panels read the
+   token group headings (`Color · …`, `Type · families`, `Type · scale`, `Shape · radii`,
+   `Shape · borders`, `Depth · …`, `Motion · easing`, `Motion · durations`, `Space · layout`), so
+   keep those names in the extraction script.
+5. `npm test` checks the entry against the generated files (components, tokens, palette, prefixed
+   classes, that no selector reaches outside the root class, template links).
+
+The specimen is the single source of truth: the SYSTEMS dialog reads its `<style id="<prefix>-tokens">`,
+`<style id="<prefix>-components">`, `<svg id="<prefix>-defs">`, `<section data-component>` blocks and
+`<script id="<prefix>-components-js">`, so what a visitor copies is what an agent downloads.
 
 ## Verification discipline
 
