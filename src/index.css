@@ -1540,23 +1540,50 @@ html {
   border: 1px solid #e4e4e4;
 }
 /* A GOSPEL video tile: a play badge over the still. */
+/* The play button: a glass take on Uiverse.io by jubayer-10. A frosted bezel,
+   a soft shadow well, and a translucent blue button over it, so the stage
+   shows through every layer. */
 .grid-item .tile-play {
   position: absolute;
   left: 50%;
   top: 50%;
   z-index: 1;
-  width: 56px;
-  height: 56px;
-  margin: -28px 0 0 -28px;
-  display: grid;
-  place-items: center;
-  padding-left: 3px;
+  width: 68px;
+  height: 68px;
+  margin: -34px 0 0 -34px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  color: #fff;
+  background: rgba(239, 246, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(8px) saturate(1.5);
+  backdrop-filter: blur(8px) saturate(1.5);
+  box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.35), 2px 3px 10px rgba(0, 0, 0, 0.3);
   pointer-events: none;
   transition: opacity 300ms ease-out;
+}
+.grid-item .tile-play-shade,
+.grid-item .tile-play-disc {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 59px;
+  height: 59px;
+  margin-left: -29.5px;
+  border-radius: 50%;
+}
+.grid-item .tile-play-shade { background: rgba(0, 0, 0, 0.35); filter: blur(1px); }
+.grid-item .tile-play-disc {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.55), rgba(96, 165, 250, 0.38));
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 3px 2px rgba(147, 197, 253, 0.75), inset 0 -3px 0 rgba(30, 58, 138, 0.7), 0 0 2px rgba(0, 0, 0, 0.6);
+}
+.grid-item .tile-play-disc svg {
+  width: 26px;
+  margin-left: 3px;
+  fill: rgba(219, 234, 254, 0.95);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
 }
 /* The hover overlay carries the title and WATCH, so the badge steps aside for it. */
 .grid-item:hover .tile-play,
@@ -3536,9 +3563,10 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #fff; }
   .library-intro-sub { grid-column: 1 / -1; font-size: 11px; line-height: 1.55; }
   /* GITHUB moves into the header; Agent Mode becomes a full-width bar under the blurb */
   .library-intro { grid-template-columns: minmax(0, 1fr); }
-  .library-intro-kicker { grid-row: 1; }
-  .library-intro-sub { grid-row: 2; }
-  .library-intro-actions { grid-column: 1 / -1; grid-row: 3; display: block; margin-top: 4px; }
+  /* Agent Mode leads, above the title */
+  .library-intro-actions { grid-column: 1 / -1; grid-row: 1; display: block; margin: 0 0 8px; }
+  .library-intro-kicker { grid-row: 2; }
+  .library-intro-sub { grid-row: 3; }
   .library-intro-actions .agent-toggle {
     --neo-w: 54px;
     --neo-h: 30px;
@@ -3923,3 +3951,96 @@ html.agent-dark .pdm-btn--solid { background: #fff; color: #000; }
 html.agent-dark .pdm-code { border-color: #444; }
 html.agent-dark .pdm-code summary { color: #ccc; }
 html.agent-dark .pdm-code summary::after { color: #fff; }
+.sb-more { margin: 8px 0 0; font-size: 9.5px; letter-spacing: 0.08em; color: #999; }
+/* A system's root class carries its page's base styles, which can include a
+   full-screen min-height; on the board its containers size to their content */
+.sysboard .sb-demo, .sysboard .sb-context { min-height: 0; }
+.sysboard .sb-identity-in { min-height: 300px; }
+
+/* ── Feed filter row: one line of tag chips above the grid, at every width ──
+   Scrolls sideways (thumb on touch, grab-and-drag with a mouse); the edges
+   fade where there is more to see. */
+.filter-row { position: relative; margin: 0 0 12px; }
+.filter-row-track {
+  display: flex;
+  gap: 8px;
+  padding: 4px 2px 10px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.filter-row-track::-webkit-scrollbar { display: none; }
+.filter-row.has-start .filter-row-track { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px); mask-image: linear-gradient(90deg, transparent, #000 56px); }
+.filter-row.has-end .filter-row-track { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); }
+.filter-row.has-start.has-end .filter-row-track {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+}
+@media (pointer: fine) {
+  .filter-row-track { cursor: grab; }
+  .filter-row-track.is-grabbing { cursor: grabbing; }
+  .filter-row-track.is-grabbing .filter-chip { pointer-events: none; }
+}
+.filter-chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid #dcdcdc;
+  border-radius: 999px;
+  background: #fff;
+  color: #222;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: inherit;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+.filter-chip span { font-weight: 500; letter-spacing: 0.04em; color: #9a9a9a; transition: color 160ms ease; }
+.filter-chip:hover { border-color: #000; box-shadow: 0 2px 0 #000; }
+.filter-chip[aria-pressed="true"] { background: #000; border-color: #000; color: #fff; box-shadow: none; }
+.filter-chip[aria-pressed="true"] span { color: #8a8a8a; }
+.filter-chip:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+html.agent-dark .filter-chip { background: #000; border-color: #333; color: #ddd; }
+html.agent-dark .filter-chip:hover { border-color: #fff; box-shadow: 0 2px 0 #fff; }
+html.agent-dark .filter-chip[aria-pressed="true"] { background: #fff; border-color: #fff; color: #000; }
+@media (max-width: 720px) {
+  .filter-row { margin: 0 -12px 14px; }
+  .filter-row-track { padding: 4px 12px 10px; }
+  .filter-chip { height: 36px; }
+}
+@media (prefers-reduced-motion: reduce) { .filter-chip { transition: none; } }
+
+/* Systems list under Agent Mode (the page goes dark like the home feed) */
+html.agent-dark .sys-row { background: #0a0a0a; border-color: #333; }
+html.agent-dark .sys-row:hover, html.agent-dark .sys-row:focus-within { box-shadow: 6px 6px 0 #fff; border-color: #fff; }
+html.agent-dark .sys-row-thumb { border-color: #333; background: #111; }
+html.agent-dark .sys-row-link { color: #fff; }
+html.agent-dark .sys-row-tagline { color: #a0a0a0; }
+html.agent-dark .sys-row-id, html.agent-dark .sys-row-meta { color: #777; }
+html.agent-dark .sys-row-theme { border-color: #3a3a3a; }
+html.agent-dark .sys-row-palette i { border-color: rgba(255, 255, 255, 0.25); }
+html.agent-dark .sys-row-btn { background: #000; color: #fff; border-color: #fff; }
+html.agent-dark .sys-row-btn:hover, html.agent-dark .sys-row-btn--solid { background: #fff; color: #000; }
+html.agent-dark .sys-row-btn--solid:hover { background: #ddd; }
+html.agent-dark .sys-row-btn:focus-visible, html.agent-dark .sys-row:has(.sys-row-link:focus-visible) { outline-color: #fff; }
+html.agent-dark .sys-list-foot { border-top-color: #333; color: #777; }
+
+/* The Systems page lists its rows on a 26px gutter, so the agent panel matches it */
+main:has(> .sys-list) > .agent-panel { margin: 14px 26px 0; }
+@media (max-width: 720px) { main:has(> .sys-list) > .agent-panel { margin: 12px 18px 0; } }
+
+/* Filter chips on the Systems page: the list's grid gap already spaces them */
+.sys-list { grid-template-columns: minmax(0, 1fr); }
+.sys-list .filter-row { margin: 0; min-width: 0; }
+@media (max-width: 720px) {
+  .sys-list .filter-row { margin: 0 -18px; }
+  .sys-list .filter-row-track { padding: 4px 18px 10px; }
+}

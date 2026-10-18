@@ -1,8 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowUpRight, Bot, Check } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SystemModal from "@/components/SystemModal";
+import GithubButton from "@/components/GithubButton";
+import { AgentModeToggle, AgentPanel } from "@/components/AgentMode";
+import { useAgentDark } from "@/hooks/useAgentDark";
+import FilterRow from "@/components/FilterRow";
+import { rankTags, systemTagsOf } from "@/lib/feedTags";
 import { getSystemBySlug, systems, type SystemEntry } from "@/data/systems";
 import { getPromptBySlug, interleaveByTheme, type PromptEntry } from "@/data/prompts";
 import { useSpecimen } from "@/lib/systemSpecimen";
@@ -84,6 +89,10 @@ const Systems = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const open = getSystemBySlug(slug);
+  useAgentDark();
+  const [filter, setFilter] = useState("all");
+  const tags = useMemo(() => rankTags(systems.map(systemTagsOf)), []);
+  const shown = filter === "all" ? order() : order().filter((s) => systemTagsOf(s).includes(filter));
 
   useSeo({
     title: open ? `${open.name} Design System` : "Design Systems",
@@ -108,10 +117,16 @@ const Systems = () => {
               The language behind the pages. Tokens, working components and agent instructions, extracted from real HTML.
             </p>
           </div>
+          <div className="library-intro-actions">
+            <AgentModeToggle />
+            <GithubButton />
+          </div>
         </div>
+        <AgentPanel />
 
         <div className="sys-list">
-          {order().map((s) => (
+          <FilterRow tags={tags} total={systems.length} active={filter} onPick={setFilter} label="Filter design systems by style" />
+          {shown.map((s) => (
             <SystemRow key={s.slug} system={s} />
           ))}
           <p className="sys-list-foot">

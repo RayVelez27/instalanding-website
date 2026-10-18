@@ -24,6 +24,7 @@ interface Props {
   onCopy: (key: string, text: string) => void;
 }
 
+const TYPE_ROWS = 8;
 const isHex = (v: string) => /^#[0-9a-f]{6}$/i.test(v.trim());
 const short = (name: string, prefix: string) => name.replace(`--${prefix}-`, "");
 
@@ -97,7 +98,11 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
     if (b.panel === "identity") {
       return (
         <section key={key} className={`sb-panel sb-span-${b.span} sb-identity`} aria-label={`${system.name} design system`}>
-          <div className={`${system.rootClass} ${system.look.identityClass} sb-identity-in`} style={{ backgroundColor: system.look.identityBg, color: system.look.identityText }}>
+          <div className={`${system.rootClass} ${system.look.identityClass} sb-identity-in`} style={{
+              // A gradient has to go on background-image; a colour on background-color, so a class's pattern survives
+              ...(system.look.identityBg.includes("gradient(") ? { backgroundImage: system.look.identityBg } : { backgroundColor: system.look.identityBg }),
+              color: system.look.identityText,
+            }}>
             <p className="sb-identity-eyebrow" style={{ fontFamily: `var(${system.look.mono})` }}>INSTALANDING DESIGN SYSTEM</p>
             <p className="sb-identity-name" style={{ fontFamily: `var(${system.look.display})`, textTransform: system.look.displayUpper ? "uppercase" : "none" }}>{system.name}</p>
             <p className="sb-identity-tag" style={{ fontFamily: `var(${system.look.body})` }}>{system.tagline}</p>
@@ -140,6 +145,8 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
     if (b.panel === "tokens:type") {
       const fams = group("Type · families")?.tokens ?? [];
       const scale = group("Type · scale")?.tokens ?? [];
+      // A long scale would stretch the whole opening row; the rest are in All tokens
+      const sizes = scale.filter((t) => /px|vw|clamp|rem/.test(t.value));
       const display = fams.find((t) => t.name === system.look.display) ?? fams[0];
       return (
         <Panel key={key} n={n} span={b.span} title={b.title ?? "Typography"}>
@@ -154,7 +161,7 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
               ))}
             </div>
             <div className="sb-scale">
-              {scale.filter((t) => /px|vw|clamp/.test(t.value)).map((t) => {
+              {sizes.slice(0, TYPE_ROWS).map((t) => {
                 const isDisplay = t.name.includes("display");
                 return (
                   <button key={t.name} className="sb-scale-row" onClick={() => copyVar(t)} title={`Copy var(${t.name})`}>
@@ -177,6 +184,9 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
                   </button>
                 );
               })}
+              {sizes.length > TYPE_ROWS && (
+                <p className="sb-more">+{sizes.length - TYPE_ROWS} more sizes in All tokens</p>
+              )}
             </div>
           </div>
         </Panel>

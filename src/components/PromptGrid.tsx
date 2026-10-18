@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Copy, Check, ArrowRight, ArrowUp, ExternalLink, Play } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { feedPrompts, promptsInCategory, type PromptEntry } from "@/data/prompts";
@@ -7,6 +7,8 @@ import { copyText, copyTextLater } from "@/lib/copyText";
 import { loadDemoSource } from "@/lib/demoSource";
 import { agentCommand, agentHandoff, useAgentMode } from "@/lib/agentMode";
 import { useIsPhone } from "@/hooks/useIsPhone";
+import FilterRow from "@/components/FilterRow";
+import { feedTags, tagsOf } from "@/lib/feedTags";
 
 /* ── Tile ── */
 
@@ -42,7 +44,15 @@ const GridTile = (entry: TileProps) => {
         {/* Phones: the picture itself opens the template (no hover overlay to reveal first) */}
         <Link to={`/prompt/${entry.slug}`} state={asModal} className="tile-tap" aria-label={`Open ${entry.title}`} />
         {entry.youtube && (
-          <span className="tile-play" aria-hidden="true"><Play size={18} fill="currentColor" /></span>
+          <span className="tile-play" aria-hidden="true">
+            <span className="tile-play-shade" />
+            <span className="tile-play-disc">
+              {/* Play glyph after Uiverse.io by jubayer-10 */}
+              <svg viewBox="0 0 24 24">
+                <path d="M20.492,7.969,10.954.975A5,5,0,0,0,3,5.005V19a4.994,4.994,0,0,0,7.954,4.03l9.538-6.994a5,5,0,0,0,0-8.062Z" />
+              </svg>
+            </span>
+          </span>
         )}
         <div className="overview overview--prompt">
           {/* Covers the whole tile so the card reads as one link; the buttons below sit on top of it */}
@@ -169,7 +179,11 @@ const PromptGrid = ({ category }: { category?: string }) => {
 
   // promptsInCategory, not a filter over the interleaved list: filtering an
   // alternating run closes the gaps and the themes clump again.
-  const items = category ? promptsInCategory(category) : feedPrompts;
+  const all = category ? promptsInCategory(category) : feedPrompts;
+  const tags = useMemo(() => feedTags(all), [all]);
+  const [filter, setFilter] = useState("all");
+  // Filtering keeps the feed's order, so the light / dark alternation mostly holds
+  const items = useMemo(() => (filter === "all" ? all : all.filter((p) => tagsOf(p).includes(filter))), [all, filter]);
 
   /* COPY puts the demo's whole HTML file on the clipboard, like the detail
      view's COPY CODE. An entry with no single-file demo (code in its own repo)
@@ -188,10 +202,11 @@ const PromptGrid = ({ category }: { category?: string }) => {
 
   return (
     <div className="media-grid">
+      <FilterRow tags={tags} total={all.length} active={filter} onPick={setFilter} />
       <div className="grid-container">
         {items.map((p, i) => (
           <Fragment key={p.slug}>
-            {i === 4 && !category && <SystemsBanner />}
+            {i === 4 && !category && filter === "all" && <SystemsBanner />}
             <GridTile {...p} onCopy={handleCopy} copied={copiedSlug === p.slug} agent={agent} />
           </Fragment>
         ))}

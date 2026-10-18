@@ -1,19 +1,12 @@
-import { useLayoutEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import PromptGrid from "@/components/PromptGrid";
 import GithubButton from "@/components/GithubButton";
 import { AgentModeToggle, AgentPanel } from "@/components/AgentMode";
-import { useAgentMode } from "@/lib/agentMode";
+import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 
 const Index = () => {
-  const agent = useAgentMode();
-  // Agent Mode reveals a dark panel, so the home page goes dark with it.
-  // Set before paint (no white flash) and only while this page is mounted.
-  useLayoutEffect(() => {
-    document.documentElement.classList.toggle("agent-dark", agent);
-    return () => document.documentElement.classList.remove("agent-dark");
-  }, [agent]);
+  useAgentDark();
 
   useSeo({
     title: "InstaLanding.ai — One-Shot HTML Library for Humans and Agents",

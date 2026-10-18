@@ -105,6 +105,171 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Facetry Security Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A black-and-chrome security platform page: an extruded metal logo on a rough stone pedestal in a CSS 3D scene, spring-morphing between three shapes, glass panels floating around it, a live spring tuner, and a footer with live region clocks",
+    prompt: `Build a single-file HTML landing page for "Facetry", a fictional access-control and security platform ("Security, cut to shape."). The look is black glass and brushed chrome: near-black surfaces, metal gradient type and buttons, and one hero object, an extruded metal logo standing on a rough stone block in a real CSS 3D scene. The brand mark morphs between three shapes (diamonds, shield, triangle) on a spring, everywhere it appears. Fictional product, labelled as such in the footer. No libraries, no images, no web fonts: system UI and system mono, inline SVG, CSS 3D and one inline script.
+
+THE SYSTEM
+- Colours: page #000 with #09090b surfaces, text #f4f4f5 / #d4d4d8, soft #a1a1aa, muted #71717a, faint #3f3f46, hairlines white at 6% and 10%.
+- --metal is a vertical gradient #fbfbfb → #e4e4e4 (18%) → #cccbcb (55%) → #9e9d9d. It fills .metal-text (background-clip text) in every headline's second line, primary buttons (dark ink text, inset white top line, soft white glow), badges, tags and tiny 45deg diamond bullets.
+- Surfaces are 32px-radius cards with a top-lit radial (white 5% → 1% → black 40%), an inset 1px white top line at 12%, an inset hairline and a deep black drop shadow. Hover lifts 4px and brightens the top line.
+- Background: a fixed diagonal stripe field (repeating 135deg gradient between #0e0f10 and #18191b, 70% opacity) drifting slowly, under a radial vignette that pulls the edges to black.
+- Motion uses one ease, cubic-bezier(.16, 1, .3, 1). Reveals fade up 28px from an 8px blur with staggered delays.
+- The rock texture is an inline SVG data URI (feTurbulence fractal noise into feDiffuseLighting with a distant light) used as a CSS variable.
+
+THE MORPH ENGINE
+- Each shape is four layers of cubic Bézier paths with the same number of points in every state: an outer and inner contour (an even-odd compound path) plus three detail layers. Straight polygon edges are converted to cubics (control points at thirds), so any state can tween into any other.
+- A Morph class springs every coordinate toward the target state (stiffness 175, damping 22 by default) with a little scale kick on each switch, adds a motion blur proportional to speed, and marks itself settled when the speed falls below a threshold, so idle morphs cost nothing. It auto-advances every 2-3s, pauses on hover, and advances on click; tab buttons show a progress bar filling until the next switch. An IntersectionObserver stops off-screen instances. Under reduced motion it jumps straight to each state.
+- Metal finish: SVG filters add a dark drop shadow and a 1px white top-edge highlight (feOffset + feComposite out + feFlood). Static icons across the page use the same paths and filters.
+
+SECTIONS (data-section in order)
+1. nav: a fixed floating pill (blurred dark glass, inset highlight) with the metal mark and "Facetry", four links, and a metal "Get started".
+2. hero: a "2.0 · Adaptive policies are here" badge, the h1 "Security, / cut to shape." (second line in metal) at clamp(48px, 5.4vw, 92px), the lede, a big metal "Start building" and a ghost "See it move". Three chips (Precision, Protection, Foundation) with outlined icons double as the hero morph's tabs. The right side is a 640px CSS 3D scene (perspective 2200px, preserve-3d) tilted -19deg / -34deg that eases toward the pointer on a spring: a masked grid floor with a soft glow, a stone pedestal built from three clipped faces with chipped top edges and the rock texture, its shadow, the extruded logo (ten dark slices stepped 2.2px back in Z behind a brushed front face with a diagonal sheen), a flare, light rays, twinkling sparks, and glass panels with "+" corner marks floating at different depths: a tall back panel, a small icon tile, a dotted world map drawn from an ASCII grid, and a list (POLICIES, ACCESS, CONTROLS, MONITORING) whose active row follows the shape.
+3. marquee: a masked strip of features with small icons, looping.
+4. platform: "Three shapes. / One system." Three bento cards (Precision, Protection, Foundation) with a metal icon, a mono number, copy and diamond-bulleted lists, then a wide card with a "Policy as code" pitch beside a syntax-highlighted code window.
+5. motion-lab: "Motion with mass." A stage card with its own morph and a dock of three tabs, beside a control card: presets (Default, Snappy, Bouncy, Heavy), stiffness and damping sliders with metal thumbs, and a live response curve (simulated at 240Hz over 1.4s) with a "settles in N ms" readout. Changing it retunes the lab morph.
+6. stats: four big numbers that count up on a spring (3.2ms p99, 99.999%, 24 regions, 40B decisions).
+7. pricing: "Pick your facet." Three tiers with metal icons; the middle one is featured with a glow and a "Most chosen" tag.
+8. faq: four questions that open on an animated grid-template-rows 0fr → 1fr, with a plus that turns into a minus.
+9. footer: one big rounded surface holding everything: a cursor-following spotlight, a huge outlined metal triangle slowly spinning behind, a hairline top edge; "Find your shape." with an email pill that swaps to "You're in ✓" and reshapes the CTA morph, assurance ticks, a tap-to-reshape stage; a live region band (SFO, IAD, LHR, FRA, SIN, SYD) with local clocks from Intl.DateTimeFormat and jittering p50 latency bars ticking every second; link columns with diamond hover markers; legal row and a back-to-top pill.
+
+THINGS THAT BREAK
+- Every morph state must have exactly the same number of numbers per layer, or the tween jumps. Keep the layer count fixed at four and pad simple shapes with extra cubic segments.
+- A CSS blur on the 3D logo flattens its preserve-3d extrusion, so the hero morph skips motion blur.
+- Give the hero grid columns min-width: 0 and scale the 3D scene with a --s variable per breakpoint, or the 640px scene pushes the page sideways.
+- Run every morph, the parallax and the counters from one requestAnimationFrame loop with dt capped at 32ms, so a background tab does not explode the springs.
+
+THE FLOOR
+- Breakpoints at 1180px (hero stacks and centres), 920px (bento, lab, tiers and footer go to one column) and 640/520px (chips stack, region grid to two columns). No horizontal scroll at 390px.
+- Real buttons for chips, tabs, presets and FAQ (aria-expanded), labelled sliders with outputs, a labelled email field, decorative SVG aria-hidden, and a prefers-reduced-motion block that stops the drift, marquee, sparks and spin and shows reveals immediately.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 18, 2026",
+    demo: "/demos/facetry-security.html",
+    bestFor: ["security and access-control products","developer infrastructure","B2B SaaS launches","premium dark product pages"],
+    style: ["dark","chrome","css-3d","monochrome","interactive","svg-morph"],
+    thumbnail: "/thumbs/facetry-security.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Cyber Bird Arcade Game Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A pixel-art arcade game launch page with the game playable right in the hero: a one-button flyer threading an armored cyber-pickup through stainless rocket stacks, night, dawn and day skies drawn by code, difficulty presets and a local mission log",
+    prompt: `Build a single-file HTML landing page for "Cyber Bird", a one-button pixel arcade game concept, with the game itself playable inside the hero. The player flies an angular armored cyber-pickup on hover-jets through gaps between stacks of stainless-steel rockets over a starbase. Every graphic, on the page and in the game, is drawn by code at runtime: no image files. Credit the original open-source game it is built on (Tesla Bird by Pavel Troshkin) in the footer, and say it is an unaffiliated fan concept.
+
+STACK
+- Google Fonts: Jersey 10 (pixel display: logo, headings, numbers, keycaps), Geist 400-600 (body), Geist Mono (labels, 10-12px uppercase, wide tracking).
+- Canvas 2D for the game, the sprites, a starfield and two mini scenes. One inline script.
+
+THE SYSTEM
+- Dark: page #04050b, text #eef3ff, muted #98a0b3, dim #5d6477, hairlines at 9% / 17% white. Accent cyan #2fe0ff (#7af0ff hover) with dark ink #031218 on it.
+- Two registered colour properties (@property --glow, --glow2) drive the auroras and glows, so switching the sky theme (night: blue / cyan; dawn: violet / coral; day: blue / pale blue) cross-fades them in CSS. The theme is remembered and also re-skins the game.
+- Behind everything: a fixed starfield canvas (parallax with scroll, tinted per theme), radial aura glows, and faint CRT scanlines.
+- The title "CYBER" at clamp(108px, 19vw, 270px) with a hard black offset shadow and a big glow, and a tilted "BIRD" sticker in a cyan-to-blue gradient tucked under its right edge.
+- Cards: 18px radius, faint white gradient, a cursor-following radial highlight. Keycaps are pixel boxes with a 3px border and a hard 4px black shadow.
+
+SPRITES (all generated into offscreen canvases once)
+- The pickup (42x15): a single triangular roofline with the apex at x=24, steel slab sides with panel lines, dark glass, a light bar and tail light, wheels drawn as shaded discs, and a crashed variant with cracked glass. A cyan light beam ahead of it.
+- Jet smoke: a 14-frame strip of flame then expanding, dithered puffs.
+- Rockets in three pieces (nose cone with fins, a tileable body, an engine section with bells), shaded by a steel ramp across the width with a dark heat-shield tile pattern on one side.
+- Three starbase skies (night with stars and a moon, dawn with a striped sunset sun, day with a sun and clouds) built from dithered gradient bands, rolling hills, launch towers, rockets and tanks in silhouette, a lit ground edge and a road.
+
+THE GAME
+- Native 640x360, rendered at 3x into a canvas and scaled to cover its box with a ResizeObserver; pixel-crisp (imageSmoothingEnabled false, image-rendering pixelated).
+- Physics: gravity 1100, a boost sets velocity to -270, horizontal speed 115; the truck tilts from -12deg on the climb to +30deg in the fall. Rocket pairs every step px with a gap of innerColumn px, and each gap may only drift maxGapShift px from the last. Presets: easy 200 / 96 / 50, normal 170 / 80 / 60, hard 145 / 70 / 72.
+- Screens drawn on the canvas in Jersey 10: start ("CYBER BIRD", CLICK or SPACE keycaps), an in-flight HUD (a T+ mission clock, a charge timeline LIFTOFF / 25 / 50 / 75 / FULL, pixel gauges for score and altitude), and game over (charge, score and best gauges, NEW BEST, a PLAY button). Every 10 points charges 25%.
+- Input: Space, Up or W or a click / tap boosts; keys only act while the game is at least half visible or fullscreen. Best scores per difficulty, run count and theme go to localStorage, each read and write wrapped in try/catch.
+- Expose it as a factory, CyberBird('container', { difficulty, theme }), returning start, restart, destroy, getScore, getBestScore, getState, setTheme.
+
+SECTIONS (data-section in order)
+1. nav: a fixed blurred bar with the pixel truck and "CYBER BIRD", section links, a Night / Dawn / Day segmented switch and a pixel GitHub icon.
+2. hero: the eyebrow "Game concept · One-button arcade" with a blinking pixel dot, the title, the lede, "Launch the game" (scrolls to and focuses the game) and "See the build"; then the console: a gradient-bordered frame with lamps, a live T+ clock, a difficulty switch and a fullscreen button, the 16:9 game screen (4:3 on phones), a telemetry row (score, best for the mode, charge, status) updated ten times a second, and a spec line (640x360 native, 3x pixel render, 0 image files, 1 html file).
+3. marquee: big pixel words (LIFTOFF, 25% CHARGE … FULL CHARGE, CLICK OR SPACE) scrolling.
+4. features: a six-column bento: a flight-model card with a mini canvas of the truck hovering, a tall obstacle card with an animated rocket gap, a sky card whose three canvas swatches switch the theme, a progression card with a conic gauge and a charge ladder, and a code card showing the embed API.
+5. modes: three cards built from the presets with 12-cell meters for spacing, gap and drift, your best per mode, and a "Fly" button that switches difficulty and launches; the current mode is highlighted.
+6. manual: control rows with pixel keycaps and four numbered pilot tips.
+7. mission-log: bests per difficulty, total runs and peak charge read from localStorage, with a reset link.
+8. cta: "YOU." with a cyan full stop and "Fly now".
+9. footer: the credit and non-affiliation line, GitHub and X icons.
+
+THINGS THAT BREAK
+- Keep every sprite and sky in its own offscreen canvas and only drawImage per frame; regenerate a sky only when the theme or the stage size changes.
+- Snap the scaled stage to whole game pixels, or the art shimmers as it moves.
+- Load the Jersey 10 font (document.fonts.load) before the first canvas text, or the screens draw in the fallback face.
+- Remove the game's listeners and cancel its animation frame in destroy(), because switching difficulty remounts it.
+
+THE FLOOR
+- Breakpoints at 960px (bento to two columns), 900px (modes, manual and log stack, links hide) and 640px (4:3 screen, two-column telemetry). No horizontal scroll at 390px.
+- The game container is focusable with role=region and a visible focus ring, a polite status line announces start and game over, theme and difficulty switches use aria-pressed, decorative canvases are aria-hidden, and prefers-reduced-motion stops the marquee, starfield drift and mini scenes.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 18, 2026",
+    demo: "/demos/cyber-bird-arcade.html",
+    bestFor: ["indie games and game launches","interactive product demos","playful brand pages","pixel-art and retro sites"],
+    style: ["dark","pixel-art","retro","playable-game","canvas","interactive"],
+    credits: [
+      {
+        label: "Tesla Bird by Pavel Troshkin",
+        href: "https://github.com/troshkinpavel/tesla-bird",
+        note: "The open-source one-button game this page's game logic is built on; the sprites here are redrawn in code",
+      },
+    ],
+    thumbnail: "/thumbs/cyber-bird-arcade.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Kestrel AI Finance Landing Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A bright fintech page for an AI finance platform: a 3D-tilting cash-runway dashboard with a self-drawing forecast chart and a live agent feed, orbiting integration chips, glossy diamond icon tiles, product rows with dark live panels, hover-flip agent cards and a demo booking widget",
+    prompt: `Build a single-file HTML landing page for "Kestrel", a fictional AI platform for finance teams that puts agents to work on forecasting, the month-end close and fraud review. The page should feel bright, precise and expensive: a pale mint-white ground lit by teal, sky and amber light, chunky rounded display type, a floating 3D dashboard in the hero and glossy diamond-shaped icon tiles everywhere. Fictional company, customers and numbers, labelled as such in the footer. No images and no libraries: everything is inline SVG, CSS and one canvas, driven by one inline script.
+
+STACK
+- Google Fonts: Bagel Fat One (all display: logo, headings, big numbers, always uppercase), Poppins 300-700 (body and buttons), Space Mono 400/700 (labels, eyebrows, tickers, tags; 9-11px, uppercase, letter-spacing 1-1.6px).
+
+THE SYSTEM
+- Colours: page #f4f8f7, surfaces #fff / #f9fbfb / #eef4f3, ink #10201e, muted #5a6b68, faint #8a9a97, hairlines #e1eae8, a deep panel #0f2a2a with #e8f3f1 text used sparingly. Accents are stored as bare RGB triplets so they can take any alpha: teal 20,184,166, sky 56,152,236, amber 245,166,35, coral 255,118,92 (alerts only).
+- --grad is a 120deg teal → sky → amber gradient. It fills gradient text (.gt, background-clip text), 2-3px underlines under headings (a background, not a border), the 2px rule on top of the nav, panel title bars and the footer. A --grad-soft version at about 13% alpha tints chips, strips and featured cards.
+- Radii 8 / 14 / 16px. Shadows are soft and ink-tinted (0 4px 20px rgba(16,32,30,.06)); floating things add a large negative-spread drop and an inset 1px white top highlight.
+- Texture: a full-page fixed layer with a pale teal-to-blue-to-cream gradient run through an SVG filter (feTurbulence fractal noise → feSpecularLighting with a point light → composite → overlay blend) so surfaces look like lightly embossed paper. Section headers and the hero reuse it.
+- Diamond icon tiles (.dia): a 42px square rotated 45deg with a teal-sky-amber gradient body, inner highlights, a coloured drop shadow and a blurred gradient glow on hover; inside, a counter-rotated white bevelled square holds the icon. Sizes sm 28px and lg 64px, and an ink variant with a dark glossy core. Icons are one SVG sprite of duotone symbols: a gradient stroke (#0d8a7a → #1f6db5 → #c47c14) plus a pale gradient fill, with tiny drop shadows so they read as embossed; on dark surfaces a light gradient stroke.
+- Buttons: the primary is a dark glossy teal-black gradient (#2b4643 → #0d1c1b) with a sweeping white shine, turning teal on hover and lifting 2px; the ghost is translucent white with a hairline. All 11px uppercase, letter-spacing 1.2px.
+
+SECTIONS (data-section in order)
+1. ticker: a fixed 34px strip with a pulsing teal "models live · 99.99% uptime" dot, a looping market ticker (FX, treasuries, SOFR, indices, up in teal, down in coral) masked at both ends, and three anchor links.
+2. nav: a fixed blurred white bar below it with the gradient rule on top; the logo is an ink diamond plus "KESTREL" with the T in gradient and a mono "ai for finance teams" line under it. Four diamond icon links with tooltips that pop under them, and a "book a demo" primary.
+3. hero: inside a big rounded white wrapper (max 1240px). Behind it: the texture, three slow drifting blurred aurora blobs, a 36px grid masked to a radial fade and slowly panning, and a canvas particle network (dots in the three accents linked by fading lines under 120px). Left column: a shining "NEW · autonomous close, now in beta" pill, the h1 "Finance that" over a rotating gradient word (thinks ahead / forecasts / reconciles / protects, swapping every 2.6s with a blur-and-slide), each line rising in from a mask; the lead, two buttons, three trust pills (SOC 2 Type II, bank-grade encryption, 40+ currencies) and a glass stat strip that counts up ($2.1b reconciled / mo, 600+ teams, 11 days saved). Right column, the stage: two dashed orbits turning in opposite directions carrying integration chips (12,000+ banks, ERP ledgers, card spend, payroll, FX rates) that counter-rotate to stay upright, and a white dashboard panel that tilts in 3D toward the cursor with a moving soft-light glare. The panel has a dark title bar (traffic-light dots, "cash runway · q4 2026", a pulsing "synced") with an animated gradient underline; three KPI tiles with sparklines (cash on hand drifts and flashes teal every few seconds); an "actual vs. AI forecast" chart whose line draws itself, then a dashed amber forecast with a confidence band fades in, a pulsing marker sits on today and a dot travels the line, and a scan light sweeps across; and an "agent activity" feed where a new row (ledger, sentinel, oracle, analyst, colour-coded) slides in every 2.4s, keeping four. Three glass cards float and bob around it with parallax (fraud sentinel blocked a wire; reconcile 1,284 matches with a filling bar; a ring gauge "oracle forecast 97.4%"). A logo marquee of eight fictional wordmarks closes the hero.
+4. about: a strip with two small art tiles (radial glow plus rings or bars), pairs of diamond links and a scrolling description box.
+5. platform: section headers are white cards with the texture, a blurred colour blob and a big diamond, numbered automatically with a CSS counter ("01."). Then three product rows (Forecast, Autonomous close, Sentinel): a tinted top bar of "explore:" links, a dark tab hanging from the top-left with two stats, the title with a gradient underline, copy and check pills, and on the right a deep-teal "live" panel with dashed rows and ok/warn/bad tags.
+6. how-it-works: a pill-and-diamond subhead, then three stacked step cards inside a tinted tray: centred title and mono detail, a deep side panel with a big value and a gradient meter that fills on reveal, and a dark footer strip with a white number tab and a gradient top rule.
+7. agents: four 250x370 cards (Oracle, Ledger, Sentinel, Analyst), each an SVG portrait in its accent. On hover the art slides out and blurs, the name slides away, and a detail panel staggers in with three facts and a dark role label sliding up from the corner.
+8. proof: four stat cards with blobs and counting gradient numbers, a customer story with a dark date bar, an uppercase display quote, certification pills and a deep "12 → 2 days" card with a meter.
+9. pricing: three plans, the middle one tinted with a hanging "most popular" flag and gradient price.
+10. footer: one big closing section with the aurora, grid and texture: a "close the books on autopilot" headline, an email form that confirms in text, trust ticks, and a glass booking card (day buttons Mon-Fri, six time slots, the selection echoed in the confirm button, a confirmation line); then a five-column link grid with a pulsing "all systems operational" pill, a giant faint KESTREL wordmark with a light sweeping through it, and a bottom bar with small diamond social links and legal links.
+
+THINGS THAT BREAK
+- The orbit chips sit on rotating rings, so each chip must counter-rotate at the same speed or the labels spin upside down.
+- Keep the stage tilt in CSS variables (--rx, --ry, --px, --py) set from one mousemove handler; the floating cards use the individual translate property so the bob keyframes (transform) still run. Skip the tilt on touch devices and with reduced motion.
+- Reveal-on-scroll elements start at opacity 0: use one IntersectionObserver that also fills meters and starts count-ups, and force everything visible under prefers-reduced-motion.
+- Gradient ids in the agent portraits and art tiles must be unique on the page.
+- Size the particle canvas to its box times devicePixelRatio (capped at 2) and rebuild on resize, with the particle count scaled to the area.
+
+THE FLOOR
+- Breakpoints at 1000px (hero stacks, products and steps stack, two-column stats, one-column pricing) and 640px (orbits, floating cards, the tab stats and side links hide; the wrapper goes full width; the form stacks). No horizontal scroll at 390px.
+- Real buttons for days and slots, a labelled email input, tooltips copied into aria-label, decorative SVG and the wordmark aria-hidden, and a prefers-reduced-motion block that stops every animation and transition.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 18, 2026",
+    demo: "/demos/kestrel-finance.html",
+    bestFor: ["fintech and finance software","AI agent platforms","B2B SaaS dashboards","CFO and accounting tools"],
+    style: ["light","fintech","glassmorphism","3d-tilt","dashboard","interactive"],
+    thumbnail: "/thumbs/kestrel-finance.jpg",
+    theme: "light",
+  },
+  {
     title: "Starfork Game Studio Landing Page",
     category: "web",
     categoryLabel: "WEB",
@@ -724,7 +889,7 @@ One h1, a main, data-section on every region, real buttons with aria-pressed, a 
     youtube: "-WYYlRArn3g",
     // The NFL blocks this upload from playing on other sites, so it opens on YouTube.
     youtubeEmbed: false,
-    thumbnail: "/thumbs/prince-super-bowl-xli.jpg",
+    thumbnail: "/thumbs/prince-super-bowl-xli-stage.jpg",
     theme: "dark",
   },
   {
