@@ -17,7 +17,7 @@ const Category = ({ slug: fixed }: { slug?: string }) => {
     canonical: category ? categoryHref(category.slug) : undefined,
   });
 
-  if (!category) return <Navigate to="/" replace />;
+  if (!category) return <Navigate to="/pages" replace />;
 
   return (
     <div className="app-layout">

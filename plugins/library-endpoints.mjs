@@ -5,6 +5,10 @@
  *   /p/<slug>.txt        one prompt, raw, ready to paste verbatim
  *   /p/<slug>.json       the same prompt with its metadata
  *   /llms.txt            a markdown index, per the llms.txt convention
+ *   /systems.json        every design system: tokens, components, files, linked pages
+ *   /s/<slug>.txt        one system's agent instruction, tokens inline
+ *   /motion.json         every motion study: choreography, inputs, linked pages
+ *   /m/<slug>.txt        one motion study's one-shot prompt
  *   /SKILL.md            the agent skill (source: mcp/SKILL.md, also shipped with the CLI)
  *   /sitemap.xml         every crawlable route: the library, the builder pages, the rest
  *   /<slug>/index.html   static search landing pages (src/data/seoPages.ts, see seo-pages.mjs)
@@ -24,6 +28,10 @@ const DATA_FILE = "src/data/prompts.ts";
 const BUILDERS_FILE = "src/data/builders.ts";
 const SEO_FILE = "src/data/seoPages.ts";
 const SKILL_FILE = "mcp/SKILL.md";
+const SYSTEMS_FILE = "src/data/systems.ts";
+const MOTION_FILE = "src/data/motion.ts";
+// Only type imports, which esbuild drops, so loadData can read it like the data files
+const SYSTEM_AGENT_FILE = "src/lib/systemAgent.ts";
 
 /** Load a TS data module without a bundler: they have no imports by design. */
 const loadData = (root, rel) => {
@@ -122,8 +130,31 @@ const readDemo = (root, demo) => {
   };
 };
 
+/**
+ * The three layers, linked: which system a page was extracted into, which
+ * motion studies pair with it. Built once per render from the data files.
+ */
+const loadLayers = (root) => {
+  const { systems = [] } = existsSync(path.resolve(root, SYSTEMS_FILE)) ? loadData(root, SYSTEMS_FILE) : {};
+  const { motions = [] } = existsSync(path.resolve(root, MOTION_FILE)) ? loadData(root, MOTION_FILE) : {};
+  return { systems, motions };
+};
+
+const pageLinks = (slug, layers, base) => {
+  const system = layers.systems.find((s) => s.templates.includes(slug));
+  const motion = layers.motions.filter((m) => m.pairsWith.includes(slug));
+  return {
+    system: system
+      ? { slug: system.slug, name: system.name, url: abs(base, `/systems/${system.slug}`), instructionUrl: abs(base, `/s/${system.slug}.txt`) }
+      : undefined,
+    motion: motion.length
+      ? motion.map((m) => ({ slug: m.slug, title: m.title, url: abs(base, `/motion/${m.slug}`), promptUrl: abs(base, `/m/${m.slug}.txt`) }))
+      : undefined,
+  };
+};
+
 /** One prompt as agents consume it: metadata plus the URLs that resolve it. */
-const toEntry = (entry, base, root) => ({
+const toEntry = (entry, base, root, layers = { systems: [], motions: [] }) => ({
   slug: entry.slug,
   title: entry.title,
   category: entry.category,
@@ -147,9 +178,10 @@ const toEntry = (entry, base, root) => ({
   repoUrl: entry.repoUrl ?? undefined,
   credits: entry.credits ?? undefined,
   ...readDemo(root, entry.demo),
+  ...pageLinks(entry.slug, layers, base),
 });
 
-const buildManifest = ({ prompts, categories }, base, siteName, root) => ({
+const buildManifest = ({ prompts, categories }, base, siteName, root, layers) => ({
   name: siteName,
   url: base,
   description:
@@ -165,14 +197,128 @@ const buildManifest = ({ prompts, categories }, base, siteName, root) => ({
     mcp: `${base}mcp`,
     mcpInstall: `claude mcp add --transport http instalanding ${base}mcp`,
     cli: "npx -y instalanding search <words>",
+    systems: `${base}systems.json`,
+    motion: `${base}motion.json`,
   },
   categories: categories.map((c) => ({
     slug: c.slug,
     label: c.label,
     count: prompts.filter((p) => p.category === c.slug).length,
   })),
-  prompts: prompts.map((p) => toEntry(p, base, root)),
+  prompts: prompts.map((p) => toEntry(p, base, root, layers)),
 });
+
+/** Every design system as agents consume it, with the pages it came from. */
+const buildSystems = (layers, library, base, root) => {
+  const { systemAgentInstruction } = loadData(root, SYSTEM_AGENT_FILE);
+  const pages = (s) => library.prompts.filter((p) => s.templates.includes(p.slug));
+  const files = {};
+  const entries = layers.systems.map((s) => {
+    const tokensFile = path.resolve(root, "public", s.files.tokens.replace(/^\//, ""));
+    const tokensCss = existsSync(tokensFile) ? readFileSync(tokensFile, "utf8").trim() : undefined;
+    // The same instruction COPY FOR AGENT gives, so the site and the tools never disagree
+    files[`s/${s.slug}.txt`] = systemAgentInstruction(s, {
+      siteUrl: base.replace(/\/$/, ""),
+      tokensCss,
+      templates: pages(s),
+      components: s.components,
+    });
+    return {
+      slug: s.slug,
+      name: s.name,
+      version: s.version,
+      tagline: s.tagline,
+      description: s.description,
+      theme: s.theme,
+      tags: s.tags,
+      palette: s.palette,
+      prefix: s.prefix,
+      rootClass: s.rootClass,
+      components: s.components,
+      tokenCount: tokensCss ? (tokensCss.match(/--[\w-]+\s*:/g) ?? []).length : undefined,
+      pageUrl: abs(base, `/systems/${s.slug}`),
+      instructionUrl: abs(base, `/s/${s.slug}.txt`),
+      files: {
+        specimen: abs(base, s.files.specimen),
+        tokens: abs(base, s.files.tokens),
+        css: abs(base, s.files.css),
+        preview: abs(base, s.files.preview),
+        fonts: s.fontsHref,
+      },
+      pages: pages(s).map((p) => ({ slug: p.slug, title: p.title, url: abs(base, `/prompt/${p.slug}`), promptUrl: abs(base, `/p/${p.slug}.txt`) })),
+      motion: layers.motions
+        .filter((m) => m.pairsWith.some((slug) => s.templates.includes(slug)))
+        .map((m) => ({ slug: m.slug, title: m.title, url: abs(base, `/motion/${m.slug}`) })),
+    };
+  });
+  return {
+    json: {
+      name: "INSTALANDING.AI design systems",
+      url: base,
+      description:
+        "Design systems extracted from real InstaLanding pages: tokens as CSS custom properties, every component working in one specimen HTML file, and an instruction an agent can apply to an existing project.",
+      generated: new Date().toISOString(),
+      count: entries.length,
+      license: "MIT",
+      usage: { instruction: `${base}s/<slug>.txt`, mcpTools: ["search_systems", "get_system"] },
+      systems: entries,
+    },
+    files,
+  };
+};
+
+/** Every motion study as agents consume it, with the pages it pairs with. */
+const buildMotion = (layers, library, base) => {
+  const titleOf = (slug) => library.prompts.find((p) => p.slug === slug)?.title;
+  const files = {};
+  const entries = layers.motions.map((m) => {
+    files[`m/${m.slug}.txt`] = m.prompt;
+    return {
+      slug: m.slug,
+      title: m.title,
+      kind: m.kind,
+      tagline: m.tagline,
+      description: m.description,
+      added: m.added,
+      theme: m.theme,
+      tags: m.tags,
+      bestFor: m.bestFor,
+      library: m.library,
+      approxPromptTokens: Math.round(m.prompt.length / 4),
+      pageUrl: abs(base, `/motion/${m.slug}`),
+      promptUrl: abs(base, `/m/${m.slug}.txt`),
+      demoUrl: abs(base, m.demo),
+      posterUrl: abs(base, m.poster),
+      choreography: {
+        life: `${m.life}s`,
+        of: m.lifeLabel.toLowerCase(),
+        elements: m.elements,
+        stagger: m.stagger !== undefined ? `${m.stagger}s` : undefined,
+        tracks: m.tracks.map((t) => ({ prop: t.prop, change: t.change, from: +(t.start * m.life).toFixed(3), to: +(t.end * m.life).toFixed(3), ease: t.ease, yoyo: t.yoyo || undefined })),
+      },
+      inputs: m.inputs.map((i) => `${i.keys.join(" / ")}: ${i.does}`),
+      trick: m.trick,
+      pairsWith: m.pairsWith
+        .filter((slug) => titleOf(slug))
+        .map((slug) => ({ slug, title: titleOf(slug), url: abs(base, `/prompt/${slug}`), promptUrl: abs(base, `/p/${slug}.txt`) })),
+      credits: m.credits.length ? m.credits : undefined,
+    };
+  });
+  return {
+    json: {
+      name: "INSTALANDING.AI motion studies",
+      url: base,
+      description:
+        "Motion studies, one movement each: a single HTML demo, its choreography as data (tracks, eases, timing, inputs) and the one-shot prompt that builds it.",
+      generated: new Date().toISOString(),
+      count: entries.length,
+      license: "MIT",
+      usage: { prompt: `${base}m/<slug>.txt`, mcpTools: ["get_motion"] },
+      motion: entries,
+    },
+    files,
+  };
+};
 
 const buildLlmsTxt = (manifest, { prompts }) => {
   const lines = [
@@ -189,6 +335,8 @@ const buildLlmsTxt = (manifest, { prompts }) => {
     `- MCP server, hosted (Streamable HTTP, no install, no key): ${manifest.url}mcp`,
     `  Claude Code: claude mcp add --transport http instalanding ${manifest.url}mcp`,
     `- CLI: npx -y instalanding search "dark technical ai" · inspect <slug> · get <slug> · add <slug>`,
+    `- Design systems (tokens, components, agent instructions): ${manifest.url}systems.json`,
+    `- Motion studies (choreography as data, one-shot prompts): ${manifest.url}motion.json`,
     "",
   ];
 
@@ -222,13 +370,18 @@ const buildLlmsTxt = (manifest, { prompts }) => {
  * they live at their own search terms and are only linked from the menu and
  * each other, so a sitemap is the difference between ten pages and none.
  */
-const buildSitemap = (library, builders, base, seoPages = []) => {
+const buildSitemap = (library, builders, base, seoPages = [], layers = { systems: [], motions: [] }) => {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     { loc: base, priority: "1.0" },
+    { loc: `${base}pages`, priority: "0.9" },
     { loc: `${base}agents`, priority: "0.9" },
     { loc: `${base}builders`, priority: "0.9" },
     { loc: `${base}about`, priority: "0.4" },
+    { loc: `${base}systems`, priority: "0.8" },
+    ...layers.systems.map((s) => ({ loc: `${base}systems/${s.slug}`, priority: "0.7" })),
+    { loc: `${base}motion`, priority: "0.8" },
+    ...layers.motions.map((m) => ({ loc: `${base}motion/${m.slug}`, priority: "0.7" })),
     { loc: `${base}contribute`, priority: "0.5" },
     { loc: `${base}sponsor`, priority: "0.4" },
     { loc: `${base}contact`, priority: "0.3" },
@@ -259,15 +412,32 @@ const buildSitemap = (library, builders, base, seoPages = []) => {
 
 /** Build every published file as { path: contents }. */
 const renderFiles = (library, builders, base, siteName, root) => {
-  const manifest = buildManifest(library, base, siteName, root);
+  const layers = loadLayers(root);
+  const manifest = buildManifest(library, base, siteName, root, layers);
+  const systems = buildSystems(layers, library, base, root);
+  const motion = buildMotion(layers, library, base);
   const { seoPages = [] } = existsSync(path.resolve(root, SEO_FILE)) ? loadData(root, SEO_FILE) : {};
   const live = String(library.prompts.filter((p) => !p.hidden && p.demo && p.thumbnail).length);
   // Guides go in llms.txt just ahead of the notes, so AI tools that read the index find them.
-  const llms = buildLlmsTxt(manifest, library).replace("## Notes", () => [...seoLlmsLines(seoPages, base, live), "## Notes"].join("\n"));
+  const layerLines = [
+    "## Design systems",
+    "",
+    ...systems.json.systems.map((s) => `- [${s.name}](${s.instructionUrl}): ${s.tagline}. ${s.components.length} components; from ${s.pages.map((p) => p.title).join(", ")}.`),
+    "",
+    "## Motion studies",
+    "",
+    ...motion.json.motion.map((m) => `- [${m.title}](${m.promptUrl}): ${m.tagline} (${m.library.name} ${m.library.version}, ~${m.approxPromptTokens} tokens)`),
+    "",
+  ];
+  const llms = buildLlmsTxt(manifest, library).replace("## Notes", () => [...layerLines, ...seoLlmsLines(seoPages, base, live), "## Notes"].join("\n"));
   const files = {
     "prompts.json": JSON.stringify(manifest, null, 2),
     "llms.txt": llms,
-    "sitemap.xml": buildSitemap(library, builders, base, seoPages),
+    "sitemap.xml": buildSitemap(library, builders, base, seoPages, layers),
+    "systems.json": JSON.stringify(systems.json, null, 2),
+    "motion.json": JSON.stringify(motion.json, null, 2),
+    ...systems.files,
+    ...motion.files,
     ...renderSeoPages({ pages: seoPages, library, builders, base, readDemo: (demo) => readDemo(root, demo) }),
   };
   // The skill names the library by URL; point it at wherever this build is served.
@@ -278,7 +448,7 @@ const renderFiles = (library, builders, base, siteName, root) => {
   for (const entry of library.prompts) {
     files[`p/${entry.slug}.txt`] = entry.prompt;
     files[`p/${entry.slug}.json`] = JSON.stringify(
-      { ...toEntry(entry, base, root), prompt: entry.prompt },
+      { ...toEntry(entry, base, root, layers), prompt: entry.prompt },
       null,
       2
     );
@@ -320,7 +490,7 @@ export default function libraryEndpoints(options = {}) {
         const seo = existsSync(path.resolve(root, SEO_FILE)) ? loadData(root, SEO_FILE).seoPages : [];
         const seoHit = seo.find((p) => pathname === p.slug || pathname === `${p.slug}/`);
         if (seoHit) pathname = `${seoHit.slug}/index.html`;
-        else if (!/^(prompts\.json|llms\.txt|SKILL\.md|sitemap\.xml|p\/[^/]+\.(txt|json))$/.test(pathname))
+        else if (!/^(prompts\.json|systems\.json|motion\.json|llms\.txt|SKILL\.md|sitemap\.xml|p\/[^/]+\.(txt|json)|[sm]\/[^/]+\.txt)$/.test(pathname))
           return next();
         let files;
         try {

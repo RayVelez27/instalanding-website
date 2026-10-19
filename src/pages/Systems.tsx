@@ -3,8 +3,9 @@ import { Navigate, useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowUpRight, Bot, Check } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SystemModal from "@/components/SystemModal";
-import GithubButton from "@/components/GithubButton";
-import { AgentModeToggle, AgentPanel } from "@/components/AgentMode";
+import SiteTopBar from "@/components/SiteTopBar";
+import RouteBanner from "@/components/RouteBanner";
+import { AgentPanel } from "@/components/AgentMode";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import FilterRow from "@/components/FilterRow";
 import { rankTags, systemTagsOf } from "@/lib/feedTags";
@@ -110,18 +111,13 @@ const Systems = () => {
     <div className="app-layout">
       <Sidebar />
       <main>
-        <div className="library-intro">
-          <div className="library-intro-text">
-            <p className="library-intro-kicker">DESIGN SYSTEMS</p>
-            <p className="library-intro-sub">
-              The language behind the pages. Tokens, working components and agent instructions, extracted from real HTML.
-            </p>
-          </div>
-          <div className="library-intro-actions">
-            <AgentModeToggle />
-            <GithubButton />
-          </div>
-        </div>
+        <SiteTopBar />
+        <RouteBanner
+          tone="systems"
+          kicker={`${systems.length} SYSTEMS · TOKENS · COMPONENTS`}
+          title="DESIGN SYSTEMS"
+          description="The language behind the pages. Tokens, working components and agent instructions, extracted from real HTML."
+        />
         <AgentPanel />
 
         <div className="sys-list">

@@ -5,6 +5,7 @@ import { SITE_URL } from "@/lib/agentMode";
 import { componentSnippet, type Specimen, type SpecimenGroup, type SpecimenToken } from "@/lib/systemSpecimen";
 import type { SystemEntry } from "@/data/systems";
 import type { PromptEntry } from "@/data/prompts";
+import { motions as allMotions } from "@/data/motion";
 
 /**
  * The design-system board: the system broken down into a bento of numbered
@@ -323,6 +324,19 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
                 </div>
               </div>
             ))}
+            {(() => {
+              const pairs = allMotions.filter((m) => m.pairsWith.some((s) => templates.some((t) => t.slug === s)));
+              return pairs.length ? (
+                <p className="sb-used-motion">
+                  <b>MOTION THAT PAIRS</b>
+                  {pairs.map((m) => (
+                    <Link key={m.slug} to={`/motion/${m.slug}`}>
+                      {m.title} <ArrowUpRight size={11} aria-hidden="true" />
+                    </Link>
+                  ))}
+                </p>
+              ) : null;
+            })()}
             <p className="sb-used-note">Every system on InstaLanding is extracted from a real, working page: the components here are its markup, not a redraw.</p>
           </div>
         </Panel>

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, type Location } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
+import Home from "./pages/Home";
 import Category from "./pages/Category";
 import PromptModal from "@/components/PromptModal";
 import PromptDetail from "./pages/PromptDetail";
@@ -18,10 +19,12 @@ import BuilderPage from "./pages/BuilderPage";
 import { builders } from "@/data/builders";
 import ComingSoon from "./pages/ComingSoon";
 import Systems from "./pages/Systems";
+import Motion from "./pages/Motion";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import SiteFooter from "@/components/SiteFooter";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -37,8 +40,11 @@ const AppRoutes = () => {
 
   return (
     <>
+      <ScrollToTop />
       <Routes location={background ?? location}>
-        <Route path="/" element={<Index />} />
+        {/* HOME is the front door to all three layers; the pages feed lives at /pages */}
+        <Route path="/" element={<Home />} />
+        <Route path="/pages" element={<Index />} />
         {/* Product is a section of its own, so its category lives at /product
             and the generic path redirects rather than serving a duplicate. */}
         <Route path="/category/product" element={<Navigate to="/product" replace />} />
@@ -54,10 +60,9 @@ const AppRoutes = () => {
           path="/product"
           element={<ComingSoon title="Product" blurb="Dashboards, consoles and in-app flows — the screens people use after they sign up — as one-shot prompts with a reference build." />}
         />
-        <Route
-          path="/motion"
-          element={<ComingSoon title="Motion" blurb="Motion systems — scroll choreography, transitions, loaders and micro-interactions — as one-shot prompts with a reference build." />}
-        />
+        {/* Motion studies, and each study's lab at its own URL */}
+        <Route path="/motion" element={<Motion />} />
+        <Route path="/motion/:slug" element={<Motion />} />
         <Route
           path="/stack"
           element={<ComingSoon title="Stack" blurb="Whole app stacks — frontend, backend, auth, payments and deploy — as one-shot prompts with a reference build." />}

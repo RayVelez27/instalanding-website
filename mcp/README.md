@@ -155,6 +155,26 @@ need to *build* the component, `get_prompt` is far cheaper and is the intended p
 ### `list_categories`
 What the library holds, by category, with counts and the manifest's timestamp.
 
+### `search_systems`
+Find a design system by look (`"dark industrial"`, `"editorial serif"`). Each result names its
+components, token count and the pages it was extracted from. Optional `theme`: `dark` or `light`.
+
+### `get_system`
+| arg | type | |
+| --- | --- | --- |
+| `slug` | string | e.g. `kiln` |
+
+The instruction for applying the system to an existing project: where its CSS, tokens, specimen and
+fonts live, its conventions, how to apply it without touching logic, and every token inline.
+
+### `get_motion`
+| arg | type | |
+| --- | --- | --- |
+| `slug` | string, optional | e.g. `coverflow-carousel`; omit to list the studies |
+
+A motion study's choreography as data (what moves, from when to when, on which ease), its inputs,
+how it works, the pages it pairs with, and the one-shot prompt that builds it.
+
 ## Resources
 
 Every prompt is also an MCP resource at `instalanding://prompt/<slug>`, so clients that let you

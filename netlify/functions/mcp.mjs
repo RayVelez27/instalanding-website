@@ -42,7 +42,8 @@ This URL is for agents, over MCP (Streamable HTTP). Add it to yours:
   Cursor        .cursor/mcp.json → { "mcpServers": { "instalanding": { "url": "https://instalanding.ai/mcp" } } }
   VS Code       .vscode/mcp.json → { "servers": { "instalanding": { "type": "http", "url": "https://instalanding.ai/mcp" } } }
 
-Tools: search_prompts, inspect_prompt, get_prompt, get_demo_source, list_categories.
+Tools: search_prompts, inspect_prompt, get_prompt, get_demo_source, list_categories,
+       search_systems, get_system (design systems), get_motion (motion studies).
 Docs: https://instalanding.ai/agents
 `;
 

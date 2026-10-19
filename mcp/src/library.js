@@ -130,6 +130,46 @@ export class Library {
     return { entry, text: await this.#get(`p/${entry.slug}.txt`) };
   }
 
+  /** Every design system: tokens, components, files and the pages it came from. */
+  async systemsManifest() {
+    const manifest = await this.#get("systems.json", { json: true });
+    if (!manifest || !Array.isArray(manifest.systems)) {
+      throw new LibraryError("systems.json is missing its `systems` array.");
+    }
+    return manifest;
+  }
+
+  async system(slug) {
+    const { systems } = await this.systemsManifest();
+    return findBySlug(systems, slug, "design system", "search_systems");
+  }
+
+  /** The agent instruction for one system: sources, conventions, how to apply, tokens inline. */
+  async systemInstruction(slug) {
+    const entry = await this.system(slug);
+    return { entry, text: await this.#get(`s/${entry.slug}.txt`) };
+  }
+
+  /** Every motion study: choreography as data, inputs and the pages it pairs with. */
+  async motionManifest() {
+    const manifest = await this.#get("motion.json", { json: true });
+    if (!manifest || !Array.isArray(manifest.motion)) {
+      throw new LibraryError("motion.json is missing its `motion` array.");
+    }
+    return manifest;
+  }
+
+  async motionStudy(slug) {
+    const { motion } = await this.motionManifest();
+    return findBySlug(motion, slug, "motion study", "get_motion with no slug");
+  }
+
+  /** One motion study's one-shot prompt. */
+  async motionPrompt(slug) {
+    const entry = await this.motionStudy(slug);
+    return { entry, text: await this.#get(`m/${entry.slug}.txt`) };
+  }
+
   /** The demo's single-file HTML source. */
   async demoSource(slug) {
     const entry = await this.entry(slug);
@@ -145,6 +185,21 @@ export class Library {
     return { entry, source: await this.#get(pathname) };
   }
 }
+
+/** Exact slug, or an error that names the near misses (the same courtesy entry() gives prompts). */
+const findBySlug = (list, slug, kind, hint) => {
+  const wanted = String(slug ?? "").trim().toLowerCase();
+  const found = list.find((e) => e.slug === wanted);
+  if (found) return found;
+  const near = [
+    ...list.filter((e) => wanted && e.slug.includes(wanted)).map((e) => e.slug),
+    ...nearestSlugs(wanted, list, 3),
+  ].filter((s, i, all) => all.indexOf(s) === i).slice(0, 3);
+  throw new LibraryError(
+    `No ${kind} with slug "${slug}".` + (near.length ? ` Did you mean: ${near.join(", ")}?` : "") +
+      ` Available: ${list.map((e) => e.slug).join(", ")}. (${hint} lists them.)`
+  );
+};
 
 /**
  * Substring match, except short terms must match a whole word: "ai" should
@@ -262,6 +317,8 @@ export const formatInspect = (entry, { cli = false } = {}) => {
       : null],
     ["Page", [entry.pageUrl]],
     ["Built on", entry.credits?.length ? entry.credits.map((c) => `${c.label} — ${c.href}`) : null],
+    ["System", entry.system ? [`${entry.system.name} · ${cli ? `${entry.system.instructionUrl}` : `get_system("${entry.system.slug}")`}`] : null],
+    ["Motion", entry.motion?.length ? entry.motion.map((m) => `${m.title} · ${cli ? m.promptUrl : `get_motion("${m.slug}")`}`) : null],
   ];
 
   const lines = [

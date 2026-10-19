@@ -10,6 +10,7 @@ import { copyText } from "@/lib/copyText";
 import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, getRelatedPrompts, visiblePrompts, categoryHref } from "@/data/prompts";
 import { getSystemForTemplate } from "@/data/systems";
+import { motionsForPage } from "@/data/motion";
 import { useSeo } from "@/hooks/useSeo";
 import { useIsPhone } from "@/hooks/useIsPhone";
 import PromptDetailPhone from "@/components/PromptDetailPhone";
@@ -49,13 +50,14 @@ const PromptDetail = () => {
     setFeedback(false);
   }, [slug]);
 
-  if (!entry) return <Navigate to="/" replace />;
+  if (!entry) return <Navigate to="/pages" replace />;
 
   const index = visiblePrompts.findIndex((p) => p.slug === entry.slug);
   const prev = index > 0 ? visiblePrompts[index - 1] : null;
   const next = index >= 0 && index < visiblePrompts.length - 1 ? visiblePrompts[index + 1] : null;
   const related = getRelatedPrompts(entry);
   const system = getSystemForTemplate(entry.slug);
+  const motions = motionsForPage(entry.slug);
 
   const file = entry.demo?.split("/").pop() ?? "index.html";
 
@@ -88,6 +90,7 @@ const PromptDetail = () => {
             next={next}
             related={related}
             system={system}
+            motions={motions}
             file={file}
             code={code}
             promptCopied={promptCopied}
@@ -107,7 +110,7 @@ const PromptDetail = () => {
       <main>
         <article className="detail">
           <nav className="detail-crumbs" aria-label="Breadcrumb">
-            <Link to="/">ALL</Link>
+            <Link to="/pages">ALL</Link>
             <span aria-hidden="true">/</span>
             <Link to={categoryHref(entry.category)}>{entry.categoryLabel}</Link>
             <span aria-hidden="true">/</span>
@@ -160,6 +163,11 @@ const PromptDetail = () => {
                 <span className="pmodal-label">VIEW DESIGN SYSTEM</span> <ArrowUpRight size={12} aria-hidden="true" />
               </Link>
             )}
+            {motions.map((m) => (
+              <Link key={m.slug} className="pmodal-btn" to={`/motion/${m.slug}`} title={`${m.title}: a motion study that pairs with this page`}>
+                <span className="pmodal-label">MOTION · {m.title.toUpperCase()}</span> <ArrowUpRight size={12} aria-hidden="true" />
+              </Link>
+            ))}
             <button
               className="pmodal-btn"
               aria-pressed={feedback}

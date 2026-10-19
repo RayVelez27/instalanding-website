@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import BrandLogo from "@/components/BrandLogo";
 import { GITHUB_REPO } from "@/components/GithubButton";
 
 /**
@@ -6,7 +7,8 @@ import { GITHUB_REPO } from "@/components/GithubButton";
  * the left, a short row of links on the right. Deliberately one quiet line.
  */
 const LINKS: { label: string; to?: string; href?: string }[] = [
-  { label: "Pages", to: "/" },
+  { label: "Home", to: "/" },
+  { label: "Pages", to: "/pages" },
   { label: "Systems", to: "/systems" },
   { label: "About", to: "/about" },
   { label: "Sponsor", to: "/sponsor" },
@@ -19,7 +21,7 @@ const LINKS: { label: string; to?: string; href?: string }[] = [
 const SiteFooter = () => (
   <footer className="site-footer">
     <p className="site-footer-mark">
-      <span className="site-footer-brand">1NSTALANDING.AI</span>
+      <BrandLogo className="site-footer-brand" />
       <span>© {new Date().getFullYear()} · Free and MIT · Built for humans and agents</span>
     </p>
     <nav aria-label="Footer">

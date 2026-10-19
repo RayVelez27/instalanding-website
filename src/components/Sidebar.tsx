@@ -1,4 +1,5 @@
 import { useState } from "react";
+import BrandLogo from "@/components/BrandLogo";
 import { Link, useLocation } from "react-router-dom";
 import { builders } from "@/data/builders";
 import { Menu, X } from "lucide-react";
@@ -14,9 +15,10 @@ import GithubButton from "@/components/GithubButton";
  * just not in the menu any more.
  */
 const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[] = [
-  { to: "/", label: "PAGES" },
+  { to: "/", label: "HOME" },
+  { to: "/pages", label: "PAGES" },
   { to: "/systems", label: "SYSTEMS", isNew: true },
-  { to: "/motion", label: "MOTION", soon: true },
+  { to: "/motion", label: "MOTION", isNew: true },
   // PRODUCT and STACK are out of the menu, not removed: /product and /stack
   // still serve their ComingSoon pages, so nothing shared breaks.
   // { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED
@@ -66,7 +68,7 @@ const Socials = ({ size, className }: { size: number; className: string }) => (
 
 const BrandMark = () => (
   <Link to="/" className="brand-mark" aria-label="InstaLanding.ai home">
-    <span className="brand-mark-text">1NSTALANDING.AI</span>
+    <BrandLogo className="brand-mark-logo" />
   </Link>
 );
 
@@ -85,6 +87,7 @@ const Sidebar = () => {
         builders.some((b) => b.path === location.pathname)
       );
     if (to === "/systems") return location.pathname === to || location.pathname.startsWith("/systems/");
+    if (to === "/motion") return location.pathname === to || location.pathname.startsWith("/motion/");
     return location.pathname === to;
   };
 

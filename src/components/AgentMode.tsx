@@ -123,7 +123,8 @@ export const AgentPanel = () => {
             <CopyRow code={current.block} label={`${current.name} MCP config`} />
           </div>
           <p className="agent-route-tools">
-            Tools: search_prompts · inspect_prompt · get_prompt · get_demo_source · list_categories
+            Tools: search_prompts · inspect_prompt · get_prompt · get_demo_source · list_categories ·
+            search_systems · get_system · get_motion
           </p>
         </div>
 

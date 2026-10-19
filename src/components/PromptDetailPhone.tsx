@@ -9,6 +9,7 @@ import { SITE_URL } from "@/lib/agentMode";
 import { mobileThumbFor } from "@/data/mobileThumbs";
 import { categoryHref, type PromptEntry } from "@/data/prompts";
 import type { SystemEntry } from "@/data/systems";
+import type { MotionEntry } from "@/data/motion";
 
 /**
  * The prompt page on a phone. Built for reading and trying, not for building:
@@ -23,6 +24,7 @@ interface Props {
   next: PromptEntry | null;
   related: PromptEntry[];
   system?: SystemEntry;
+  motions?: MotionEntry[];
   file: string;
   code: string | null;
   promptCopied: boolean;
@@ -92,7 +94,7 @@ const PhonePreview = ({ entry }: { entry: PromptEntry }) => {
   );
 };
 
-const PromptDetailPhone = ({ entry, prev, next, related, system, file, code, promptCopied, onCopyPrompt, onCopyCode, codeCopied, codeFailed }: Props) => {
+const PromptDetailPhone = ({ entry, prev, next, related, system, motions = [], file, code, promptCopied, onCopyPrompt, onCopyCode, codeCopied, codeFailed }: Props) => {
   // The code view is only built once opened: highlighting a 150KB file is not free on a phone
   const [codeOpen, setCodeOpen] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -248,6 +250,14 @@ const PromptDetailPhone = ({ entry, prev, next, related, system, file, code, pro
           <ArrowUpRight size={14} aria-hidden="true" />
         </Link>
       )}
+      {motions.map((m) => (
+        <Link key={m.slug} className="pdm-system pdm-system--motion" to={`/motion/${m.slug}`}>
+          <span>
+            <b>Motion</b> {m.title} · pairs with this page
+          </span>
+          <ArrowUpRight size={14} aria-hidden="true" />
+        </Link>
+      ))}
 
       <nav className="pdm-pager" aria-label="Prompt navigation">
         {prev && (

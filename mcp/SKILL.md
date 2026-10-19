@@ -39,13 +39,18 @@ Every command takes `--json`. `get` prints the brief and nothing else, so it pip
 With the MCP server — hosted at `https://instalanding.ai/mcp`, nothing to install
 (`claude mcp add --transport http instalanding https://instalanding.ai/mcp`), or locally with
 `npx -y instalanding mcp`: `search_prompts`, `inspect_prompt`, `get_prompt`, `get_demo_source`,
-`list_categories`.
+`list_categories`, plus `search_systems` / `get_system` for design systems and `get_motion` for
+motion studies. A page's `get_prompt` names its design system and the motion that pairs with it.
 
 Over plain HTTP, when neither is installed — every endpoint is static and CORS-open:
 
 | fetch | returns |
 | --- | --- |
 | `https://instalanding.ai/prompts.json` | the manifest: every entry's slug, description, `bestFor`, `style`, `sections`, `stack`, sizes and URLs. One fetch, then search it yourself. |
+| `https://instalanding.ai/systems.json` | every design system: tokens, components, files, and the pages it was extracted from |
+| `https://instalanding.ai/s/<slug>.txt` | one system's instruction for restyling an existing project, every token inline |
+| `https://instalanding.ai/motion.json` | every motion study: the choreography as data (tracks, eases, timing), inputs, pages it pairs with |
+| `https://instalanding.ai/m/<slug>.txt` | one motion study's one-shot prompt |
 | `https://instalanding.ai/p/<slug>.txt` | the brief, raw |
 | `https://instalanding.ai/p/<slug>.json` | the brief plus its metadata |
 | `demoUrl` from the manifest | the reference build |

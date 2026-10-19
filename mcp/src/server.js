@@ -9,7 +9,7 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mc
 import { z } from "zod";
 import { DEMO_INLINE_LIMIT, LibraryError, formatInspect, rank } from "./library.js";
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
 
 /* ── helpers ─────────────────────────────────────────────────────────── */
 
@@ -58,6 +58,29 @@ const describe = (entry) =>
     .filter(Boolean)
     .join("\n");
 
+/** A design system as a search result: enough to choose one */
+const describeSystem = (s) =>
+  [
+    `### ${s.name} (${s.slug}@${s.version})`,
+    `slug: ${s.slug}`,
+    `${s.tagline}`,
+    `theme: ${s.theme} · tags: ${s.tags.join(", ")}`,
+    `${s.components.length} components${s.tokenCount ? ` · ${s.tokenCount} tokens` : ""} · classes ${s.prefix}- under .${s.rootClass}`,
+    s.pages?.length ? `extracted from: ${s.pages.map((p) => `${p.title} (${p.slug})`).join(", ")}` : null,
+    `apply it: get_system("${s.slug}")`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+/** A motion study's choreography as plain lines: what moves, when, on which ease */
+const choreography = (m) => {
+  const c = m.choreography;
+  return [
+    `${c.of}: ${c.life}${c.stagger ? `, ${c.elements} elements ${c.stagger} apart` : ""}`,
+    ...c.tracks.map((t) => `- ${t.prop}: ${t.change} · ${t.from}s → ${t.to}s · ${t.ease}${t.yoyo ? " · yoyo" : ""}`),
+  ].join("\n");
+};
+
 /* ── server ──────────────────────────────────────────────────────────── */
 
 /**
@@ -77,7 +100,11 @@ export function createServer(library) {
         "get_prompt to read the full brief and build from it. Prompts are prose briefs, not code — " +
         "follow the brief and write the code yourself, in the user's stack. get_demo_source returns " +
         "a working reference implementation as a single HTML file, which is large: read it only when " +
-        "the prompt alone is not enough, and lift sections by their data-section attribute.",
+        "the prompt alone is not enough, and lift sections by their data-section attribute. " +
+        "The library has two more layers. Design systems: search_systems, then get_system for an " +
+        "instruction (tokens inline) that restyles an existing project in that language. Motion studies: " +
+        "get_motion lists them; get_motion(slug) gives the choreography as data and the one-shot prompt. " +
+        "Pages name their system and the motion that pairs with them, and vice versa.",
     }
   );
 
@@ -174,6 +201,8 @@ export function createServer(library) {
           entry.credits?.length
             ? `built on: ${entry.credits.map((c) => `${c.label} — ${c.href}`).join("; ")}`
             : null,
+          entry.system ? `design system: ${entry.system.name} — get_system("${entry.system.slug}")` : null,
+          entry.motion?.length ? `motion that pairs: ${entry.motion.map((m) => `${m.title} — get_motion("${m.slug}")`).join("; ")}` : null,
           "",
           "--- ONE-SHOT PROMPT ---",
           "",
@@ -269,6 +298,150 @@ export function createServer(library) {
           "",
           `search_prompts({ category: "web" }) to browse one.`,
         ].join("\n")
+      );
+    })
+  );
+
+  server.registerTool(
+    "search_systems",
+    {
+      title: "Search design systems",
+      description:
+        "Find a design system to restyle a project with: tokens as CSS custom properties plus working " +
+        "components, each extracted from a real page in the library. Search by look ('dark industrial', " +
+        "'editorial serif', 'y2k'). Omit the query to list them all.",
+      inputSchema: {
+        query: z.string().optional().describe("The look you want, in plain words."),
+        theme: z.enum(["dark", "light"]).optional().describe("Only dark or only light systems."),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    guard(async ({ query, theme }) => {
+      const manifest = await library.systemsManifest();
+      const pool = theme ? manifest.systems.filter((s) => s.theme === theme) : manifest.systems;
+      // The page ranker, fed each system's own words
+      const shaped = pool.map((s) => ({
+        slug: s.slug,
+        title: s.name,
+        description: `${s.tagline}. ${s.description}`,
+        category: "system",
+        style: s.tags,
+        theme: s.theme,
+        bestFor: (s.pages ?? []).map((p) => p.title),
+        sections: s.components.map((c) => c.label),
+        system: s,
+      }));
+      const results = rank(shaped, query, 10).map((r) => r.system);
+      if (!results.length) {
+        return text(
+          `No design system matched${query ? ` "${query}"` : ""}. The library has ${manifest.count}: ` +
+            `${manifest.systems.map((s) => `${s.name} (${s.slug}, ${s.theme})`).join(", ")}.`
+        );
+      }
+      return text(
+        [
+          `${results.length} of ${pool.length} design systems${query ? ` for "${query}"` : ""}:`,
+          "",
+          ...results.map(describeSystem),
+          "",
+          `Then: get_system("<slug>") for the instruction to apply it, tokens included.`,
+        ].join("\n\n")
+      );
+    })
+  );
+
+  server.registerTool(
+    "get_system",
+    {
+      title: "Get a design system",
+      description:
+        "Return the instruction for applying one design system to the user's existing project: where its " +
+        "CSS, tokens, specimen and fonts live, its conventions, step-by-step how to apply it without touching " +
+        "logic, and every token inline. Follow it in the user's codebase.",
+      inputSchema: {
+        slug: z.string().describe('Design system slug, e.g. "kiln".'),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    guard(async ({ slug }) => {
+      const { entry, text: instruction } = await library.systemInstruction(slug);
+      return text(
+        [
+          `# ${entry.name} · ${entry.slug}@${entry.version}`,
+          `${entry.tagline}`,
+          `page: ${entry.pageUrl} · specimen: ${entry.files.specimen}`,
+          entry.pages?.length
+            ? `pages in this language: ${entry.pages.map((p) => `${p.title} — get_prompt("${p.slug}")`).join("; ")}`
+            : null,
+          entry.motion?.length ? `motion that pairs: ${entry.motion.map((m) => `get_motion("${m.slug}")`).join(", ")}` : null,
+          "",
+          "--- INSTRUCTION ---",
+          "",
+          instruction,
+        ]
+          .filter((line) => line !== null)
+          .join("\n")
+      );
+    })
+  );
+
+  server.registerTool(
+    "get_motion",
+    {
+      title: "Get a motion study",
+      description:
+        "Motion studies are one movement each (a carousel, an accordion, a loop) with a single-file demo. " +
+        "With no slug, list them. With a slug, return the choreography as data (what moves, from when to " +
+        "when, on which ease), the inputs, how it works, the pages it pairs with, and the one-shot prompt " +
+        "to build it.",
+      inputSchema: {
+        slug: z.string().optional().describe('Motion study slug, e.g. "coverflow-carousel". Omit to list.'),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    guard(async ({ slug }) => {
+      if (!slug) {
+        const manifest = await library.motionManifest();
+        return text(
+          [
+            `${manifest.count} motion studies:`,
+            "",
+            ...manifest.motion.map((m) =>
+              [
+                `### ${m.title}`,
+                `slug: ${m.slug} · ${m.kind.toLowerCase()} · ${m.library.name} ${m.library.version}`,
+                m.tagline,
+                `best for: ${m.bestFor.join(", ")}`,
+                `get_motion("${m.slug}")`,
+              ].join("\n")
+            ),
+          ].join("\n\n")
+        );
+      }
+      const { entry: m, text: prompt } = await library.motionPrompt(slug);
+      return text(
+        [
+          `# ${m.title}`,
+          m.description,
+          `stack: ${[`${m.library.name} ${m.library.version}`, ...m.library.plugins].join(", ")}, one HTML file · demo: ${m.demoUrl} · page: ${m.pageUrl}`,
+          "",
+          "CHOREOGRAPHY",
+          choreography(m),
+          "",
+          "INPUTS",
+          ...m.inputs.map((i) => `- ${i}`),
+          "",
+          `HOW IT WORKS · ${m.trick.title}`,
+          ...m.trick.steps.map((s, i) => `${i + 1}. ${s}`),
+          m.pairsWith?.length ? `\nPAIRS WITH: ${m.pairsWith.map((p) => `${p.title} — get_prompt("${p.slug}")`).join("; ")}` : null,
+          m.credits?.length ? `BUILT ON: ${m.credits.map((c) => `${c.label} — ${c.href}`).join("; ")}` : null,
+          "",
+          "--- ONE-SHOT PROMPT ---",
+          "",
+          prompt,
+        ]
+          .filter((line) => line !== null)
+          .join("\n")
       );
     })
   );

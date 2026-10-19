@@ -216,8 +216,10 @@ const Agents = () => {
             <p>
               Hosted at <code>{MCP_URL}</code> over Streamable HTTP, CORS-open, no key. Tools:{" "}
               <code>search_prompts</code>, <code>inspect_prompt</code>, <code>get_prompt</code>,{" "}
-              <code>get_demo_source</code>, <code>list_categories</code>. Every prompt is also a
-              resource at <code>instalanding://prompt/&lt;slug&gt;</code>.
+              <code>get_demo_source</code>, <code>list_categories</code>; for design systems{" "}
+              <code>search_systems</code> and <code>get_system</code>, and for motion studies{" "}
+              <code>get_motion</code>. Every prompt is also a resource at{" "}
+              <code>instalanding://prompt/&lt;slug&gt;</code>.
             </p>
             <McpTabs />
 

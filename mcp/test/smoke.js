@@ -36,7 +36,7 @@ try {
   const names = tools.map((t) => t.name).sort();
   check(
     "tools advertised",
-    ["get_demo_source", "get_prompt", "inspect_prompt", "list_categories", "search_prompts"].every((n) =>
+    ["get_demo_source", "get_prompt", "inspect_prompt", "list_categories", "search_prompts", "search_systems", "get_system", "get_motion"].every((n) =>
       names.includes(n)
     ),
     names.join(", ")
@@ -122,6 +122,34 @@ try {
       bodyOf(demoInline).length < 4000,
     `${bodyOf(demoInline).length} chars`
   );
+
+  const systems = await client.callTool({ name: "search_systems", arguments: { query: "dark industrial" } });
+  const systemSlug = bodyOf(systems).match(/slug: ([a-z0-9-]+)/)?.[1];
+  check("search_systems finds one", !systems.isError && Boolean(systemSlug), `first: ${systemSlug}`);
+
+  const system = await client.callTool({ name: "get_system", arguments: { slug: systemSlug ?? "kiln" } });
+  check(
+    "get_system returns an instruction with tokens",
+    !system.isError && /HOW TO APPLY/.test(bodyOf(system)) && /--[a-z]+-[\w-]+\s*:/.test(bodyOf(system)),
+    `${bodyOf(system).length} chars`
+  );
+
+  const badSystem = await client.callTool({ name: "get_system", arguments: { slug: "kil" } });
+  check("get_system names near misses", badSystem.isError && /kiln/.test(bodyOf(badSystem)));
+
+  const motions = await client.callTool({ name: "get_motion", arguments: {} });
+  const motionSlug = bodyOf(motions).match(/slug: ([a-z0-9-]+)/)?.[1];
+  check("get_motion lists studies", !motions.isError && Boolean(motionSlug), `first: ${motionSlug}`);
+
+  const motion = await client.callTool({ name: "get_motion", arguments: { slug: motionSlug } });
+  check(
+    "get_motion returns choreography and prompt",
+    !motion.isError && /CHOREOGRAPHY/.test(bodyOf(motion)) && /ONE-SHOT PROMPT/.test(bodyOf(motion)),
+    `${bodyOf(motion).length} chars`
+  );
+
+  const linked = await client.callTool({ name: "get_prompt", arguments: { slug: "machine-front-panel-page" } });
+  check("get_prompt names the page's system", /get_system\("kiln"\)/.test(bodyOf(linked)));
 
   const { resources } = await client.listResources();
   check("resources listed", resources.length > 0, `${resources.length} prompts`);

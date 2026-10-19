@@ -8,6 +8,7 @@ import TemplateFeedback from "@/components/TemplateFeedback";
 import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/data/prompts";
 import { getSystemForTemplate } from "@/data/systems";
+import { motionsForPage } from "@/data/motion";
 
 /**
  * The detail view as a dialog over the grid.
@@ -24,6 +25,7 @@ const PromptModal = () => {
   const background = (location.state as { backgroundLocation?: Location } | null)?.backgroundLocation;
   const entry = getPromptBySlug(slug);
   const system = slug ? getSystemForTemplate(slug) : undefined;
+  const motions = slug ? motionsForPage(slug) : [];
   const entryCategory = entry?.category;
 
   /* FEEDBACK swaps the MORE ONE-SHOTS list for a feedback form about this template. */
@@ -137,6 +139,11 @@ const PromptModal = () => {
                     <span className="pmodal-label">VIEW DESIGN SYSTEM</span> <ArrowUpRight size={12} aria-hidden="true" />
                   </Link>
                 )}
+                {motions.map((m) => (
+                  <Link key={m.slug} className="pmodal-btn" to={`/motion/${m.slug}`} title={`${m.title}: a motion study that pairs with this page`}>
+                    <span className="pmodal-label">MOTION · {m.title.toUpperCase()}</span> <ArrowUpRight size={12} aria-hidden="true" />
+                  </Link>
+                ))}
                 <button
                   className="pmodal-btn"
                   aria-pressed={panel === "feedback"}
