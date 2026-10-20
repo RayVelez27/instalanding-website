@@ -3371,8 +3371,8 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #fff; }
 .sb-body { flex: 1; min-width: 0; padding: 14px; }
 .sb-body--flush { padding: 0; }
 .sb-note { margin: 0 0 12px; max-width: 80ch; font-size: 10.5px; line-height: 1.6; color: #777; }
-.sb-sub { margin: 14px 0 8px; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #999; }
-.sb-sub:first-child { margin-top: 0; }
+.sysboard .sb-sub { margin: 14px 0 8px; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #999; }
+.sysboard .sb-sub:first-child { margin-top: 0; }
 /* Component demos sit on the system's own surface and scroll sideways if a piece is wider than its panel */
 .sb-demo { padding: 22px 30px 30px 22px; overflow-x: auto; overflow-y: hidden; border-radius: 2px; }
 
@@ -3407,10 +3407,10 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #fff; }
 .sb-tok-value { font-size: 9px; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Palette */
-.sb-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; }
+.sysboard .sb-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; }
 .sb-chip { display: block; aspect-ratio: 1.15; margin-bottom: 6px; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 10px; transition: transform 200ms ease; }
 .sb-tok--swatch:hover .sb-chip { transform: translateY(-3px); }
-.sb-strip { display: flex; align-items: center; gap: 12px; padding: 8px 6px 0; }
+.sysboard .sb-strip { display: flex; align-items: center; gap: 12px; padding: 8px 6px 0; }
 .sb-strip-title { width: 120px; flex: 0 0 auto; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #888; }
 .sb-strip-row { display: flex; flex-wrap: wrap; gap: 4px; }
 .sb-dot { width: 22px; height: 22px; padding: 0; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 50%; cursor: pointer; transition: transform 160ms ease; }
@@ -3539,6 +3539,95 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #fff; }
 }
 /* The board needs the height; the description keeps to two lines */
 .smodal .pmodal-desc { max-width: 120ch; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Phones: a page, not a box. The dialog fills the screen and scrolls as one,
+   so the header and actions scroll away and the board gets the whole height
+   (an inner scroll area under a 400px header left a third of the screen).
+   The title bar stays pinned with the close button; CUSTOMIZE becomes a
+   bottom sheet. */
+@media (max-width: 720px) {
+  .smodal.pmodal-dialog {
+    inset: 0;
+    transform: none;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    display: block;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+  .smodal.pmodal-dialog[data-state="open"] { animation: smodal-phone-in 220ms ease-out; }
+  .smodal .pmodal-head {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px 10px 14px;
+    background: #fff;
+  }
+  .smodal .pmodal-kicker { margin-bottom: 3px; font-size: 8.5px; letter-spacing: 0.12em; line-height: 1.5; }
+  .smodal .pmodal-theme { margin-left: 6px; padding: 0 6px 0 4px; }
+  .smodal .pmodal-title { font-size: 18px; }
+  .smodal .pmodal-desc { display: none; }
+  .smodal .pmodal-close { flex: none; width: 40px; height: 40px; }
+  /* Labelled buttons in one swipeable row; icons alone said nothing */
+  .smodal-actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e4e4e4;
+  }
+  .smodal-actions::-webkit-scrollbar { display: none; }
+  .smodal .pmodal-label { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; }
+  .smodal .pmodal-btn { flex: none; gap: 7px; min-height: 40px; padding: 0 12px; }
+  .smodal-frame-wrap { margin: 0; border: 0; }
+  .smodal-scroll { height: auto; overflow: visible; scrollbar-gutter: auto; }
+  .smodal-foot { display: none; }
+  .smodal-drawer {
+    position: fixed;
+    z-index: 6;
+    inset: auto 0 0 0;
+    width: auto;
+    max-height: 72dvh;
+    padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
+    border-left: 0;
+    border-top: 1px solid #000;
+    box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.18);
+    animation-name: smodal-sheet-in;
+  }
+  .smodal-control--range input { width: 120px; }
+
+  /* The board, one column */
+  .sysboard { padding: 8px 8px calc(16px + env(safe-area-inset-bottom)); }
+  .sb-head { flex-wrap: wrap; }
+  .sb-body { padding: 12px; }
+  .sb-demo { padding: 16px 14px; }
+  .sb-identity-in { min-height: 240px; padding: 18px; }
+  .sysboard .sb-identity-in { min-height: 240px; }
+  .sb-identity-eyebrow { font-size: 9px; letter-spacing: 0.16em; }
+  .sysboard .sb-strip { flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px 0 0; }
+  .sb-strip-title { width: auto; }
+  .sb-dot { width: 28px; height: 28px; }
+  .sysboard .sb-swatches { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+  .sb-chip { border-radius: 8px; }
+  /* The size's name above its sample, so the sample gets the full width */
+  .sb-scale-row { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 9px 4px; }
+  .sb-type-hero { flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 6px 12px; }
+  .sb-aa { width: 100%; font-size: 72px; }
+  .sb-dur { grid-template-columns: 84px minmax(0, 1fr) 48px; gap: 8px; }
+  .sb-cols { gap: 3px; height: 80px; }
+  .sb-all { columns: 1; }
+  .sb-all-val { max-width: 45%; }
+  .sb-context { margin: 10px 8px 12px; padding: 12px; }
+  .sb-context-note { padding: 10px 12px 0; }
+}
+@keyframes smodal-phone-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes smodal-sheet-in { from { transform: translateY(24px); opacity: 0; } }
 
 /* ── Phone feed ──────────────────────────────────────────────────────────
    Up to 720px the home feed is one column of 2:1 screenshots (as on desktop)
@@ -4742,8 +4831,8 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 .sb-leaf.is-back { animation: sb-turn-back var(--sb-turn) cubic-bezier(0.45, 0.05, 0.3, 1) forwards; }
 @keyframes sb-turn-fwd { from { transform: translateZ(1px) rotateY(0deg); } to { transform: translateZ(1px) rotateY(-180deg); } }
 @keyframes sb-turn-back { from { transform: translateZ(1px) rotateY(-180deg); } to { transform: translateZ(1px) rotateY(0deg); } }
-.sb-strip { position: absolute; top: 0; left: var(--sb-strip); width: calc(var(--sb-strip) + 1px); height: 100%; transform-origin: 0 50%; transform-style: preserve-3d; }
-.sb-strip--root { left: 0; }
+.sb .sb-strip { position: absolute; top: 0; left: var(--sb-strip); width: calc(var(--sb-strip) + 1px); height: 100%; transform-origin: 0 50%; transform-style: preserve-3d; }
+.sb .sb-strip--root { left: 0; }
 .sb-leaf.is-fwd .sb-strip:not(.sb-strip--root) { animation: sb-bend-fwd var(--sb-turn) ease-in-out both; }
 .sb-leaf.is-back .sb-strip:not(.sb-strip--root) { animation: sb-bend-back var(--sb-turn) ease-in-out both; }
 @keyframes sb-bend-fwd { 0% { transform: rotateY(0deg); } 30% { transform: rotateY(-8deg); } 70% { transform: rotateY(-2deg); } 100% { transform: rotateY(0deg); } }
@@ -4763,16 +4852,16 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 .sb-name { margin: 6px 0 0; font-family: 'Inter Tight', 'Inter', system-ui, sans-serif; font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; }
 .sb-id { margin: -2px 0 0; font-size: 10px; color: #888; }
 .sb-tagline { margin: 0; font-size: 11.5px; line-height: 1.55; color: #333; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-.sb-swatches { display: flex; flex: none; height: 22px; margin: 2px 0 0; padding: 0; list-style: none; border: 1px solid #000; }
-.sb-swatches li { flex: 1; }
-.sb-swatches li + li { border-left: 1px solid #000; }
+.sb .sb-swatches { display: flex; flex: none; height: 22px; margin: 2px 0 0; padding: 0; list-style: none; border: 1px solid #000; }
+.sb .sb-swatches li { flex: 1; }
+.sb .sb-swatches li + li { border-left: 1px solid #000; }
 .sb-meta { margin: 0; font-size: 9.5px; letter-spacing: 0.14em; color: #555; }
 .sb-open { display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; margin-top: auto; padding: 9px 13px; border: 0; background: #000; color: #fff; font: 700 10px/1 'IBM Plex Mono', monospace; letter-spacing: 0.16em; text-decoration: none; cursor: pointer; }
 .sb-open:focus-visible, .sb-toc button:focus-visible { outline: 2px solid #16a34a; outline-offset: 2px; }
 .sb-folio { display: flex; justify-content: space-between; margin: auto 0 0; padding-top: 8px; border-top: 1px solid currentColor; font-size: 9px; letter-spacing: 0.16em; color: #777; }
 .sb-open + .sb-folio { margin-top: 10px; }
 .sb-book-title { margin: 22px 0 6px; font-family: 'Inter Tight', 'Inter', system-ui, sans-serif; font-size: 54px; font-weight: 800; line-height: 0.9; letter-spacing: -0.04em; }
-.sb-sub { margin: 0; font-size: 11px; line-height: 1.6; color: #444; }
+.sb .sb-sub { margin: 0; font-size: 11px; line-height: 1.6; color: #444; }
 .sb-label { margin: 14px 0 0; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; }
 .sb-toc { margin: 0; padding: 0; list-style: none; border-top: 1px solid #000; }
 .sb-toc button { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 7px 0; border: 0; border-bottom: 1px dashed #d4d4d0; background: none; color: #000; font: 500 12px/1.2 'IBM Plex Mono', monospace; text-align: left; cursor: pointer; }
@@ -5020,3 +5109,27 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 @media (prefers-reduced-motion: reduce) {
   .home-cta-icon, .home-cta-icon * { animation: none !important; transition: none !important; }
 }
+
+/* BRED FROM: a page crossed from two library pages (src/components/Lineage.tsx) */
+.lineage { margin: 28px 0 8px; padding-top: 18px; border-top: 1px solid #e4e4e4; font-family: 'IBM Plex Mono', monospace; }
+.lineage h2 { margin: 0 0 14px; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; }
+.lineage-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 0; max-width: 980px; }
+.lineage-x { align-self: center; margin-top: -40px; padding: 0 18px; font: 300 34px/1 'Inter Tight', system-ui, sans-serif; color: #999; }
+.lineage-parent { flex: 1; min-width: 0; display: grid; gap: 6px; color: #000; text-decoration: none; }
+.lineage-parent img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; object-position: left top; border: 1px solid #000; border-radius: 4px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.lineage-parent:hover img { transform: translateY(-2px); box-shadow: 4px 4px 0 #000; }
+.lineage-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.lineage-gave { font-size: 11px; color: #666; }
+.lineage-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 8px 0 0; flex-basis: 100%; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #555; }
+.lineage-line > span:first-child { font-weight: 700; letter-spacing: 0.16em; color: #000; }
+.lineage-line a { color: #000; }
+.lineage-line b { font-weight: 400; color: #999; }
+@media (max-width: 720px) { .lineage-row { grid-template-columns: minmax(0, 1fr); gap: 6px; } .lineage-x { margin: 0; padding: 2px 0; text-align: center; } }
+
+/* MOTION cards: the study plays live over its poster while hovered. The frame
+   fades in once loaded (the poster covers the load) and never takes the pointer,
+   so the card's link and COPY CODE work as before. */
+.home-card-art .card-live { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0; pointer-events: none; opacity: 0; transition: opacity 0.35s ease; background: transparent; }
+.home-card-art .card-live.is-ready { opacity: 1; }
+.home-card:has(.card-live.is-ready) .home-card-art img { transform: none; }
+.home-card:has(.card-live.is-ready) .home-card-art::after { opacity: 0.35; }

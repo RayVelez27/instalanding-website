@@ -26,6 +26,11 @@ export interface PromptEntry {
   /** Third-party work the component is built on, credited on the detail page. */
   credits?: PromptCredit[];
   /**
+   * Bred from two library pages: each parent's slug and what it gave (structure,
+   * surface, a component). Shown as BRED FROM on the template page.
+   */
+  parents?: { slug: string; gave: string }[];
+  /**
    * Looping preview clip shown instead of the still thumbnail. Pair it with
    * `thumbnail`, which becomes the poster frame and the reduced-motion fallback.
    */
@@ -104,6 +109,157 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 ];
 
 const entries: Omit<PromptEntry, "slug">[] = [
+  {
+    title: "Corelane Build Cluster Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An isometric dev-tool landing page: laptops and a core server on a glowing circuit field, plus a 96-machine fleet board you can put to sleep and run a build across",
+    prompt: `Build a dark landing page for Corelane, a fictional product that pools the idle CPU cores in a team's laptops with one on-site "core" server into a private build cluster, as one HTML file with no libraries and no images. Every machine, server and circuit is inline isometric SVG.
+
+FONTS (Google Fonts)
+Oswald 400/500 for display (uppercase hero, tight line-height 0.96) and buttons; Instrument Sans 400-600 for text.
+
+TOKENS
+night #0f054c (page), night-2 #160a5c, indigo #24126a, ring #706ec4 (pill outlines, rules at 32% alpha), lavender #e9e9fd (text, filled buttons), muted #b6b3e3, faint #8a86c9, cyan #42e8e0 (available, focus rings), magenta #e84298 (building). Wrap 1200px, gutter clamp(20px, 4vw, 40px).
+
+ATOMS
+Pill buttons 48px high: transparent with a 1.5px ring outline, or filled lavender with night text; Oswald uppercase, letter-spacing .04em. A brand mark of nine small squares in a 3x3 grid rotated 45deg (cyan, lavender, one magenta centre).
+
+SECTIONS
+1. nav: fixed; transparent at the top, then night at 78% with a 14px backdrop blur and a hairline after 12px of scroll. Links with a scaleX underline and a scroll-spy current state; Sign in (ring) and Start free trial (filled). Under 860px a round menu button opens a full-width drawer.
+2. hero, 5/7 columns: headline YOUR TEAM'S LAPTOPS ARE ALREADY A BUILD CLUSTER, a lead, two buttons, a note. Right, a stage (aspect 400/320) with: a violet radial glow; a circuit-trace field behind the art (one path mirrored to the right, feathered on all four edges with intersecting mask gradients) where a pink-then-cyan ring of light (an animated radial gradient r 60 to 620 over 3.6s, masked by the traces) pulses outward along the lines; the isometric illustration of four laptops around a server whose top is a 9x9 grid of LED diamonds that light magenta in waves. Under it a segmented control "Team machines / Core server": the second swaps the art (fade and 0.985 scale for 220ms) to a stacked core server, the glow turns teal and the circuits give way to an isometric grid with rippling diamond rings, blinking tiles and rising motes around the core. Clicking (or Enter on) the server lifts it out of the stack and back.
+3. product: "Spare cycles, put to work", a two-column ledger (not cards) of four features separated by hairlines, each with a small isometric glyph.
+4. fleet: "Every machine on the team, one queue". Left: a lead, a readout list (Machines available N of 96, Full build on one laptop 41m 00s, Full build with Corelane), Run a build and a legend. Right: a 12x8 grid of buttons on a lavender plate tilted rotateX(57deg) rotateZ(45deg) with a 10-step stacked box-shadow for thickness. Cells are cyan (available, glowing), dark violet (asleep, nine start asleep) or magenta (building). Click a cell to toggle sleep; arrow keys move a roving tabindex. The estimate is 2460s / (1 + 0.16 x (n - 1)). Running spreads "building" outward from the centre (delay = distance x 70ms), clears each cell at a staggered time, counts the estimate up over 2.6s and announces start and finish in a live region.
+5. how: three numbered steps with isometric art (a laptop, the core box, the stacked server); step 3 shows the one-line config in a code chip.
+6. pricing: a Monthly/Yearly role="switch" (yearly saves 20%), three joined plans (Studio $0, Team $19/$24 per machine featured in lavender with a badge, Campus custom).
+7. faq: details/summary with a chevron that rotates.
+8. cta: a rounded card with a radial indigo gradient, headline, an email form with inline validation, and the small core-box art.
+9. footer: four columns and a legal line saying the product is fictional.
+
+THE HERO RUNTIME
+The illustration is exported vector-animation data replayed by a small runtime: a JSON object of nodes (x, y, rotation, scale, opacity), colour-keyed elements, morphing paths (straight, rounded and cubic vertices rebuilt into a d string each frame) and keyframed animations (oneShot, loop or ping-pong, speed multiplier, a cubic-bezier ease solved by bisection). A four-layer state machine picks "laptops" or "server" from the segmented control and plays the "up" animation forwards or backwards on the server click. Only write attributes that changed (dirty sets), cap dt at 0.1s and pause the loop with an IntersectionObserver when the hero is offscreen.
+
+THINGS THAT BREAK
+- The animation targets elements by id (n1768, p14874...): keep those ids when editing the SVG.
+- Give every repeated SVG its own gradient id prefix (lp, co, sv, ca) or the steps' art picks up the hero's gradients.
+- Pause the SVG SMIL animations of the circuit field (pauseAnimations) while the core scene shows, and pause the core field's CSS animations when it is hidden.
+
+THE FLOOR
+A skip link, one h1, a main, aria-hidden decoration, labelled grid and form, visible cyan focus rings. Under prefers-reduced-motion: no entrance, no SMIL, the scene jumps to its end state and the build finishes instantly. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 20, 2026",
+    demo: "/demos/corelane-cluster.html",
+    bestFor: ["developer tools and build infrastructure", "on-prem and edge compute products", "B2B SaaS with per-seat pricing", "AI compute and GPU-sharing products"],
+    style: ["dark", "isometric", "illustrated", "interactive", "neon", "svg-animation"],
+    thumbnail: "/thumbs/corelane-cluster.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Halden Clinical Equipment Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A clinical equipment service in ink and paper: a dot-matrix wordmark that splits apart, a pinned 12-check inspection board, a rate card and a scroll-driven pre-owned shelf",
+    credits: [
+      { label: "8B · Reflow template", href: "https://8b.com/templates/reflow/", note: "The MIT repair-shop template this page adapts, its layout system and its scroll scenes" },
+    ],
+    prompt: `Build a landing page for Halden, a fictional clinical equipment service (patient monitors, infusion pumps, ultrasound, ECG) in Seattle, as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3 for smooth scroll, all from jsdelivr. Google Fonts: Geist 300-600, Geist Mono 400/500, Instrument Serif (italic). Every device, monitor trace and "photo" is inline SVG; no images.
+
+DESIGN SYSTEM
+Use CSS cascade layers: tokens, base, atoms, layout, sections, scenes. Colours: ink #090c0e, paper #f3f5f6, light grey #d3d9dc, mid greys #8a959b and #58626a, line #1a2329, soft panel #e2e7ea, one cobalt signal #2b46ff, and a monitor green #3fd99a kept for live readouts only. Sections alternate dark (ink with a 7% fractal-noise SVG grain) and paper. Type atoms: a huge display (clamp 56-152px, weight 300, letter-spacing -0.05em, line-height 0.92), a large text (26-40px, weight 350), mono labels (11.5px, letter-spacing .08em, uppercase), and a justified "spread" eyebrow whose words are pushed to both edges. Italic Instrument Serif marks one phrase per headline. Pill buttons whose cobalt fill wipes in from the left on hover and whose trailing pill-dash slides; dashed underline links whose dashes flow on hover. A 4-column grid with a fluid gutter (16-28px), 2 columns under 48em.
+
+SECTIONS
+1. nav: a fixed blurred ink bar 60px high; brand mark of three pills; a "Bench open · Critical line 24/7" status with a pulsing green dot (only above 80em, or it collides with the links); four mono links; Book service. It hides on scroll down and returns on scroll up. Under 64em a full-screen menu replaces the links.
+2. hero (sticky, 100svh): the word HALDEN drawn as a dot-matrix: each letter a 5 x 7 grid of rounded pill rows (grid-column spans), sized from the container and viewport height (--u), with rows that pulse sideways on a staggered loop. Below it the h1 ("Clinical equipment service, performed in view and documented to the line." with the last phrase in serif), a lead, actions, an animated ECG trace (three stacked paths: a faint base, a 35% tail and a glowing head, animated with stroke-dashoffset) and an address bar. Scrolling splits the wordmark: odd rows slide one way, even the other, stretching and thickening, then a paper flood grows out from the wordmark's box to fill the screen.
+3. A paper second half: the stair headline "Most failing devices are fixable." with each word in its own grid cell, stepping down and right, the last word in a cobalt selection highlight, and three device illustrations (a bedside monitor with an NIBP alarm, an opened infusion pump, an ultrasound probe) placed in the stair's empty cells.
+4. diagnosis (ink): "Fifteen minutes, free, on record." and a board of twelve checks (earth leakage, protective earth, ECG, SpO2, NIBP, battery, alarms, display, power, network, firmware, housing), each with a result; two are faults shown longer and in cobalt. On wide, tall screens the board pins and a cobalt band scans down it as you scroll, flipping each row from "Queued" to its result, then a summary with the quote fades in.
+5. prices (paper): a rate card table grouped by device family with a bench-time bar per row (width from minutes) and a price.
+6. bench (ink): "Done in plain sight." over one wide illustration cut into four vertical strips that settle into alignment as you scroll, and three short columns.
+7. parts (paper): a three-grade comparison table (OEM, certified, rebuilt).
+8. refurb (ink): "Second shift", a horizontally scrolling pinned shelf of five rebuilt devices with grade, price and Reserve.
+9. fleet (paper): a weekly route board, one row per weekday with pickup windows as bars on an 08-18 axis; a cobalt time cursor sweeps across with scroll, colouring the window it is in.
+10. mailin (ink): four mail-in steps with growing dashes. 11. reviews (paper): three large quotes where a cobalt box reads them word by word as you scroll. 12. faq (ink): details/summary with a pill marker that shrinks when open. 13. visit (paper): the words "Come to the bench." grow from small to full size into a staggered layout; facts, a photo, and a white booking form with inline validation. 14. footer with the ECG again and a fictional-business legal line.
+
+MOTION RULES
+Queue every scene so it runs after fonts load (SplitText and the stair measurements depend on them), lazily as its section nears, and revert it cleanly if it throws. Wrap each in gsap.matchMedia('(prefers-reduced-motion: no-preference)'). Drive Lenis from the GSAP ticker and feed its scroll to ScrollTrigger.update, with lagSmoothing(0).
+
+THINGS THAT BREAK
+- Measure positions (board rows, stair offsets, word boxes) inside onRefresh, never once at load: fonts and the sticky opening change them.
+- The flood's clip-path must start at the wordmark's own box, computed from both rects on each refresh, or it jumps.
+- The status line in the nav needs about 1280px beside the links; hide it below that.
+- Keep the opening sticky stage and the flood inside one section, and reset the split rows at the end of the timeline so scrolling back up rebuilds the wordmark.
+
+THE FLOOR
+A skip link, one h1, a main, real tables with captions, labelled form fields, aria-hidden on decoration, visible focus rings. With motion reduced the page is complete and static. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 19, 2026",
+    demo: "/demos/halden-clinical.html",
+    bestFor: ["medical device and equipment services", "repair and maintenance businesses", "B2B service with a rate card", "healthcare operations"],
+    style: ["dark", "editorial", "monospace", "gsap", "scroll-driven", "dot-matrix"],
+    thumbnail: "/thumbs/halden-clinical.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Calibre Grading Bench Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A glass grading bench on a planet horizon: it reads an AI answer claim by claim, highlights each one in its verdict colour and swings a needle to the score",
+    parents: [
+      { slug: "highlighter-markup-page", gave: "The claim-by-claim answer, the serif and the verdict highlighters" },
+      { slug: "machine-front-panel-page", gave: "The lamps, the gauge and its needle, the amber and the display type" },
+    ],
+    prompt: `Build a dark landing page for Calibre, a fictional evaluation bench for AI answers ("Measure every answer before it ships"), as one HTML file with no libraries and no images. The hero is a centred headline over a tilted glass grading bench, lit from behind by a glowing planet horizon. The bench reads a model's answer claim by claim, highlights each claim in its verdict colour and swings a needle to the score.
+
+FONTS (Google Fonts)
+Archivo with the width axis (wdth 62-125, wght 100-900) for display: uppercase, weight 900, font-stretch 110%, letter-spacing -0.03em, line-height 0.92. Source Serif 4 for the answer text and italics, JetBrains Mono 400/500/700 for labels, chips and terminals.
+
+TOKENS
+One token set. Surfaces: void #08090b, alu #1c1e23 (hi #26292e, lo #15161a), well #0e0f12, hairlines rgba(255,255,255,.07/.12). Exactly three text greys: #eceef1, #a8aeb7, #7d838d. Amber #ff9426 (hi #ffb562, lo #e5750e). A verdict system, one hue per verdict, each with a lamp tone and a highlighter tone: green #4ad87a, yellow #ffd34d, orange #ff7d3a, red #ff4f44; on the bench and the verdict cards the highlighter tones are vivid and flat (#1d7a3b, #9c6c0e, #b0481a, #a8202b). A 4px spacing scale (4, 8, 12, 16, 24, 32, 48, 64, 96), three radii (16, 10, 4) and one ease, cubic-bezier(.2,.8,.2,1). One label style: mono 11px, letter-spacing .16em, uppercase, the third grey. A "gold" text gradient (#e6c43e → #ffbb30 → #ffa22a → #ff8c1e, background-clip text) marks one phrase per headline.
+
+MATERIALS
+- Glass: a 20px-radius card with a dark vertical gradient (rgba(34,36,42,.82) → rgba(14,15,18,.92)), a 1px inner hairline, a brighter 1px top edge and a deep drop shadow. Every card on the page uses it; on hover it lifts 4px and gains a glow in its own colour.
+- Lamps: 8px dots, dark when off; on, they fill with their colour and glow.
+- Icon tiles: 52px rounded squares on near-black with a radial glow in their colour and a drop-shadowed icon.
+- Buttons: amber (a gradient with a 2px dark-orange base and an amber glow), secondary metal, and ghost glass with a backdrop blur. They lift 1px on hover.
+- Pills: 38px rounded capsules with a lamp and mono uppercase text, used as section eyebrows.
+- The highlighter means a verdict and appears nowhere else: a mark's ::before sits behind the text, coloured only through --c, and draws in by scaling X from the left.
+
+SECTIONS
+1. nav: sticky, blurred, a three-column grid: an amber gauge-glyph logo with CALIBRE in wide, tracked capitals; four links (Verdicts, How it works, Numbers, FAQ); Sign in (ghost) and Get a bench (amber).
+2. hero, centred: a pill ("Eval bench for AI answers"), the h1 MEASURE EVERY ANSWER / BEFORE IT SHIPS. with "every answer" in gold, a lede with one italic serif phrase, two large buttons and three amber-icon trust notes. In the empty space either side of that copy, four floating glass "source" cards (a PDF, a web page, a database, a file), two a side and staggered (one beside the headline, one beside the lede), tilted in 3D toward the centre and drifting. Below, the stage: a 1380px planet (a near-black circle whose top rim burns amber through stacked inset and outer shadows), two lens flares, twinkling sparks, two layers of SVG rock terrain with an amber rim light (one behind the bench, one in front), and the bench tilted back 9deg on rotateX with a stacked glass layer behind it and an amber rim light along its lower edge. Under it a strip of eight invented customer logos.
+3. verdicts: four glass cards, one per verdict (Grounded 1.00, Reworded 0.85, Stretched 0.35, Unsupported 0.00): an icon tile, the weight, a lit lamp tag, a title, a line of explanation and an example phrase whose mark draws in on view. Each card has a lit top edge and a glow in its verdict colour. Under them the formula: (1 + 0.85 + 0.35 + 1 + 0) ÷ 5 = 64.
+4. how-it-works: three glass steps (Split, Check, Gate) joined by an amber pipeline line with a pulse travelling along it; each has an icon tile, a big outlined number, a title and a terminal well showing the command and result (5 claims; 2 grounded · 1 reworded · 1 stretched · 1 unsupported; 64 · blocked).
+5. stats: one glass panel with a lit top edge and four figures (48M claims, 1 in 9 in amber, 210 ms, Zero) in silver-gradient display type, the numbers rolling up on view.
+6. faq: a sticky side column (the heading and a "Still unsure?" contact card) beside five glass <details>; the open one gets an amber ring and its plus turns into an amber cross.
+7. cta: a glass finale with a planet rising from the bottom, a glow floor, the headline PUT A NEEDLE ON / EVERY ANSWER. in gold, a lede, a glass email form with an amber button and three green-checked notes.
+8. footer: a brand column with an "All benches operational" status, three link columns, the word CALIBRE huge in outlined, amber-tinted type, and a line saying the product and every number are fictional.
+
+THE BENCH (the hero instrument)
+- A top row: "// Run 0418 · support-bot" and a status (a lamp and "Scanning", pulsing while busy, green "Completed 4.6s" when done) with a replay icon button.
+- Two cards side by side: the model answer (a serif paragraph of five claims, each a mark with a verdict and a source note in data attributes: two grounded, one reworded, one stretched, one unsupported) and a gauge: an SVG arc from -120° to +120° with a red → orange → yellow → green gradient stroke and a soft glow, 21 ticks placed with trigonometry (every fifth longer), an amber needle rotated by calc(-120deg + var(--a) * 240deg), the score in large display numerals over the hub, "Grounding" and a gate pill ("Gate ≥ 80 · passed/blocked").
+- Four verdict chips with lamps and counts, and a source bar: a glowing tile, the checked span for the selected claim (its lamp in the verdict colour) and a next arrow that steps through the claims.
+- A run: clear the marks and counts, then for each claim move an amber scanline to its line, wait about half a second, draw its mark, light its lamp, bump its count and set the needle's target to the running weighted score. Finish with the gate in green or red and the elapsed time. It runs once after load and replays on the button.
+- The needle is a damped spring integrated per frame (stiffness 120, damping 14) toward the target, so it overshoots and settles; the score eases toward it. Stop the loop once it settles.
+
+THINGS THAT BREAK
+- A mark is inline-block, so a long claim cannot wrap. Split each claim into one span per word in script (each word its own ::before reaching over the following space, the last one not), staggering the draw by 40ms per word.
+- Measure the scanline position from the claim's offset each run, since the text reflows by width.
+- Keep the numbers on the page in agreement with the bench: 64, 2 / 1 / 1 / 1, gate 80.
+- The planet and terrain are far wider than a phone: clip them inside the stage (clip-path on the stage, overflow hidden on the hero) and hide the floating source cards under 1280px, where the copy leaves no room beside it.
+
+THE FLOOR
+One h1, a main, labelled icon buttons, aria-hidden decoration, a live region on the source panel, visible amber focus rings, real labels on the form. Under prefers-reduced-motion the bench renders already graded with no scan and all animation is off. Below 1040px the verdicts and stats go to two columns and the FAQ stacks; below 860px the nav links hide, the bench untilts and stacks; below 560px everything is one column. No horizontal scroll at 390px.`,
+    preview: "dashboard",
+    variant: "large",
+    added: "Oct 19, 2026",
+    demo: "/demos/calibre-bench.html",
+    bestFor: ["AI evaluation and observability tools", "LLM quality and grounding products", "developer tools with a release gate", "AI safety and compliance software"],
+    style: ["dark", "glass", "glow", "highlighter", "planet horizon", "bred"],
+    thumbnail: "/thumbs/calibre-bench.jpg",
+    theme: "dark",
+  },
+
   {
     title: "Facetry Security Landing Page",
     category: "web",

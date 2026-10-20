@@ -177,6 +177,8 @@ const toEntry = (entry, base, root, layers = { systems: [], motions: [] }) => ({
   videoUrl: abs(base, entry.video),
   repoUrl: entry.repoUrl ?? undefined,
   credits: entry.credits ?? undefined,
+  /** Bred from two library pages: what each parent gave */
+  parents: entry.parents?.map((p) => ({ ...p, pageUrl: abs(base, `/prompt/${p.slug}`) })) ?? undefined,
   ...readDemo(root, entry.demo),
   ...pageLinks(entry.slug, layers, base),
 });

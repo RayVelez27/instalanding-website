@@ -6,6 +6,7 @@ import PromptThumb from "@/components/PromptThumb";
 import PromptStage from "@/components/PromptStage";
 import TemplateFeedback from "@/components/TemplateFeedback";
 import HireLine from "@/components/HireLine";
+import Lineage from "@/components/Lineage";
 import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/data/prompts";
 import { getSystemForTemplate } from "@/data/systems";
@@ -156,6 +157,7 @@ const PromptModal = () => {
                   <span className="pmodal-label">FEEDBACK</span>
                 </button>
                 {!entry.youtube && <HireLine slug={entry.slug} from="modal" className="hire-line--modal" />}
+                {entry.parents && <Lineage entry={entry} compact />}
               </div>
 
               <div className="pmodal-body" id="pmodal-body">

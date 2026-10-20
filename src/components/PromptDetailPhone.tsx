@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Copy, ExternalLink, MoreHor
 import PromptThumb from "@/components/PromptThumb";
 import TemplateFeedback from "@/components/TemplateFeedback";
 import HireLine from "@/components/HireLine";
+import Lineage from "@/components/Lineage";
 import DemoCode from "@/components/DemoCode";
 import { copyText } from "@/lib/copyText";
 import { SITE_URL } from "@/lib/agentMode";
@@ -181,6 +182,8 @@ const PromptDetailPhone = ({ entry, prev, next, related, system, motions = [], f
         </>
       )}
 
+
+      <Lineage entry={entry} compact />
 
       {entry.credits && entry.credits.length > 0 && (
         <p className="pdm-credits">

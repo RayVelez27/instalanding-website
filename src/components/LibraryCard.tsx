@@ -34,12 +34,19 @@ export interface LibraryCardProps {
   copyLabel?: string;
   agent?: boolean;
   onCopied?: (message: string) => void;
+  /**
+   * A live version of the item (a motion study, with ?autoplay): loaded over the
+   * picture while a mouse hovers the card, removed when it leaves.
+   */
+  live?: string;
   /** A YouTube entry: a play badge on the picture */
   video?: boolean;
   onPointerEnter?: () => void;
 }
 
-const LibraryCard = ({ kind, title, sub, to, state, image, art, frames, copy, copyLabel = "COPY CODE", agent, onCopied, video, onPointerEnter }: LibraryCardProps) => {
+const LibraryCard = ({ kind, title, sub, to, state, image, art, frames, copy, copyLabel = "COPY CODE", agent, onCopied, video, live, onPointerEnter }: LibraryCardProps) => {
+  const [playingLive, setPlayingLive] = useState(false);
+  const [liveReady, setLiveReady] = useState(false);
   const [copied, setCopied] = useState(false);
   const [frame, setFrame] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -56,6 +63,7 @@ const LibraryCard = ({ kind, title, sub, to, state, image, art, frames, copy, co
 
   const enter = (e: React.PointerEvent) => {
     onPointerEnter?.();
+    if (live && e.pointerType === "mouse" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) setPlayingLive(true);
     if (!many || e.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     setPrimed(true);
     setFrame(1);
@@ -64,6 +72,8 @@ const LibraryCard = ({ kind, title, sub, to, state, image, art, frames, copy, co
   const leave = () => {
     setPlaying(false);
     setFrame(0);
+    setPlayingLive(false);
+    setLiveReady(false);
   };
 
   const doCopy = async () => {
@@ -95,6 +105,16 @@ const LibraryCard = ({ kind, title, sub, to, state, image, art, frames, copy, co
                 <i key={src} className={i < frame ? "is-done" : i === frame ? "is-on" : undefined} style={{ animationDuration: `${FRAME_MS}ms` }} />
               ))}
             </span>
+          )}
+          {playingLive && live && (
+            <iframe
+              className={`card-live${liveReady ? " is-ready" : ""}`}
+              src={live}
+              title=""
+              tabIndex={-1}
+              aria-hidden="true"
+              onLoad={() => window.setTimeout(() => setLiveReady(true), 250)}
+            />
           )}
           {video && (
             <span className="card-play" aria-hidden="true">

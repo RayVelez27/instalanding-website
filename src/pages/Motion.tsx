@@ -163,9 +163,9 @@ const ReelCard = ({ motion, deck = false }: { motion: MotionEntry; deck?: boolea
         </p>
 
         <div className="mo-actions">
-          <button className="sys-row-btn" onClick={() => copy("prompt", motion.prompt)} aria-live="polite">
-            {flash === "prompt" ? <Check size={12} aria-hidden="true" /> : <Copy size={12} aria-hidden="true" />}
-            <span>{flash === "prompt" ? "COPIED" : "COPY PROMPT"}</span>
+          <button className="sys-row-btn" onClick={() => copy("code", demoCode(motion))} aria-live="polite">
+            {flash === "code" ? <Check size={12} aria-hidden="true" /> : <Copy size={12} aria-hidden="true" />}
+            <span>{flash === "code" ? "COPIED" : "COPY CODE"}</span>
           </button>
           <Link to={href} state={state} className="sys-row-btn sys-row-btn--solid">
             <span>OPEN THE LAB</span> <ArrowUpRight size={12} aria-hidden="true" />
@@ -350,6 +350,7 @@ const MotionTile = ({ motion }: { motion: MotionEntry }) => {
       to={href}
       state={state}
       image={motion.poster}
+      live={`${motion.demo}?autoplay=${Math.min(motion.reelAutoplay, 2000)}`}
       copy={demoCode(motion)}
       onPointerEnter={() => {
         fetch(motion.demo).catch(() => {});

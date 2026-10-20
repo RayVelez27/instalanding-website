@@ -6,6 +6,7 @@ import PromptThumb from "@/components/PromptThumb";
 import PromptStage from "@/components/PromptStage";
 import TemplateFeedback from "@/components/TemplateFeedback";
 import HireLine from "@/components/HireLine";
+import Lineage from "@/components/Lineage";
 import { loadDemoSource } from "@/lib/demoSource";
 import { copyText } from "@/lib/copyText";
 import { useCopyCode } from "@/lib/useCopyCode";
@@ -224,6 +225,8 @@ const PromptDetail = () => {
               </div>
             )}
           </div>
+
+          <Lineage entry={entry} />
 
           {related.length > 0 && (
             <section className="detail-related" aria-label="More in this category">
