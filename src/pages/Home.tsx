@@ -45,6 +45,41 @@ const useToast = () => {
   return { msg, say };
 };
 
+/* ── the hero buttons' icons: a glass tile per layer, tinted in its colour,
+   with a glyph drawn for it (a browser of stacked pages, an easing curve whose
+   dot rides it on hover, a 2x2 grid of tokens) ── */
+const CtaIcon = ({ kind }: { kind: "pages" | "motion" | "systems" }) => (
+  <span className={`home-cta-icon home-cta-icon--${kind}`} aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      {kind === "pages" && (
+        <>
+          <rect className="ci-back" x="6.5" y="3.5" width="14" height="11" rx="2" opacity="0.45" />
+          <rect x="3.5" y="7.5" width="14" height="12" rx="2" fill="rgba(255,255,255,0.08)" />
+          <path d="M3.5 11h14" />
+          <circle cx="6" cy="9.3" r="0.55" fill="currentColor" stroke="none" />
+          <circle cx="7.8" cy="9.3" r="0.55" fill="currentColor" stroke="none" />
+          <path d="M6.5 14.5h6M6.5 17h4" opacity="0.7" />
+        </>
+      )}
+      {kind === "motion" && (
+        <>
+          <path d="M3.5 19.5h17M3.5 19.5v-15" opacity="0.3" />
+          <path className="ci-curve" d="M4 19C10 19 9.5 5 20 5" />
+          <circle className="ci-dot" cx="20" cy="5" r="2.1" fill="currentColor" stroke="none" />
+        </>
+      )}
+      {kind === "systems" && (
+        <>
+          <rect className="ci-t ci-t1" x="3.5" y="3.5" width="7.5" height="7.5" rx="2" fill="currentColor" stroke="none" />
+          <rect className="ci-t ci-t2" x="13" y="3.5" width="7.5" height="7.5" rx="3.75" />
+          <rect className="ci-t ci-t3" x="3.5" y="13" width="7.5" height="7.5" rx="2" />
+          <rect className="ci-t ci-t4" x="13" y="13" width="7.5" height="7.5" rx="2" fill="rgba(255,255,255,0.12)" />
+        </>
+      )}
+    </svg>
+  </span>
+);
+
 /* ── a card: the shared library card, fed from an item ── */
 const Card = ({ item, onCopied }: { item: Item; onCopied: (m: string) => void }) => {
   const location = useLocation();
@@ -222,14 +257,20 @@ const Home = () => {
             </p>
           </div>
           <div className="home-ctas">
-            <Link to="/pages" className="home-cta">
-              EXPLORE PAGES <ArrowRight size={14} aria-hidden="true" />
+            <Link to="/pages" className="home-cta home-cta--pages">
+              <CtaIcon kind="pages" />
+              <span className="home-cta-label">EXPLORE PAGES</span>
+              <ArrowRight size={14} aria-hidden="true" />
             </Link>
-            <Link to="/motion" className="home-cta">
-              EXPLORE MOTION
+            <Link to="/motion" className="home-cta home-cta--motion">
+              <CtaIcon kind="motion" />
+              <span className="home-cta-label">EXPLORE MOTION</span>
+              <ArrowRight size={14} aria-hidden="true" />
             </Link>
-            <Link to="/systems" className="home-cta">
-              EXPLORE SYSTEMS
+            <Link to="/systems" className="home-cta home-cta--systems">
+              <CtaIcon kind="systems" />
+              <span className="home-cta-label">EXPLORE SYSTEMS</span>
+              <ArrowRight size={14} aria-hidden="true" />
             </Link>
           </div>
         </section>

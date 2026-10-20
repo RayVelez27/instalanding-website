@@ -4966,3 +4966,57 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
   .home-top .library-intro-actions .agent-toggle--on { border: 0; background: #fff; box-shadow: none; }
   html.agent-dark .home-top .library-intro-actions .agent-toggle { border: 0; background: #0a0a0a; }
 }
+
+/* HOME hero buttons: an icon tile on the left, the label, an arrow on the right */
+.home-cta { justify-content: flex-start; padding: 0 18px 0 8px; }
+.home-cta-label { flex: 1; text-align: left; }
+.home-cta > svg { opacity: 0.55; }
+.home-cta:hover > svg { opacity: 1; }
+.home-cta-icon {
+  --ci: #fff;
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  color: var(--ci);
+  background:
+    radial-gradient(120% 120% at 30% 0%, color-mix(in srgb, var(--ci) 32%, transparent), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 0 1px color-mix(in srgb, var(--ci) 38%, rgba(255, 255, 255, 0.12)),
+    0 6px 18px -8px color-mix(in srgb, var(--ci) 70%, transparent);
+  transition: box-shadow 0.35s var(--home-ease), transform 0.35s var(--home-ease);
+}
+.home-cta-icon::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 46%); pointer-events: none; }
+.home-cta-icon svg { position: relative; z-index: 1; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--ci) 55%, transparent)); transition: none; }
+.home-cta:hover .home-cta-icon svg { transform: none; }
+.home-cta-icon--pages { --ci: #e8ecff; }
+.home-cta-icon--motion { --ci: #ff6a2b; }
+.home-cta-icon--systems { --ci: #2fd27a; }
+.home-cta:hover .home-cta-icon {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 0 0 1px color-mix(in srgb, var(--ci) 60%, transparent),
+    0 10px 26px -8px color-mix(in srgb, var(--ci) 90%, transparent);
+}
+/* each glyph moves a little on hover */
+.home-cta-icon .ci-back { transition: transform 0.45s var(--home-ease); }
+.home-cta:hover .home-cta-icon .ci-back { transform: translate(1.5px, -1.5px); }
+.home-cta-icon .ci-curve { stroke-dasharray: 26; stroke-dashoffset: 0; }
+.home-cta-icon .ci-dot { offset-path: path("M4 19C10 19 9.5 5 20 5"); offset-distance: 100%; offset-rotate: 0deg; cx: 0; cy: 0; }
+.home-cta:hover .home-cta-icon .ci-dot { animation: ci-ride 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.home-cta:hover .home-cta-icon .ci-curve { animation: ci-draw 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+@keyframes ci-ride { 0% { offset-distance: 0%; } 70%, 100% { offset-distance: 100%; } }
+@keyframes ci-draw { 0% { stroke-dashoffset: 26; } 70%, 100% { stroke-dashoffset: 0; } }
+.home-cta-icon .ci-t { transform-box: fill-box; transform-origin: center; transition: transform 0.45s var(--home-ease); }
+.home-cta:hover .home-cta-icon .ci-t1 { transform: rotate(-8deg); }
+.home-cta:hover .home-cta-icon .ci-t2 { transform: scale(0.86); }
+.home-cta:hover .home-cta-icon .ci-t4 { transform: rotate(8deg); }
+@media (prefers-reduced-motion: reduce) {
+  .home-cta-icon, .home-cta-icon * { animation: none !important; transition: none !important; }
+}
