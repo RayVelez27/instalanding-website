@@ -469,7 +469,7 @@ const Motion = () => {
           <RouteBanner
             tone="motion"
             title="MOTION STUDIES"
-            description="One movement per study, running live. Slow it down, step through it, and see the timeline, the eases and the inputs behind it."
+            description="One movement per study, running live. Slow it down, step through it, see the timeline, eases and inputs behind it."
           />
         )}
         <AgentPanel />
