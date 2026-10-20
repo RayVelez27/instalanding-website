@@ -25,6 +25,9 @@ const HEROES = {
   hollr: ["window", "buddy", "toast", "agent-run"],
   overclock: ["cover", "cta", "terminal", "pricing"],
   meridian: ["led", "assist", "quick", "articles"],
+  thorn: ["hero", "bento", "accents", "buttons"],
+  arcline: ["widgets", "chat", "pricing", "steps"],
+  prism: ["art", "runs", "gate", "voices"],
 };
 
 // Systems whose identity background is a pattern: their small text sits on a label
@@ -51,6 +54,7 @@ function readSystems() {
       root: pick("rootClass"),
       look: {
         surface: pick("surface"),
+        ink: pick("ink"),
         display: pick("display"),
         mono: pick("mono"),
         idClass: pick("identityClass"),
@@ -66,48 +70,53 @@ function readSystems() {
 
 /* Runs in the specimen page: builds the poster over everything else. */
 const BUILD = (sys, heroId, BOXED) => {
-  document.getElementById("pz")?.remove();
+  document.getElementById("ilp")?.remove();
   const L = sys.look;
   const css = document.createElement("style");
-  css.id = "pz-css";
+  css.id = "ilp-css";
   css.textContent = `
     html, body { overflow: hidden !important; }
-    #pz { position: fixed; inset: 0; z-index: 2147483000; display: grid; grid-template-columns: 47% 53%; grid-template-rows: 1fr 54px; background: ${L.idBg}; color: ${L.idText}; }
-    #pz .pz-id { grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 44px 40px 34px 46px; min-width: 0; position: relative; }
-    #pz .pz-id::before { content: ""; position: absolute; inset: 0; background: inherit; }
-    #pz .pz-kick { position: relative; margin: 0; font: 600 13px/1.2 var(${L.mono}), ui-monospace, monospace; letter-spacing: .22em; text-transform: uppercase; opacity: .82; }
-    #pz .pz-name { position: relative; margin: 0; font-family: var(${L.display}); font-weight: 900; line-height: .86; letter-spacing: -.035em; ${L.upper ? "text-transform: uppercase;" : ""} }
-    #pz.pz-boxed .pz-kick, #pz.pz-boxed .pz-tag { align-self: flex-start; padding: 7px 10px; background: ${L.idText}; color: var(${L.surface}); opacity: 1; }
-    #pz .pz-tag { position: relative; margin: 0; max-width: 30ch; font: 500 15px/1.45 var(${L.mono}), ui-monospace, monospace; opacity: .86; }
-    #pz .pz-hero { grid-row: 1; position: relative; display: grid; place-items: center; overflow: hidden; background: var(${L.surface}); border-left: 3px solid currentColor; }
-    #pz .pz-stage { transform-origin: center; }
-    #pz .pz-stage .sp-demo { margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; }
-    #pz .pz-pal { grid-column: 1 / -1; grid-row: 2; display: flex; border-top: 3px solid currentColor; }
-    #pz .pz-pal i { flex: 1; }
-    #pz .pz-pal b { flex: none; display: flex; align-items: center; padding: 0 22px; font: 700 12px/1 var(${L.mono}), ui-monospace, monospace; letter-spacing: .22em; background: ${L.idBg}; color: ${L.idText}; border-left: 3px solid currentColor; }
+    #ilp { position: fixed; inset: 0; z-index: 2147483000; display: grid; grid-template-columns: 47% 53%; grid-template-rows: 1fr 54px; background: ${L.idBg}; color: ${L.idText}; }
+    #ilp .ilp-id { grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 44px 40px 34px 46px; min-width: 0; position: relative; }
+    #ilp .ilp-id::before { content: ""; position: absolute; inset: 0; background: inherit; }
+    #ilp .ilp-kick { position: relative; margin: 0; font: 600 13px/1.2 var(${L.mono}), ui-monospace, monospace; letter-spacing: .22em; text-transform: uppercase; opacity: .82; }
+    #ilp .ilp-name { position: relative; margin: 0; font-family: var(${L.display}); font-weight: 900; line-height: .86; letter-spacing: -.035em; ${L.upper ? "text-transform: uppercase;" : ""} }
+    #ilp.ilp-boxed .ilp-kick, #ilp.ilp-boxed .ilp-tag { align-self: flex-start; padding: 7px 10px; background: ${L.idText}; color: var(${L.surface}); opacity: 1; }
+    #ilp .ilp-tag { position: relative; margin: 0; max-width: 30ch; font: 500 15px/1.45 var(${L.mono}), ui-monospace, monospace; opacity: .86; }
+    #ilp .ilp-hero { grid-row: 1; position: relative; display: grid; place-items: center; overflow: hidden; background: var(${L.surface}); border-left: 3px solid currentColor; }
+    #ilp .ilp-stage { color: var(${L.ink}); }
+    #ilp .ilp-stage { transform-origin: center; }
+    #ilp .ilp-stage .sp-demo { margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; }
+    #ilp .ilp-pal { grid-column: 1 / -1; grid-row: 2; display: flex; border-top: 3px solid currentColor; }
+    #ilp .ilp-pal i { flex: 1; }
+    #ilp .ilp-pal b { flex: none; display: flex; align-items: center; padding: 0 22px; font: 700 12px/1 var(${L.mono}), ui-monospace, monospace; letter-spacing: .22em; background: ${L.idBg}; color: ${L.idText}; border-left: 3px solid currentColor; }
   `;
   document.head.appendChild(css);
 
-  const pz = document.createElement("div");
-  pz.id = "pz";
-  pz.className = sys.root + (BOXED.includes(sys.slug) ? " pz-boxed" : "");
-  pz.innerHTML = `
-    <div class="pz-id ${L.idClass}">
-      <p class="pz-kick">Design system · ${sys.slug}@${sys.version}</p>
-      <h1 class="pz-name">${sys.name}</h1>
-      <p class="pz-tag">${sys.tagline}</p>
+  const ilp = document.createElement("div");
+  ilp.id = "ilp";
+  ilp.className = sys.root + (BOXED.includes(sys.slug) ? " ilp-boxed" : "");
+  ilp.innerHTML = `
+    <div class="ilp-id ${L.idClass}">
+      <p class="ilp-kick">Design system · ${sys.slug}@${sys.version}</p>
+      <h1 class="ilp-name">${sys.name}</h1>
+      <p class="ilp-tag">${sys.tagline}</p>
     </div>
-    <div class="pz-hero"><div class="pz-stage"></div></div>
-    <div class="pz-pal">${sys.palette.map((c) => `<i style="background:${c}"></i>`).join("")}<b>${sys.components} COMPONENTS</b></div>`;
-  document.body.appendChild(pz);
+    <div class="ilp-hero"><div class="ilp-stage"></div></div>
+    <div class="ilp-pal">${sys.palette.map((c) => `<i style="background:${c}"></i>`).join("")}<b>${sys.components} COMPONENTS</b></div>`;
+  document.body.appendChild(ilp);
 
   const demo = document.querySelector(`section[data-component="${heroId}"] .sp-demo`);
-  const stage = pz.querySelector(".pz-stage");
-  if (demo) stage.appendChild(demo.cloneNode(true));
+  const stage = ilp.querySelector(".ilp-stage");
+  if (demo) {
+    stage.appendChild(demo.cloneNode(true));
+    // A fluid component (width: 100%) collapses when shrink-wrapped: give it the width it has in the specimen
+    if (stage.scrollWidth < 300) stage.style.width = demo.getBoundingClientRect().width + "px";
+  }
 
   // The name as big as the column allows
-  const name = pz.querySelector(".pz-name");
-  const col = pz.querySelector(".pz-id");
+  const name = ilp.querySelector(".ilp-name");
+  const col = ilp.querySelector(".ilp-id");
   let size = 150;
   name.style.fontSize = size + "px";
   const room = () => col.clientWidth - 86;
@@ -117,10 +126,12 @@ const BUILD = (sys, heroId, BOXED) => {
   }
 
   // The component as big as the panel allows (never more than 2x)
-  const hero = pz.querySelector(".pz-hero");
+  const hero = ilp.querySelector(".ilp-hero");
   const w = stage.scrollWidth, h = stage.scrollHeight;
   const k = Math.min(2, (hero.clientWidth - 70) / w, (hero.clientHeight - 60) / h);
-  stage.style.transform = `scale(${k})`;
+  // Centred on its own box, so a component larger than the panel shrinks in place instead of overflowing to one side
+  // (its measured width is kept, or a grid inside would shrink-wrap once it is absolutely positioned)
+  Object.assign(stage.style, { position: "absolute", left: "50%", top: "50%", width: `${w}px`, transform: `translate(-50%, -50%) scale(${k})` });
   return { size, k: +k.toFixed(2), w, h, found: !!demo };
 };
 
@@ -154,6 +165,9 @@ async function main() {
     await sleep(3500);
     await send("Runtime.evaluate", { expression: "document.fonts.ready", awaitPromise: true });
     for (const [n, heroId] of HEROES[sys.slug].entries()) {
+      // Bring the component on screen first, so scroll reveals have run before it is cloned
+      await send("Runtime.evaluate", { expression: `document.getElementById("ilp")?.remove(); document.querySelector('section[data-component="${heroId}"] .sp-demo')?.scrollIntoView({ block: "center" })` });
+      await sleep(900);
       const r = await send("Runtime.evaluate", { expression: `(${BUILD})(${JSON.stringify(sys)}, ${JSON.stringify(heroId)}, ${JSON.stringify(BOXED)})`, returnByValue: true });
       await sleep(700);
       const shot = await send("Page.captureScreenshot", { format: "png" });

@@ -23,8 +23,14 @@ import { useSeo } from "@/hooks/useSeo";
  */
 
 
-/* A fresh order on every load, like the feeds; kept for the visit */
-const RANDOM_PAGES = variedOrder(PAGE_ITEMS).slice(0, 14);
+/* A fresh order on every load, like the feeds; kept for the visit. The latest
+   drop day leads the pages rail (PAGES is newest first, PAGE_ITEMS matches it), so
+   every page shipped that day is on home; the rest are varied. */
+const LATEST = Math.max(1, PAGES.filter((p) => p.added === PAGES[0]?.added).length);
+const RANDOM_PAGES = [
+  ...PAGE_ITEMS.slice(0, LATEST),
+  ...variedOrder(PAGE_ITEMS.slice(LATEST)),
+].slice(0, 14);
 const RANDOM_MOTION = shuffle(MOTION_ITEMS);
 const RANDOM_SYSTEMS = shuffle(SYSTEM_ITEMS);
 

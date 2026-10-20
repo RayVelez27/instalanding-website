@@ -110,6 +110,137 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Siliq AI Hardware Lab Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A sticker-bright bento for a small-batch AI hardware lab and school: SVG chips and GPUs, a hero board that breaks apart into a honey flood and a gallery that folds into a grid",
+    prompt: `Build a landing page for Siliq, a fictional small-batch AI hardware lab and hardware school on "Foundry Row" (NPU sticks, RISC-V dev boards, tensor cards, inference chips; classes at a big workbench; a hardware leasing club), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3, all from jsdelivr. Google Fonts: Climate Crisis (display), Google Sans 400-700 (text), Playpen Sans 600-800 (handwritten notes). No images: every product, the lab and four portraits are inline SVG symbols in one sprite at the top of <body>, drawn as glossy sticker illustrations, and used with <use href>.
+
+DESIGN SYSTEM
+A playful bento of big rounded tiles on a pale sage ground. Tokens: ground #e4e8e3, paper #ffffff, sky #7cc4ea, honey #ffbf3c, tangerine #f47a3c, leaf #0a5c46 (the primary button), ink #0a1317. .tone-* classes set a tile's background, its blob and its little spark marks. Display type is Climate Crisis in caps, fitted to its container from its character count (--len) with container units. Tiles have a 28-36px radius; each product sits on an organic blob shape; three-stroke "spark" doodles and Playpen Sans notes with a dashed hand-drawn arrow ("Join in!") add the hand. Buttons are ink or leaf pills with a white secondary; one spring ease for every pop.
+
+SECTIONS
+1. nav: the logo (an S on a honey square plus the wordmark) in a white pill at left; links (Lineup, School, Compute club, Visit) and an Order button in a white pill at right. Under 900px a menu button opens a full sheet.
+2. hero, a bento board: a big honey tile with "Built today!" as one fitted headline, a line and two buttons, a large chip illustration on an orange blob with a leaf "from $24" price badge; a tall white Edge NPU tile ($129, a blob and a spark); an orange "(4.8) stars from 1,200 builders" tile; a "Top picks" tile with four round product thumbnails; a sky "Workshops" tile with a robot arm and a handwritten Join in!. On scroll the board breaks apart, tiles flying off in their own directions, while a honey flood grows out of the main tile to fill the screen.
+3. story: a quote ("We solder by hand, test in small batches...") split into lines that rise in on scroll, with stickers between the words, and three stats (2015, 36 modules, 48 h burn-in).
+4. lineup: "On the bench": six product cards (NPU stick $89, Pocket board $59, Tensor card $1,299, Inference chip $24, Memory kit $210, Cooling kit $45), each a tone tile with the illustration popping in.
+5. school: classes as date tiles (day and month, title, length and seats, price) with a private-session note and a Book a seat button.
+6. process: "From wafer to rack", a timeline of four times (5:00 reflow on, 7:30 bench tested, 9:00 bikes out, 12:00 batch closed) that fills as you scroll.
+7. gallery: "A peek inside", a strip of thumbnails that unfolds into a full grid of lab scenes on scroll.
+8. team: four engineers with SVG portraits on coloured blobs, a role and a one-line joke each.
+9. reviews: the 4.8 rating and an endless marquee of six forum quotes in coloured bubbles, paused on hover or focus.
+10. pricing: "Compute club" with a Monthly/Yearly switch over three plans (Hobby node $49, Lab cluster $199 marked Most loved, Office rack $899) that fan out on view.
+11. faq: details rows. 12. contact: hours, an address on Foundry Row and an order form. 13. footer: link cells, a Pre-order tile, the wordmark huge with a squash-and-stretch on view, and a legal line saying the business is fictional.
+
+THINGS THAT BREAK
+- Put html.motion on in <head> only when motion is allowed, and take it off if GSAP has not arrived in 2.5s; scope every hidden-until-animated state under .motion.
+- Wait for document.fonts.ready before SplitText and before measuring fitted text, then refresh ScrollTrigger.
+- The flood must start from the main tile's own box, measured on refresh; aim each flying tile from the board centre with function-based values and invalidateOnRefresh.
+- The portraits are big SVG; keep only the ones used.
+
+THE FLOOR
+One h1, a main, a labelled menu button with aria-expanded, role="img" with labels on product pictures and aria-hidden decoration, aria-hidden cloned marquee items, a form that confirms in place, visible focus rings. With motion reduced the page is complete and static. Under 700px the bento becomes one column with paired small tiles. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 20, 2026",
+    demo: "/demos/siliq-lab.html",
+    bestFor: ["AI hardware and devices", "maker shops and electronics stores", "workshops, classes and schools", "playful product brands"],
+    style: ["light", "bento", "playful", "illustrated", "gsap", "scroll-driven"],
+    thumbnail: "/thumbs/siliq-lab.jpg",
+    theme: "light",
+  },
+  {
+    title: "Thorn Music Controller Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A desktop music controller built in CSS 3D from layered DOM: every dial, fader, joystick and tape key works, with clicks you can hear and three finishes",
+    prompt: `Build a product landing page for THORN/98, a fictional desktop music controller ($649; two detented dials, two long-throw faders, a joystick and three latching tape keys around one small screen), as one HTML file with no libraries and no images. The device itself is the hero, built in CSS 3D from layered DOM, and every control on it works.
+
+TYPE AND TOKENS
+Saira for display and labels (weight 700-800, tight tracking in headlines, wide-tracked uppercase in small labels) and Asap for text, both embedded as woff2 data URIs. Palette: fog #c9ced3, alloy #b2b6bd, steel #92959c, graphite #51575d, carbon #0f1215 (the screen), ink #1b1d21 with two softer greys, signal orange #fe5d01 (record and accents), lime #7bb470 → #a9d046 (power only). The page is a soft grey with a big diagonal light shaft. Three finishes as token sets on [data-finish]: fog (cool grey shell, graphite faders), graphite (dark shell, fog faders), sand (#dad4c9 shell, umber #4c463e faders); each sets the shell, face, grip, thumb, key and label colours. Buttons are soft raised pills with an orange dot.
+
+THE DEVICE
+- One artboard, 651 x 331 design units; inside the device 1em is one unit (font-size: var(--u)), so a single variable scales it.
+- Depth: a helper stacks N copies of a slice at increasing translateZ to extrude the shell, the dial knurls, the fader caps and the keys; the scene is tilted in perspective and follows the cursor a few degrees, with a specular sheen gradient that moves with it.
+- Parts: a speaker grille of 46 holes, an engraved logo, a deep recessed screen with a matte bezel, two dials with 0-80 scales, two faders (VOLUME, TUNER), a joystick in a ring, three tape keys (stop, play, record) down the right edge, a power key (the only lit control, lime when on) and two lever toggles on the right flank (shuffle, repeat).
+- State object mirroring a state machine: power, playing, track, progress, shuffle, loop, rec, mode (Player, Radio, Tape), the two dials, the two faders, the tape key. Mirror it onto <html> as data-power / data-playing / data-rec / data-mode / data-shuffle / data-loop so CSS styles from it.
+- Input: dials turn by drag or arrow keys in 80 detents across a 320° sweep (low and high EQ); faders drag (volume 0-100; tuner across FM 87.5-108); the joystick moves left or right between modes and plays or pauses on tap; play and record latch down like a cassette deck. Each control is focusable with a role, a label and an aria value.
+- Sound: a mechanical click per detent and key, made in Web Audio from a short decaying noise burst through a band-pass filter (a deeper double "thunk" for latching keys), toggled by a speaker button in the nav.
+- The screen is blank in standby ("Press POWER to begin" under the device); powered on it shows the mode, a track with a progress bar, the value just changed, and a breathing lime glow behind the glass while playing (orange while recording). Toasts confirm changes.
+
+SECTIONS
+1. nav: the THORN / 98 wordmark, four links (Controls, Display, Finish, Specs), the sound toggle and a Reserve pill.
+2. hero: an eyebrow, the h1 "Music you can put your hands on." with "hands" in white, a lede, Reserve — $649 and Explore the controls, the device large below with a row of finish swatches.
+3. controls ("All hardware. Zero menus."): five numbered cards, each with a small live copy of one control (dials, faders, joystick, tape keys, the power key) and a readout.
+4. display ("A screen that speaks only when spoken to."): a close-up of the screen with three notes (three modes, ambient glow, side toggles).
+5. finish ("One alloy. Three finishes."): three swatch cards with their hex pairs, plus the power, record and display colours and the type.
+6. specs: a definition list (dimensions, weight, display, controls, audio, radio, connectivity, finishes), noting which finish is shown.
+7. cta ("Turn it on."): a small device, the price and a refundable reservation. 8. footer: the wordmark and a line saying the product is fictional.
+
+THINGS THAT BREAK
+- Keep the stack depth modest; every layer is DOM, and a phone needs fewer.
+- Set pointer capture on drag and convert pointer motion to value through the control's own rotation and scale, or dials jump when the device is tilted.
+- Create the AudioContext lazily inside the first click, never at load, and wrap it in try/catch so a blocked context stays silent.
+- The swatches change data-finish on <html>; a mini device can pin its own finish.
+
+THE FLOOR
+One h1, labelled sliders and buttons with keyboard control, aria-hidden decorative layers, visible focus rings. With motion reduced the tilt and glow stop. Under 900px the hero stacks and the device scales to the width. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 20, 2026",
+    demo: "/demos/thorn-controller.html",
+    bestFor: ["consumer hardware and audio products", "product pre-orders and reservations", "industrial design studios", "interactive product showcases"],
+    style: ["light", "3d", "skeuomorphic", "interactive", "product", "no libraries"],
+    thumbnail: "/thumbs/thorn-controller.jpg",
+    theme: "light",
+  },
+  {
+    title: "Corvel Hard-Tech Capital Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A risograph-print investment firm for fabs, satellites and fusion: halftone art drawn in code, a sunburst arch that blows apart on scroll and a two-plate misregistered print",
+    prompt: `Build a landing page for Corvel, a fictional hard-tech investment firm ("Capital for things that are hard to build": venture equity, equipment debt and project finance for fabs, satellites, energy storage and fusion), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3, all from jsdelivr. Google Fonts: Inter Tight 400-900 (display and UI), JetBrains Mono 400-700 (labels), Newsreader (body serif, optical sizes). No images: every picture is SVG generated by script and printed through a CSS halftone screen.
+
+DESIGN SYSTEM
+A risograph print on warm paper. Tokens: paper #ebe8e1, paper-hi #f7f5f0, ink #0c1016, one red #ff5b1a, mid grey #8b939e; a 1.5px stroke; a fluid gutter (16-56px) and max width 1320px. Display type is Inter Tight 800-900 with tight negative tracking (-0.04 to -0.06em); labels are uppercase mono; body is Newsreader 18px. Hard offset shadows instead of blur: buttons are ink blocks with a 4px red shadow that collapses as the button slides into it on hover, sometimes with a second paper-coloured mono segment ("Reply in 24 h"). Links get a dotted underline whose dots swell on hover (an animated @property radius). Chips are a mono key in an ink cell beside a value. A paper grain is an SVG fractal-noise mask; dark sections rise out of the page on a "ramp": a row of dots growing from specks to full circles, as a repeating SVG mask on a ::before above the section.
+
+HALFTONE AND GENERATED ART
+- [data-art] elements are filled by one script with seeded SVG (a tiny LCG PRNG per element): a 300 mm wafer map with dies (or yield bins), a chip die with bond wires, a planet with orbits, a candlestick chart with a moving average, yield curves, a top-down toroidal reactor, a satellite constellation over the Earth's limb, a battery site plan with a state-of-charge curve, a tokamak cross-section with flux surfaces, halftone portrait silhouettes, a PCB, an order-book depth chart, a vibration spectrum and survey contours. Each uses the CSS colour classes (ink, red, paper) so it follows the tokens.
+- .ht turns any art into a print: the art is greyscaled inside .ht-scr, which has filter contrast(20) and a rotated radial-gradient dot grid (--dot cell) multiplied over it, then the ink colour is laid on top with mix-blend lighten. .ht--red prints in red.
+
+SECTIONS
+1. nav: fixed; the brand "corvel." (red dot) fades out while the cover's masthead is on screen; dotted links, Pitch a build. It turns solid on scroll, ink over dark sections, hides on scroll down and returns on scroll up. Under 900px a full-screen menu opens with a circular clip-path from the button.
+2. hero (a cover, pinned for one and a bit screens): the masthead "corvel" sized to fit its width from its character count (--len), a red mono tagline and email under it; an orbit diagram either side; a tall arch with a 1.5px outline full of slowly turning red-and-ink sunburst rays (two repeating-conic-gradients), dots fading up from the bottom and grain; long dashed rays radiating from the arch across the page; in front, a tilted paper print of the halftone wafer captioned "Tape-out No. 04", four floating framed plates (a die, a round orbit, a rounded candlestick card, a yield-curve card), two tilted mono tags (Underwrite, Build) and a speech bubble ("$4.2B deployed into hardware"), all gently bobbing. A table of contents at left and a big red "3 lead allocations left in Fund IV" at right; a plate chip and a two-part CTA along the bottom. Scrolling scrubs the cover apart: the masthead letters fly outward and rotate from the centre, every floating card flies away along its own direction from the arch, the rays turn and grow, the arch scales up, the print straightens and lifts.
+3. services: a sticky heading with an orbit glyph beside a list of five instruments (venture equity, project finance, equipment debt, public co-funding, offtake), each with a price in red mono, a paragraph, mono bullets and a red rule that draws in.
+4. story: a figure printed twice, ink and red plates of the same reactor art with different screen angles, starting misregistered and sliding into register on scroll with registration marks; the headline "Hard tech isn't too risky. It's mispriced." with a red offset shadow that also closes up; two columns with a drop cap and a signature.
+5. portfolio (dark): four deal spreads (year in huge red numerals, sector, company, what was financed, the result) as cards with red offset shadows, pinned and scrolled horizontally on desktop, each slightly tilted.
+6. stats (red, with faint rays): four big figures stamped in on view with a back-out overshoot.
+7. process: five proof cards that stick and stack as you scroll, each with a CMYK-like colour bar, crop marks and a slight tilt.
+8. team: four partners in arch-topped halftone portraits with an offset outline, revealed bottom to top.
+9. reviews (dark): an endless marquee of speech-bubble quotes that pauses on hover or focus.
+10. gallery: a 12-column collage of six plates that "develop" in through a growing dot mask.
+11. pricing (dark): an Equity/Debt toggle above three hanging price tags (a hole and a string), the middle one red; tags swing in on view.
+12. faq: details rows with a round chevron and red rules. 13. contact: "Bring us the bill of materials." with sunburst lines drawn out from the heading box to the page edge (some ending in dots) and a sunburst arch rising behind a form card. 14. footer: the wordmark huge in red, columns, chips, a legal line saying the firm is fictional.
+
+THINGS THAT BREAK
+- Put html.motion on in <head> only when motion is allowed, and take it off if GSAP has not arrived in 2.5s; scope every hidden-until-animated state under .motion so the page is never stuck invisible.
+- Wait for document.fonts.ready before splitting the masthead into letters and building the cover timeline, then refresh ScrollTrigger.
+- Compute each flying card's direction from the arch centre inside function-based tween values with invalidateOnRefresh, so a resize re-aims them.
+- The horizontal portfolio pin needs its distance (track width minus the viewport) as a CSS variable on the pin, set again on every refresh.
+- Large numbers and wordmarks are sized from --len (character count) and container units, so update --len when the text changes.
+
+THE FLOOR
+A main, one h1 (the masthead and tagline), labelled menu buttons with aria-expanded, role="img" and aria-labels on every generated picture, aria-hidden decoration and cloned marquee items, a live form status, visible red focus rings. With motion reduced the page is complete and static. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 20, 2026",
+    demo: "/demos/corvel-capital.html",
+    bestFor: ["venture and investment firms", "hard-tech, deep-tech and climate funds", "industrial and infrastructure finance", "editorial brand sites"],
+    style: ["light", "risograph", "halftone", "editorial", "gsap", "scroll-driven"],
+    thumbnail: "/thumbs/corvel-capital.jpg",
+    theme: "light",
+  },
+  {
     title: "Corelane Build Cluster Page",
     category: "web",
     categoryLabel: "WEB",
