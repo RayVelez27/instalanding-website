@@ -7,7 +7,8 @@ import { AgentPanel } from "@/components/AgentMode";
 import { MOTION_ITEMS, PAGES, PAGE_ITEMS, SYSTEM_ITEMS, variedOrder, type Item } from "@/lib/libraryItems";
 import { shuffle } from "@/data/prompts";
 import HtmlTypewriter from "@/components/HtmlTypewriter";
-import { copyText, copyTextLater } from "@/lib/copyText";
+import LibraryCard from "@/components/LibraryCard";
+import { copyText } from "@/lib/copyText";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import { useIsPhone } from "@/hooks/useIsPhone";
 import { useSeo } from "@/hooks/useSeo";
@@ -44,56 +45,23 @@ const useToast = () => {
   return { msg, say };
 };
 
-/* ── a card ── */
-const Card = ({
-  item,
-  onCopied,
-}: {
-  item: Item;
-  onCopied: (m: string) => void;
-}) => {
+/* ── a card: the shared library card, fed from an item ── */
+const Card = ({ item, onCopied }: { item: Item; onCopied: (m: string) => void }) => {
   const location = useLocation();
   const phone = useIsPhone();
   // Pages open as the dialog over home on desktop, like the feed does
-  const state =
-    item.kind === "page" && !phone
-      ? { backgroundLocation: location }
-      : undefined;
+  const state = item.kind === "page" && !phone ? { backgroundLocation: location } : undefined;
   return (
-    <div className={`home-card home-card--${item.kind}`}>
-      <Link to={item.to} state={state} className="home-card-link">
-        <span className="home-card-art">
-          {item.image && (
-            <img
-              src={item.image}
-              alt=""
-              width={1200}
-              height={600}
-              loading="lazy"
-              decoding="async"
-            />
-          )}
-        </span>
-        <span className="home-card-text">
-          <span>
-            <b>{item.title}</b>
-            <small>{item.sub}</small>
-          </span>
-          <ArrowRight size={14} aria-hidden="true" />
-        </span>
-      </Link>
-      <button
-        type="button"
-        className="home-quick"
-        onClick={async () => {
-          await copyTextLater(fetch(item.code).then((r) => r.text()));
-          onCopied("HTML COPIED");
-        }}
-        aria-label={`Copy the HTML for ${item.title}`}
-      >
-        COPY CODE
-      </button>
-    </div>
+    <LibraryCard
+      kind={item.kind}
+      title={item.title}
+      sub={item.sub}
+      to={item.to}
+      state={state}
+      image={item.image}
+      copy={() => fetch(item.code).then((r) => r.text())}
+      onCopied={onCopied}
+    />
   );
 };
 

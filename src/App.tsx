@@ -15,6 +15,7 @@ import Agents from "./pages/Agents";
 import Contact from "./pages/Contact";
 import Contribute from "./pages/Contribute";
 import Sponsor from "./pages/Sponsor";
+import Hire from "./pages/Hire";
 import BuilderPage from "./pages/BuilderPage";
 import { builders } from "@/data/builders";
 import ComingSoon from "./pages/ComingSoon";
@@ -71,6 +72,7 @@ const AppRoutes = () => {
         <Route path="/contribute" element={<Contribute />} />
         {/* SPONSOR in the navbar. */}
         <Route path="/sponsor" element={<Sponsor />} />
+        <Route path="/hire" element={<Hire />} />
         <Route path="/contact" element={<Contact />} />
         {/* Out of the menu, not deleted: the builder pages are search landing
             pages and keep their URLs and their sitemap entries. */}

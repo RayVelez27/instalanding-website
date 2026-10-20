@@ -1,6 +1,6 @@
 import { feedPrompts, type PromptEntry } from "@/data/prompts";
 import { motions, type MotionEntry } from "@/data/motion";
-import { systems, type SystemEntry } from "@/data/systems";
+import { systemCover, systems, type SystemEntry } from "@/data/systems";
 
 /**
  * The library as one list of cards: every page, motion study and design
@@ -72,7 +72,7 @@ const systemItem = (s: SystemEntry): Item => ({
   key: `s:${s.slug}`,
   title: s.name,
   sub: `${s.components.length} components · ${s.theme}`,
-  image: s.files.preview,
+  image: systemCover(s),
   to: `/systems/${s.slug}`,
   words: [s.name, s.tagline, s.description, s.theme, ...s.tags]
     .join(" ")

@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import PromptThumb from "@/components/PromptThumb";
 import PromptStage from "@/components/PromptStage";
 import TemplateFeedback from "@/components/TemplateFeedback";
+import HireLine from "@/components/HireLine";
 import { loadDemoSource } from "@/lib/demoSource";
 import { copyText } from "@/lib/copyText";
 import { useCopyCode } from "@/lib/useCopyCode";
@@ -179,6 +180,8 @@ const PromptDetail = () => {
               <span className="pmodal-label">FEEDBACK</span>
             </button>
           </div>
+
+          {!entry.youtube && <HireLine slug={entry.slug} from="page" />}
 
           {feedback && (
             <section className="detail-feedback" id="detail-feedback" aria-label="Feedback">

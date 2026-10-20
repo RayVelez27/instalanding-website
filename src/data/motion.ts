@@ -95,6 +95,291 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "hello-world-water",
+    title: "Hello World Water",
+    kind: "WEBGL SIMULATION",
+    tagline: "A tiled pool seen from above where the water itself rises into HELLO, holds, and collapses into ripples before WORLD rises",
+    description:
+      "A real wave simulation on the GPU, seen from straight above a tiled pool. The water pulls itself up into the word HELLO, holds it while leaves are shouldered aside, then lets go: the letters fall back as travelling ripples and splashes before WORLD rises in their place. Caustics dance on the tiles, the sun drifts, leaves float and bob on the swell, and you can drag through the water, drop pebbles, double-click for a cannonball or bring on the rain.",
+    added: "Oct 19, 2026",
+    theme: "light",
+    demo: "/motion-lab/hello-world-water.html",
+    poster: "/motion-lab/hello-world-water.jpg",
+    library: { name: "three.js", version: "0.180", plugins: ["GLSL shaders", "GPU wave sim"] },
+    life: 9.2,
+    lifeLabel: "ONE WORD'S LIFE",
+    drawSeconds: 9.2,
+    elements: 65536,
+    status: "HELLO · HOLDING",
+    stepLabels: ["Drop a pebble", "Next word"],
+    reelAutoplay: 2600,
+    tracks: [
+      { prop: "form · spring", change: "0 → 1, the water pulls up into the word", start: 0, end: 0.3, ease: "power1.inOut" },
+      { prop: "spray", change: "fine drops lift off the rising strokes", start: 0, end: 0.3, ease: "power1.inOut", yoyo: true },
+      { prop: "calm", change: "ambient chop drops 72% around the word", start: 0, end: 0.3, ease: "power1.out" },
+      { prop: "leaves", change: "shouldered downhill off the strokes", start: 0.1, end: 0.72, ease: "none" },
+      { prop: "form · release", change: "1 → 0 fast: the letters collapse", start: 0.72, end: 0.78, ease: "power3.out" },
+      { prop: "splashes", change: "11 crowns burst along the strokes", start: 0.72, end: 0.8, ease: "power2.in" },
+      { prop: "ripples", change: "travel out and reflect off the walls", start: 0.72, end: 1, ease: "power1.out" },
+    ],
+    inputs: [
+      { keys: ["DRAG"], does: "Wakes through the water; drag fast and it throws spray" },
+      { keys: ["CLICK"], does: "Drops a pebble: a ring, a crown of droplets, leaves pushed away" },
+      { keys: ["DOUBLE-CLICK"], does: "A cannonball: a deep cavity, then a central jet a moment later" },
+      { keys: ["W"], does: "Rain on and off (N: next word · R: reset · SPACE: a pebble)" },
+    ],
+    knobs: [
+      {
+        id: "rain",
+        label: "RAIN",
+        min: 0,
+        max: 1,
+        step: 0.05,
+        value: 0,
+        note: "Rain roughens the surface with a fast chop, greys the sky and dims the sun as it eases in.",
+      },
+    ],
+    toggles: [
+      { id: "hold", label: "HOLD THE WORD", value: false },
+      { id: "leaves", label: "LEAVES", value: true },
+    ],
+    trick: {
+      title: "Typography made of water",
+      steps: [
+        "The surface is a 256×256 height field on the GPU: a fixed 120Hz step of the 2D wave equation, ping-ponged between two half-float render targets, with impulses (pebbles, wakes, raindrops, jets) added as gaussian bumps.",
+        "Each word is drawn to a canvas, stretched to the pool's 8×5.2 aspect, and blurred twice: a sharp mask for the letter height and a wide one for how strongly to pull. The simulation adds a spring toward mask × height × form.",
+        "form eases up over 2.8s, holds for 3.8s, then drops fast. With the spring gone the raised letters are just water, so they collapse on their own into ripples that travel and reflect: nothing is faked.",
+        "Rendering is a refraction ray-trace: refract the view through the surface normal into a tiled basin, light it with caustics (a second pass that compares each triangle's area before and after refraction), mix in a sky reflection by Fresnel, and brighten the raised letters so the word reads from above.",
+      ],
+    },
+    tags: ["webgl", "simulation", "typography", "caustics", "interactive", "three.js"],
+    bestFor: ["launch and announcement moments", "hero headlines that need a wow", "wellness, travel and summer brands", "developer and creative tools"],
+    pairsWith: ["tide-reveal-agent-page", "wind-field-routing-page", "grain-motion-system-page", "monax-analytics-landing-page"],
+    credits: [],
+    prompt: `Build an interactive pool seen from straight above, where the water rises into the word HELLO, holds, collapses into ripples, and then rises into WORLD, in a loop. One HTML file, three.js 0.180 as an ES module from jsdelivr, no images.
+
+THE STAGE
+- Page #eef0ec, a canvas centred at min(900px, 90vw, 123vh) wide with a 20:13 aspect and a soft teal shadow. A perspective camera (42°) looking straight down, fitted so the 8 × 5.2 pool fills it. ACES tone mapping, sRGB output.
+- If WebGL 2 or float render targets are missing, show a plain error message instead.
+
+THE SIMULATION (GPU)
+- A 256×256 half-float height field ping-ponged between two render targets at a fixed 1/120s step (accumulate dt, cap 1/20). Red is height, green is velocity.
+- Each step: velocity += laplacian (weighted for the non-square cells) × 1.21 × dt, damped by exp(−0.64 dt); then a spring toward the word: velocity += (mask.r × letterHeight × form − height) × 95 × pull × dt with pull = form × (0.18 + 0.82 × mask.g), extra damping exp(−4 pull dt); height += velocity × dt. Up to 16 queued impulses per step add (1 − q) e^−q bumps.
+- Word masks: draw the word in 900-weight Arial Black on a 256 canvas, scaled vertically by 8/5.2 so letters stay square on the water; a light blur for the letter (r) and a wide normalised blur for the pull (g).
+
+THE TIMELINE
+- form eases up over 2.8s (smootherstep), holds 3.8s, then lets go fast (9× the rise rate) for 1.6s, rests 1s, and the next word takes over. While rising, fine spray lifts off the strokes; on release, 11 splashes burst at random points of the word and push the leaves away.
+- An ambient sum of ten directional sine waves (domain-warped, sheltered, and calmed 72% while the word stands) rides on top, in the shader and in a matching CPU function so floating things bob in sync.
+
+RENDERING
+- The water mesh (256×256 plane) displaces by the height map plus ambient waves; normals by central differences.
+- Fragment: refract the view ray (1/1.333) into a box basin (floor at −1.35, walls at ±4 / ±2.6) with procedural tiles (two teals, darker grout), wall caustics, ambient occlusion near edges, absorption exp(−(0.34, 0.075, 0.032) t), and soft shadows from leaves and splashes projected along the sun. Reflect into a generated sky with Fresnel (0.02037 + 0.97963 (1 − cos)^5), a sharp sun highlight, and lift raised water brighter and greener with a pale rim on steep flanks so the word reads.
+- Caustics: a second pass renders the same grid refracted to the floor into a 1024 target, intensity = area before refraction ÷ area after (dFdx/dFdy cross products), additive.
+- The sun drifts slowly round; a hemisphere light and a sun light for the leaves and droplets.
+
+THE LIFE IN IT
+- Splashes: instanced glassy droplets with gravity that make a small impulse where they land, plus a crown mesh (a ring of 64 quads with lobed height) that grows and fades in 0.4–0.6s.
+- Ten leaves (six afloat, the rest falling in every 7–13s): drift on a current with two pool-return jets, bob and tilt on the ambient swell, collide softly, spin down, ride up over raised letters and are shouldered downhill off them.
+- Rain (W or a control): eases in, adds a fine chop to the shader, greys the sky, dims the sun, and drops streaks that make tiny impulses and occasional droplets.
+
+INPUTS
+- Drag: segmented impulses along the path and leaf stirring; fast drags throw splashes. Click: a pebble (deep impulse, crown, leaves pushed). Double-click: a cannonball (bigger cavity, a central jet 210ms later). Keys: R reset, W rain, N next word, Space a random pebble.
+
+THE FLOOR
+- The canvas is focusable with a visible focus ring and an aria-label describing the loop. Handle context loss with a message and reload on restore. Cap the pixel ratio at 1.7 and pause while the tab is hidden.`,
+  },
+  {
+    slug: "only-the-wind",
+    title: "Only the Wind",
+    kind: "AMBIENT SCENE",
+    tagline: "A backlit evening by a lake where cherry petals ride the wind in three depths, and a click sends a gust through everything",
+    description:
+      "Two travellers watch the sun set over a lake while cherry petals blow past in three layers of depth: hazy specks far off, crisp petals that catch the light as they tumble, and huge out-of-focus ones sweeping past the lens. Grass sways, a lantern and a wind chime swing under the eaves, dust glitters in the sun and a haiku inks itself in. Click and a gust tears through the whole scene, then dies away. Everything is drawn in code: canvas, SVG and CSS, no images.",
+    added: "Oct 19, 2026",
+    theme: "light",
+    demo: "/motion-lab/only-the-wind.html",
+    poster: "/motion-lab/only-the-wind.jpg",
+    library: { name: "Canvas 2D", version: "+ SVG", plugins: ["no libraries", "SMIL", "CSS keyframes"] },
+    life: 10,
+    lifeLabel: "ONE PETAL'S CROSSING",
+    drawSeconds: 10,
+    elements: 185,
+    status: "BREEZE · CLICK FOR A GUST",
+    stepLabels: ["A sudden calm", "Send a gust"],
+    reelAutoplay: 4200,
+    tracks: [
+      { prop: "x · petal", change: "drifts right to left, eases to its wind speed", start: 0, end: 1, ease: "power1.out" },
+      { prop: "y · petal", change: "gravity plus a sine wave of turbulence", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "rotateX · Y · Z", change: "tumbles in 3D, lit when it faces the sun", start: 0, end: 1, ease: "none" },
+      { prop: "gust", change: "+2.2 on a click, then ×0.972 a frame", start: 0.3, end: 0.62, ease: "power3.out" },
+      { prop: "sway · grass", change: "two sines per blade, bent by the gust", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "rotate · lantern · chime", change: "−3° to 3.6°, 5s and 3.1s", start: 0, end: 0.5, ease: "power1.inOut", yoyo: true },
+      { prop: "scale · camera", change: "breathes 1.035 → 1.042 over 16s", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "opacity · blur · haiku", change: "inks in one character at a time", start: 0.15, end: 0.45, ease: "power1.out" },
+    ],
+    inputs: [
+      { keys: ["CLICK"], does: "Summons a gust: petals race, grass bends flat, dust streams, then it all settles" },
+      { keys: ["SPACE"], does: "The same gust from the keyboard" },
+      { keys: ["MOVE"], does: "The pointer parallaxes the sky, the figures and the grass at different depths" },
+    ],
+    knobs: [
+      {
+        id: "gust",
+        label: "GUST STRENGTH",
+        min: 0.6,
+        max: 4,
+        step: 0.1,
+        value: 2.2,
+        note: "Added to the wind on each click (capped at 1.6× this), then it decays by 2.8% a frame.",
+      },
+    ],
+    toggles: [
+      { id: "flare", label: "LENS FLARE", value: true },
+      { id: "haiku", label: "HAIKU", value: true },
+    ],
+    trick: {
+      title: "Depth from three fields and a fake lens",
+      steps: [
+        "One petal model, three fields: far (130 small petals with a haze tint and one blur pass), mid (46 crisp ones) and near (9 huge ones drawn from a 4-pass blurred sprite with motion trails). Size, wind and blur together read as depth of field.",
+        "Each petal is a sprite drawn once, then projected with an affine setTransform from two rotated axis vectors: a full 3D tumble for the price of one drawImage. The face angle sets how much light comes through, and so does the distance to the sun.",
+        "Every petal eases toward its own wind speed (smaller ones catch more wind) and falls under gravity plus a sine of its x position. A gust adds to every field at once and decays by ×0.972 a frame, so one click is a whole weather event.",
+        "The photograph is procedural: ridgelines from midpoint displacement with aerial perspective, a sun path on the lake, fBm clouds, rays, mist and grain. Over the top, a lens flare (bloom, core, streak, spikes, ghosts mirrored through the centre) follows the sun as the scene parallaxes.",
+      ],
+    },
+    tags: ["particles", "canvas", "depth of field", "click to gust", "lens flare", "procedural"],
+    bestFor: ["storytelling and brand moments", "travel, hospitality and tea brands", "poetry, books and editorial", "calm hero sections and 404 pages"],
+    pairsWith: ["sunset-scroll-story-page", "paper-sun-agent-page", "craft-studio-webgl-landing-page", "generative-editorial-product-page"],
+    credits: [],
+    prompt: `Build an ambient, backlit evening scene as one HTML file: two travellers by a lake at sunset while cherry petals blow past in three depths, with a click that sends a gust through everything. No libraries and no image files: canvas 2D, inline SVG and CSS only. Google Fonts Shippori Mincho B1 (500/700) and Cormorant Garamond (italic 300/400).
+
+THE PHOTOGRAPH (procedural, drawn once to a canvas)
+- A seeded PRNG (mulberry32) and a tiling value-noise fBm.
+- Sky gradient #a2979f → #c6b0a4 → #e7c69e → #f8dfb2 to the horizon at 66.5%; the sun at (38%, 54%) as a large radial scatter and a white core.
+- Four mountain ridges from midpoint displacement, coloured by aerial perspective (mix #efd2ab haze toward #2c2027 ink by depth), the nearer two topped with tree bumps and one with a small five-tier pagoda; each ridge edge rim-lit where it crosses the sun. Haze pools in the valleys.
+- A lake below the horizon: mirrored ridges at low alpha, thin ripple strokes, and a glittering sun path that widens toward the viewer. A near hill (dark #2c2023 → #0b0708) rim-lit along its top.
+- Separate canvases: tileable fBm clouds lit from below that drift over 380s; crepuscular rays as thin wedges from the sun (screen blend, slow rotate); two bands of drifting mist; diffraction spikes.
+
+THE FIGURES (inline SVG, backlit)
+- A traveller in a straw hat, haori and hakama, a sword at the hip; a girl in a furisode with an obi, a hair ornament with dangles, holding a glowing oiled-paper parasol. A temple eave top-right with tile ends and rafters, a paper lantern with the character 風 and a glass wind chime with a paper strip.
+- Each silhouette gets a rim-light filter: offset the alpha, subtract it, blur, flood with #ffdcaa and merge twice, so the sun wraps around the edges.
+- Robes and hair strands breathe with SMIL path morphs (3–4s, spline eased); the lantern and chime swing (rotate −3° to 3.6°, 5s and 3.1s, alternate) and the strip flutters faster.
+
+THE PETALS
+- Three notched petal shapes drawn once to 160px sprites in two palettes (lit: #f29a83 → #ffd4c0 → #fff6e8; shade: #c66d8a → #e6a9bc → #f6dbe3) with veins, a deep base and a light edge; blurred copies (4 halvings) for the near field and a haze-tinted copy for the far one.
+- Fields: far (130, 5–14px, hazed), mid (46, 15–32px) and near (9, 60–115px, blurred, three trailing ghosts). Scale counts by viewport area.
+- Each petal: eases its vx toward a wind speed between min and max (smaller petals catch more wind), adds gravity × (1.5 − windFactor), adds sin(x × 0.01 + phase) × turbulence, damps vy by 0.98, tumbles on three axes, and respawns off the right edge when it leaves.
+- Draw with setTransform from two axis vectors rotated by (angleX, angleY, angleZ): the shade sprite first, then the lit sprite at an alpha from how face-on it is plus a gaussian of its distance to the sun.
+
+THE AIR AND THE LENS
+- Grass: about one blade per 2.4px, each a quadratic curve swaying on two sines and bent by the gust, batched into six tone buckets (one fill each) with a rim stroke near the sun, batched by brightness.
+- Dust motes that glow near the sun, soft bokeh rings drifting left, and lake glitter that twinkles (pow(sin, 8)).
+- A lens flare that follows the sun on screen: bloom, a white core, a horizontal streak, the spikes, and six ghosts (dot, hexagon, ring, warm) placed along the line from the sun through the centre at k = 0.42 … 2.2.
+- The camera breathes (scale 1.035 → 1.042, 16s alternate); the pointer parallaxes sky (8px), figures (12px) and grass (16px). Film finish: a soft-light grade, a vignette, animated grain, and a white flash that fades out on load.
+
+THE WIND
+- gust starts at 0; a click or Space adds 2.2 (capped at 3.5) and each frame multiplies it by 0.972. Petal speed × (1 + gust), turbulence × (1 + gust × 0.6), grass leans by gust × 0.28, dust and bokeh speed up.
+
+THE HAIKU
+- 花は散り / 名を覚えている / 風ばかり, set vertical (writing-mode vertical-rl) top-left in Shippori Mincho with a rough ink displacement filter; each character fades in from blur(8px), 0.13s apart. A thin rule grows under it and a red hanko seal (風) stamps in with an overshoot. An italic English caption bottom-left; a "Click to summon the wind" hint after 7s.
+
+THE FLOOR
+- prefers-reduced-motion stops every loop and the gust and cuts the petal count to 40%. Rebuild the canvases on resize (debounced). Cap the device pixel ratio at 1.5–2. The haiku moves in and the caption hides below 760px.`,
+  },
+  {
+    slug: "dusk-valley-parallax",
+    title: "Dusk Valley Parallax",
+    kind: "SCROLL PARALLAX",
+    tagline: "One long scroll from sunset to starlight: hills peel apart in depth, the sun sinks and swells, bats scatter and a star falls",
+    description:
+      "A single SVG landscape, thirty-odd layers deep, scrubbed by the page's scroll. Scroll down and the valley's ridges slide apart at their own depths while the sun sinks behind a dusk range rising from below. The sun swells until it fills the sky, a flock of bats bursts out of it, and then the whole dusk lifts away to reveal a night valley under twinkling stars, with a shooting star crossing it. Scroll back up and every frame plays in reverse.",
+    added: "Oct 19, 2026",
+    theme: "dark",
+    demo: "/motion-lab/dusk-valley-parallax.html",
+    poster: "/motion-lab/dusk-valley-parallax.jpg",
+    library: { name: "GSAP", version: "3.12.5", plugins: ["ScrollTrigger"] },
+    life: 6,
+    lifeLabel: "ONE SCROLL, 6000PX (1s = 1000PX)",
+    drawSeconds: 12,
+    elements: 36,
+    status: "SUNSET · SCROLL TO DESCEND",
+    stepLabels: ["Glide up a scene", "Glide down a scene"],
+    reelAutoplay: 3600,
+    tracks: [
+      { prop: "x · clouds", change: "four clouds drift apart, ±500–1000", start: 0, end: 0.7, ease: "none" },
+      { prop: "y · x · ridges, scene 1", change: "nine ridges fall away, nearest fastest", start: 0, end: 0.4, ease: "power2.in" },
+      { prop: "cy · sun gradient", change: "−50 → 330, the sun sinks", start: 0.01, end: 0.36, ease: "none" },
+      { prop: "y · ridges, scene 2", change: "dusk range rises 500–900 → 0", start: 0.15, end: 0.4, ease: "power1.inOut" },
+      { prop: "offset · sun stops", change: "the sun swells to fill the sky", start: 0.33, end: 0.83, ease: "none" },
+      { prop: "y · scale · bats", change: "burst out of the sun, 0 → 0.8", start: 0.4, end: 0.7, ease: "power3.out" },
+      { prop: "y · scale · dusk", change: "lifts up and away, 1.5×", start: 0.6, end: 1, ease: "power1.inOut" },
+      { prop: "y · ridges, scene 3", change: "night valley climbs in, stars appear", start: 0.7, end: 1, ease: "power1.inOut" },
+      { prop: "x · y · falling star", change: "crosses the night sky", start: 0.7, end: 1, ease: "power1.out" },
+    ],
+    inputs: [
+      { keys: ["SCROLL"], does: "The only clock: every layer is scrubbed by the page's scroll, both ways" },
+      { keys: ["◀", "▶"], does: "Glide to the previous or next scene: sunset, dusk, nightfall, starlight" },
+      { keys: ["IDLE"], does: "The scroll arrows bob and the stars twinkle on their own" },
+    ],
+    knobs: [
+      {
+        id: "depth",
+        label: "PARALLAX DEPTH",
+        min: 30,
+        max: 220,
+        step: 5,
+        value: 100,
+        unit: "px",
+        note: "Scene 1's spread: each ridge moves a multiple of this. Low is a gentle drift, high tears the valley apart.",
+      },
+    ],
+    toggles: [{ id: "cues", label: "SCROLL ARROWS", value: true }],
+    trick: {
+      title: "A film strip on a scroll bar",
+      steps: [
+        "Everything is one fixed, full-viewport SVG (viewBox 750×500, preserveAspectRatio xMidYMax slice), and a 6000px empty div behind it gives the page its length. The SVG never scrolls; the scroll only feeds the timelines.",
+        "Each scene is its own timeline bound to a slice of that length with ScrollTrigger and scrub 2–3, so layers ease toward the scroll position instead of snapping to it. That lag is what reads as depth.",
+        "Depth is a different multiple per layer: one speed unit, and the nearest ridge moves 3–5× while the far ones move 1–2×, some sideways in opposite directions, so the valley opens up rather than sliding.",
+        "The sun is not a shape: it is the first stops of the sky's radial gradient. Tweening the gradient's cy sinks it, and tweening the stop offsets and colours swells it, all as attr tweens on the SVG.",
+        "Scene 3 waits below the frame (y = SVG height − 40) and the dusk lifts out of view as it arrives, so the cut between scenes is a camera move, not a fade.",
+      ],
+    },
+    tags: ["scroll-driven", "parallax", "SVG", "scene transitions", "scrub"],
+    bestFor: ["storytelling and launch pages", "outdoor, travel and festival brands", "portfolio intros", "games and story worlds"],
+    pairsWith: ["sunset-scroll-story-page", "paper-sun-agent-page", "maasai-inspired-event-landing-page", "event-horizon-orbital-page"],
+    credits: [
+      {
+        label: "isladjan on CodePen",
+        href: "https://codepen.io/isladjan",
+        note: "The scroll-driven SVG parallax this study is built on; the shooting star is redrawn inline here",
+      },
+    ],
+    prompt: `Build a scroll-driven SVG parallax landscape as one HTML file: a valley at sunset that, over one long scroll, sinks into dusk and lifts away into a starry night. GSAP 3.12 and ScrollTrigger from cdnjs; no other libraries and no image files.
+
+THE STAGE
+- body background #1d1d3a, scrollbar hidden but the page really scrolls. One svg.parallax, position fixed, 100% × 100vh, viewBox 0 0 750 500, preserveAspectRatio "xMidYMax slice", z-index 3. Behind it an empty .scrollElement, position absolute, 6000px tall: it is the timeline's length.
+- The sky is a rect filled with a radial gradient centred at (375, −30), r ≈ 319: the first stop (#F5C54E, id sun) is the sun's disc, then #FFDBA6, #F7BB93, #F2995E, #f07560 and #FFAB93 out to the edge.
+- Flat-shaded layers drawn as paths, each with its own linear gradient. Scene 1: nine pine ridges from pink-mauve (#d98981) in the distance to near-black navy (#120e22) in front, two big soft white cloud banks at 0.5 opacity and four thin white clouds. Scene 2: six rolling dusk ridges and a flock of five bats (hidden). Scene 3: a purple night sky (radial, pink at the horizon to navy), seventy small stars, a shooting star (a tapered white gradient tail with a bright head), four jagged night ridges with mix-blend multiply and two faint dinosaur skeletons in the foreground. Plus a bird silhouette and two chevron scroll arrows.
+
+THE CHOREOGRAPHY (all scrubbed by scroll)
+- Scene 1, top to 45% of the length, scrub 3: with speed = 100, ridges move y 1.7–5 × speed and x −2.5 to +1.6 × speed (the nearest most), the big cloud banks y 4.5 × speed, the opening clouds part ±300, the arrow drops away.
+- Clouds, to 70%, scrub 1: cloud1 x +500, cloud2 +1000, cloud3 −1000, cloud4 −700.
+- Sun, to 2150px, scrub 2: the gradient's cy −50 → 330 and the stops spread (0.15, 0.18, 0.25, 0.46): it sinks and softens.
+- Scene 2, 15% → 40%, scrub 3: its ridges rise from y 500–900 to 0, a little staggered. The bird crosses the sky (x +800, y −250) and flips round when its trigger ends.
+- Sun swells, 2000px → 5000px: the sun stop's offset → 1.4 and it turns #ffff00, so the disc fills the sky; the dusk ridges darken (#623951 → #261F36).
+- Bats, 40% → 70%: from y 400, scale 0 to y 20, scale 0.8, power3.out; on enter each bat flaps (scaleX 0.5 yoyo, 9 repeats, staggered 0.1s).
+- Transition, 60% → bottom: scene 3 starts at y = the SVG's height − 40; the dusk ridge lifts to y −(height + 100) at scale 1.5 and the night sky rises to 0.
+- Scene 3, 70% → bottom: the night ridges climb from y 300–1000 to −550, staggered 0.03; stars fade to 0.5 and rise; the sky gradient's cy → 600 and r → 500; the up arrow fades in. The shooting star crosses from 4200px (x −700, y −250).
+
+THINGS THAT BREAK
+- Animate SVG gradients with attr tweens (cy, r, offset, stop-color): CSS transforms can't reach them.
+- Give every scene its own ScrollTrigger range and keep scrub at 2–3; scrub true (no lag) flattens the depth.
+- Set transformOrigin before scaling the bats, or they scale from the SVG's corner.
+- Start from the top on reload (history.scrollRestoration = "manual"), or a mid-scroll restore lands between scenes with tweens half-set.
+
+THE FLOOR
+- prefers-reduced-motion stops the bobbing arrows and the twinkle; the scroll still drives the scenes, so nothing moves unless the reader moves it. The SVG slices to cover any aspect ratio; at 490px and below the arrows scale to 0.8 and lift. No horizontal scroll at 390px.`,
+  },
+  {
     slug: "coverflow-carousel",
     title: "Coverflow Carousel",
     kind: "CAROUSEL",

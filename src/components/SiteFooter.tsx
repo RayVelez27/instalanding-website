@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import BrandLogo from "@/components/BrandLogo";
 import { GITHUB_REPO } from "@/components/GithubButton";
+import { track } from "@/lib/track";
 
 /**
  * The site footer, on every page and every width: the mark and the licence on
@@ -11,6 +12,7 @@ const LINKS: { label: string; to?: string; href?: string }[] = [
   { label: "Pages", to: "/pages" },
   { label: "Systems", to: "/systems" },
   { label: "About", to: "/about" },
+  { label: "Hire", to: "/hire" },
   { label: "Sponsor", to: "/sponsor" },
   { label: "Contact", to: "/contact" },
   { label: "GitHub", href: `https://github.com/${GITHUB_REPO}` },
@@ -29,7 +31,7 @@ const SiteFooter = () => (
         {LINKS.map((l) => (
           <li key={l.label}>
             {l.to ? (
-              <Link to={l.to}>{l.label}</Link>
+              <Link to={l.to} onClick={l.to === "/hire" ? () => track("hire_click", { from: "footer" }) : undefined}>{l.label}</Link>
             ) : (
               <a href={l.href} target={l.href?.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
                 {l.label}

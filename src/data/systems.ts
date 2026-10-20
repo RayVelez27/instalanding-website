@@ -51,7 +51,15 @@ export interface SystemEntry {
   /** The root class components must sit inside */
   rootClass: string;
   /** Static files, all under public/systems/<slug>/ */
-  files: { specimen: string; tokens: string; css: string; preview: string };
+  files: {
+    specimen: string;
+    tokens: string;
+    css: string;
+    /** The board, captured whole (agents and the dialog use it) */
+    preview: string;
+    /** The cover, then hover frames: built by scripts/systems/posters.mjs */
+    posters?: string[];
+  };
   /** Google Fonts stylesheet the system needs */
   fontsHref: string;
   /** Slugs in prompts.ts this system was extracted from or is used by */
@@ -109,6 +117,7 @@ export const systems: SystemEntry[] = [
       tokens: "/systems/kind-swarm/tokens.css",
       css: "/systems/kind-swarm/kind-swarm.css",
       preview: "/systems/kind-swarm/preview.jpg",
+      posters: ["/systems/kind-swarm/poster-1.jpg", "/systems/kind-swarm/poster-2.jpg", "/systems/kind-swarm/poster-3.jpg", "/systems/kind-swarm/poster-4.jpg"],
     },
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Stardos+Stencil:wght@400;700&family=IBM+Plex+Sans+Condensed:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@500;600&display=swap",
@@ -246,6 +255,7 @@ export const systems: SystemEntry[] = [
       tokens: "/systems/kiln/tokens.css",
       css: "/systems/kiln/kiln.css",
       preview: "/systems/kiln/preview.jpg",
+      posters: ["/systems/kiln/poster-1.jpg", "/systems/kiln/poster-2.jpg", "/systems/kiln/poster-3.jpg", "/systems/kiln/poster-4.jpg"],
     },
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap",
@@ -383,6 +393,7 @@ export const systems: SystemEntry[] = [
       tokens: "/systems/footnote/tokens.css",
       css: "/systems/footnote/footnote.css",
       preview: "/systems/footnote/preview.jpg",
+      posters: ["/systems/footnote/poster-1.jpg", "/systems/footnote/poster-2.jpg", "/systems/footnote/poster-3.jpg", "/systems/footnote/poster-4.jpg"],
     },
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@400..700&display=swap",
@@ -519,6 +530,7 @@ export const systems: SystemEntry[] = [
       tokens: "/systems/hollr/tokens.css",
       css: "/systems/hollr/hollr.css",
       preview: "/systems/hollr/preview.jpg",
+      posters: ["/systems/hollr/poster-1.jpg", "/systems/hollr/poster-2.jpg", "/systems/hollr/poster-3.jpg", "/systems/hollr/poster-4.jpg"],
     },
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Neuton:ital,wght@0,400;0,700;1,400&display=swap",
@@ -655,6 +667,7 @@ export const systems: SystemEntry[] = [
       tokens: "/systems/overclock/tokens.css",
       css: "/systems/overclock/overclock.css",
       preview: "/systems/overclock/preview.jpg",
+      posters: ["/systems/overclock/poster-1.jpg", "/systems/overclock/poster-2.jpg", "/systems/overclock/poster-3.jpg", "/systems/overclock/poster-4.jpg"],
     },
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,600&family=JetBrains+Mono:wght@400;700&display=swap",
@@ -791,6 +804,7 @@ export const systems: SystemEntry[] = [
       tokens: "/systems/meridian/tokens.css",
       css: "/systems/meridian/meridian.css",
       preview: "/systems/meridian/preview.jpg",
+      posters: ["/systems/meridian/poster-1.jpg", "/systems/meridian/poster-2.jpg", "/systems/meridian/poster-3.jpg", "/systems/meridian/poster-4.jpg"],
     },
     fontsHref:
       "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Instrument+Sans:wght@400..700&family=Inter:wght@400;500;600;700;800&display=swap",
@@ -911,6 +925,9 @@ export const systems: SystemEntry[] = [
     },
   },
 ];
+
+/** The cover image: the poster when there is one, else the board */
+export const systemCover = (s: SystemEntry) => s.files.posters?.[0] ?? s.files.preview;
 
 export const getSystemBySlug = (slug?: string) => systems.find((s) => s.slug === slug);
 

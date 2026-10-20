@@ -17,7 +17,7 @@ describe.each(systems)("system $slug", (system) => {
   };
 
   it("ships every file it points to", () => {
-    for (const f of Object.values(system.files)) expect(existsSync(pub(f)), f).toBe(true);
+    for (const f of Object.values(system.files).flat()) expect(existsSync(pub(f)), f).toBe(true);
   });
 
   it("lists the same components, in order, as the specimen", () => {

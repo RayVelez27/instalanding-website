@@ -383,6 +383,7 @@ const buildSitemap = (library, builders, base, seoPages = [], layers = { systems
     { loc: `${base}motion`, priority: "0.8" },
     ...layers.motions.map((m) => ({ loc: `${base}motion/${m.slug}`, priority: "0.7" })),
     { loc: `${base}contribute`, priority: "0.5" },
+    { loc: `${base}hire`, priority: "0.6" },
     { loc: `${base}sponsor`, priority: "0.4" },
     { loc: `${base}contact`, priority: "0.3" },
     ...builders.map((b) => ({ loc: `${base}${b.path.replace(/^\//, "")}`, priority: "0.9" })),

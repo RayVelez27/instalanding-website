@@ -6,7 +6,8 @@
  */
 interface Props {
   tone: "pages" | "systems" | "motion";
-  kicker: string;
+  /** Optional eyebrow over the title (PAGES, SYSTEMS and MOTION run without one) */
+  kicker?: string;
   title: string;
   description: string;
 }
@@ -20,7 +21,7 @@ const RouteBanner = ({ tone, kicker, title, description }: Props) => {
         <i />
       </div>
       <div className="route-banner-l">
-        <p className="home-kicker">{kicker}</p>
+        {kicker && <p className="home-kicker">{kicker}</p>}
         <h1 id={`route-banner-${tone}`} className="route-banner-title">
           {words.length > 0 && (
             <>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Copy, ExternalLink, MoreHorizontal, Play, X } from "lucide-react";
 import PromptThumb from "@/components/PromptThumb";
 import TemplateFeedback from "@/components/TemplateFeedback";
+import HireLine from "@/components/HireLine";
 import DemoCode from "@/components/DemoCode";
 import { copyText } from "@/lib/copyText";
 import { SITE_URL } from "@/lib/agentMode";
@@ -176,6 +177,7 @@ const PromptDetailPhone = ({ entry, prev, next, related, system, motions = [], f
               </div>
             )}
           </details>
+          <HireLine slug={entry.slug} from="phone" className="hire-line--phone" />
         </>
       )}
 

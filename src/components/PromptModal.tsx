@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Copy, ExternalLink, Message
 import PromptThumb from "@/components/PromptThumb";
 import PromptStage from "@/components/PromptStage";
 import TemplateFeedback from "@/components/TemplateFeedback";
+import HireLine from "@/components/HireLine";
 import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/data/prompts";
 import { getSystemForTemplate } from "@/data/systems";
@@ -154,6 +155,7 @@ const PromptModal = () => {
                   <MessageSquare size={12} aria-hidden="true" />
                   <span className="pmodal-label">FEEDBACK</span>
                 </button>
+                {!entry.youtube && <HireLine slug={entry.slug} from="modal" className="hire-line--modal" />}
               </div>
 
               <div className="pmodal-body" id="pmodal-body">

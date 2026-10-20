@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SignupField from "@/components/SignupField";
 import GithubButton from "@/components/GithubButton";
+import { track } from "@/lib/track";
 
 /**
  * The menu is no longer one entry per category. PAGES is the whole library
@@ -27,6 +28,9 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[
   // CONTRIBUTE is hidden, not removed: /contribute still resolves and is in
   // the sitemap. Restore this line to bring it back.
   // { to: "/contribute", label: "CONTRIBUTE" },
+  // HIRE is paid custom work; CONTACT is the general form (same one the
+  // About dialog uses).
+  { to: "/hire", label: "HIRE" },
   { to: "/sponsor", label: "SPONSOR" },
   { to: "/contact", label: "CONTACT" },
   // AGENTS is hidden, not removed: /agents still resolves and is in the
@@ -109,6 +113,7 @@ const Sidebar = () => {
                 <Link
                   to={link.to}
                   className={isActive(link.to) ? "sidebar-nav-active" : undefined}
+                  onClick={link.to === "/hire" ? () => track("hire_click", { from: "nav" }) : undefined}
                 >
                   {link.label}
                   {link.soon && <span className="sidebar-nav-soon">SOON</span>}
@@ -155,7 +160,10 @@ const Sidebar = () => {
               <li key={link.to}>
                 <Link
                   to={link.to}
-                  onClick={handleNavClick}
+                  onClick={() => {
+                    if (link.to === "/hire") track("hire_click", { from: "menu" });
+                    handleNavClick();
+                  }}
                   className={isActive(link.to) ? "sidebar-nav-active" : undefined}
                 >
                   {link.label}
