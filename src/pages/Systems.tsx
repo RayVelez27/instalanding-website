@@ -9,6 +9,7 @@ import { AgentPanel } from "@/components/AgentMode";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import FilterRow from "@/components/FilterRow";
 import ViewToggle from "@/components/ViewToggle";
+import { useViewPref } from "@/hooks/useViewPref";
 import SystemBook from "@/components/SystemBook";
 import LibraryCard from "@/components/LibraryCard";
 import { rankTags, systemTagsOf } from "@/lib/feedTags";
@@ -56,15 +57,6 @@ const SystemTile = ({ system }: { system: SystemEntry }) => {
 let dealt: SystemEntry[] | null = null;
 const order = () => (dealt ??= interleaveByTheme(systems));
 
-type View = "grid" | "book";
-const VIEW_KEY = "il-systems-view";
-const readView = (): View => {
-  try {
-    return localStorage.getItem(VIEW_KEY) === "book" ? "book" : "grid";
-  } catch {
-    return "grid";
-  }
-};
 
 const Systems = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -72,15 +64,7 @@ const Systems = () => {
   const open = getSystemBySlug(slug);
   useAgentDark();
   const [filter, setFilter] = useState("all");
-  const [view, setView] = useState<View>(readView);
-  const pickView = (v: View) => {
-    setView(v);
-    try {
-      localStorage.setItem(VIEW_KEY, v);
-    } catch {
-      /* private mode: the choice just isn't remembered */
-    }
-  };
+  const [view, pickView, canSwitch] = useViewPref("il-systems-view", "book");
   const tags = useMemo(() => rankTags(systems.map(systemTagsOf)), []);
   const shown = filter === "all" ? order() : order().filter((s) => systemTagsOf(s).includes(filter));
 
@@ -101,14 +85,16 @@ const Systems = () => {
       <Sidebar />
       <main>
         <SiteTopBar />
-        <ViewToggle
-          view={view}
-          onPick={pickView}
-          options={[
-            { id: "grid", label: "GRID", Icon: LayoutGrid, note: "Every system at once" },
-            { id: "book", label: "BOOK", Icon: BookOpen, note: "A page per system" },
-          ]}
-        />
+        {canSwitch && (
+          <ViewToggle
+            view={view}
+            onPick={pickView}
+            options={[
+              { id: "grid", label: "GRID", Icon: LayoutGrid, note: "Every system at once" },
+              { id: "book", label: "BOOK", Icon: BookOpen, note: "A page per system" },
+            ]}
+          />
+        )}
         {view === "grid" && (
           <RouteBanner
             tone="systems"

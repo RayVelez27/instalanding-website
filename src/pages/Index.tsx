@@ -11,7 +11,7 @@ import { Disc3, LayoutGrid } from "lucide-react";
 
 const Index = () => {
   useAgentDark();
-  const [view, pickView] = useViewPref("il-pages-view", "crate");
+  const [view, pickView, canSwitch] = useViewPref("il-pages-view", "crate");
 
   useSeo({
     title: "Landing Pages — One-Shot HTML Library",
@@ -24,6 +24,7 @@ const Index = () => {
     <Sidebar />
     <main>
       <SiteTopBar />
+      {canSwitch && (
       <ViewToggle
         view={view}
         onPick={pickView}
@@ -32,6 +33,7 @@ const Index = () => {
           { id: "crate", label: "CRATE", Icon: Disc3, note: "Dig through them like records" },
         ]}
       />
+      )}
       {view === "grid" && (
       <RouteBanner
         tone="pages"

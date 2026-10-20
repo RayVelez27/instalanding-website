@@ -7,6 +7,7 @@ import SiteTopBar from "@/components/SiteTopBar";
 import RouteBanner from "@/components/RouteBanner";
 import FilterRow from "@/components/FilterRow";
 import ViewToggle from "@/components/ViewToggle";
+import { useViewPref } from "@/hooks/useViewPref";
 import LibraryCard from "@/components/LibraryCard";
 import { rankTags, systemTagsOf } from "@/lib/feedTags";
 import MotionLab from "@/components/MotionLab";
@@ -357,15 +358,6 @@ const MotionTile = ({ motion }: { motion: MotionEntry }) => {
   );
 };
 
-type View = "grid" | "deck";
-const VIEW_KEY = "il-motion-view";
-const readView = (): View => {
-  try {
-    return localStorage.getItem(VIEW_KEY) === "deck" ? "deck" : "grid";
-  } catch {
-    return "grid";
-  }
-};
 
 const MotionModal = ({ motion, onClose }: { motion: MotionEntry; onClose: () => void }) => (
   <Dialog.Root open onOpenChange={(open) => !open && onClose()}>
@@ -425,18 +417,10 @@ const Motion = () => {
   const open = getMotionBySlug(slug);
   const fromList = Boolean((location.state as { fromList?: boolean } | null)?.fromList);
   useAgentDark();
-  const [view, setView] = useState<View>(readView);
+  const [view, pickView, canSwitch] = useViewPref("il-motion-view", "deck");
   const [filter, setFilter] = useState("all");
   const tags = useMemo(() => rankTags(motions.map(systemTagsOf)), []);
   const shown = filter === "all" ? order() : order().filter((m) => systemTagsOf(m).includes(filter));
-  const pickView = (v: View) => {
-    setView(v);
-    try {
-      localStorage.setItem(VIEW_KEY, v);
-    } catch {
-      /* private mode: the choice just isn't remembered */
-    }
-  };
 
   useSeo({
     title: open ? `${open.title} · Motion Study` : "Motion",
@@ -457,14 +441,16 @@ const Motion = () => {
       <Sidebar />
       <main>
         <SiteTopBar />
-        <ViewToggle
-          view={view}
-          onPick={pickView}
-          options={[
-            { id: "grid", label: "GRID", Icon: LayoutGrid, note: "Every study at once" },
-            { id: "deck", label: "DECK", Icon: Layers, note: "One study at a time, live" },
-          ]}
-        />
+        {canSwitch && (
+          <ViewToggle
+            view={view}
+            onPick={pickView}
+            options={[
+              { id: "grid", label: "GRID", Icon: LayoutGrid, note: "Every study at once" },
+              { id: "deck", label: "DECK", Icon: Layers, note: "One study at a time, live" },
+            ]}
+          />
+        )}
         {view === "grid" && (
           <RouteBanner
             tone="motion"
