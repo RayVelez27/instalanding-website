@@ -13,6 +13,7 @@
 //
 // Needs Microsoft Edge (headless) and Python with Pillow for the JPEG step.
 // Add a system to HEROES when it lands; the components are chosen by hand.
+// "pricing@1100" lays a fluid component out 1100px wide before it is scaled into the panel.
 import fs from "node:fs";
 import path from "node:path";
 import { spawn, execFileSync } from "node:child_process";
@@ -28,6 +29,9 @@ const HEROES = {
   thorn: ["hero", "bento", "accents", "buttons"],
   arcline: ["widgets", "chat", "pricing", "steps"],
   prism: ["art", "runs", "gate", "voices"],
+  siliq: ["board@1100", "products@1100", "pricing@1000", "team@900"],
+  orrery: ["gallery", "pricing@1100", "team@1100", "outcomes@1100"],
+  halden: ["hero@1200", "diagnosis@1100", "shelf@1100", "routes@1100"],
 };
 
 // Systems whose identity background is a pattern: their small text sits on a label
@@ -61,6 +65,7 @@ function readSystems() {
         idBg: pick("identityBg"),
         idText: pick("identityText"),
         upper: /displayUpper: true/.test(seg.slice(seg.indexOf("look: {"), seg.indexOf("look: {") + 600)),
+        tracking: seg.slice(seg.indexOf("look: {"), seg.indexOf("look: {") + 600).match(/displayTracking: "([^"]+)"/)?.[1] ?? "",
       },
       components: seg.match(/components: \[([\s\S]*?)\],/)[1].match(/id: "([a-z-]+)"/g).length,
     });
@@ -69,7 +74,8 @@ function readSystems() {
 }
 
 /* Runs in the specimen page: builds the poster over everything else. */
-const BUILD = (sys, heroId, BOXED) => {
+const BUILD = (sys, pick, BOXED) => {
+  const [heroId, layoutW] = pick.split("@");
   document.getElementById("ilp")?.remove();
   const L = sys.look;
   const css = document.createElement("style");
@@ -80,7 +86,7 @@ const BUILD = (sys, heroId, BOXED) => {
     #ilp .ilp-id { grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 44px 40px 34px 46px; min-width: 0; position: relative; }
     #ilp .ilp-id::before { content: ""; position: absolute; inset: 0; background: inherit; }
     #ilp .ilp-kick { position: relative; margin: 0; font: 600 13px/1.2 var(${L.mono}), ui-monospace, monospace; letter-spacing: .22em; text-transform: uppercase; opacity: .82; }
-    #ilp .ilp-name { position: relative; margin: 0; font-family: var(${L.display}); font-weight: 900; line-height: .86; letter-spacing: -.035em; ${L.upper ? "text-transform: uppercase;" : ""} }
+    #ilp .ilp-name { position: relative; margin: 0; font-family: var(${L.display}); font-weight: 900; line-height: .86; letter-spacing: ${L.tracking || "-.035em"}; ${L.upper ? "text-transform: uppercase;" : ""} }
     #ilp.ilp-boxed .ilp-kick, #ilp.ilp-boxed .ilp-tag { align-self: flex-start; padding: 7px 10px; background: ${L.idText}; color: var(${L.surface}); opacity: 1; }
     #ilp .ilp-tag { position: relative; margin: 0; max-width: 30ch; font: 500 15px/1.45 var(${L.mono}), ui-monospace, monospace; opacity: .86; }
     #ilp .ilp-hero { grid-row: 1; position: relative; display: grid; place-items: center; overflow: hidden; background: var(${L.surface}); border-left: 3px solid currentColor; }
@@ -109,6 +115,7 @@ const BUILD = (sys, heroId, BOXED) => {
   const demo = document.querySelector(`section[data-component="${heroId}"] .sp-demo`);
   const stage = ilp.querySelector(".ilp-stage");
   if (demo) {
+    if (layoutW) stage.style.width = layoutW + "px";
     stage.appendChild(demo.cloneNode(true));
     // A fluid component (width: 100%) collapses when shrink-wrapped: give it the width it has in the specimen
     if (stage.scrollWidth < 300) stage.style.width = demo.getBoundingClientRect().width + "px";
@@ -166,7 +173,7 @@ async function main() {
     await send("Runtime.evaluate", { expression: "document.fonts.ready", awaitPromise: true });
     for (const [n, heroId] of HEROES[sys.slug].entries()) {
       // Bring the component on screen first, so scroll reveals have run before it is cloned
-      await send("Runtime.evaluate", { expression: `document.getElementById("ilp")?.remove(); document.querySelector('section[data-component="${heroId}"] .sp-demo')?.scrollIntoView({ block: "center" })` });
+      await send("Runtime.evaluate", { expression: `document.getElementById("ilp")?.remove(); document.querySelector('section[data-component="${heroId.split("@")[0]}"] .sp-demo')?.scrollIntoView({ block: "center" })` });
       await sleep(900);
       const r = await send("Runtime.evaluate", { expression: `(${BUILD})(${JSON.stringify(sys)}, ${JSON.stringify(heroId)}, ${JSON.stringify(BOXED)})`, returnByValue: true });
       await sleep(700);

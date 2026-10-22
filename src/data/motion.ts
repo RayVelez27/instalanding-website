@@ -95,6 +95,227 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "conveyor-gallery",
+    title: "Conveyor Gallery",
+    kind: "WEBGL CONVEYOR",
+    tagline: "A portfolio printed on a looping 3D conveyor belt: scroll and the covers glide round, and the camera turns from three-quarter to face-on",
+    description:
+      "Eight project covers (a wealth office, a spectral imaging lab, a ceramics atelier, a trading desk, a crypto exchange, a traders' social feed, a grappling tour and a developer community), every one painted in code with Canvas 2D, ride one continuous ribbon wrapped round a stadium-shaped loop. The wheel, a swipe or the arrows throw it forward with momentum that bleeds off each frame, while the camera swings from an angled three-quarter view to straight on. One WebGL shader tiles the covers along the belt, lights it, and ray-casts the belt's own soft shadow onto its far side; a picking pass makes every cover clickable. No libraries.",
+    added: "Oct 22, 2026",
+    theme: "dark",
+    demo: "/motion-lab/conveyor-gallery.html",
+    poster: "/motion-lab/conveyor-gallery.jpg",
+    library: { name: "WebGL", version: "1.0", plugins: ["no libraries", "Canvas 2D covers"] },
+    life: 1.2,
+    lifeLabel: "ONE STEP: A COVER'S GLIDE AND THE CAMERA'S TURN",
+    drawSeconds: 3,
+    elements: 8,
+    status: "SCROLL, SWIPE OR USE THE ARROWS",
+    stepLabels: ["Previous cover", "Next cover"],
+    reelAutoplay: 2000,
+    tracks: [
+      { prop: "offset · belt", change: "+1 cover: a kick of velocity that keeps 94% each frame", start: 0, end: 1, ease: "power3.out" },
+      { prop: "present · camera", change: "angled → face-on, 7% of the way each frame", start: 0, end: 1, ease: "power3.out" },
+      { prop: "rotation.y · belt", change: "sways ±0.08 rad with the offset, fading out as it faces you", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "rig · parallax", change: "tilts after the pointer at 3.2% a frame", start: 0, end: 1, ease: "power1.out" },
+    ],
+    inputs: [
+      { keys: ["WHEEL", "SWIPE"], does: "Throw the belt forward or back with momentum; scrolling down also turns the camera face-on, up turns it back" },
+      { keys: ["↑", "↓", "←", "→"], does: "Move exactly one cover and turn the camera a little" },
+      { keys: ["POINTER"], does: "Tilts the rig with a soft parallax; hovering a still cover shows a pointer, clicking opens it" },
+    ],
+    knobs: [
+      {
+        id: "friction",
+        label: "FRICTION",
+        min: 85,
+        max: 98,
+        step: 1,
+        value: 94,
+        unit: "%",
+        note: "How much velocity survives each frame. Lower stops dead; higher glides a long way after one flick. A step still lands on exactly one cover.",
+      },
+      {
+        id: "view",
+        label: "CAMERA",
+        min: 0,
+        max: 100,
+        step: 5,
+        value: 0,
+        unit: "%",
+        note: "Where the camera sits between the angled three-quarter view (0) and straight on (100). Scrolling moves it too.",
+      },
+    ],
+    toggles: [
+      { id: "parallax", label: "POINTER PARALLAX", value: true },
+      { id: "grain", label: "FILM GRAIN", value: true },
+    ],
+    trick: {
+      title: "One ribbon, one shader, one number",
+      steps: [
+        "The belt is a single strip of 257 vertex pairs that follows a stadium loop: up the front straight, over a half circle, down the back and round again. Each vertex carries its distance round the loop (0 to 1) as uv.y, and its normal in the y-z plane.",
+        "Every cover is painted at 1200 × 900 with Canvas 2D after the fonts load (a butterfly in bezier curves, a prism with a conic gradient, candlesticks from a seeded random walk) and packed into one texture atlas.",
+        "The fragment shader turns uv.y into phase = uv.y × 8 + offset: the whole part picks the cover, the fraction is the row inside it. So one number, the offset, scrolls every cover round the belt at once. No geometry moves.",
+        "Momentum is closed form: each frame the velocity is multiplied by 0.94 and the offset moves by v × 0.94 × (1 − 0.94ⁿ) / 0.06, so it stays right at any frame rate. That makes a step easy: a kick of 0.06 / 0.94 travels exactly one cover.",
+        "The camera interpolates between an angled position (−2, −9.35, 11) with the belt rotated and a straight-on one, by a smoothstep of present; the belt's sway and the parallax fade out as it faces you. Soft shadows come from casting five rays per pixel towards the light against the belt's own analytic shape, two planes and two cylinders. Picking draws the same mesh with each cover's index as its colour and reads one pixel back.",
+      ],
+    },
+    tags: ["webgl", "3d", "portfolio", "momentum", "canvas", "gallery"],
+    bestFor: ["agency and studio portfolios", "selected-work and case-study indexes", "product galleries and showcases", "launch pages that show many screens at once"],
+    pairsWith: ["craft-studio-webgl-landing-page", "starfork-game-studio-landing-page", "icon-cut-card-stack-page", "skewed-marquee-wall", "stage-light-launch-page"],
+    credits: [
+      {
+        label: "Shakuro (Dribbble)",
+        href: "https://dribbble.com/shakuro",
+        note: "The selected-work conveyor this study is based on, named in the original; the covers here are fictional",
+      },
+    ],
+    prompt: `Build a portfolio gallery where the project covers ride a looping 3D conveyor belt, as one HTML file, one screen with no scrollbar. Plain WebGL 1, no libraries. Google Fonts: Inter (400-900), Instrument Serif (with italic) and JetBrains Mono (400/700). No image files: every cover is painted with Canvas 2D at load.
+
+THE STAGE
+- Black page, html and body 100% with overflow hidden. A stage laid out at 1080px tall and scaled to the window height, holding: a breathing volumetric light from above (stacked radial gradients, blurred 18px, a faint conic ray mask, a 10s scale and opacity loop), a soft dark gradient at the bottom, and a full-screen WebGL grain canvas (four hashed randoms averaged, redrawn every 80ms, soft-light at 0.22). The stage fades in over 1.6s.
+- #app is fixed over everything with touch-action none: the conveyor canvas (a drop shadow 20px 32px 28px) and a list of real links, one per project, visually hidden but focusable (the focused one shows as a pill at the bottom).
+
+THE COVERS (1200 × 900 each, painted once the fonts load, 2.5s cap)
+Eight fictional sites, each a full hero composition: Monarch (private wealth, a bezier monarch butterfly with veins and spots on dark amber, "Wings of quiet wealth." in Instrument Serif), Spektral (a ring of light refracting a beam into a spectrum, a conic gradient glow, channel bars), Owari (ceramics on paper with speckle, a striped red sun, vertical Japanese type, huge OWARI), Trading Dashboard (candlesticks from a seeded walk, a moving average, volume, an order book with depth bars, Buy and Sell), Crypto Exchange ("Trade what comes next.", a sparkline card, four coin cards), Chartroom (a light social feed for traders: profile, trending tickers, two posts with charts, a top traders list), Apex (a grappling tour: GRAND and outlined SLAM, a bracket, a tilted yellow marquee band, three event cards) and Developer Community (a code editor with syntax colours, a terminal, three post cards, stats and stacked avatars). Use a seeded random so they paint the same every time. Each cover is also the image of its link.
+
+THE BELT
+- A stadium loop: two straights of length 5.8 at z = ±1.02 joined by half circles of radius 1.02 (y from −2.9 to 2.9). Build a ribbon of 257 vertex pairs along it, width (11.6 + 2π·1.02) / 8 × 4/3 so a cover keeps 4:3; each vertex has x, y, z, uv (side, distance round the loop) and its normal in y-z.
+- Pack the covers into one atlas (columns ceil(√(8 × 0.75))), with an anisotropic filter when available.
+- Fragment shader: phase = mod(uv.y × 8 + offset, 8); the floor is the cover, the fraction the row; sample the atlas with a half-texel inset. Flip the normal for the back face. Light: a fixed direction (−0.45, 1.1, 0.8), ambient 0.36 on the front and 0.14 on the back (darker round the folds), diffuse, a faint specular. Soft self-shadow: from each pixel cast five rays towards the light (one plus four jittered) against the two straight planes and the two half cylinders analytically, fading by distance from the ribbon's edges.
+- Vertex shader: rotate the belt (x 0.07, y −0.594 plus a sway of 0.081 × sin(offset × 2π / 8), z −0.28), then a rig rotation from the pointer, then a look-at camera with a fixed projection and the view shifted up by 0.2.
+
+THE MOTION (state: offset, velocity, present, targetPresent, pointer, parallax)
+- Every frame, n = elapsed / (1000 / 60) capped at 3: decay = 0.94ⁿ; offset += velocity × 0.94 × (1 − decay) / 0.06 (wrapped 0-8); velocity ×= decay; present eases to targetPresent by 1 − 0.93ⁿ; parallax eases to the pointer by 1 − 0.968ⁿ.
+- The wheel adds deltaY × 0.00019 to the velocity and deltaY × 0.00033 to targetPresent (clamped 0-1); a touch drag uses 0.00155 and 0.0024. An arrow key adds exactly 0.06 / 0.94 (one cover) and ±0.12 to targetPresent.
+- The camera: e = smoothstep(present). Position (−2, −9.35, 10.99 − 4.79e) scaled by (1 − e) on x and y, zoomed out on tall screens by max(1, 0.9 × height / width); the belt's rotations and the parallax are multiplied by (1 − e), so at e = 1 the belt faces you flat.
+- Picking: draw the mesh with each cover's index + 1 in the red channel, read the pixel under the pointer, then redraw. When the belt is nearly still, a cover under the pointer shows a pointer cursor; a click (not a drag) opens its link.
+- Optional autoplay for previews: advance one cover every 2s and swing the camera to face-on and back every two covers.
+
+THINGS THAT BREAK
+- Never make the page scroll to drive this: the wheel and touch move the state directly, and the page has no scrollbar.
+- Make the momentum frame-rate independent with the closed form above, or a 120Hz screen glides twice as far.
+- Paint the covers only after the fonts load, or the atlas is set in fallback type.
+- Handle webglcontextlost on both canvases (fall back to a grid of the cover links, and a generated noise texture for the grain) and webglcontextrestored.
+- Cap the device pixel ratio at 2 and the atlas at the GPU's MAX_TEXTURE_SIZE (4096 at most).
+
+THE FLOOR
+One visually hidden h1; the canvas is aria-hidden and every cover is a real link with an aria-label, so keyboard and screen reader users get the gallery. prefers-reduced-motion drops momentum (the wheel moves the belt directly, the arrows snap one cover) and stops the light, grain and fade. Without WebGL it is a responsive grid of the same covers. Works at 390px wide (the camera pulls back on tall screens).`,
+  },
+  {
+    slug: "maison-noir-disintegrate",
+    title: "Maison Noir Disintegrate",
+    kind: "DISINTEGRATE LOOP",
+    tagline: "A black metal members' card that crumbles into gold dust from its left edge to its right, then flies back together, on a loop",
+    description:
+      "A private-reserve card in brushed black metal (foil type, an EMV chip, a hologram, a gold seal, guilloché engraving, every detail drawn in Canvas 2D) sits under a soft light. Then it comes apart: the card is photographed once with html2canvas, its pixels are dealt across 75 transparent layers weighted from left to right, and each layer drifts, turns and fades on its own timeline. The left edge goes first and the dust sweeps across, holds, then every grain flies home, on a loop. The wheel or a drag takes the card by hand; let go and the loop picks up from there.",
+    added: "Oct 21, 2026",
+    theme: "dark",
+    demo: "/motion-lab/maison-noir-disintegrate.html",
+    poster: "/motion-lab/maison-noir-disintegrate.jpg",
+    library: { name: "GSAP", version: "3.12.5", plugins: ["quickTo", "html2canvas 1.4.1"] },
+    life: 1,
+    lifeLabel: "ONE FRAGMENT'S FLIGHT (1s = ⅓ OF THE DISSOLVE)",
+    drawSeconds: 5,
+    stagger: 0.027,
+    elements: 75,
+    status: "INTACT · SCROLL OR DRAG TO DISSOLVE",
+    stepLabels: ["Reassemble a stage", "Dissolve a stage"],
+    reelAutoplay: 3400,
+    tracks: [
+      { prop: "x · y · fragment", change: "drifts 40px along its own random angle", start: 0, end: 1, ease: "power1.out" },
+      { prop: "rotate · fragment", change: "turns up to ±15°", start: 0, end: 1, ease: "power1.out" },
+      { prop: "opacity · fragment", change: "1 → 0, the grains fade as they leave", start: 0, end: 1, ease: "power1.out" },
+      { prop: "opacity · scale · contact shadow", change: "fades and shrinks to 0.85 under the card", start: 0, end: 0.6, ease: "none" },
+      { prop: "progress · eased follow", change: "chases the loop or your hand over 0.9s", start: 0, end: 1, ease: "power3.out" },
+    ],
+    inputs: [
+      { keys: ["WHEEL", "DRAG"], does: "Scrub the card by hand, both ways (the page itself never scrolls); the loop resumes 3.5s after you let go" },
+      { keys: ["◀", "▶", "←", "→"], does: "Glide to the previous or next stage: intact, crumbling, scattering, dust" },
+      { keys: ["IDLE"], does: "Loops on its own: dissolve over 4s, hold as dust, reassemble, hold whole" },
+    ],
+    knobs: [
+      {
+        id: "drift",
+        label: "DRIFT",
+        min: 0,
+        max: 200,
+        step: 5,
+        value: 40,
+        unit: "px",
+        note: "How far each fragment travels as it fades. Low reads as a dissolve in place, high as a blast of dust.",
+      },
+      {
+        id: "spin",
+        label: "SPIN",
+        min: 0,
+        max: 180,
+        step: 5,
+        value: 30,
+        unit: "°",
+        note: "The range each fragment turns through (± half of it). Turning the whole layer smears its grains into arcs.",
+      },
+    ],
+    toggles: [{ id: "cue", label: "SCROLL CUE", value: true }],
+    trick: {
+      title: "One photograph, dealt across 75 layers",
+      steps: [
+        "The card is ordinary DOM: a 600 × 400 box of absolutely placed images. Every image is generated at load with Canvas 2D: foil and embossed text with manual letter-spacing, a chip with grooves, a conic-gradient hologram, a scalloped seal with circular microtext, and a background of guilloché rosettes, engraved bands, microprint and grain. Drawing them as images first is what lets html2canvas capture them faithfully.",
+        "Once fonts and images are ready, html2canvas renders the card to one canvas (scale capped at 1.5 DPR) and the live card is hidden.",
+        "Its pixels are dealt into 75 empty ImageData layers: every pixel is copied three times, each into the layer floor(75 × (random + 2x / width) / 3). The 2x / width term biases the left edge into early layers and the right edge into late ones, and the randomness keeps the boundary ragged.",
+        "Each layer becomes its own canvas stacked over the card's position, so together they still show the whole card. Each gets a paused timeline: a 1-unit tween that drifts 40px along a random angle, turns up to ±15° and fades out, delayed by (i / 75) × 2. That delay is what sweeps the dust from left to right.",
+        "Nothing scrolls. One number, the progress from 0 (whole) to 1 (dust), sets every timeline's progress at once. A loop tweens the goal (dissolve, hold, reassemble, hold), the wheel and a drag nudge it by hand, and gsap.quickTo eases the drawn progress after the goal over 0.9s, the same soft lag a scrubbed ScrollTrigger gives, without a scrollbar.",
+      ],
+    },
+    tags: ["loop", "disintegration", "html2canvas", "particles", "luxury", "canvas"],
+    bestFor: ["premium card and fintech launches", "luxury and membership brands", "dramatic hero exits and section transitions", "product reveals that leave the stage"],
+    pairsWith: ["card-scanner-finance-page", "kestrel-ai-finance-landing-page", "facetry-security-landing-page", "holographic-ticket-landing-page", "stage-light-launch-page"],
+    credits: [
+      {
+        label: "DevLoop01",
+        href: "https://twitter.com/DevLoop01",
+        note: "The Maison Noir card and its scroll disintegration this study is built on, credited in the original",
+      },
+      {
+        label: "The disintegration technique (video)",
+        href: "https://www.youtube.com/watch?v=5DGZhWDl6XM",
+        note: "The pixel-dealing dust effect, credited in the original's source",
+      },
+    ],
+    prompt: `Build a luxury members' card that disintegrates into dust and reassembles on a loop, as one HTML file, one screen with no scrollbar. GSAP 3.12.5 and html2canvas 1.4.1, from cdnjs. Google Fonts: Cormorant Garamond (500/600, italics), Inter (400-600), JetBrains Mono 500. No image files: every part of the card is drawn with Canvas 2D at load.
+
+THE STAGE
+- Page #07070a, exactly one screen (100vh, overflow hidden, touch-action none): nothing scrolls; ink #f3ece0, gold #d9b876. A fixed ambient layer: a faint gold radial glow in the middle and a warm brown glow rising from below. A fixed soft contact shadow under the card (not part of the capture) and a SCROLL OR DRAG cue at the bottom whose 1px gold bar drips (scaleY 0 → 1, then fades, 2s loop). A PREPARING veil covers everything until the card is ready, then fades over 900ms.
+
+THE CARD (#capture: fixed, centred, 600 × 400, radius 26, #0e0e11, overflow hidden)
+- Layers: a background image, a diagonal glare band (warm white at 0.13 peak), a gold hairline bevel with a dark inner bevel and a bright top edge highlight.
+- Content, absolutely placed: top left a faceted gold diamond mark and MAISON NOIR in foil caps (Cormorant 600, 27px, 5.5px tracking) over "PRIVATE RESERVE · EST. MMXXVI"; top right EDITION / "Nº 0001 / 1000" in foil italics; an EMV chip and an embossed contactless symbol; a hologram top right; the number "4729 1180 5562 0918" in silver JetBrains Mono 25px with a tiny "4729" under it; MEMBER A. VALENTINE, SINCE 2026, VALID THRU 10/31 in silver Inter 12px; bottom right OBSIDIAN in foil caps and a gold seal.
+- Draw each asset on a canvas at 3× and place it as an <img>:
+  - foil text: per-character fillText with manual spacing; an emboss pass (a black shadow offset down, a faint light copy 0.55px up), a vertical gold or silver gradient fill (gold #fff4d1 → #ecc985 → #b88d47 → #86622a → #e4c283 → #9c773a), then, with source-atop, brushed lines (one random black or white row per pixel at up to 0.14 alpha) and a diagonal sheen.
+  - background (2×): a dark diagonal gradient, a warm bloom top left, brushed rows, a huge faint italic N watermark, three guilloché rosettes on the right (polar curves r = R + a·sin(f·t + k·0.42) + 0.35a·cos(f/2·t), many copies), 26 wavy engraved bands along the bottom, three lines of 3px microprint, a vignette and per-pixel grain.
+  - chip: a gold gradient rounded rect with brushed rows, grooved contact lines drawn twice (dark, then light offset 0.6px) and a sheen; hologram: a conic hue gradient under a grey wash, fine diagonal rainbow lines, concentric rings, a diamond emblem with MN and "A U T H E N T I C"; seal: a scalloped radial-gold disc with a drop shadow, rosette engraving, two rings, circular microtext and a debossed italic MN.
+- Wait for every font (document.fonts.load for each face, then fonts.ready) before drawing, and decode every image before capturing.
+
+THE DISINTEGRATION
+- Move the card to the top-left corner for the capture (so nothing is clipped on small screens), render it with html2canvas (backgroundColor null, scale min(devicePixelRatio, 1.5)), then hide the live card.
+- Create 75 empty ImageData layers of the same size. For every pixel, three times: pick layer floor(75 × (Math.random() + 2x / width) / 3) and copy the pixel's RGBA into it. The x term pushes the left side into early layers; the random term keeps the edge ragged.
+- Put each layer on its own canvas (class capture-canvas: fixed, centred, width min(600px, 92vw)) stacked in a fixed stage. Together they still show the card.
+- For layer i: a paused gsap timeline with one tween of duration 1, delay (i / 75) × 2: rotate 30 × (random − 0.5) deg, translate 40px along a random angle (x = 40·sin a, y = 40·cos a), opacity 0.
+- One progress p (0 whole → 1 dust) drives everything: render() sets every layer timeline's progress to p, fades the cue over p 0 → 0.13 and the contact shadow (opacity 0, scale 0.85) over p 0 → 0.4.
+- A goal and an eased view: gsap.quickTo(view, "p", { duration: 0.9, ease: "power3.out", onUpdate: render }) chases the goal, which gives the soft lag of a scrub.
+- The loop tweens the goal: to 1 over 4s (power1.inOut), hold 1.1s, back to 0 over 3s, hold 1.4s, then again, always starting from the current value.
+- Input: the wheel adds deltaY / 1800 and a pointer drag adds its movement / 700 to the goal (clamped 0-1); either pauses the loop, which resumes 3.5s after the last input. Arrow keys glide between four stops (0, 0.3, 0.6, 1).
+
+THINGS THAT BREAK
+- html2canvas cannot see canvas-drawn effects it does not support (filters, blend modes); draw every asset into an image first and keep the card to positioned images, gradients and borders.
+- Capture only after fonts and image decodes resolve, or the dust is made of fallback type.
+- 75 full-size canvases are heavy: cap the capture scale at 1.5 and never re-capture on resize.
+- Never make the page scroll to drive this: a scrollbar appears in every frame and preview it is embedded in. Drive the timelines' progress yourself.
+
+THE FLOOR
+One visually hidden h1 describing the card; the stage of fragments has role="img" and an aria-label; ambient layers, the cue and the veil are aria-hidden. prefers-reduced-motion stops the dripping cue and the loop; the dust only moves when the reader scrubs it. Works at 390px wide (the fragments scale to 92vw).`,
+  },
+  {
     slug: "glow-boards",
     title: "Glow Boards",
     kind: "HOVER STACK",

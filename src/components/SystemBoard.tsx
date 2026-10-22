@@ -105,7 +105,7 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
               color: system.look.identityText,
             }}>
             <p className="sb-identity-eyebrow" style={{ fontFamily: `var(${system.look.mono})` }}>INSTALANDING DESIGN SYSTEM</p>
-            <p className="sb-identity-name" style={{ fontFamily: `var(${system.look.display})`, textTransform: system.look.displayUpper ? "uppercase" : "none" }}>{system.name}</p>
+            <p className="sb-identity-name" style={{ fontFamily: `var(${system.look.display})`, textTransform: system.look.displayUpper ? "uppercase" : "none", letterSpacing: system.look.displayTracking }}>{system.name}</p>
             <p className="sb-identity-tag" style={{ fontFamily: `var(${system.look.body})` }}>{system.tagline}</p>
             <p className="sb-identity-ver" style={{ fontFamily: `var(${system.look.mono})` }}>
               {system.slug}@{system.version} · {system.components.length} COMPONENTS
@@ -176,6 +176,7 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
                         fontFamily: `var(${isDisplay ? system.look.display : system.look.body})`,
                         fontSize: `min(var(${t.name}), ${isDisplay ? 34 : 20}px)`,
                         textTransform: isDisplay && system.look.displayUpper ? "uppercase" : "none",
+                        letterSpacing: isDisplay ? system.look.displayTracking : undefined,
                         fontWeight: isDisplay ? 700 : 400,
                         lineHeight: 1.05,
                       }}

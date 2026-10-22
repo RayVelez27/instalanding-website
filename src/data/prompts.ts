@@ -110,6 +110,375 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Hearthly AI Home Care Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A warm, illustrated page for an AI home assistant: a floating collage of glossy home-system cards that floods open into a night scene of the house, stacking service folders, arched system plates and a word-lit testimonial",
+    prompt: `Build a landing page for Hearthly, a fictional AI home assistant ("Your home, quietly looked after": it watches a home's water, heat, power, air and safety, explains problems in plain English and books vetted local pros at fixed prices), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Instrument Sans 400-700 and Instrument Serif (italic, for one word per heading and the signatures). No images: every picture is inline SVG drawn in code.
+
+DESIGN SYSTEM
+Warm editorial. Paper #f6f2ea, ink #14130f, deep pine #0f1714, five tones (ember #e8693c, sage #b9d3b0, amber #f2b544, sky #9cc6dc, pine #1f4d43) and a highlighter yellow #f1dd9a that sweeps under links, signatures and the email on hover. Bold Instrument Sans headings with tight tracking and one serif-italic word. A paper grain over everything. Cards often have a folder tab cut into their top edge (clip-path shape() with an arc and a curve, falling back to plain radii). Buttons are ink pills that fill amber from below on hover with a diagonal arrow; icon buttons fill ink in a growing circle.
+
+THE ILLUSTRATIONS (one SVG sprite of symbols)
+Glossy, softly lit 3D-style objects on radial-gradient backgrounds with a top highlight, a bottom shadow and grain: an isometric house with a lit window, solar panel, tree and pulsing status light; a brushed-metal smart thermostat reading 68° HEATING with a glowing tick arc; a water drop over ripples; a wall EV charger with a charging ring; a leaf with a dew drop; a security camera with a lens and glowing ring; a chrome wrench; a mesh air purifier; and the Hearthly AI orb (an amber-to-ember sphere with an iridescent ring). Plus a full night scene (a modern house with warm glass walls, slatted timber, a lit pool, trees, a moon and noise clouds) and four illustrated team portraits.
+
+SECTIONS
+1. nav: fixed and frosted; logo, five links, search and account icons and a "Get the app" outline pill; it hides on scroll down; under 1000px a burger opens a full-width menu.
+2. hero (pinned for about a screen and a half): "Your home, quietly looked after" centred, a spinning circular text badge with a play button on the left, two avatars and a plus on the right, and a five-column collage of tall, floating cards below: the thermostat, a "Filter swap booked" chip card, the house with "All systems healthy", the orb card with a dotted burst above it and an "Explore services" button, the water drop with "Slow leak found", the camera, and a "Saved $46 this month" chip card. Scrolling floods the orb card open (a clip-path inset from its measured box to the full screen) into the night scene while the other columns fly outward and the headline lifts away; then "It notices the drip before the ceiling does. Then it books the plumber." rises in.
+3. intro: a short quote with a highlighted signature, and a feature link (38 home services covered).
+4. services: four sticky folder cards in the tones (Repairs & Fixes, Seasonal Care, Smart Monitoring, Upgrades & Projects) whose tabs step across the width and stack as you scroll, the one underneath shrinking and dimming; each has a lead, a big number, a button and an illustration with a glass UI card (a diagnosis, an autumn plan, an overnight leak shut-off, three quotes with a rebate).
+5. systems: five tall plates in an arch (Heat, Air, Power, Water, Safety with checks per day) whose colour washes open down to the caption and whose tabs pop up, centre first.
+6. gallery: "Inside a Hearthly home", three drifting columns of illustrated job cards with a room chip and "Saved $…" captions.
+7. process: "From first ping to fixed in 48 hours" with a dark chat mock-up (Hearthly flags a slow water heater, offers a $120 fixed-price flush, the user books it, typing dots), and a four-step rail (Hour 0, 1, 3, 48) whose line fills and dots light as you scroll.
+8. stats: two big figures and five horizontal bars by trade that fill on view.
+9. team: four illustrated portraits that rise into tabbed frames.
+10. testimonials: a big quote that lights word by word on scroll, then a marquee of review cards that pauses on hover and focus.
+11. pricing: a Monthly / Yearly toggle and three plans (Essentials $0, Home Plus $14 as the dark card with a "Most homes choose" tab, Concierge $39).
+12. faq: five details rows with drawn rules and a plus that turns.
+13. contact: "Let your home talk back", the email highlighted on scroll, support details, two buttons, and a tilted phone showing the app (a health score ring, four system tiles, a booked job).
+14. footer: a dark panel with an orb, "Give your home a second set of eyes." and app store buttons, then brand, three link columns, a newsletter form, legal links, trust badges and socials.
+
+THINGS THAT BREAK
+- Put html.motion on in <head> only when motion is allowed, drop it if GSAP has not loaded in 2.5s, and scope every hidden state under .motion.
+- Measure the flood's starting clip from the orb card's real box inside the sticky stage, and invalidate on refresh.
+- Size the collage columns from both the width and the viewport height, so it fits one screen.
+- Build scroll scenes lazily as they come near; refresh ScrollTrigger once fonts and the page have loaded.
+- Clone the marquee's reviews for the loop, aria-hidden and out of the tab order.
+
+THE FLOOR
+One h1, a main, a labelled burger with aria-expanded, role="img" and aria-labels on meaningful illustrations, aria-pressed on the billing toggle, a labelled email field with a live message. With motion reduced the page is complete and static. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/hearthly-home-care.html",
+    bestFor: ["smart home and proptech products", "consumer AI assistants", "home services marketplaces", "warm, friendly SaaS launches"],
+    style: ["light", "illustrated", "svg", "gsap", "scroll-driven", "editorial"],
+    thumbnail: "/thumbs/hearthly-home-care.jpg",
+    theme: "light",
+  },
+  {
+    title: "NOTA Wearable AI Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A quiet-luxury catalogue for a titanium AI wearable: a live device you can use in the hero (hold to ask, turn the crown, flip the mic switch), close-ups that are clones of it, a seven-segment privacy ledger and a technical drawing",
+    prompt: `Build a product page for NOTA One, a fictional titanium AI wearable worn on a cord ("Remembers what you heard. Forgets when you ask it to."; it listens only while you hold a key, runs its model on the device and has a hardware mic switch), as one HTML file. No libraries. Google Fonts: Archivo with the width axis (wdth 62-125, wght 200-900) for display, Instrument Sans 400-600 for text, JetBrains Mono 400-700 for labels, and Noto Sans JP subset to the few Japanese characters used.
+
+DESIGN SYSTEM
+A quiet luxury catalogue: bead-blasted titanium bands (grey #C0BFBD with lighter and darker steps, ink #2A2928) alternate with sapphire-covered LCD glass bands (#171717 to #232323, text #F2F0EC). One signal orange #FF5B34 (with deep and light steps) for LEDs, the crown and the primary button, plus pink #EC2B63 and cyan #60B3DD for LED states. Archivo headlines at 600 with -0.035em tracking and a light grey second clause; mono uppercase labels; a multiply grain over everything. Buttons are hardware keys: a dark key in a black well, or an orange key with a glossy top. Safe-area aware gutters.
+
+THE DEVICE (one live unit, every size in container units of the device)
+A rounded-square titanium body with brushed texture, a bail and loop for the cord, four Torx screws, an orange mic switch on the top edge, a privacy LED, and a sapphire LCD: a battery and MIC icon, four mode cards (L R T Q), four seven-segment digits drawn as SVG polygons with a blinking colon, the mode word (LISTEN), a status line, a four-quadrant pie and four level matrices, over a canvas of faint sine waves. Under the screen: four mode LEDs (Listen, Recall, Translate, Quiet), a speaker grille, the ASK key in a machined well, and an orange knurled crown with an indicator. A foot with ノータ in orange and a serial. A soft sheen follows the pointer and the unit tilts slightly in 3D.
+- Hold ASK (pointer, Space or Enter): the mic opens with a two-note chime, the LED turns orange (blue in Translate), the digits count seconds, the sine waves grow, the matrices bounce. Let go: it thinks (the pie cycles), then types a canned answer into a readout under the device with a blinking caret and a chime, and returns to idle. Saving a note turns the LED pink.
+- The crown has four detents (drag, click to advance, arrow keys, wheel) and ticks; Quiet disables the key.
+- The mic switch (or M) cuts the mics: the LED goes dark, the word reads MIC OFF, the key buzzes.
+- It boots once: all segments lit (8888), every LED on, then settles to the clock.
+- Sounds are tiny WebAudio oscillator blips, started on the first interaction.
+
+SECTIONS
+1. nav: sticky frosted titanium bar with the NOTA logo and an orange dot, four mono links and a "Reserve · $899" key.
+2. hero: eyebrow, the two-clause headline, a lede and two buttons, then a dark studio panel with a faint grid holding the device hanging from a drawn cord, the readout, keyboard hints, and six callouts (Mic switch, Sapphire display, Microphone array, Privacy light, Mode crown, Titanium body) joined to the exact parts by measured leader lines (hidden under 1080px).
+3. stats: a six-cell ruled strip (31 g, 3B on-device model, 0 bytes sent by default, 18 h, 38 mm, IP68).
+4. how-it-works: three titanium cards (Hold the key with a key that keeps pressing itself, Say it plainly with a level meter, Read or listen with an LCD answer).
+5. anatomy (dark): four close-ups, each a live clone of the device zoomed onto one part (crown, key, display, mic switch) with a code tag, copy and a small spec list.
+6. privacy (dark): a ledger panel of three big seven-segment counters (words heard while the key was held, ticking up while you hold it; notes; 0 bytes sent), then "The light tells everyone what it's doing." and a legend of LED states (off, white, orange pulsing, pink, cyan).
+7. modes: four small LCD screens, one per crown position, each animated (a rippling dot field, a grid of lit days, a Japanese line translating into English, a breathing dot).
+8. build: a sticky technical drawing (the rear case with an embossed name, a Qi2 coil, an etched serial, Torx screws and lettered markers; the side profile with the switch and crown; dimension lines; a lettered legend) beside "Machined titanium and sapphire glass." and four facts.
+9. specs (dark): a two-column technical sheet.
+10. order: $899 and what's in the box on the left; three crown finishes (Signal orange, Chalk white, Graphite) as knob buttons on the right that recolour the crown on the live device and its close-ups, and a reserve button that answers inline (it is a concept page).
+11. footer: a dark mono line.
+
+THINGS THAT BREAK
+- Size every part of the device in cqw so it scales as one object; px values break it at other widths.
+- Make the close-ups by cloning the live device after its boot, drop the clone's canvas, make it inert and aria-hidden, scale it and centre the target part by measuring it; re-measure on resize and after fonts load.
+- Measure the leader lines with the device's 3D tilt switched off, then restore it.
+- Start the AudioContext only from a user gesture.
+- Space must not scroll the page while it is held as the ASK key, except inside other controls.
+
+THE FLOOR
+One h1, a main, labelled ASK and mic switch buttons with aria-pressed, the crown as role="slider" with aria-valuetext, an aria-live readout, aria-hidden decorative LCD parts. prefers-reduced-motion stops the animations and skips the boot. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/nota-wearable.html",
+    bestFor: ["hardware and wearable launches", "AI devices and gadgets", "premium product catalogues", "privacy-first products"],
+    style: ["light", "skeuomorphic", "interactive", "hardware", "editorial", "svg"],
+    thumbnail: "/thumbs/nota-wearable.jpg",
+    theme: "light",
+  },
+  {
+    title: "Mirai AI Companion Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A purple, mint and charcoal page for an AI companion: an illustrated character peeks over giant type between clouds, follows your cursor with her eyes, blinks, perks up when you come close and frowns when you poke her",
+    prompt: `Build a landing page for Mirai, a fictional AI companion app ("The AI companion that actually listens": it remembers what matters, checks in and keeps conversations private), as one HTML file. No libraries. Google Fonts: Sora 300-800 and JetBrains Mono 400/600. No images: the character and every illustration are inline SVG and CSS gradients.
+
+DESIGN SYSTEM
+Flat, bold and friendly. Purple #b914f0 with a deeper #8814ad for big background circles, charcoal #1f2525 (with #182020 and #2a3232 steps) for the page and the cloud shapes, and one mint accent #66ddc6 for dots, ticks, highlights and the primary button. Sora 700 for headings with tight tracking and the key words in mint; Sora 300 for body; uppercase mono eyebrows with a glowing mint dot. Rounded everything: 22px cards, 28-36px panels, pill buttons that lift on hover.
+
+SECTIONS
+1. nav: fixed; MIRAI wordmark, four links (the active one marked by a mint dot, the others underlined in mint on hover) and a white "Let's Talk!" pill that turns mint. It frosts and shrinks after 40px; under 760px a burger opens a floating menu card.
+2. hero: one full-screen SVG scene (viewBox 1920 × 1080, sliced to cover): a purple sky with deep-purple circles, MIRAI huge in white Sora 800 across the middle, the character rising between the letters, charcoal clouds made of overlapping circles filling the bottom corners and drifting, clusters of mint bubbles that pop in and float, and two lines of copy ("Hey, I'm your new friend," top left, "The AI companion that actually listens" bottom right). An intro: clouds rise from below, the word lifts, the character slides up with a slight overshoot, the bubbles pop. A scroll cue and a small mono hint ("psst, move closer, she notices. just don't poke her.").
+   - The character: a girl drawn in SVG gradients (skin, blush, a black bun of circles, swept hair with strand strokes, one big and one small eye with clipped irises and highlights, brows, a tiny nose and mouth, an earring, a mint top). A rig updates her every frame: eyes follow the pointer (or glance around on their own when idle), she blinks every few seconds (sometimes twice), her head sways and breathes and tilts toward the pointer, she perks up (brows up, pupils wider) when the pointer comes near or the nav CTA is hovered, and when clicked she is annoyed (lids half closed, brows flattened, a quick head shake) for two seconds.
+   - Every layer has a parallax depth and shifts with the pointer.
+   - Under 760px the SVG reframes its viewBox around the character and scales the word down, and the copy moves into text blocks above and below.
+3. ticker: a marquee of feature words in big type, alternating solid white and outlined, separated by mint dots; it pauses on hover.
+4. features: "A companion that actually gets you." with filter tabs (All, Conversation, Wellbeing, Privacy) over a 12-column grid of cards: one big Memory card and five smaller ones (Voice with an animated waveform, Check-ins, Privacy with a lock, Journal, Control), each with CSS-gradient art in the palette, a big glyph, a badge, a corner label and a play button that pops on hover.
+5. stats: four ruled figures that count up (<300 ms voice response, 40+ languages, 24/7, 0 ads).
+6. how-it-works: a purple band with big background circles and four numbered rows (Say hi, It learns your vibe, It remembers, It shows up) that fill charcoal and spin their arrow on hover.
+7. demo: a phone-style chat card on the left (avatar, online status, "remembers 214 things about you") playing a looping conversation with typing dots before each reply, and on the right "Feels personal. Stays private." with three mint-checked trust points.
+8. pricing: a Monthly / Yearly switch with a sliding knob (−20% tag) and three plans (Hello $0, Plus $9.99 or $7.99 as the purple card with mint dots, Family $19.99 or $15.99) whose prices and notes swap.
+9. faq: five details rows whose plus turns into a mint minus.
+10. waitlist: a rounded purple panel with circles and floating mint bubbles, "Someone's been waiting to meet you." and a pill email form that confirms inline.
+11. footer: wordmark and blurb with four round social buttons, three link columns, MIRAI huge in outlined type and a line saying Mirai is an AI and not a substitute for professional care.
+
+THINGS THAT BREAK
+- Map the pointer into SVG coordinates with getScreenCTM().inverse() before comparing it to the face, or the gaze is off at every size but one.
+- Rotate the head around the neck (a fixed pivot), scale the irises around their own centres, and clip the irises and lids to the eye whites.
+- Ease every rig value toward its target each frame (eye, tilt, near, annoyed, parallax) instead of setting it, so she never snaps.
+- Keep the wordmark and copy in the SVG on desktop but move the copy to HTML on phones, where the reframed scene has no room for it.
+
+THE FLOOR
+One h1 (visually hidden, the hero is an illustration), a main, an aria-label on the hero SVG, aria-hidden on the ticker and decorative art, a labelled burger and email input. prefers-reduced-motion stops the intro, sway, drift, floats and marquee; the gaze still follows. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/mirai-ai-companion.html",
+    bestFor: ["AI companion and assistant apps", "consumer AI and wellbeing products", "character-led brands and mascots", "playful app launches"],
+    style: ["dark", "illustrated", "svg", "character", "playful", "interactive"],
+    thumbnail: "/thumbs/mirai-ai-companion.jpg",
+    theme: "dark",
+  },
+  {
+    title: "ORVYN Autonomous Car Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An AI-native grand tourer on a near-black page: a spectrum autonomy dial steps through five levels, unlocking pods as it goes, over a radar, live telemetry and a horizon of light",
+    prompt: `Build a landing page for ORVYN ONE, a fictional AI-native grand tourer that unlocks autonomy in five verified stages ("It already knows the road ahead."), as one HTML file. No libraries. Google Fonts: Geist 200-600 (everything, mostly 200-300), Geist Mono 400/500 (labels), Instrument Serif italic (one word per heading).
+
+DESIGN SYSTEM
+Near-black (#020203 ground, #0b0b0f panels) with hairline white borders at 7-12%, ink #f3f2f7, mute #8b8a96, dim #55545f, and one five-colour spectrum: cyan #3fe0ff, blue #2f6bff, violet #6a2bff, magenta #ff1f6b, orange #ff4a12. Headings are Geist 300 with -0.04em tracking and one serif-italic word filled with the spectrum gradient. Mono labels are 11px, uppercase, tracked 0.18em. A moving film-grain overlay at 5.5%. The primary button is a dark pill whose 1px border is a conic spectrum spinning around it (an @property --sweep angle animated to 360deg) with a blurred copy glowing behind; the arrow nudges on hover. One out-ease (0.16, 1, 0.3, 1) and one in-out ease (0.7, 0, 0.2, 1).
+
+SECTIONS
+1. nav: fixed; logo (a dashed spectrum ring around a triangle) and ORVYN tracked wide, four mono links, a blinking "Fleet online · 41,208" and a Reserve button; it frosts after 20px.
+2. hero: copy on the left (a NEW pill, the headline with "ahead." in serif spectrum, a lede, Reserve and a "Watch it drive" play link, and a glass level card: LVL number, a coloured dot, name and description that cross-fade, and five dots that fill up to the current level). On the right, the autonomy dial (below).
+3. ticker: a marquee of fleet figures (4.12B autonomous km, 0.003 disengagements per 10k km, 300 m perception, model N-7.4, 22 sensors, 8 ms, 148 cities).
+4. autonomy: "Autonomy, unlocked in five stages." A five-part progress bar and five level cards (Assisted, Partial, Conditional, High, Full, each in its own spectrum colour) that light up in turn when scrolled into view: a soft colour bloom, a lock whose shackle swings open, the name, a line and verified km / state.
+5. systems: a six-column bento: a big perception card (a radar of rings and ticks with a car glyph at the centre, a rotating conic sweep and four labelled blips that flash as it passes, plus sensor counts), a neural driver card (36 live bars and 2,000 TOPS counting up), an energy card (a 270° tick gauge filling to 86%), a dual-motor card (28 flame bars and 2.9s), and an over-the-air card (three release rows, the newest tagged Tonight). Cards carry a pointer spotlight.
+6. manifesto: one huge centred sentence whose words light up one by one as it scrolls through the viewport.
+7. specs: a sticky square HUD on the left (tick rings, a spectrum arc that fills to 82%, 305 KM/H · VMAX, a live clock and coordinates in the corners) and a ten-row spec table on the right.
+8. reserve: "Your first drive is its thousandth." with a pill email form that confirms inline, then a horizon: a huge spectrum ring rising like a planet edge with a blurred glow, ticks and the five level colours as segments along its rim, fading into the page.
+9. footer: brand and three link columns, ORVYN as an outlined spectrum wordmark fading downward, and a status line.
+
+THE DIAL (SVG over CSS rings)
+- A square container. A back SVG (viewBox -500..500): five ring segments centred at 0, 30, 60, 90 and 120 degrees between r 322 and 352, labelled LVL 01-05 along the arc, each a button; above each, a lock pod at r 432 whose shackle rotates open and whose ring takes the level's colour once reached; a blurred wedge of the active colour behind the active segment; a slowly spinning dashed ring; a scanner line that enters from the left and stops at the outer ring.
+- CSS rings stacked in the middle: a "heat" ring (a conic violet → magenta → orange gradient masked to a thin band, with a blurred copy) and a progress ring (a conic blue → cyan sweep from -135deg to an @property --span angle, chopped into fine ticks with a repeating conic gradient), both radial-masked to bands.
+- A front SVG: 150 faint outer ticks, a counter-spinning ring of 180 coloured dots, 96 inner ticks coloured around the circle with a highlight that sweeps round every few seconds, a dark core disc with two pulsing rings, a white needle, and a centre readout (AUTONOMY, the big level number, the level name in its colour) sized in container units.
+- setLevel(n): --span = 70 + n × 43 degrees (transitioned 1.5s), needle and wedge rotate, reached segments darken to their colour and the active one fills, pods up to n open, the card and dots update. It autoplays 1 → 5 every 3.4s; a click on a segment, pod or dot sets the level and pauses autoplay for 9s.
+
+THINGS THAT BREAK
+- Register --span and --sweep with @property, or the progress ring and button borders jump instead of animating.
+- Build the dial's ticks with createElementNS, not innerHTML strings, and keep the rings and SVGs in one square box so they stay concentric.
+- Run the shimmer, bars and flames only while they are on screen (IntersectionObserver).
+
+THE FLOOR
+One h1, a main, role="group" on the dial with labelled segments that work with Enter and Space, labelled level dots, aria-hidden on decorative SVGs and the ticker, a labelled email input. prefers-reduced-motion stops the grain, spins, shimmer, marquee, autoplay and bars and shows everything revealed. Under 820px the dial sits above the copy at full width; no horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 21, 2026",
+    demo: "/demos/orvyn-autonomous-gt.html",
+    bestFor: ["automotive and mobility launches", "autonomy, robotics and hardware AI", "deep-tech product reveals", "premium pre-order and reservation pages"],
+    style: ["dark", "svg", "spectrum", "dashboard", "interactive", "editorial"],
+    thumbnail: "/thumbs/orvyn-autonomous-gt.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Myriad Agent Swarm Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An agent-select screen for an AI swarm: pick one of five agents and a 640-point particle swarm reforms into its shape while the whole page recolours to match",
+    prompt: `Build a one-screen landing page for Myriad OS, a fictional platform of specialist AI agents that work as one swarm, styled like a game's character-select screen, as one HTML file. No libraries. Google Fonts: Unbounded 300/500/700/800 (display), Space Grotesk 400/500 (body), JetBrains Mono 400/500 (labels).
+
+DESIGN SYSTEM
+Deep, glowing and tinted by the selected agent. Five colours are registered with @property (--c1 accent, --c2 light accent, --c3 near-white, --bg1 and --bg2 backgrounds) and :root transitions all five over 1.1s, so switching agent recolours every gradient, border and glow smoothly. Text is --c3 at 72%. Mono labels are uppercase and tracked 0.18-0.3em. Panels are chamfered with clip-path (a cut top-right and bottom-left corner) over a translucent accent gradient with a backdrop blur. A noise overlay and a vignette sit over everything. A custom cursor: a 38px accent ring that trails the pointer and grows over [data-cursor] elements, plus a 4px dot (hidden on touch).
+
+THE AGENTS (data, five of them)
+Each has a name, role, topology, model tier, a tagline, a paragraph, three stats (nodes, sync %, latency ms), a theme (c1, c2, c3, bg1, bg2) and four abilities (an icon, a name and a line; the fourth is the ULT). AEGIS the Sentinel (green #14d27c; Policy Gate, Sandbox, Seal, Bastion), AXON the Orchestrator (violet #8b6cff; Fan-out, Consensus, Re-route, Hive Mind), KESTR the Scout (amber #f5a742; Sweep, Deep Scan, Signal Lock, Skyline), LOOM the Synthesist (cyan #2fc6ff; Thread, Stack, Splice, Tapestry), ECHO the Critic (pink #ff4f8d; Replay, Weigh, Red Team, Resonance).
+
+LAYOUT (one 100svh stage, min 740px)
+1. nav: a hexagon logo of three linked nodes with MYRIAD tracked wide and a small OS, and a Launch console button.
+2. hero, three columns:
+   - the visual: a dashed orbit ring and a ring of 90 ticks turning slowly; inside it a circular grid of katakana glyphs, faint, with scattered cells pulsing on staggered nth-child timings and three random cells re-rolling every 140ms; the swarm canvas over it; a HUD bottom right with NODES, SYNC and LATENCY counting up to the agent's stats.
+   - the copy: an outlined index number (01) that fills with a gradient, a vertical rule with a travelling glowing dot, the agent's name huge in Unbounded 800 with a gradient fill (scrambling through random characters into place on each switch), the tagline, a chamfered brief (ROLE / TOPOLOGY and the paragraph), four ability tiles keyed Q E C X (the fourth marked ULT) that show the ability's name and line below on hover, focus or click, and a chamfered Deploy <AGENT> button with a light sweep beside a View spec sheet link.
+   - the rail: five hexagon buttons, each in its agent's colour with a glyph (a nested hexagon, an atom, a trefoil, a helix, a target), its number and name; the active one glows, scales up and shows a progress bar for the autoplay.
+3. status: a bar along the bottom with a pinging dot and a live "12,480 agents online" count that drifts every 1.3s, and prev / 01 / 05 / next.
+Switching agent fades the copy out (blur up) and staggers it back in (rise, blur down), recolours the page and reforms the swarm.
+
+THE SWARM (Canvas 2D, additive)
+- 640 points (380 under 700px wide). Five formations precomputed as target positions in 3D: an icosahedron's 30 edges plus its vertices (AEGIS), a Fibonacci sphere with two tilted rings (AXON), a trefoil knot (KESTR), a double helix with rungs (LOOM), seven concentric rings that ripple as a wave (ECHO). For each formation compute every point's two nearest neighbours once.
+- Each point is a spring toward its target (velocity × 0.86 + offset × a per-point stiffness 0.012-0.04), with a small idle wobble; switching formation kicks every velocity randomly so the swarm bursts and reforms.
+- Rotate slowly, tilt with the pointer (eased), project with a simple perspective (FOV 3.2) and scale to the visual's size. Points within 120px of the pointer are pushed away; up to nine beams are drawn from the pointer to nearby points.
+- Draw with globalCompositeOperation lighter: a radial core glow, neighbour links (only when the projected link is short), points as cached radial-gradient sprites sized and faded by depth (every 23rd point a brighter hub), and message pulses that travel along links and hop up to six times. Colours ease toward the new theme each frame; rebuild the sprites when they change.
+
+INPUT
+Clicking the rail, the prev / next buttons, arrow keys, the mouse wheel (one step per 1.1s, desktop only) or a horizontal swipe on the visual changes agent. Autoplay advances every 9s and pauses while the pointer is over the copy or the rail.
+
+THINGS THAT BREAK
+- Register the five colours with @property or the theme jumps instead of transitioning.
+- Precompute nearest neighbours per formation at load; doing it per frame is N² every frame.
+- Size the glyph matrix from the orbit's measured box on resize, and only rebuild its cells when the column count changes.
+- Cap the canvas DPR at 2.
+
+THE FLOOR
+One h1 (the agent name), the canvas and decorations aria-hidden, labelled rail buttons, an aria-live line for the selected ability, keyboard navigation. prefers-reduced-motion stops the glyph pulses, orbit spin, scramble, autoplay and pulses, and slows the swarm's rotation. Under 960px the layout stacks (visual, rail as a row, copy); no horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 21, 2026",
+    demo: "/demos/myriad-agent-swarm.html",
+    bestFor: ["multi-agent and AI platform launches", "AI product or model line-ups", "games and character-select screens", "developer tools with a strong visual identity"],
+    style: ["dark", "canvas", "particles", "game-ui", "neon", "interactive"],
+    thumbnail: "/thumbs/myriad-agent-swarm.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Mirador Observability Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An observability platform in a framed night console: a WebGL ribbon of glowing fibers behind the hero, plates cut out of the frame with inverted corners, stacking feature cards with live trace mockups and a dark/light switch",
+    prompt: `Build a landing page for Mirador, a fictional observability platform ("See every signal": traces, metrics and logs in one calm view, so the team finds the cause before customers find the bug), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Geist 300-700 (display and text), Geist Mono 400-500, Instrument Serif italic (one emphasised word per heading). No images: every chart, trace, map, portrait and icon is HTML, CSS, inline SVG or WebGL.
+
+DESIGN SYSTEM
+A night console in a rounded frame. Tokens: night #0a0912, ink #14122a, paper #f6f5fb and six signal colours (violet #8f80ff, indigo #3b30b8, sky #7cc4ff, amber #f5a54a, mint #4fe3b0, rose #ff6b8a). Role tokens (--bg, --plate, --text, --muted, --line, --mist, --card, --glass, --accent) are redefined under html.light for a paper theme with an indigo accent. The page sits inside a 14px frame with a 40px radius; "plates" in the page colour are cut out of the edges of full-bleed art, and each plate's outside corners are inverted fillets (small radial-gradient pieces painted in --plate) so the plate and the frame read as one surface. Glass cards blur only on large hover screens. Discs (a violet-to-indigo circle with the arch mark) sit in a circular bite masked out of a glass card. Buttons are pills with a round accent dot holding an arrow; on hover the accent floods from the dot as a growing circle and the arrow turns 45deg. Art backgrounds are layered radial "auroras" with a faint star field. Mock windows are dark mono panels with three dots, a title and a live/resolved badge.
+
+SECTIONS
+1. nav: fixed and click-through except its controls. A white "Product" pill at the left and "Pricing" at the right; in the middle a tab hanging from the top of the frame with filleted shoulders, holding three dropdown filters (Environment, Region, Time range) whose choice updates the hero card and re-rolls its sparkline and figures. A left rail of round icons (Home, Features, Tour, Book a demo, an avatar, changelog bell, call, and a moon/sun theme pair) that scroll-spies the sections, set into the frame while at the top and floating as a pill after; under 1024px it becomes a bottom dock. The header hides on scroll down and returns on scroll up.
+2. hero (pinned): full-bleed night with a WebGL2 ribbon field: three twisting ribbons drawn as thousands of instanced glowing dots with bloom, depth of field, drifting dust, hover focus and a click pulse that runs along the nearest ribbon (skipped without WebGL2). "See every / signal." huge in the middle, a lede, a "Trusted by teams who ship daily" plate cut out of the bottom left (4,200+ teams, three avatars), and a glass checkout-api card at the bottom right (status, a p99 sparkline, three specs, watch/pin/share toggles) with the disc in its bite. Scrolling opens the frame to full bleed and the plates slide away.
+3. intro: a big statement that lights word by word, with three inline pill pictures (a heartbeat, a trace, a timeline) that unclip from their centre; a note with a button and three stats whose rules draw in.
+4. features: three sticky cards that stack, each a full aurora with a mock window (a trace waterfall of ten spans, a p99/p50 latency chart against an SLO line with a deploy tooltip, an incident timeline), a glass spec list and a filleted plate with the feature name, a line and a price; the card underneath scales down and dims.
+5. integrations: four pill rows (Infrastructure, Data stores, Languages, Delivery) with a count and a gradient picture of glyph tiles that unclips from its round end on scroll.
+6. gallery: a 12-column bento of dark tiles that drift at different speeds: an animated service map with a pulsing failing node, a live log tail with a cursor, SLO budget bars, a latency heatmap and a query, each with a filleted caption.
+7. process (pinned): a radar sweep behind the title and a glass card that steps through four stages (Install one agent, Everything is discovered, Set the goals that matter, Page the right person) while a ring on the disc fills and the card travels across.
+8. pricing: a Monthly/Annual segmented switch with a sliding thumb; three plans (Starter $0, Team $29 or $24 as the accent card, Enterprise Custom) whose prices roll when switched.
+9. team: four arch-topped portraits drawn in CSS (initials in serif italic over coloured glows and dashed rings), unclipping upward, each with a mail button.
+10. reviews: an aurora stage with a 4.9 score and a looping track of glass quote cards that pauses on hover and focus.
+11. faq: a sticky side and five exclusive details whose plus turns into an x.
+12. security: an aurora that closes in from full bleed, a shield with a mint check, a plate dropping from the top, and two glass facts.
+13. contact: a demo form (name, work email, company, team-size chips, a message) and a side panel where a terminal installs the agent, revealed by a circle wipe, with a contact card and the disc.
+14. footer: a violet and amber panel with a changelog signup, three link columns, MIRADOR huge in a fading gradient sized from its character count, and a status line.
+
+THINGS THAT BREAK
+- The fillets must be painted in exactly --plate; when the theme changes they change with it, or square notches appear.
+- Put html.motion on in <head> only when motion is allowed, and take it off if GSAP has not arrived in 2.5s; scope every hidden-until-animated state under .motion.
+- The WebGL field must stop rendering off screen and when the tab is hidden, cap its render size, and fall back to the aurora when WebGL2 is missing.
+- Build scroll scenes lazily as sections approach, after fonts load, and let one failing scene fail alone.
+- The review track clones its cards for the loop; mark the clones aria-hidden and take their links out of the tab order.
+
+THE FLOOR
+One h1, one main, a labelled rail nav, listbox filters with aria-expanded and aria-selected, aria-pressed on the theme, billing and card toggles, live form status, aria-hidden on every mock window and canvas. With motion reduced the page is complete and static. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 21, 2026",
+    demo: "/demos/mirador-observability.html",
+    bestFor: ["observability and monitoring tools", "developer platforms and infrastructure", "B2B SaaS dashboards", "data and analytics products"],
+    style: ["dark", "webgl", "gsap", "glass", "dashboard", "scroll-driven"],
+    thumbnail: "/thumbs/mirador-observability.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Side Quest Adoption Center Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A butter-yellow adoption center for ideas you have no time for: a waving page mascot, six illustrated side quests to adopt with confetti, and a lifecycle from spark to archive",
+    prompt: `Build a landing page for The Side Quest Adoption Center, a fictional and very unserious "shelter" where developers adopt side-project ideas they have absolutely no time for ("Your next little distraction."), as one HTML file. No libraries. Google Fonts: Gloock (display, one weight) and Schibsted Grotesk 400-800 (text). No images: the mascot, every illustration and every icon is inline SVG.
+
+DESIGN SYSTEM
+Soft, sunny and toy-like. Tokens in oklch on the html rule: background a cool off-white (0.97 0.008 220), surface near-white, text a deep navy (0.25 0.035 245) with text-soft, muted, line and line-soft steps, a butter accent (0.9 0.16 98) with a deeper press state, and a lavender violet (0.78 0.12 295). Gloock for every heading at weight 400 with tight tracking; Schibsted Grotesk for everything else; small caps eyebrows tracked 0.16-0.18em with a short rule before them. A 4.5% fractal-noise grain over the whole page. Cards are 20-24px radius, white, hairline borders, a soft shadow that lifts on hover. Illustrations share one hidden <svg> of defs: glossy gradients (cream, a darker "side" for extruded depth, yellow, violet, blue, leaf, peach, a ceramic mug, coffee, a pearl and glass) plus blur and drop-shadow filters, so every drawing is a chunky sticker: navy 3.5px outlines, a stacked-offset side for thickness, a white highlight stroke and four-point sparkles. One out-ease (0.2, 0, 0, 1) and one spring ease for every pop.
+
+SECTIONS
+1. nav: sticky; a brand (an eight-spoke asterisk that rotates on hover, "side quest" in Gloock with ADOPTION CENTER tracked under it), a pill nav of five anchors, and a navy "Your side quests" pill with a butter counter that bumps on every adoption. It frosts after 12px; a 3px butter scroll-progress bar sits above it.
+2. hero: full-bleed, a vertical gradient from cream to butter, a faint grid fading out, five drifting blurred clouds. A glass "Open for irresponsible decisions" sign with a pinging green dot, then "Your next little / distraction." with each line rising out of a mask and two hand-drawn butter brush strokes drawing in behind "distraction.". A one-line lede, a navy pill CTA with a butter circle arrow and a sheen sweep, and a footnote with four glossy icon avatars ("No experience required. Free time not included."). Below, the mascot: a cream page with a folded corner, stick arms and legs, a squiggly face that blinks, one arm waving, bobbing over a pulsing shadow, circled by a dashed orbit that marches, with a swinging violet "adopt me" tag and a beating heart, sparkles and burst marks. Two tilted chips drift beside it ("Scope: expanding", "Deadline: someday") and a pale horizon curve sits behind. A frosted bar of four items with icons closes the hero (Plants with webhooks, Newsletters for eleven, Cozy games with lore, Personal site, v7).
+3. stats: four counters in one bordered strip that count up when seen (6 ideas seeking a home, 90% chance it becomes a repo, 0 shipped, 412 domains renewed out of guilt).
+4. ideas: "Looking for a good home." with an availability pill that updates ("5 ideas, zero obligations", "Everyone found a home!"). A segmented filter (All side quests / My adopted ideas with a live count) with a sliding white pill, and a three-column grid of six cards rendered from data: a tinted art panel with an id badge (SQ-001), a temperament tag and a looping illustration (an overengineered to-do clipboard, a plant with a wifi signal and a falling drop, a newsletter envelope with a heart seal, a game controller with blinking buttons, a browser window with a clicking cursor, a judging coffee mug with steam); then the name, a line of copy, a facts box (estimated cost, "Becomes another GitHub repo" percent and a meter that fills) and an Adopt button. Adopting turns it butter with a check ("Adopted! (release idea)"), throws confetti from the button, toasts a line and bumps the counters; releasing toasts too. The illustrations' outlines draw in when the card is revealed, and a butter spotlight follows the cursor over the card. An empty state for the adopted filter.
+5. how-it-works: three step cards (Browse, Adopt, Love it, briefly) with an outlined giant number and a chunky icon tile that sits on a hard navy shadow and tilts on hover: a magnifier, a beating heart, a spinning sparkle.
+6. lifecycle: a navy band with a butter and violet glow. "From spark to archive, beautifully predictable." Six stages on a line that fills from butter to violet (Hour 1 The spark, Day 1 Domain secured, Day 3 Stack chosen, Week 2 The rewrite, Month 3 "On a break", Year 2 Archived, with love), each a glowing node that pops in turn; below, an "Enthusiasm over time" line that draws itself.
+7. testimonials: three invented adopter stories, the first larger on butter, with glossy initial avatars; a small italic note that the stories are made up.
+8. pricing: three free plans (Casual Tinkerer $0 / forever, Serial Starter $0 / every time as the raised navy "Most adopted" card, Founder Mode $0* billed in sleep), each with a bobbing glossy icon, a list with butter check badges and a CTA.
+9. faq: five questions in details, one open at a time, the plus turning into a butter minus.
+10. footer: a big butter panel with a dot field and a glow: "Your weekend called. It's a little nervous." with a violet underline that draws in, a small mascot waving a "see you" tag, sparkles, a CTA, then brand, two link columns, a status column (All ideas operational, Adopted today: n) and a back-to-top link.
+
+THINGS THAT BREAK
+- Draw-on paths need pathLength="1" and a dash of 1; set it on the card paths after rendering them, or they show solid.
+- Card illustrations are SVG strings injected per render: re-rendering on adopt must not replay the reveal (render those cards already "in") and must put focus back on the same button.
+- Animated SVG groups need transform-box: fill-box, or they rotate around the canvas corner.
+- The filter pill measures its active button: move it after fonts load and on resize.
+- Adoptions live in memory only; say so in the FAQ.
+
+THE FLOOR
+One h1, one main, aria-pressed on the adopt buttons and the filter, a polite live toast, aria-hidden on every decorative drawing, a visible focus ring. With motion reduced, every reveal, draw-on and meter is shown finished. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 21, 2026",
+    demo: "/demos/side-quest-adoption.html",
+    bestFor: ["playful consumer apps", "community and indie maker products", "idea boards and marketplaces", "launch pages with a sense of humour"],
+    style: ["light", "playful", "illustrated", "svg", "warm", "interactive"],
+    thumbnail: "/thumbs/side-quest-adoption.jpg",
+    theme: "light",
+  },
+  {
+    title: "Orrery Reasoning Engine Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An AI reasoning engine that shows its work: a hero window opens onto a canvas orrery, and every picture on the page is a live rendering drawn in code",
+    prompt: `Build a dark-and-light landing page for Orrery, a fictional AI reasoning engine ("the reasoning engine that shows its work": it reads a team's contracts, tickets, code and spreadsheets and answers with the sources behind every claim), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3, all from jsdelivr. Google Fonts: Hubot Sans with the width axis (wdth 100-125, wght 500-700) for display, Instrument Sans 400-700 for text. No images: every picture is a <canvas data-art="..."> drawn by one procedural art engine.
+
+DESIGN SYSTEM
+Warm greys with one ember accent. Tokens: ink #111110, night #191816, smoke #2a2926, ash #55574f, haze #a6a9a3, fog #c8cac4, mist #e7e6e1, pearl #f5f4f0, ember #d6b28a, steel #7d8c8b; a fluid gutter (16-64px), max width 1400px, section padding clamp(96px, 12vw, 190px), radii 14 and 24, ease cubic-bezier(.19,1,.22,1). Two SVG noise textures as tokens: --grain (fractal noise through a diffuse light, used as an overlay on dark surfaces) and --frost (the same, turned into a white alpha frost for veils). Each section carries data-tone="dark" or "light", which sets --fg, --fg2, --bg and --line, so components restyle per section. Display type is Hubot Sans 600 uppercase at font-stretch 112-125%; labels are wide-tracked caps (.38em); body is Instrument Sans 17px. Corner brackets (two L-shaped 2px corners, top-right and bottom-left) frame anything important. Buttons fill with ember from the middle out (a clip-path inset that opens) on hover; text links have a 1px underline that a 2px rule sweeps over.
+
+THE ART ENGINE
+One script, a seeded PRNG (mulberry32) per canvas from data-seed, a renderer per data-art name in an object F, each returning a draw(ctx, t) closure. Canvases are sized by ResizeObserver at a capped devicePixelRatio (data-dpr), drawn once, then animated only while an IntersectionObserver says they are on screen; with reduced motion they are drawn once at a fixed time. Renderers:
+- orrery: deep space with a quarter-resolution painted nebula, three depth layers of twinkling stars and cross-shaped glints, a pulsing sun with corona rays, seven planets on tilted elliptical orbits (shaded spheres with banding, a lit rim, atmosphere glow, comet-soft trails, a ringed planet, moons that pass in front and behind), a dust belt, orbit tick marks, an anamorphic lens streak with ghost flares, collision-aware instrument labels (Reasoning · depth 0.94, Memory · 10M tokens, Verification · 2x sourced) and a vignette; the pointer tilts it slightly.
+- deliberate: a search tree growing left to right, a scan front, losing branches crossed out, the winning path committing in gold with "ANSWER conf 0.97".
+- memory: tokens streaming into a rotating Fibonacci sphere of points, a scanning latitude, gold arcs linking recalled points, a "RECALL doc 4,812 · p.31" callout.
+- agents: a glowing hub with tool tiles (mail, calendar, database, code, chart, doc, chat, card) on an orbit; one tile stops and asks "CONFIRM?" then "APPROVED".
+- vision: a chart scanned left to right, its axis, peak, legend and footnote boxed in gold as they are recognised.
+- deploy: isometric server racks with blinking LEDs inside a dashed gold perimeter, traffic looping inside, outbound traffic stopped at a lock.
+- grid, graph, stream, terrain, rings, lattice: attention heatmap, retrieval graph with travelling pulses, token stream past a cursor, ridgeline terrain with one gold line, verifier rings, a rotating 3D lattice.
+- portrait: a scan-line portrait silhouette with a gold band sweeping down.
+The premium renderers share a HUD: corner brackets, a caps label top left, a gold status top right and a tick ruler along the bottom.
+
+SECTIONS
+1. nav: fixed; the brand (an orbit glyph and ORRERY tracked wide), four links and Request access. It hides on scroll down, returns on scroll up, turns solid (blurred on desktop) after 40px and retints to the tone of the section under it. Under 1080px a full-screen grain menu with huge links.
+2. hero (pinned for two screens): a blurred, slightly enlarged copy of the orrery fills the screen (the sharp canvas mirrors itself into it at quarter size), a haze and grain over it, the words THINK and SLOW huge above and below (sized from --len and the space left), and in the middle a sharp window onto the orrery with a glass rim, two corner brackets and two caps lines ("Fast answers are cheap", "Right ones take a moment"). Scrolling opens the window to the full screen (a clip-path inset driven by --open), the words leave up and down, the lines slide out and the brackets travel to the screen corners.
+3. brief (light): a large statement whose lines "defog" from blurred to sharp on scroll (SplitText lines), a framed terrain picture, a lede, and a row of five invented customer marks.
+4. capabilities (dark): five rows (version, topic, title, text, picture). As you scroll, the row at the middle of the screen is in focus, the others dim and blur, its picture opens from a thin slit, and two corner brackets travel to frame it.
+5. process (light): five stages that rise in a staircase, each with a rule that draws, a duration (0.2 s, 1-4 s, up to 8 min, every claim, after), a caps title that wipes in and a line of text.
+6. gallery (dark): six live renderings in a horizontal track pinned and scrolled sideways, behind a frosted pane with a rounded window cut out of it (a mask with a hole) and corner brackets on the window; shots scale down away from the centre.
+7. results (light): four huge figures rising out of their lines (41%, 10M, 0, 2,300), and four bars of where an answer comes from (your sources 71%, model reasoning 19%, verification 7%, clarifying questions 3%) that grow on view.
+8. team (dark): four portraits that open from a slit, with name, role and a line each.
+9. reviews (light): four quote cards that stick and stack; each one shrinks and frosts over as the next arrives.
+10. pricing (dark): a Monthly/Yearly switch and three tiers (Personal $0, Pro $24 framed in ember brackets on a pale card, Team $60 per seat) that open from the middle.
+11. faq (light): a sticky side column and an accordion that opens on grid-template-rows.
+12. contact (dark): a blurred graph canvas behind, contact channels, and a light form card that unfrosts as it scrolls in.
+13. footer: a newsletter, three link columns, a legal line saying the company is fictional, and ORRERY huge over an ember glow, rising on scroll.
+
+THINGS THAT BREAK
+- Put html.motion on in <head> only when motion is allowed, and take it off if GSAP has not arrived in 2.5s; scope every hidden-until-animated state under .motion.
+- The hero window's clip-path and the rim must use the same custom properties (--sw, --sh, --sy, --sr), or they drift apart at other sizes.
+- The horizontal gallery needs its scroll distance (track width minus the viewport) measured on every refresh, and the window hole positioned from the track's real height.
+- Queue the scroll scenes and build them in idle time after fonts load, then refresh ScrollTrigger; re-read section tones for the header on every refresh.
+- Canvases must stop drawing when off screen, or a page of eighteen animated canvases will burn a laptop.
+
+THE FLOOR
+One h1 (the hero words, with the brand in a visually hidden span), a main, a labelled menu button with aria-expanded, role="img" and an aria-label on every meaningful canvas, aria-hidden decoration, buttons with aria-pressed for billing and aria-expanded for questions, live form status, visible ember focus rings. With motion reduced the page is complete and static. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 20, 2026",
+    demo: "/demos/orrery-engine.html",
+    bestFor: ["AI models and reasoning products", "research and analytics tools", "enterprise AI platforms", "deep-tech launches"],
+    style: ["dark", "generative", "canvas", "gsap", "scroll-driven", "editorial"],
+    thumbnail: "/thumbs/orrery-engine.jpg",
+    theme: "dark",
+  },
+  {
     title: "Siliq AI Hardware Lab Page",
     category: "web",
     categoryLabel: "WEB",
