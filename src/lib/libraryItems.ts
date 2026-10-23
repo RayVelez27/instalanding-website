@@ -101,15 +101,18 @@ export const EVERYTHING = [...PAGE_ITEMS, ...MOTION_ITEMS, ...SYSTEM_ITEMS];
  * A random order with variety: dark and light alternate, and no item shares
  * a look (glassmorphism, webgl, editorial, …) with either of the two before
  * it. Built greedily from a shuffle; when nothing fits it relaxes the look
- * rule first, then the theme rule, so every item still appears.
+ * rule first, then the theme rule, so every item still appears. `first`
+ * picks the theme of the opening card (HOME's rails open on a dark one).
  */
-export const variedOrder = (items: readonly Item[]): Item[] => {
+export const variedOrder = (items: readonly Item[], first?: string): Item[] => {
   const pool = [...items];
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
   const out: Item[] = [];
+  const opener = first ? pool.findIndex((it) => it.theme === first) : -1;
+  if (opener >= 0) out.push(pool.splice(opener, 1)[0]);
   const clash = (a: Item, b: Item) => a.looks.some((l) => b.looks.includes(l));
   while (pool.length) {
     const prev = out.slice(-2);

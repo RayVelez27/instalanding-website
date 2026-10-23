@@ -32,6 +32,9 @@ const HEROES = {
   siliq: ["board@1100", "products@1100", "pricing@1000", "team@900"],
   orrery: ["gallery", "pricing@1100", "team@1100", "outcomes@1100"],
   halden: ["hero@1200", "diagnosis@1100", "shelf@1100", "routes@1100"],
+  tessel: ["hero@1200", "blocks@1000", "utilisation@600", "guide@760"],
+  agentic: ["hero@1200", "art@1100", "stats@1100", "programme@1100"],
+  hearthly: ["art@1100", "plates@1100", "team@1100", "pricing@1100"],
 };
 
 // Systems whose identity background is a pattern: their small text sits on a label
@@ -86,7 +89,7 @@ const BUILD = (sys, pick, BOXED) => {
     #ilp .ilp-id { grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 44px 40px 34px 46px; min-width: 0; position: relative; }
     #ilp .ilp-id::before { content: ""; position: absolute; inset: 0; background: inherit; }
     #ilp .ilp-kick { position: relative; margin: 0; font: 600 13px/1.2 var(${L.mono}), ui-monospace, monospace; letter-spacing: .22em; text-transform: uppercase; opacity: .82; }
-    #ilp .ilp-name { position: relative; margin: 0; font-family: var(${L.display}); font-weight: 900; line-height: .86; letter-spacing: ${L.tracking || "-.035em"}; ${L.upper ? "text-transform: uppercase;" : ""} }
+    #ilp .ilp-name { position: relative; margin: 0; overflow-wrap: normal; hyphens: manual; font-family: var(${L.display}); font-weight: 900; line-height: .86; letter-spacing: ${L.tracking || "-.035em"}; ${L.upper ? "text-transform: uppercase;" : ""} }
     #ilp.ilp-boxed .ilp-kick, #ilp.ilp-boxed .ilp-tag { align-self: flex-start; padding: 7px 10px; background: ${L.idText}; color: var(${L.surface}); opacity: 1; }
     #ilp .ilp-tag { position: relative; margin: 0; max-width: 30ch; font: 500 15px/1.45 var(${L.mono}), ui-monospace, monospace; opacity: .86; }
     #ilp .ilp-hero { grid-row: 1; position: relative; display: grid; place-items: center; overflow: hidden; background: var(${L.surface}); border-left: 3px solid currentColor; }

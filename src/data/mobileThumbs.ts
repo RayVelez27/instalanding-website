@@ -5,6 +5,10 @@
  * screenshot instead.
  */
 const PHONE: ReadonlySet<string> = new Set([
+  "latent-ai-fashion-atelier.jpg",
+  "rowline-agronomy-ai.jpg",
+  "corvane-capital.jpg",
+  "agentic-art-expo.jpg",
   "arcline-neon-glass.jpg",
   "bigred-runbooks.jpg",
   "clay-pharma-landing-hero.jpg",

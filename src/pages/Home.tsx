@@ -28,12 +28,48 @@ import { useSeo } from "@/hooks/useSeo";
    PAGE_ITEMS matches it) plus a random pick of the rest, all dealt together, so
    a new page is always on home but never in the same place. */
 const LATEST = Math.max(1, PAGES.filter((p) => p.added === PAGES[0]?.added).length);
-const RANDOM_PAGES = variedOrder([
-  ...PAGE_ITEMS.slice(0, LATEST),
-  ...shuffle(PAGE_ITEMS.slice(LATEST)).slice(0, Math.max(0, 14 - LATEST)),
-]);
+const RANDOM_PAGES = variedOrder(
+  [...PAGE_ITEMS.slice(0, LATEST), ...shuffle(PAGE_ITEMS.slice(LATEST)).slice(0, Math.max(0, 14 - LATEST))],
+  "dark",
+);
 const RANDOM_MOTION = shuffle(MOTION_ITEMS);
-const RANDOM_SYSTEMS = shuffle(SYSTEM_ITEMS);
+const RANDOM_SYSTEMS = variedOrder(SYSTEM_ITEMS, "dark");
+
+/* The last card of a rail: three covers the rail did not show, under a
+   count and a link to the whole collection */
+const moreCovers = (all: Item[], shown: Item[]) => {
+  const seen = new Set(shown.map((it) => it.key));
+  const rest = all.filter((it) => !seen.has(it.key));
+  return (rest.length >= 3 ? rest : all).slice(0, 3).map((it) => it.image);
+};
+
+const MoreCard = ({ to, count, noun, images }: { to: string; count: number; noun: string; images: string[] }) => (
+  <div className="home-card home-more">
+    <Link to={to} className="home-card-link" aria-label={`Explore all ${count} ${noun}`}>
+      <span className="home-card-art home-more-art">
+        <span className="home-more-stack" aria-hidden="true">
+          {images.map((src, i) => (
+            <img key={src + i} src={src} alt="" loading="lazy" decoding="async" />
+          ))}
+        </span>
+        <span className="home-more-copy">
+          <span className="home-more-count">{count}</span>
+          <span className="home-more-noun">{noun.toUpperCase()}</span>
+          <span className="home-more-cta">
+            EXPLORE THE LIBRARY <ArrowRight size={13} aria-hidden="true" />
+          </span>
+        </span>
+      </span>
+      <span className="home-card-text">
+        <span>
+          <b>SEE EVERYTHING</b>
+          <small>The full collection, newest first</small>
+        </span>
+        <ArrowRight size={14} aria-hidden="true" />
+      </span>
+    </Link>
+  </div>
+);
 
 /** The demo file the band's code window copies */
 const BAND_PAGE =
@@ -117,6 +153,7 @@ const Rail = ({
   all,
   items,
   extra,
+  more,
   backArrow = true,
   onCopied,
 }: {
@@ -128,6 +165,8 @@ const Rail = ({
   all?: string;
   items: Item[];
   extra?: ReactNode;
+  /** Ends the rail with a card that links to the whole collection */
+  more?: { noun: string; pool: Item[] };
   backArrow?: boolean;
   onCopied: (m: string) => void;
 }) => {
@@ -194,6 +233,14 @@ const Rail = ({
         {items.map((it) => (
           <Card key={it.key} item={it} onCopied={onCopied} />
         ))}
+        {more && all && (
+          <MoreCard
+            to={all}
+            count={count ?? more.pool.length}
+            noun={more.noun}
+            images={moreCovers(more.pool, items)}
+          />
+        )}
       </div>
     </section>
   );
@@ -290,6 +337,7 @@ const Home = () => {
           sub="Production-ready landing pages. One file, no dependencies."
           all="/pages"
           items={RANDOM_PAGES}
+          more={{ noun: "landing pages", pool: PAGE_ITEMS }}
           onCopied={say}
         />
         <Rail
@@ -300,6 +348,7 @@ const Home = () => {
           inline
           all="/motion"
           items={RANDOM_MOTION}
+          more={{ noun: "motion studies", pool: MOTION_ITEMS }}
           onCopied={say}
         />
         <Rail
@@ -310,6 +359,7 @@ const Home = () => {
           inline
           all="/systems"
           items={RANDOM_SYSTEMS}
+          more={{ noun: "design systems", pool: SYSTEM_ITEMS }}
           onCopied={say}
         />
 

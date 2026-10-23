@@ -110,6 +110,283 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Latent AI Fashion Atelier Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A dark, iridescent page for an AI fashion atelier: a wireframe cloth ripples toward the pointer under a giant \"Latent\" that scatters as the hero tilts away, six capsules slide past sideways, a \"Zero\" knockout zooms open onto a gradient, and every picture is generative SVG",
+    prompt: `Build a landing page for Latent, a fictional AI fashion atelier ("Clothes drafted by a model, finished by a tailor.": generative outerwear, engineered knit and smart optics, cut to a 3D scan of your body and released every Thursday), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Unbounded 300-900 for machine-scale display words, Geist 300-800 for headings and text, Doto 500-900 (a dot-matrix face) for the emphasised phrase in each heading, Geist Mono 400-500 for labels.
+
+DESIGN SYSTEM
+Ink #07070A with graphite #101015 and #18181F, bone #ECE7DC and #E2DCCF, violet #6D4CFF with a deep #2A1D78, cyan #5CE1FF and volt #D6FF5C. One iridescent gradient (105deg, violet to cyan to volt) for the logo tiles, highlights in the art and the footer wordmark. Sections are rounded cards (radius clamp(20px, 2.3vw, 34px)) inset by a gutter, coloured on-bone, on-violet or on-ink, each with two small crosshair marks in opposite corners. h2s in Geist 600 at -0.04em end on a lowercase Doto phrase; display words in Unbounded 800 uppercase at line-height .82. Pill buttons whose fill grows as a circle from the arrow end on hover, with a slight rotate on a springy cubic-bezier(.34, 1.56, .5, 1); links whose underline goes wavy on hover. An 8% SVG noise overlay across the page.
+
+PICTURES IN CODE (no image files)
+- A seeded PRNG (mulberry32) and seven SVG generators chosen by data-art and data-seed, painted once into each element at its own aspect, with a violet glow and an iridescent gradient for the "hot" lines: form (a torso made of horizontal scan lines from an eased width profile, with a glowing laser band and a ruler), portrait (head and shoulders from the same scan lines, tilted), drape (a perspective wireframe sheet of cloth), contour (a topographic pressure map), lens (two iridescent ringed lenses on a bridge), weave (an over-under woven texture, rotated), sphere (a Fibonacci point sphere with depth-sized dots and two orbit rings).
+- The hero: a canvas wireframe sheet in perspective, 36 rows by 60 columns, rippling from three sines over time and bulging toward the pointer with a gaussian; every fourth row stroked with the gradient. Cap DPR at 2, pause off screen, draw a single still frame under reduced motion.
+- Display words fit their box: measure at 100px and scale, re-run on font load and resize; a --len (letter count) gives a container-query fallback before the script runs.
+
+STRUCTURE
+1. A fixed pill header with a blurred glass bar: the gradient logo tile and wordmark, five links, a "Book a scan" pill. Under 900px a round menu button turns into an X and drops a bone card with big links.
+2. Hero: a full-height card with the cloth canvas behind a gradient scrim, "LATENT" across the top edge clipped by the card, and at the bottom an eyebrow with a glowing volt dot, the title, a lede, the address; hours, a button and a gradient tile on the right. Pinned for 75% of a screen: the card scales to .86, tilts -2.5deg and sinks while the copy lifts and fades, and each letter of "LATENT" flies off upward on its own path. Before that, the letters rise in and rock gently.
+3. A ticker of mono facts separated by violet stars.
+4. Story (bone): the heading split into words that tip in, a rotated weave picture that drops in, a paragraph, three big violet facts (1.8M, 0.4mm, 0).
+5. Capsules: pinned and scrolled sideways: an intro, then six 4:5 covers (Shell, Optic, Mesh, Lumen, Sole, Knit) each with generative art, its name as a giant display word at the top edge, a price range and a line; cards sway and rotate and their words drift as they cross the screen (containerAnimation).
+6. Fit lab (ink): six services on drawn rules with prices in volt that stamp in, and a parallax torso scan.
+7. Statement: a full-screen gradient behind an ink layer in multiply mode with a white "ZERO" knocked out of it; pinned for 160% of a screen, the ink layer scales 9x from the centre of the word until the gradient fills the screen, then a bone card ("Nothing is cut until it's ordered") springs up.
+8. Process: a sticky intro beside four stacked sticky cards (Scan, Generate, Cut, Wear); each card shrinks and tilts as the next one slides over it.
+9. Releases (violet): five dates with giant day numbers that wipe in, a title, a line and a bone tag. Studio (bone): four people with portrait scans that open from a pill shape. Voices (ink): six bone quote cards in a marquee that eases to a stop on hover and focus. Lookbook: six scattered, rotated pictures at different parallax speeds around a giant "RENDERED" whose letters fall in. FAQ (bone): six details rows with a plus that turns into a minus. Visit (violet): a giant "STEP IN", hours, contacts, a sphere and a glass form that thanks inline and sends nothing. Footer: the gradient wordmark, links and a base row.
+
+THINGS THAT BREAK
+- Add a .motion class in the head before first paint unless prefers-reduced-motion, and drop it if GSAP has not loaded after 2.5s; every pin height and the sideways track live behind .motion, so the page still reads top to bottom without scripts.
+- The capsule rail's scroll length is the track's overflow (scrollWidth minus innerWidth): write it into a --run variable on every refreshInit and use invalidateOnRefresh, or the pin ends early after a resize.
+- The "ZERO" zoom needs its transform-origin measured from the word's real box (a function value), or the screen opens on the wrong spot.
+- Process cards stick at the header height plus 30px; the shrink of each card ends exactly at the next card's computed top.
+- Split text only after document.fonts.ready, and wrap each hero letter in an inner span so the intro rock and the scrubbed fly-away do not fight over the same transform.
+- Run every GSAP setup from a queue, one per task, and only set a section up when it comes within 120% of the viewport, so the first scroll does not stall.
+
+THE FLOOR
+One h1, a main, every section with an id. Every generated picture is a role="img" figure with a label and an aria-hidden SVG; the ticker is aria-hidden. The menu uses aria-expanded and swaps its label; Escape closes it. Focus rings on everything; button and link hover states also apply on focus-visible. The form status is a live region. prefers-reduced-motion: no pinning, no marquee, the cloth drawn once. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/latent-ai-fashion-atelier.html",
+    bestFor: ["AI-native consumer brands", "fashion and apparel startups", "generative design studios", "made-to-measure and 3D-scanning products"],
+    style: ["dark", "iridescent", "generative-svg", "canvas", "scroll-driven", "horizontal-scroll"],
+    thumbnail: "/thumbs/latent-ai-fashion-atelier.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Rowline Agronomy AI Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A dark-green landing page for a farm AI: a live NDVI scan wipes across a field rendered pixel by pixel, the scanner's lens opens into a dawn landscape with a drone flying in, five agents slide past sideways, and every field, crop map and device is drawn in code",
+    prompt: `Build a landing page for Rowline, a fictional agronomy AI ("Every row, read by machine.": it flies, probes and models fields every day, then says where to water, feed and scout; live on 1,240 farms), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Bricolage Grotesque (opsz, wdth 75-100, 200-800) for display at wdth 94-96, Manrope 300-800 for text, Fraunces italic (SOFT 100, WONK 1) for the one emphasised word per heading, Martian Mono (wdth 80) for labels.
+
+DESIGN SYSTEM
+Night #0A0E0B with soil #111711, moss #17221A and deep #0E1A14 for dark sections; paper #EEF0E7, bone #E3E5D8 and ink #0D120E for light ones. One lime accent #C3EC6C (#8FC34A darker), wheat #D6B46E, water #7CC4DD, clay #B5653F, amber #F0B35A for warnings. A sage section #B9CF8A and a wheat gradient (#D8BB7A to #C79E55) break the rhythm. Pill buttons whose hover fills with a pressed, inset-shadowed copy of their colour from the centre; links with a hairline that draws across. Radius 4px on cards, pills elsewhere.
+
+THE TERRAIN ENGINE (no image files)
+- Hashed value noise with smoothstep, fbm (four octaves, lacunarity 2.03), and per-pixel painters that take (x, y) and write RGB plus an NDVI value in 0-1. Six kinds: patch (a warped grid of fields, each a crop type from its hash: stubble, cereal, bare soil, canola, ploughed, grass, with row texture, hedgerows and a meandering creek), pivot (centre-pivot circles in a road grid, part-harvested wedges, wheel tracks, the pivot arm), orchard (rotated tree rows with lit crowns, cast shadows and stressed trees going yellow), vine (contoured rows on hills in blocks, some blocks autumn-tinted), paddy (terraces from noise level sets, flooded or green), land (a dawn sky with a sun glow and cloud band over hills, and crop rows converging in perspective with a low-sun rim light), plus scan (a pure NDVI map around a crop's mean, with faint contour lines and a 50px grid).
+- An NDVI ramp of seven stops from rust #60241C through orange and yellow to green #125C34. Painting a field with an NDVI sibling canvas fills both at once.
+- One global paint queue: each job fills ImageData row by row until 14ms pass, puts the finished rows, and continues next frame; only one canvas paints at a time. Canvases paint lazily when within 120% of the viewport.
+
+STRUCTURE
+1. A fixed header (lime logo tile, six links, a "Book a field scan" pill) that blurs after 12px and hides on scroll down; under 1020px a two-line button opens a full-screen menu that wipes down.
+2. Hero: copy on the left (live eyebrow with a pulsing dot, the title with "read" in lime italic, the lede, two actions, three facts: 11 d, −23%, 4 cm). On the right a 4:5 scanner card with a rounded top-left corner: the RGB field under its NDVI twin, revealed by a glowing lime bar that wipes left to right over 7s, holds 2.2s and repeats; three detection boxes (N-deficit, water stress in amber, rust risk) appear as the wipe passes them; a grid, corner brackets, a HUD with coordinates and a ticking clock, an NDVI legend, a crosshair lens, and three glass readouts that drift every second.
+3. Then, pinned for 170% of a screen: the copy and HUD fade, the lens grows, and a dawn landscape opens as a circle clip-path from the lens's measured centre and radius to the farthest corner while it scales from 1.45 to 1; a small drone SVG flies in from the lower left; "At first light the drones are already up. By breakfast, every plant has a number." rises at the end.
+4. About: two "doors" side by side, each with a rounded groove carved into its inner edge and a glowing lime stud; they slide toward each other as you scroll (vertically on wide screens, horizontally on phones).
+5. Agents: pinned and scrolled sideways: an intro, then five tall cards (Scout: a CSS radar with a conic sweep and amber pings; Hydra: an SVG droplet over rippling ellipses; Yield: a forecast curve with a dashed projection to "9.4 t/ha"; Root: a soil cross-section with a probe and readings at three depths; Swarm: drones moving round a network on animateMotion). Each visual scales and rotates in as its card enters, using containerAnimation.
+6. Crops: a big preview (an NDVI scan canvas with a HUD, the crop name, a note and three glass stats) beside nine crop chips (striped gradient swatches). A chip swaps the name, note and stats and repaints the scan from its seed and mean; ignore stale paints with a token.
+7. Process: "From first flight to first decision in 72 hours." with an orchard canvas in a frame rounded at the bottom like a tombstone, a top-down drone with spinning props and a spray cone; four steps (Map, Model, Act, Learn) on a vertical line that draws as you scroll, each with a lime notch that extends.
+8. Farms: five field canvases in an offset editorial grid, each unveiling from a centre slit, each with coordinates and an NDVI / RGB toggle that cross-fades the twin canvas.
+9. Impact (sage): four outcome bars in recessed tracks that fill and count to 91, 84, 76 and 38%. Kit: three devices drawn in SVG (a soil probe in a cutaway, a weather mast with spinning cups and a solar panel, a docked drone). Reviews: five coloured cards with a recessed slot at the top, as a marquee that pauses on hover and off screen.
+10. Pricing (bone): three plans ($6, $19 dark and featured, Quote) whose top rules draw in. Pilot (wheat): nine probe pucks in a dark tray with blinking LEDs, dealt out from a stacked pile in the centre as you scroll. FAQ: a sticky side title and five details rows. Contact: radar rings that scale in behind a glass form that thanks inline and sends nothing. Footer: a giant embossed "Rowline" sized to the width, four columns and a base row.
+
+THINGS THAT BREAK
+- Paint at a fixed pixel budget per canvas (500-1280px wide) and let CSS scale it; painting at device resolution freezes the page. Never paint two canvases in the same frame.
+- Measure the hero's clip circle from the lens's real box on every refresh (function values, invalidateOnRefresh), or the landscape opens from the wrong place after a resize.
+- The agents track pins for exactly its overflow: end '+=' (scrollWidth − section width), recomputed on refresh. On phones, cap card widths in vw so the track is not a mile long.
+- Add a .motion class in the head before first paint unless prefers-reduced-motion, and drop it if GSAP has not loaded after 2.5s; the pinned hero overlay and the sideways track live behind .motion, so the page still reads top to bottom without scripts.
+- Split headings only after document.fonts.ready, with autoSplit so lines re-split on resize.
+- Run the GSAP setups from a queue, one per task, so the first scroll does not stall.
+
+THE FLOOR
+One h1, a main, every section with an id. The scanner has role="img" and a label; decorative canvases and SVGs are aria-hidden. Chips and the menu use aria-pressed and aria-expanded; the form status is a live region. prefers-reduced-motion: no pinning or marquee, the scan sits at 60%, no animation at all. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/rowline-agronomy-ai.html",
+    bestFor: ["agtech and climate-tech startups", "AI products with sensors or hardware", "drone, mapping and geospatial companies", "B2B tools sold to operators in the field"],
+    style: ["dark", "procedural-art", "canvas", "scroll-driven", "horizontal-scroll", "green"],
+    thumbnail: "/thumbs/rowline-agronomy-ai.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Corvane Capital Private Equity Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A quiet-money private equity page on a ruled four-column grid: a giant serif \"Compounding\" beside a window of live ridgelines that opens to full bleed as you scroll, a champagne principles field that fans six strokes into line, and a track record that flips between gross and net",
+    prompt: `Build a landing page for Corvane Capital, a fictional New York private equity firm that partners with founder-led software companies ($8.4B under management, 47 platforms since 2012, Fund IV of $2.8B now investing), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Instrument Serif (with italic) for display, Inter Tight 300-600 for text, JetBrains Mono 400-500 for labels.
+
+DESIGN SYSTEM
+Near-black ink #0A0B0D with a raised #111317, ivory paper #EEEAE1 and a warmer bone #E3DDD1, gold #C6A15B with a highlight #E6CC93, a champagne field #BFA06A, muted grey #7F838A. Each section declares data-tone (dark, ivory, bone or gold), and the tone re-points three variables: the rule colour, the soft text colour and the accent. Instrument Serif 400 at -0.035em tracking and line-height .84 for the giants; h2s end on an italic, gold (or ink-gold on paper) phrase. Mono labels at 11px, uppercase, wide tracking. Radius 2px everywhere. A 6% SVG film grain fixed over the page.
+
+THE RULED GRID
+Every section is a .sheet that draws its own ruled field: a ::before inset by the page gutter with 1px vertical rules at 0, 25, 50, 75 and 100% (0, 50 and 100% under 760px). Content sits on a matching four-column grid (two columns on phones) with an inner cell padding, so every heading, figure and paragraph starts on a rule. The header is a strip of the same grid.
+
+PICTURES IN CODE (no image files)
+- Strategy: five SVG plates at 400 × 260 on #0E1013 with a faint grid and two mono corner labels: a stack of six floating isometric layers (the top one gold) for vertical software, a jittered 9 × 5 node network with gold dashes running along random edges for infrastructure, six dashed rings turning at different speeds with a radar sweep and a hexagon for security, seven settlement curves funnelling through a gold node with dots riding them (animateMotion) for financial rails, and a pulsing dot field under a gold signal line for data and AI.
+- About: a 600 × 380 chart, platform revenue index (1.19^t) against a dimmer public SaaS index (1.088^t) over seven years, the gold line drawing in and the area fading in when it enters view, an "ENTRY 1.0x" and a "PLATFORM 3.3x" callout.
+- Team: eight portraits drawn from the name: a seeded PRNG (mulberry32 seeded by an FNV hash of the name) jitters a dark silhouette (head, ears, neck, shoulders, faint lapels) on a gold radial glow with scanlines and five orbit arcs (one gold, ending in a dot) that turn on hover; the first name picks a hair shape (long, bob, bun, crop, short).
+- Offices: five tiles: a rotated street grid with a gold avenue (New York), concentric bay ellipses (San Francisco), scattered island circles (Stockholm), bent meridians with a gold prime meridian (London), a dot field swelling at the centre (Singapore), each with its city, latitude and a live clock for that time zone (Intl.DateTimeFormat, every second).
+- Portfolio glyphs (one of four marks, seeded by company name) and three insight thumbnails (a compounding bar chart, nested frames, scattered circles).
+- Hero: a canvas of 46 ridgelines, each a row of summed sines lifted by a Gaussian envelope centred on the window, filled with ink beneath so nearer ridges hide farther ones, every eleventh line gold; it animates only while the hero is visible, at DPR at most 1.75.
+
+STRUCTURE
+1. A fixed header: the mark (three bars, one gold; they fan to an asterisk and back on a loop), "Corvane", a three-line mono tagline, six links, "LP portal" and a gold Contact block; under 900px a plus button opens a full-screen menu. The header recolours to the tone of the section under it.
+2. Hero: a giant "Compounding" with a gold italic d, three mono stats (AUM, platforms, since), the ridgeline window in the right column with HUD corners ("Fund IV — investing", coordinates), the lede and two actions, and a "$2.8B" Fund IV figure.
+3. About: "Operators first. Investors by discipline." with the chart and a row of four counting facts (14 years, $8.4B, 47, 3.1x) under rules that draw in.
+4. Strategy: "Five theses, one discipline"; on wide screens a sticky stage on the left shows the plate for the thesis in the middle of the viewport, each new plate wiping in from below (or above when scrolling up) with a 01 / 05 counter; on narrow screens each plate sits in its row.
+5. Principles: a champagne field that grows from one grid cell to the full screen, then pins. A mark of six strokes starts as a fan; per principle one stroke swings upright into a row, the previous principle clips up and out, the next rises in, and a progress bar fills.
+6. Process: "The first hundred days", four steps on a line that fills as you scroll, each node lighting as it passes.
+7. People (eight portraits that open like a shutter, staggered by column), Portfolio (a pull quote whose words brighten as you read and a marquee of seven companies that pauses on hover and focus and off screen), Offices (a collage moving at five parallax depths), Coverage (six huge sector names drifting left and right in alternation), Criteria (four bars that fill to their value with mono figures).
+8. Track record: four funds in a ledger with a Gross / Net switch that swaps every IRR and multiple from data attributes with a rise; rows open from below one after another; a plain-words disclaimer that the figures are illustrative.
+9. FAQ (details elements whose top rules draw in), Insights (three posts with wiping thumbnails), Contact: "Every lasting partnership starts with a conversation." with details and a form (I am a founder / LP / advisor, name, email, company, ARR, message) that thanks inline and sends nothing.
+10. Footer: a lead line, three link columns, a back-to-top button, then a giant "Corvane" wordmark sized to the full width whose letters rise from random depths as it scrolls in while the mark's strokes fall into line, and a base row noting the firm is fictional.
+
+THINGS THAT BREAK
+- The hero is one pinned stage: measure the window's box inside the pin, clip the full-bleed stage to that box, and scrub the clip-path to inset(0) over the first 62% while the topo's centre, spread and amplitude ease from the window's geometry to full-screen values. Recompute on refresh (onRefreshInit, function values) or a resize leaves the clip at stale pixels.
+- Size the giants from their container: container-type inline-size and font-size min(100cqi / (--len × .47), 36svh), with --len the character count; the footer word subtracts its padding and the mark's width.
+- Add a .motion class in the head before first paint unless prefers-reduced-motion, and drop it if GSAP has not arrived after 2.5s. Pinned hero and principles and the sticky strategy stage live behind .motion and an .is-live class set by script, so the page still reads as plain sections without GSAP.
+- Run SplitText after document.fonts.ready and revert line splits when they finish, or the lines break wrongly after a resize.
+- Queue every ScrollTrigger setup and spread the queue across frames (8ms budget), then refresh once.
+- The marquee clones its cards until the track overflows by one full span; mark the clones aria-hidden.
+
+THE FLOOR
+One h1, a main, every section with an id. The menu button has aria-expanded and a swapping label; Escape closes it. The gross / net switch is a group of buttons with aria-pressed. Decorative SVGs and the canvas are aria-hidden. A custom difference-blend cursor only on fine pointers. prefers-reduced-motion: no pinning, no marquee, no topo animation, no cursor. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/corvane-capital.html",
+    bestFor: ["private equity and venture firms", "investment and wealth managers", "family offices and holding companies", "B2B firms that sell on trust"],
+    style: ["dark", "editorial", "serif", "ruled-grid", "scroll-driven", "gold"],
+    thumbnail: "/thumbs/corvane-capital.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Agentic Art Expo Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An editorial event page for an expo where AI agents exhibit: a giant wordmark that flies into the header, a satin hero with live particle trails, a programme that floods dark from a full stop, and every picture painted in code",
+    prompt: `Build a landing page for Agentic® Art Expo, a fictional five-day exhibition in Rotterdam where autonomous AI agents make, critique and sell original work live (14-18 April 2027, 212 agents, a former harbour warehouse), as one HTML file. GSAP 3.13 with ScrollTrigger and Lenis 1.3.4, all from jsdelivr. Google Fonts: Host Grotesk 400-700, Instrument Serif (italic, one or two words per heading), JetBrains Mono 400-500 for labels. No image files: every picture on the page is painted on a canvas by a small generative engine in the page.
+
+DESIGN SYSTEM
+Warm paper #EBE6DC with a lighter surface #F7F4EE, ink #0D0C0B, a near-black panel #0B0A09 with text #EFE9DF, one lime accent #D7FF3F and an ember #FF5A2E for hovers. Derive the muted text, hairlines and shades with color-mix in oklab rather than new hexes. Host Grotesk 600 headlines at -0.058em tracking and line-height .88; giant titles end in a round full stop (a .16em dot after the text), and one word per heading switches to Instrument Serif italic. Mono labels at 11.5px, uppercase, +.06em. Radii 30 / 22 / 16 / 10 / pill. Every dark panel sits inset 10px from the viewport edge with 30px corners. Pill buttons hold a small lime dot on the right that scales up 90x on hover to fill the button. Easing cubic-bezier(.7,0,.2,1) everywhere.
+
+THE ART ENGINE
+- Each canvas.art reads data-art, data-pal and data-seed. A seeded PRNG (mulberry32) and seeded Perlin noise with fbm and domain warping drive eight kinds: silk (a warped heightfield shaded with wrapped diffuse, a Blinn specular and a grazing sheen), chrome (the same field reflected into a fake studio environment of soft light bars), contour (anti-aliased iso-lines over a hillshade, every fifth line in the accent), orb (a glass sphere refracting its own background, Fresnel rim, two speculars and a caustic on the floor), bust (a featureless polished stone ovoid with marble veins, rim light and a contact shadow), ridge (sound-wave ridgelines with depth fog and one glowing accent row), petal (180 layered rose curves with additive glow) and flow (a flow field of additive light trails).
+- Six palettes (night, bone, ember, violet, lime, ash), each a six-stop colour ramp baked into a 256-entry lookup table plus an accent. Finish every canvas with a vignette and a shared 192px grain tile in overlay.
+- Raster kinds compute at a fixed pixel budget (100-230k samples) and upscale with high-quality smoothing, so cost does not grow with the screen. Paint lazily: an IntersectionObserver with a 900px margin queues canvases, and a requestAnimationFrame pump paints until 14ms have passed per frame. A ResizeObserver repaints on a real size change. Canvases fade in when painted.
+- The hero adds a transparent live layer: about 2,600 particles following a slowly drifting noise field, drawn as additive strokes with a 5% destination-out fade per frame, 4% of them lime. It runs only while on screen and the tab is visible.
+
+STRUCTURE
+1. A fixed paper header: the logo (hidden at first), five links, the dates in mono, a small Get tickets button; under 900px a burger opens the links as a dark rounded sheet.
+2. Hero: a full-height dark frame (inset 10px, under the header) holding the satin canvas (breathing slowly between scale 1 and 1.08), the particle layer, a top-and-bottom shade and an animated SVG grain. A giant "Agentic®" wordmark across the full width, "Art Expo ’27" right-aligned under it with the year in lime italic, a "Live now · 212 agents in studio" pill with a pulsing dot, four hairline crosshairs, then a three-column bottom row: the h1 (two sentences, the second muted), a numbered list of the four floors, and a director card (a stone-bust portrait, name, a button).
+3. Exhibits: a sec-head (a mono tag, the giant title, a muted lede), then a two-column grid of works, the first full width at 21:9. Each card has an "Agent · Name" chip, a canvas, and a name, kind and year row; the name gets an ember dot on hover.
+4. About: a portrait beside a large statement whose words fade from 16% to full ink as you scroll past.
+5. Programme: a pinned stage where the giant "Programme." title sits on paper, and a dark circle grows from the title's full stop until the whole stage is dark with the same title in light. Below it, an accordion of four floors (each a small canvas, a paragraph and tag pills) and an open-call footer row.
+6. Process: the title "Watch them think." pins, splits in half to both edges, and a figure opens from a 2%-wide slot to the full stage behind it, with the second copy of the title in light over the picture. A mono reasoning log ("loom-7 › amplitude too even — reject v41") and a caption fade in at the end. Then four timeline steps on a line that draws as you scroll, each node filling as the line reaches it.
+7. Testimonials: a giant title with a 4.9/5 score, then a marquee of review cards with stone-bust avatars that plays only while visible and pauses on hover or focus.
+8. Stats: a bento of a tall dark edition card on an orb canvas, a column of three figures and a pull quote, a ring chart (97%), and a bar chart of five days whose heights come from the labels.
+9. Venue: five canvases in a scattered collage moving at different parallax speeds behind a sticky centred card.
+10. Tickets: a Visitors / Exhibitors switch that swaps every name, line, price and unit from data attributes with a staggered rise; three plans, the middle one dark with a lime badge; the cards unfold from rotateX(-24deg) on entry.
+11. Team (four portrait cards that fan in from the centre), Press (rows whose top rules draw left to right), FAQ (a sticky side title, an accordion whose rows wipe in), Journal (three posts with inner parallax).
+12. CTA: a dark panel on a satin canvas with "See you there." rising letter by letter, two notes, the director card and an invitation form (name, email, type, message) that thanks inline and never sends anything. Then a footer with four columns, a giant "Agentic®" mark that rises into place, and a bottom row saying the event is fictional and the imagery is generated in code.
+
+THINGS THAT BREAK
+- Size both giant marks from their container: container-type inline-size on the parent and font-size calc(100cqw / --len * 2.1), where --len is the character count. "Agentic®" in Host Grotesk 600 measures 3.30em, so 2.1 fills the width; 2.8 looks fine on desktop only because the hero's 53vh cap kicks in first, and on a 390px phone it pushes "Agentic" out of the frame. Cap the hero one at 53vh.
+- The wordmark flight: scrub the wordmark's x, y and scale to the header logo's measured position over the hero's first 72vh (at most 600px), switch its colour to ink at 62%, then swap the logo in at 98%. Keep the logo at opacity 0 under .motion and recompute on refresh (invalidateOnRefresh, function values).
+- Add a .motion class in the head before first paint unless prefers-reduced-motion is set, and remove it if GSAP has not arrived after 2.5s. Every pinned layout (track heights, sticky stages, the clipped figure) lives behind .motion, so the page still reads as plain flowing sections without the scripts.
+- The flood starts from the real full stop: turn the CSS ::after dot into a .stop span at boot, measure its centre relative to the stage, and grow a circle clip-path from its radius to the farthest corner. Clone the light layer into the dark one at boot rather than writing the copy twice.
+- The split title needs words wrapped in spans and divided into two halves, a cloned overlay inside the figure, and both halves moved by the same measured distances, or the light and dark copies drift apart.
+- The marquee clones its cards for the loop; mark the clones aria-hidden, take their links out of the tab order and run the art engine on them, or the duplicated avatars stay blank.
+- Run the ScrollTrigger setups after document.fonts.ready and spread them across frames (a MessageChannel queue with an 8ms budget), so measured positions use the real font and the first scroll does not stall.
+- Pause the grain and breathing loops while their section is off screen.
+
+THE FLOOR
+One h1 (the hero lede), a main, every section with an id. Accordions use buttons with aria-expanded; the ticket switch uses aria-pressed; decorative canvases are aria-hidden and the meaningful ones get role="img" with a label. prefers-reduced-motion: no particles, no grain or pulse, no pinned scenes, every section static. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/agentic-art-expo.html",
+    bestFor: ["AI art and creative-tech events", "exhibitions, fairs and festivals", "galleries and cultural venues", "conferences with ticket tiers"],
+    style: ["dark", "editorial", "generative-art", "canvas", "scroll-driven", "grain"],
+    thumbnail: "/thumbs/agentic-art-expo.jpg",
+    theme: "dark",
+  },
+  {
+    title: "GEO/LAB Planetary Geography Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A cyan-on-black instrument page for a geography lab: live contour lines drift across the hero while a reticle and HUD read elevation, slope and a terrain profile under your cursor, then eight elevation bands separate in 3D as you scroll",
+    prompt: `Build a landing page for GEO/LAB, a fictional planetary geography laboratory ("Read the planet like a contour.": it turns elevation, strata and orbital telemetry into living, instrument-grade terrain models), as one HTML file. No libraries. Google Fonts: Instrument Serif (with italic) for headlines and big numbers, Inter Tight 300-600 for text, JetBrains Mono 300-500 for every label.
+
+DESIGN SYSTEM
+A game-style FUI map. Near-black field #010507 (with #030c10 and #061419 steps), one instrument cyan #00E3FF (teal #28F9EB, mint #4EFFE3, ice #9EFFF3 and sky #22C2DD steps), amber #DDA322 for datums, waypoints and targets, alert red #FF2C00 and ember #FF571D for hazards, text #E4FAFD with two dimmer greys, and hairlines of cyan at 22%, 10% and 5%. A film-grain overlay and a vignette over everything. Headlines in Instrument Serif with one italic cyan word that glows; mono caps labels at .14em; corner-bracket frames on panels; buttons with two clipped corners (clip-path), solid cyan or a ghost with an inset cyan line.
+
+SECTIONS
+1. boot: a full-screen loader with a cyan bar, a percentage and four log lines ("INITIALISING DATUM…" to "SURVEY 976 READY") that waits for the fonts, then fades and starts the hero's line reveal.
+2. nav: fixed, frosting after 30px; a contour-ring logo with an amber dot, four "/ " mono links, a live UTC clock and a "Request access" button.
+3. hero: a full-screen canvas of drifting contours: seeded Perlin fbm terrain with a massif behind the HUD, turned into 22 isolines by marching squares and redrawn at ~30fps as the field drifts, every fourth line brighter and a dashed amber datum. A dot grid, a left shade for the copy, a scanning band and two tick rails whose markers follow the pointer. The pointer gets a spinning reticle with its elevation and coordinates and a brighter lens of contours around it. A frosted HUD (top right) reads elevation at cursor in big serif, an elevation profile through that row with an amber cursor line, latitude, longitude, slope (turning to "Slope alert" in red on steep ground), and a 24-bar band histogram. Three diamond waypoints (two amber, one blinking red hazard) show their live elevations. Copy: the three-line h1 rising line by line, a lede, "Begin a survey" and "View instruments".
+4. ticker: a marquee of peaks and deeps with their elevations (negatives in sky blue).
+5. instruments: a 4-column ruled grid (2 on tablets, 1 on phones) of instrument cards (Contour Engine with self-drawing contours, Strata Scanner with floating stacked plates, Orbital Survey with orbiting dots, Hazard Lock with a pulsing red target), each with an ID, a status light (online, tracking, alert), a serif title, copy and a spec line; a cyan top line grows on hover.
+6. strata (340vh, sticky): eight canvas-drawn elevation bands of an island (each filled where the terrain is above its threshold, with an edge line, inner contours, a dot grid and corner ticks; the summit band in amber) stacked in CSS 3D (rotateX 58°, rotateZ −36°). Scrolling eases them apart up to 58px each, lights them band by band with the matching rows of a TER 01-08 list, and counts a "band separation" readout; a progress line runs along the bottom.
+7. orbital: a list of four bodies (click or Enter to target) beside an SVG solar map: a tick ring with degree labels, a dashed rotating ring, a radar sweep, dotted orbits, four bodies, two red ships on tilted ellipses pointing along their paths, and an amber "TARGET LOCK" reticle and line that follow the selected body with its distance in AU.
+8. metrics: four ruled figures counting up (148 M KM² modelled, 0.12 M vertical RMSE, 8 bands, 90 S hazard latency) each with a small sparkline.
+9. protocol: four steps (Acquire, Stratify, Model, Publish) on a dashed line, with bracketed number nodes and an output line.
+10. pricing: three survey classes (Field $0, Survey $49 per seat as the recommended cyan card, Planetary custom).
+11. cta: a dimmer contour canvas behind "Every map starts with a coordinate." and an email form that validates and answers in mono ("Coordinate logged…" or "Coordinate rejected…").
+12. footer: logo, blurb, three link columns, a huge outlined GEO/lab wordmark and a coordinate bar.
+
+THINGS THAT BREAK
+- Marching squares: interpolate each crossing along its edge and handle the two saddle cases (5 and 10) with two segments, or lines break at every saddle.
+- Only compute and draw the hero and CTA canvases while they are on screen (IntersectionObserver), cap the frame rate, and use a coarser grid on narrow screens.
+- Size the canvases by devicePixelRatio (capped at 2) and rebuild the strata and canvases on resize, debounced.
+- Keep the strata labels counter-rotated so they read flat, and hide them on phones.
+
+THE FLOOR
+One h1, a main, aria-hidden canvases, the ticker and the boot screen, an aria-label on the HUD and the orbital SVG, keyboard-selectable bodies, a labelled email field. prefers-reduced-motion skips the drift, the scan and the boot animation (the map redraws only under the pointer). No horizontal scroll at 390px; the HUD and waypoints hide on small screens.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/geolab-planetary-geography.html",
+    bestFor: ["geospatial, mapping and earth-observation products", "scientific instruments and labs", "climate and hazard monitoring", "data-heavy deep-tech launches"],
+    style: ["dark", "fui", "hud", "canvas", "generative", "scroll-driven"],
+    thumbnail: "/thumbs/geolab-planetary-geography.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Tessel AI Infrastructure Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A pinned isometric journey for an AI infrastructure platform: a pixel-art engineer walks a glowing route past six code-drawn scenes, from blueprint table to rocket launch, as chapter cards and a rail follow the scroll",
+    prompt: `Build a landing page for Tessel, a fictional AI infrastructure platform ("From blueprint to liftoff.": architect clusters, train at scale, evaluate and deploy globally from one spec), as one HTML file. No libraries. Google Fonts: Inter Tight 400-600 only; a system monospace for code. No images: every illustration is SVG generated by the script.
+
+DESIGN SYSTEM
+Soft periwinkle daylight. Paper #DCE2F2 (with a radial white bloom and a periwinkle glow under it), a faint white isometric diamond grid masked to the middle, and a 5% multiply grain. Navy ink #1F2348 with #454B7C and #6D75A6 steps, navy blocks #33376A, periwinkle #8A98DA, one gold accent #F0B856 (glows, orbs, routes, primary buttons) and a green #3FA57A for live states. Inter Tight 500 headlines at -0.05em tracking with line-height .86 and the last words in 42% ink. Frosted white cards (blur 18px, a white inner top edge, a long navy shadow), pill buttons (navy, gold gradient, ghost, outline) whose arrows slide on hover, small rounded chips with a gold diamond.
+
+THE WORLD (one SVG, 7900 × 1000 units, scaled to the viewport height)
+- An isometric toolkit: P(x, y, z) → screen ((x − y)·0.866, (x + y)·0.5 − z); box() draws three faces filled with generated gradients (top lit diagonally, the left and right darker), white bevel lines on the front edges, a dark line at the base and a blurred contact shadow; matrices map flat SVG onto floors and walls (screens, keyboards, labels).
+- Every scene sits on a white platform with a recessed gridded deck, corner screws, an accent light strip round two sides and a faint ghost slab far below, and a big outlined number with a title and subtitle written flat on the floor beside it.
+- Scenes: a hero stack (three floating slabs, the navy one with a flowing gold border, a gold orb with a light beam and pulse rings); Architect (a navy blueprint on rollers with linked nodes and blinking LEDs, a stopwatch, a gold ruler, a floating glass spec card); Train (a white compute cube with typing code on one wall and a loss curve on the other, a pedestal with a gold orb, server tray stacks with blinking LEDs, a spinning gear, a coin flipping); Evaluate (two tablets with growing bars, A and B badges, a green PASS tag, a magnifier scanning); Deploy (a launch pad with a rocket, smoke puffs, a monitor and a plant); Scale (a 3 × 3 grid of server towers with glowing tops and flowing links, an orbiting satellite on an ellipse, three region pills with latencies); and a gold finish tile with a waving flag.
+- A route of white dots joins the scenes with curves; a gold stroke fills it as you progress, and four glowing sparks travel it on animateMotion. A far layer of pale floating slabs and motes moves at 42% for parallax.
+- The guide: a 16 × 24 pixel-art engineer drawn from strings of palette letters (crispEdges rects), with a facing-front frame that blinks and three side walk frames; a pixel speech bubble says "Pick me up — scroll ↓".
+
+THE SCROLL STORY
+- #story is tall (about 85vh per beat) with a sticky 100svh stage. Build a timeline of seven dwells (one per scene, a little longer on Deploy and the finale) separated by moves.
+- Each frame, ease the drawn progress toward the scroll (8.5% a frame). In a dwell the guide stands on the scene; in a move he walks the route (getPointAtLength with an ease in-out cubic), flips to face the way he walks and cycles the walk frames by distance.
+- The camera pans so the guide sits 60% across (centred on phones), clamped to the world. The rocket launches through the Deploy dwell (a cubic rise of 1100 units, the flame stretching, the smoke swelling and fading). The hero stack fades as you leave the start.
+- Seven chapter cards on the left (a white scrim keeps them legible) swap with a blur-up stagger: the hero with an h1 and two buttons; Architect with a typed YAML spec; Train with a live utilisation sparkline and three stats; Evaluate with paired bars that fill (v2 periwinkle, v3 gold) and a gates-passed line; Deploy with a terminal; Scale with live region rows; Build with an email form that thanks inline.
+- A frosted rail of seven chapter tabs at the bottom (numbers only on phones) with a gold progress line; nav links, the rail, the arrow keys and horizontal trackpad swipes all jump to a chapter with a smooth scroll. A "Scroll to walk" hint fades after the start.
+- After the story, a dark navy band with a big closing line, two buttons and a four-column footer.
+
+THINGS THAT BREAK
+- Measure each route segment with getTotalLength once and drive the fill with stroke-dashoffset.
+- Swap the sprite frames by toggling display on prebuilt groups; rebuilding the pixels every frame is slow.
+- Recompute the scale, the world's top and the story height on resize, and keep the stage height in svh so phone toolbars do not jump it.
+- On phones the cards sit in the lower half under a bottom-up scrim and the world sits above them.
+
+THE FLOOR
+One h1 (the hero card), a main, the world SVGs aria-hidden, a labelled rail with aria-selected, a labelled email field. prefers-reduced-motion stops every loop and transition and snaps the progress. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 22, 2026",
+    demo: "/demos/tessel-ai-infrastructure.html",
+    bestFor: ["AI infrastructure and MLOps platforms", "developer tools with a step-by-step story", "cloud and compute products", "scroll-driven product tours"],
+    style: ["light", "isometric", "pixel-art", "svg", "scroll-driven", "interactive"],
+    thumbnail: "/thumbs/tessel-ai-infrastructure.jpg",
+    theme: "light",
+  },
+  {
     title: "Hearthly AI Home Care Page",
     category: "web",
     categoryLabel: "WEB",
