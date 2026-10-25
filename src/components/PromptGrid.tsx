@@ -11,6 +11,7 @@ import FilterRow from "@/components/FilterRow";
 import PageCrate from "@/components/PageCrate";
 import LibraryCard from "@/components/LibraryCard";
 import { feedTags, tagsOf } from "@/lib/feedTags";
+import { track } from "@/lib/track";
 
 /* ── Card: the shared library card, fed from a prompt entry ── */
 
@@ -112,6 +113,7 @@ const PromptGrid = ({ category, views }: { category?: string; views?: { view: Pa
       return;
     }
     setCopiedSlug(entry.slug);
+    track("copy_code", { template: entry.slug, from: "crate", copied: agent ? "agent_task" : entry.demo ? "code" : "prompt" });
     setTimeout(() => setCopiedSlug((s) => (s === entry.slug ? null : s)), 2000);
   };
 

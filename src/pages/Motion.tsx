@@ -19,6 +19,7 @@ import { copyText } from "@/lib/copyText";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import { useIsPhone } from "@/hooks/useIsPhone";
 import { useSeo } from "@/hooks/useSeo";
+import { track } from "@/lib/track";
 
 /**
  * /motion and /motion/:slug. Motion is shown running, not as a screenshot:
@@ -48,11 +49,11 @@ const LabActions = ({ motion }: { motion: MotionEntry }) => {
   const { flash, copy } = useCopy();
   return (
     <div className="mlab-actions">
-      <button className="pmodal-btn pmodal-btn--solid" onClick={() => copy("code", demoCode(motion))} aria-live="polite">
+      <button className="pmodal-btn pmodal-btn--solid" onClick={() => copy("code", demoCode(motion)).then(() => track("copy_motion", { motion: motion.slug, from: "lab" }))} aria-live="polite">
         {flash === "code" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
         <span className="pmodal-label">{flash === "code" ? "COPIED" : "COPY CODE"}</span>
       </button>
-      <a className="pmodal-btn" href={motion.demo} target="_blank" rel="noreferrer">
+      <a className="pmodal-btn" href={motion.demo} target="_blank" rel="noreferrer" onClick={() => track("open_motion_demo", { motion: motion.slug })}>
         <Maximize2 size={12} aria-hidden="true" />
         <span className="pmodal-label">FULL SCREEN</span>
         <ExternalLink size={11} aria-hidden="true" />
@@ -163,7 +164,7 @@ const ReelCard = ({ motion, deck = false }: { motion: MotionEntry; deck?: boolea
         </p>
 
         <div className="mo-actions">
-          <button className="sys-row-btn" onClick={() => copy("code", demoCode(motion))} aria-live="polite">
+          <button className="sys-row-btn" onClick={() => copy("code", demoCode(motion)).then(() => track("copy_motion", { motion: motion.slug, from: "reel" }))} aria-live="polite">
             {flash === "code" ? <Check size={12} aria-hidden="true" /> : <Copy size={12} aria-hidden="true" />}
             <span>{flash === "code" ? "COPIED" : "COPY CODE"}</span>
           </button>

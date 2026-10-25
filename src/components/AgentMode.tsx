@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Bot, Check, Copy } from "lucide-react";
 import { copyText } from "@/lib/copyText";
 import { MCP_CLIENTS, MCP_URL, SITE_URL, setAgentMode, useAgentMode } from "@/lib/agentMode";
+import { track } from "@/lib/track";
 
 /**
  * AGENT MODE switch, top right of the library beside GITHUB. The neo switch
@@ -17,7 +18,10 @@ export const AgentModeToggle = () => {
       role="switch"
       aria-checked={on}
       className={`agent-toggle${on ? " agent-toggle--on" : ""}`}
-      onClick={() => setAgentMode(!on)}
+      onClick={() => {
+        setAgentMode(!on);
+        track("agent_mode", { state: on ? "off" : "on" });
+      }}
       title={on ? "Back to the library for people" : "Show the library the way your agent uses it"}
     >
       <span className="agent-toggle-label">
@@ -53,6 +57,7 @@ const CopyRow = ({ code, label }: { code: string; label: string }) => {
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
     await copyText(code);
+    track("copy_agent_setup", { what: label, from: "agent_panel" });
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   };

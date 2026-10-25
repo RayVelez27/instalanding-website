@@ -4,6 +4,7 @@ import { ArrowUpRight, Check, ChevronLeft, ChevronRight, Copy, ExternalLink } fr
 import type { PromptEntry } from "@/data/prompts";
 import PromptThumb from "@/components/PromptThumb";
 import { useIsPhone } from "@/hooks/useIsPhone";
+import { track } from "@/lib/track";
 
 /**
  * The CRATE view of /pages: the templates stand in a record crate like vinyl
@@ -232,7 +233,7 @@ const PageCrate = ({ items, label, onCopy, copiedSlug }: Props) => {
             </button>
           )}
           {front.demo && (
-            <a className="sys-row-btn" href={front.demo} target="_blank" rel="noreferrer">
+            <a className="sys-row-btn" href={front.demo} target="_blank" rel="noreferrer" onClick={() => track("open_demo", { template: front.slug, from: "crate" })}>
               <span>DEMO</span> <ExternalLink size={12} aria-hidden="true" />
             </a>
           )}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
+import { track } from "@/lib/track";
 
 /**
  * The public library repo: every page as one HTML file plus its brief. This
@@ -86,6 +87,7 @@ const GithubButton = () => {
       target="_blank"
       rel="noreferrer"
       title={`${GITHUB_REPO} on GitHub. Star the repo to follow new drops.`}
+      onClick={() => track("github_click")}
       aria-label={`Star ${GITHUB_REPO} on GitHub${starText}`}
     >
       <span className="rainbow-btn-label">

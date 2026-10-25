@@ -3,6 +3,7 @@ import { ArrowRight, Check, Copy, Loader2 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { useSeo } from "@/hooks/useSeo";
 import { submitNetlifyFormWithFiles } from "@/lib/netlifyForms";
+import { track } from "@/lib/track";
 
 /**
  * /contribute — community template submissions.
@@ -76,6 +77,7 @@ const CopyPrompt = () => {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(CLAUDE_PROMPT);
+      track("copy_contribute_prompt");
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -144,6 +146,7 @@ const Contribute = () => {
         { html_file: file },
       );
       setStatus("sent");
+      track("contribute_submit");
       setFields(EMPTY);
     } catch {
       setError({ key: null, message: "That didn't send. Try again in a moment." });

@@ -16,6 +16,7 @@ import { motionsForPage } from "@/data/motion";
 import { useSeo } from "@/hooks/useSeo";
 import { useIsPhone } from "@/hooks/useIsPhone";
 import PromptDetailPhone from "@/components/PromptDetailPhone";
+import { track } from "@/lib/track";
 
 /**
  * The standalone /prompt/:slug page: what a shared link, a refresh, a new tab
@@ -30,8 +31,8 @@ const PromptDetail = () => {
   const entry = getPromptBySlug(slug);
   const [promptCopied, setPromptCopied] = useState(false);
   const [feedback, setFeedback] = useState(false);
-  const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(entry);
   const phone = useIsPhone();
+  const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(entry, phone ? "phone" : "page");
 
   // Called before the not-found redirect below: hooks cannot be conditional.
   useSeo({
@@ -77,6 +78,7 @@ const PromptDetail = () => {
     if (!entry.demo) await copyText(entry.prompt);
     else await copyText(withSource(code ?? (await loadDemoSource(entry.demo))));
     setPromptCopied(true);
+    track("copy_prompt", { template: entry.slug, from: phone ? "phone" : "page" });
     setTimeout(() => setPromptCopied(false), 2000);
   };
 
@@ -151,7 +153,7 @@ const PromptDetail = () => {
               </button>
             )}
             {entry.demo && (
-              <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab">
+              <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab" onClick={() => track("open_demo", { template: entry.slug, from: "page" })}>
                 <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
               </a>
             )}
@@ -264,7 +266,7 @@ const PromptDetail = () => {
                     part of this prompt: COPY PROMPT adds it under the brief as the exact expected output.
                   </p>
                   <p className="detail-prompt-ref-links">
-                    <a href={entry.demo} target="_blank" rel="noreferrer">
+                    <a href={entry.demo} target="_blank" rel="noreferrer" onClick={() => track("open_demo", { template: entry.slug, from: "page_prompt" })}>
                       Open the live page <ExternalLink size={11} aria-hidden="true" />
                     </a>
                     <a href={entry.demo} download={file}>

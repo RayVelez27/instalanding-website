@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { submitNetlifyForm } from "@/lib/netlifyForms";
 import type { PromptEntry } from "@/data/prompts";
+import { track } from "@/lib/track";
 
 /**
  * Feedback on one template, opened from FEEDBACK in the prompt modal.
@@ -52,6 +53,7 @@ const TemplateFeedback = ({ entry, onDone }: { entry: PromptEntry; onDone: () =>
     try {
       await submitNetlifyForm(FEEDBACK_FORM, { "bot-field": botField, ...template, email: email.trim(), message });
       setStatus("sent");
+      track("template_feedback", { template: entry.slug });
       setMessage("");
     } catch {
       setError("That didn't send. Try again in a moment.");

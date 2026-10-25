@@ -11,6 +11,7 @@ import { useCopyCode } from "@/lib/useCopyCode";
 import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/data/prompts";
 import { getSystemForTemplate } from "@/data/systems";
 import { motionsForPage } from "@/data/motion";
+import { track } from "@/lib/track";
 
 /**
  * The detail view as a dialog over the grid.
@@ -63,7 +64,7 @@ const PromptModal = () => {
   useEffect(() => setPanel("more"), [slug]);
 
   /* The same copy action and preview stage as the standalone page. */
-  const { copy, copied, label: copyLabel, text: copyCaption, source } = useCopyCode(entry);
+  const { copy, copied, label: copyLabel, text: copyCaption, source } = useCopyCode(entry, "modal");
 
   /* Arrow keys walk the library without closing. */
   useEffect(() => {
@@ -127,7 +128,7 @@ const PromptModal = () => {
                   </button>
                 )}
                 {entry.demo && (
-                  <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab">
+                  <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab" onClick={() => track("open_demo", { template: entry.slug, from: "modal" })}>
                     <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
                   </a>
                 )}

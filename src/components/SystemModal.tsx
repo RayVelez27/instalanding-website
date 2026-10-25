@@ -8,6 +8,7 @@ import { customizedTokens, shade, useSpecimen } from "@/lib/systemSpecimen";
 import { systemAgentInstruction } from "@/lib/systemAgent";
 import { getPromptBySlug, type PromptEntry } from "@/data/prompts";
 import type { SystemEntry } from "@/data/systems";
+import { track } from "@/lib/track";
 
 /**
  * The SYSTEMS dialog: a design-system board, not a page. The header carries
@@ -60,6 +61,7 @@ const SystemModal = ({ system, onClose }: { system: SystemEntry; onClose: () => 
 
   const copy = async (key: string, text: string) => {
     await copyText(text);
+    track("copy_system", { system: system.slug, copied: key, from: "modal" });
     setFlash(key);
     window.clearTimeout(flashT.current);
     flashT.current = window.setTimeout(() => setFlash(""), 1800);
@@ -121,7 +123,7 @@ const SystemModal = ({ system, onClose }: { system: SystemEntry; onClose: () => 
               <SlidersHorizontal size={12} aria-hidden="true" />
               <span className="pmodal-label">{edited ? "CUSTOMIZE · EDITED" : "CUSTOMIZE"}</span>
             </button>
-            <a className="pmodal-btn" href={system.files.specimen} target="_blank" rel="noreferrer" title="Every component on one page, in a new tab">
+            <a className="pmodal-btn" href={system.files.specimen} target="_blank" rel="noreferrer" title="Every component on one page, in a new tab" onClick={() => track("open_specimen", { system: system.slug })}>
               <span className="pmodal-label">SPECIMEN</span> <ExternalLink size={12} aria-hidden="true" />
             </a>
             <ul className="smodal-tags" aria-label="Characteristics">

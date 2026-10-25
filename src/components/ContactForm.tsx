@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { submitNetlifyForm } from "@/lib/netlifyForms";
+import { track } from "@/lib/track";
 
 /**
  * The "Contact Ray" form, shared by the /contact page and the dialog opened
@@ -44,6 +45,7 @@ const ContactForm = ({ onDone, doneLabel = "SEND ANOTHER" }: { onDone?: () => vo
     try {
       await submitNetlifyForm(CONTACT_FORM, { "bot-field": botField, ...fields });
       setStatus("sent");
+      track("contact_submit");
       setFields({ name: "", email: "", message: "" });
     } catch {
       setError("That didn't send. Try again in a moment.");

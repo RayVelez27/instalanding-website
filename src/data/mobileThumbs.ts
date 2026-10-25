@@ -6,6 +6,13 @@
  */
 const PHONE: ReadonlySet<string> = new Set([
   "latent-ai-fashion-atelier.jpg",
+  "easel-artist-assistant.jpg",
+  "ochre-meditation.jpg",
+  "tokenhaus-design-academy.jpg",
+  "ostler-hotel-concierge.jpg",
+  "wayfind-ai-travel.jpg",
+  "somatic-ai-wellness.jpg",
+  "tarn-file-transfer.jpg",
   "rowline-agronomy-ai.jpg",
   "corvane-capital.jpg",
   "agentic-art-expo.jpg",

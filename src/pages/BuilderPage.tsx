@@ -6,6 +6,7 @@ import PromptGrid from "@/components/PromptGrid";
 import { builders, type Builder } from "@/data/builders";
 import { useSeo } from "@/hooks/useSeo";
 import { copyText } from "@/lib/copyText";
+import { track } from "@/lib/track";
 
 /**
  * One builder, one page. Everything that differs between these pages comes
@@ -27,6 +28,7 @@ const BuilderPage = ({ builder }: { builder: Builder }) => {
 
   const handleCopy = async () => {
     await copyText(builder.preamble);
+    track("copy_builder_preamble", { builder: builder.path.replace(/^\//, "") });
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };

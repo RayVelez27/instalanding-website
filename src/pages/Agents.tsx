@@ -5,6 +5,7 @@ import { copyText } from "@/lib/copyText";
 import { useDemoSource } from "@/lib/demoSource";
 import { useSeo } from "@/hooks/useSeo";
 import { MCP_CLIENTS, MCP_URL, NPM_PUBLISHED } from "@/lib/agentMode";
+import { track } from "@/lib/track";
 
 /**
  * The manifesto for agents: why the library is built for them, the loop to
@@ -97,6 +98,7 @@ const Block = ({ label, code }: { label: string; code: string }) => {
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
     await copyText(code);
+    track("copy_agent_setup", { what: label, from: "agents_page" });
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   };

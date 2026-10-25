@@ -3,6 +3,7 @@ import { useSubscribe } from "@/hooks/useSubscribe";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { track } from "@/lib/track";
 
 interface NewsletterModalProps {
   open: boolean;
@@ -17,7 +18,10 @@ const NewsletterModal = ({ open, onClose }: NewsletterModalProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (await subscribe(email)) setEmail("");
+    if (await subscribe(email)) {
+      setEmail("");
+      track("newsletter_signup", { from: "modal" });
+    }
   };
 
   const message =

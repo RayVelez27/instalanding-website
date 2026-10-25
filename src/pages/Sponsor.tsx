@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import { useSeo } from "@/hooks/useSeo";
 import { submitNetlifyForm } from "@/lib/netlifyForms";
 import { visiblePrompts } from "@/data/prompts";
+import { track } from "@/lib/track";
 
 /**
  * /sponsor — the mission, and a request-info form for sponsors, partners
@@ -117,6 +118,7 @@ const Sponsor = () => {
         message: fields.message.trim(),
       });
       setStatus("sent");
+      track("sponsor_request", { interests: picked.join(",") || "none" });
       setFields(EMPTY);
       setPicked([]);
     } catch {

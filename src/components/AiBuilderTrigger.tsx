@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowUpRight, X } from "lucide-react";
 import { agentGroups } from "@/data/agents";
+import { track } from "@/lib/track";
 
 const HOVER_DELAY = 350;
 
@@ -67,7 +68,7 @@ const AiBuilderTrigger = ({ children = "AI builder" }: { children?: React.ReactN
               <ul className="agents-list">
                 {group.agents.map((agent) => (
                   <li key={agent.name}>
-                    <a className="agent" href={agent.url} target="_blank" rel="noreferrer">
+                    <a className="agent" href={agent.url} target="_blank" rel="noreferrer" onClick={() => track("ai_tool_click", { tool: agent.name })}>
                       <span className="agent-mono" aria-hidden="true">
                         {agent.name.charAt(0)}
                       </span>

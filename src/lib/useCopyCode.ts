@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { loadDemoSource, useDemoSource } from "@/lib/demoSource";
 import { copyText } from "@/lib/copyText";
+import { track } from "@/lib/track";
 import type { PromptEntry } from "@/data/prompts";
 
 /**
@@ -15,8 +16,10 @@ import type { PromptEntry } from "@/data/prompts";
  * happen inside the click (Safari drops it after an await on the network), and
  * the preview iframe has already requested the same file, so this is normally
  * a cache hit.
+ *
+ * `from` names the surface for the copy_code goal (modal, page).
  */
-export function useCopyCode(entry: PromptEntry | undefined) {
+export function useCopyCode(entry: PromptEntry | undefined, from: string) {
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
   const timer = useRef<number>();
   const source = useDemoSource(entry?.demo, Boolean(entry?.demo));
@@ -32,6 +35,7 @@ export function useCopyCode(entry: PromptEntry | undefined) {
       if (!entry.demo) await copyText(entry.prompt);
       else await copyText(code ?? (await loadDemoSource(entry.demo)));
       setCopied("done");
+      track("copy_code", { template: entry.slug, from, copied: entry.demo ? "code" : "prompt" });
     } catch {
       setCopied("failed");
     }

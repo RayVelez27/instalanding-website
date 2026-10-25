@@ -110,6 +110,314 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Easel AI Artist Assistant Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A two-ink risograph page for an AI studio assistant for artists: four pink ink drums roll down the hero and print a panel as you scroll, blue and pink plates slide into register, every illustration is greyscale SVG turned duotone by a blend, and a live plan ticket prices as you pick",
+    prompt: `Build a landing page for Easel, a fictional AI studio assistant for artists ("Your hand. A hundred more.": it sorts references, blocks in values, suggests palettes and preps print files while every stroke that matters stays the artist's; suggestions always land on their own named layers, it learns your palette and never imitates other artists, private by default), as one HTML file. GSAP 3.13 with ScrollTrigger, and Lenis 1.3, from jsdelivr. Google Fonts: Gabarito 700-900 for display, Rethink Sans 400-700 for text, each with a metric-matched local fallback.
+
+DESIGN SYSTEM
+Two inks like a risograph: blue #11138d (the page), pink #ed008e, paper #f3f3fa and ink #07061f. CSS cascade layers: tokens, base, atoms, layout, sections, scenes. Display type Gabarito 800-900, very tight. Pill buttons whose hover fill grows as a disc from below; links underlined with a dotted radial-gradient that swells into a solid bar on hover; round icon buttons with a dot that drops. A "trail" atom: a CSS mask of dots that shrink up a column, like ink left by a roller. Surfaces have a scalloped top edge from a radial mask.
+
+PICTURES IN CODE (no image files)
+Every illustration is a greyscale SVG (a hand with an ink roller on a slab, a print peeled from a block, a stapler on printed sheets, hands trimming a sheet on a cutting mat) inside .m-photo, where lighten and darken blends map dark to blue and light to pink, so they print as duotone. Six abstract "studies" (horizon, halftone ground, arcs and spheres) come from a seeded generator into svg[data-art]. Shared halftone, wood, brick and mat patterns in one hidden defs block.
+
+STRUCTURE
+1. A fixed nav, transparent then blue, that hides on scroll down: two-dot mark and "easel", five dotted links, "Start free"; under 900px a round menu button opens a full-screen pink menu.
+2. Hero: "Your hand." in pink and "A hundred more." in paper, each line filling the width from its letter count, an intro and two buttons, and four lanes each with a pink drum disc that bobs and a dot trail. Scrolling on, the drums roll down and across into a four-band pink panel ("Layers, never a flattened image."), each band printing as its drum passes and the drums shrinking away; beside it a duotone photo and three facts.
+3. Layers (paper): four named layers (Sketch, Colour, Light, Texture) beside a 4x4 chart where a blue plate of columns and a pink plate of rows in 0/30/60/100% halftone slide in from opposite sides into register, with crop marks.
+4. How it works (blue): pinned, five numbered step cards (Gather, Block, Paint, Refine, Ship) slide sideways while a sheet prints its blue plate then its pink one and the sheets under it fan out.
+5. Features (pink): six features in a two-column kit beside three duotone photos. Studies (blue): six study cards in three lanes that piston into line on scroll with dot trails.
+6. Pricing: a form of pill radios, a seats number and an assists select beside a scalloped paper ticket that prices live (plan rate + assists + style model, x0.8 yearly). Uses (paper): six big rows (Concept art, Picture books, Comics, Tattoo flash, Album covers, Game textures) that drift sideways like a lens with a pink misregistered shadow away from the centre.
+7. FAQ (pink): six details rows. Contact (blue): copy, email, a local-only signup form with a status line, and four drums that drop and print their trails. Footer (paper): "easel" filling the width, three columns and a base line.
+
+THINGS THAT BREAK
+- Queue every motion setup and run them in order after fonts load; if one throws, revert its GSAP context and undo the attribute changes it made, so a broken scene never breaks the rest.
+- Measure the hero geometry in onRefresh after resetting transforms, and pause the bobbing when the hero is off screen.
+- Headings with data-8b-motion="register" start with a pink offset shadow that settles into register as they scroll in; "screen" reveals photos through a growing dot mask once.
+
+THE FLOOR
+One h1, a skip link, a main, every section with an id and aria-labelledby. Photos have role="img" and a label; decorative drums and plates are aria-hidden. The menu button uses aria-expanded, takes focus to Close and Escape closes it. FAQ is details/summary; the forms have labels, the ticket total is aria-live and nothing is sent. Focus rings on everything. prefers-reduced-motion: no smooth scroll, pinning or scrubbing. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 25, 2026",
+    demo: "/demos/easel-artist-assistant.html",
+    bestFor: ["AI tools for artists and creatives", "creative software launches", "SaaS with plan builders", "print and design studios"],
+    style: ["risograph", "two-color", "bold-type", "svg-illustration", "scroll-driven"],
+    thumbnail: "/thumbs/easel-artist-assistant.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Ochre AI Meditation App Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A sunset-poster page for an AI meditation app: a thin \"OCHRE\" is split ink-on-paper by a dark field that sweeps across as the sun sets, the hero phone breathes over a live WebGL ocean, a moon window opens into the night, and every landscape is painted on canvas",
+    prompt: `Build a landing page for Ochre, a fictional AI meditation app ("Meditation that listens": it hears your breath through the phone or earbuds, learns the shape of your day and builds a session that fits, from three minutes to a full night's sleep; private by design, breath analysed on device), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Reddit Sans 200-900 with italics, display set very light (100-300) and tight.
+
+DESIGN SYSTEM
+Ink #01262D, paper #F5C279 (the page), sun #EE8903, sage #586354, khaki #8C7D5A and rust #9A4703, with mixed tints for soft text on ink and on paper. A sunset poster: a big sun disc with a radial highlight, thin orbit arcs drawn as dashed SVG circles, and stepped "pillars" of sage, khaki and rust standing on a double rule like a skyline. Display headings Reddit Sans 200, -0.035em; small labels tracked 0.42em uppercase. Pill buttons whose fill wipes in from the left on hover; links redraw their underline; round icon buttons fill sun from below. An 8% multiply grain over everything and a sun progress line at the top.
+
+PICTURES IN CODE (no image files)
+- Canvas landscapes painted from presets: layered fbm ridges and dunes lit by slope, pine silhouettes, fog bands, sun with halo or a cratered moon, stars and a Milky Way band, an aurora, clouds, water that reflects the sky by redrawing rows with a ripple offset, wave streaks and glitter; vignette and grain. Seven presets: lake at dawn, ocean at dusk, desert night, forest rain (animated rain), northern lights (animated snow), valley fog, moon over water.
+- Phone mockups built in HTML with container-query units: a titanium frame, dynamic island and glass glare, and four screens over a painted scene (Breathe with me with a glossy glass breathing orb that scales on a 10-second cycle and cues that fade in and out; a sleep story with a waveform and chips; a morning check-in with mood pills; a weekly insights bar chart).
+- The hero phone screen is a real-time WebGL ocean: a ray-marched heightfield of rolling swells under a dusk sky with clouds and a low sun, Fresnel reflections and fog, tilting the phone toward the pointer; it falls back to the painted ocean without WebGL.
+- A CSS candle with a flickering flame and glow, a glowing orb macro with ripples, and a studio of three phones with reflections.
+
+STRUCTURE
+1. A fixed header, transparent over the hero then frosted paper: sun mark and "Ochre", five links and "Start free"; under 1020px a two-line menu button opens a full-screen ink menu.
+2. Hero (pinned for 110svh): an ink field covers the left 38%, "OCHRE" fills the width in weight 200 with its letters paper over the ink and ink over the paper, the sun sits on the split with an orbit arc, "in / out" in huge thin type on the ink, the pillars along the bottom, the phone rising from below, a tracked "iOS · Android · 14 days free", an intro with two buttons, and a three-column footer strip on a double rule. On scroll the ink sweeps across to cover everything, the sun sets behind the pillars, "in / out" glows sun-coloured and the copy fades.
+3. A sun-coloured ticker. Manifesto (ink): a statement whose words light up as you scroll and three huge thin stats (3, 180, 9).
+4. Features: six ruled rows (Adaptive sessions, Breath sensing, Sleep, Focus, Daily check-in, Weekly letter) with number, title, text, meta and a round picture; rows fill ink from below on hover.
+5. Soundscapes (sun): six arch-topped painted scenes with glass play pills, in three columns drifting at different parallax speeds.
+6. Privacy (ink, pinned 140svh): the moon-over-water scene opens from a circle as a dark moon slides off it and a ring expands, then "A quiet room in your pocket" and three facts appear.
+7. A day with Ochre: a split background (ink left, paper right) with the title coloured to match; a sun line grows down the split with a dot running along it; four sticky times of day (07, 13, 19, 23) whose numbers turn sun as they pass, each beside a list of sessions.
+8. Pricing (ink): four plans ($12, $70, $110, $240) whose coloured pillars rise in proportion to the price. Gallery: a 12-column collage of six pictures (check-in phone over the dawn lake, the orb macro, a sleep story under the aurora, the three-phone studio, a focus timer over forest rain, the candle) drifting at different speeds around a sun disc.
+9. Reviews (ink): five quote cards with glossy initial gems in a marquee that pauses on hover. Trial (sun): "Your first breath is on us" whose letters turn paper inside an ink disc that grows from a dot. FAQ: sticky title, six details rows. Contact: an ink column of contacts and a paper column with a newsletter form, a rising sun and pillars. Footer: a double rule, four columns and a giant "OCHRE".
+
+THINGS THAT BREAK
+- Add .motion in the head before first paint unless prefers-reduced-motion, and remove it if GSAP has not arrived after 2.5s.
+- Paint each canvas only when it nears the viewport, at its real size, and repaint on resize; keep rain and snow on a cached base image and pause them off screen.
+- Cap the WebGL canvas at 1.75 DPR, stop its loop when off screen or hidden, and handle context loss.
+- The hero split and the title gradient share one --split custom property so the letters always change colour exactly at the edge of the ink.
+
+THE FLOOR
+One h1 (the wordmark, with a screen-reader tagline), a main, every section with an id. Canvases that are pictures have role="img" and a label; decorative ones are aria-hidden. The menu button uses aria-expanded and swaps its label; Escape closes it. FAQ is details/summary; the signup has a label and a polite live status and sends nothing. Focus rings on everything. prefers-reduced-motion: no pinning, breathing, weather or marquee, one still frame of the ocean. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 24, 2026",
+    demo: "/demos/ochre-meditation.html",
+    bestFor: ["wellness and meditation apps", "consumer AI apps", "health and sleep products", "mobile app launches"],
+    style: ["sunset-poster", "minimal-type", "canvas-art", "webgl", "scroll-driven"],
+    thumbnail: "/thumbs/ochre-meditation.jpg",
+    theme: "light",
+  },
+  {
+    title: "tokenhaus AI Design System Academy Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A four-ink Bauhaus page for an AI design-systems academy: the hero is a grid of quarter-circle tiles that turn as the next section slides over it, \"SYSTEM\" fans out into echoes in pink, amber and white, courses grow out of circles into pills, and every swatch, specimen and tutor portrait is drawn in SVG",
+    prompt: `Build a landing page for tokenhaus, a fictional academy that teaches designers to build design systems with AI (twelve-week live cohorts of twelve people on tokens, components, AI-assisted generation, docs and design-to-code sync, with an AI pair at every step), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Gabarito 600-900 for display, Instrument Sans 400-600 for text.
+
+DESIGN SYSTEM
+Four inks on paper: paper #E7ECF0, ink #212445, amber #FFA802, sky #00A9FF, pink #FF73A5 and light #FDFEFD. Sections are full-bleed blocks of one ink. Display type is Gabarito 900 uppercase, tight. The shape language is a tile: an <i class="t"> square with a ground colour and one shape on top (a quarter circle, a half circle, a quarter ring, a dot or a pill) rotated in quarter turns by a custom property; tiles build the hero, the logo mark, the bullets, the work grid and the contact figure. Big quarter-round corners (radius clamp(96px, 18vw, 280px)) on single corners of photos and cards. Pill buttons whose hover fill grows as a circle from the bottom-left; links with a 3px pill underline that runs out and back in on hover; plus icons that turn 90deg.
+
+ECHO TYPE
+data-echo="n" adds n absolutely positioned copies of a word behind it, each pushed down by --eg and outlined in the section colour with an 8-way text-shadow, so the word reads as a stack. With data-echo-inks the copies are pink, amber, light and ink.
+
+PICTURES IN CODE (no image files)
+Every picture is an SVG string written into svg[data-art] from a seeded generator: a fan of eight colour-token strips over a grid with swatch cards and an amber sample; a wall of six component cards (a "TOKEN SETS" card, striped, a dot grid "SPACE 04", a big "04", dark mode) taped up; a "BLUE 500" specimen poster; five stacked sheets showing elevation; quarter-round radius curves; a case of amber glyph keys in an ink tray; a roller painting a pink theme; and four tutor portraits built from the same face with different hair, clothes and a halftone quarter circle.
+
+STRUCTURE
+1. A paper header that hides on scroll down and returns on scroll up: tile mark and "tokenhaus", five links, "Apply now"; under 1080px an amber round menu button (three pills that become an x) opens a full-screen ink menu.
+2. Hero (sticky, so the next section slides over it): a 7 x 4.4 module grid sized from the viewport height: nine quarter-circle tiles (one double-size with an amber eye) on the left, an amber block of three ink pills, a sky block with "AI DESIGN SYSTEMS" echoed twice and the lead and buttons, and an ink band with "ACADEMY" filling the width beside a pink corner tile. As the next section rises the tiles turn, the pills shrink to dots, the echoes spread and the hero darkens.
+3. About: a large statement whose lines mask up on scroll, the token fan photo opening from its bottom-left corner, and three principles with tile bullets that turn in.
+4. Courses (amber): five ink pill rows that grow from circles to full width on scroll, each opening into an accordion with a description, level, outcome, price ($290-$560) and "Book a place".
+5. Manifesto (sky): "SYSTEM" filling the width with four echoes in pink, amber, light and ink; pinned for 250svh they fan downward and settle back, then a line of text fades in.
+6. Work: an 11-cell grid of the coded pictures and plain tiles (some with quarter-round corners and captions) that slide in from four sides.
+7. Process (pink): a sticky heading beside four steps (Audit, Tokens, Components & AI, Ship) on a rail, with a four-colour disc that rolls down the rail and steps that brighten as they reach it.
+8. Tutors (ink): four portraits that wipe in from the left, then the art drops in. Numbers: three stat cards (12, 900+, 94%) that turn up from their corner, and four pill bars of where graduates go.
+9. Voices (sky): four sticky quote cards that scale and tilt as the next covers them. Fees: three cards ($480, $860, $1,900) with shape headers, the middle one ink. FAQ (amber): sticky heading, five accordion rows. Contact (ink): "SAY HELLO" echoed, details, and a six-tile figure. Footer with a four-ink strip that grows up.
+
+THINGS THAT BREAK
+- Add .motion in the head before first paint unless prefers-reduced-motion, and remove it if GSAP has not arrived after 2.5s.
+- Size the hero module from both the viewport height and the container width, and set the sticky top to min(0, innerHeight - hero height) so a tall hero still scrolls into view.
+- Measure pill widths inside the clip-path functions and use invalidateOnRefresh, and refresh ScrollTrigger when an accordion opens.
+- Keep the echo copies aria-hidden and unselectable, and pause the hero loops once it is covered.
+
+THE FLOOR
+One h1 (the two hero lines), a main, every section with an id. Every coded picture has role="img" and a label; decorative tiles are aria-hidden. The menu button uses aria-expanded and swaps its label; Escape closes it. Accordions are buttons with aria-expanded. Focus rings on everything. prefers-reduced-motion: no sticky cover, scrubbing or loops. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 24, 2026",
+    demo: "/demos/tokenhaus-design-academy.html",
+    bestFor: ["online courses and cohorts", "design and education brands", "AI tools for designers", "bootcamps and academies"],
+    style: ["bauhaus", "geometric", "bold-color", "svg-illustration", "scroll-driven"],
+    thumbnail: "/thumbs/tokenhaus-design-academy.jpg",
+    theme: "light",
+  },
+  {
+    title: "Ostler AI Hotel Concierge Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A late-night oxblood page for an AI hotel concierge: a giant \"Ostler\" springs apart letter by letter over a guest's phone chat, six module covers slide past sideways, \"Awake\" zooms into a hotel facade at night, and every phone, dashboard and room is drawn in SVG",
+    prompt: `Build a landing page for Ostler, a fictional AI concierge for independent hotels ("An AI concierge that knows your hotel like your best night porter": it answers guest messages in 41 languages on chat, SMS, email and the phone, sells the extras, and hands the tricky ones to the team; live in 212 hotels, set up in fourteen days), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Gabarito 500-900 for display, Instrument Sans 400-700 (with italics) for text.
+
+DESIGN SYSTEM
+Ink #100C0D (the page), red #A72D2D with red-deep #7A2222, cream #E2DCCE and olive #5B6A45. Sections are rounded cards (radius clamp(20px, 2.3vw, 34px)) inset from the edges by a small gap on the ink page, coloured .on-red, .on-cream or .on-olive; each card has two small square corner marks (top right, bottom left). Display words in Gabarito 900, line-height 0.8, -0.045em, sized to fill their box exactly: font-size = 100cqi / (--len x --k) with --k 0.52. Headings Gabarito 800. Pill buttons with an arrow: on hover a circle fill grows from the arrow end, the button tilts -3deg and the arrow nudges right. Links get a wavy underline on hover; icon buttons wobble. A 6% animated noise grain over everything and a red scroll-progress line at the top.
+
+PICTURES IN CODE (no image files)
+Everything is inline SVG with shared filters (drop shadows, blurs) and gradients (warm glow, brass, wood, linen): a lobby of blurred warm bokeh behind a phone showing a full guest chat with The Harbour House (taxi booked, late checkout sold, a receipt card) plus floating cards ("9 sec" median reply with a sparkline, "Late checkout sold +£35", "Handed to Sam"); a manager's 7am lock screen of overnight notifications; module mockups (a French chat with FR → EN tag, a sea-view upgrade offer, a housekeeping ticket list, a review with a drafted reply, a live call with waveform and transcript, requests-by-hour bars with the staffed hours shaded); a weekly dashboard with KPI tiles and a line chart; a hotel facade at night with lit windows, a red awning and street glow; integration nodes with animated dashed links; a knowledge base list; channel toggles; a resolution chart; six hotel "prints" (bedroom, rooftop pool, lobby with chandelier, candlelit table, spa, seaside hotel); a reception desk with key boxes and a brass bell.
+
+STRUCTURE
+1. A fixed rounded ink header bar (blurred): diamond and "Ostler", five links, a cream "Book a demo"; under 900px a two-line menu button opens a cream dropdown card of large links.
+2. Hero: a tall red card (pinned for 75svh) with the lobby art, "Ostler" filling 92% of the width across its top edge (clipped so it hangs from the top), the phone on the right, the title, lead and a "See the product" button bottom left with a pulsing "Online now" dot. On load the letters spring into a slightly tilted stance and rock gently; on scroll the card shrinks to 0.86 and tilts while each letter flies up and away and the copy fades.
+3. A ticker of claims (outlined words between red diamonds) and a row of hotel names in mixed type styles.
+4. Story (cream): a headline whose words bounce in, the tilted lock-screen print dropping in, a paragraph and three red stats (1.8M, 9 sec, 87%).
+5. Modules: pinned and scrolled sideways: an intro and six 4:5 covers (Concierge, Upsell, Rooms, Reviews, Voice, Insights) in red, olive and cream, each with its mockup, the name filling the width, a price and a line; the covers tilt and their words drift as they cross.
+6. Pricing (olive): heading, lead and the dashboard with parallax beside six price rows whose rules draw across and whose prices pop in with a spin (£4, £1, £1, 50p, £2, £0).
+7. Statement: the hotel at night full-screen with "Awake" knocked out of an ink layer (multiply blend); pinned for 160svh the word zooms 9x from its own centre until the photo is revealed, then a cream card rises: "Your front desk closes. Ostler doesn't."
+8. How it works: a sticky intro beside four sticky step cards (Connect your systems, It learns your hotel, Go live on every channel, It gets better every night) that scale down and tilt as the next arrives.
+9. Changelog (red): five dated rows with giant day numbers that wipe in, tagged Live or Next Thursday. Voices (olive): six cream quote cards in a marquee that slows to a stop on hover or focus. Gallery: six tilted hotel prints at different parallax speeds around "Checked in", whose letters drop in elastically. FAQ (cream): six details rows with a plus that turns. Contact (red): "Talk to us" filling the width, hours list, the reception print and a demo form that thanks inline. Footer: a giant "Ostler", links and a line.
+
+THINGS THAT BREAK
+- Add .motion in the head before first paint unless prefers-reduced-motion, and remove it if GSAP has not arrived after 2.5s; the pinned heights, sticky stacks and hidden start states live behind .motion.
+- The sideways rail's section height is 100svh plus the track's overflow, written to --run on every ScrollTrigger refreshInit; the covers animate with containerAnimation.
+- Split letters into an outer span (scroll) and an inner span (spring and rock) so the two animations don't fight.
+- Set up each section's animations only when it comes near the viewport, one job per tick, and refresh ScrollTrigger once fonts load.
+- Clone the marquee cards once, aria-hidden with links untabbable, and pause anything looping while it's off screen.
+
+THE FLOOR
+One h1, a main, every section with an id. Every picture is an SVG with role="img" and a label. The menu button uses aria-expanded and swaps its label; Escape closes it. FAQ is details/summary; the form has labels and a polite live status and sends nothing. Focus rings on everything. prefers-reduced-motion: no pinning, grain, ticker or SMIL animation, the rail as a grid. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 24, 2026",
+    demo: "/demos/ostler-hotel-concierge.html",
+    bestFor: ["hospitality software", "AI agents and assistants", "customer support automation", "vertical B2B SaaS"],
+    style: ["editorial", "card-stack", "fill-type", "svg-illustration", "scroll-driven"],
+    thumbnail: "/thumbs/ostler-hotel-concierge.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Wayfind AI Travel Companion Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A sand-and-sea expedition poster of a page for an AI travel companion: \"wayfind\" is cut out of a desert photo that opens to full bleed as you scroll, mode posters stack and tilt, a nine-day route draws itself sideways, and every photo is raymarched live in WebGL",
+    prompt: `Build a landing page for Wayfind, a fictional AI travel companion (it plans a whole trip in about 90 seconds, watches every booking, rebooks disruptions while you sleep and works offline in 140 countries; four agents behind one chat: Scout finds, Fixer rebooks, Compass navigates, Ledger tracks money), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Special Gothic (wdth 75-100, 400-700) for display, Hubot Sans (wdth 75-125, 200-900) for text.
+
+DESIGN SYSTEM
+Sand #E1C49C (the page), sky #89B3AA, sea #3B6A5F, moss #26352C, ink #181412 and coral #E06244, with paper mixed 62% sand into white and two sky "grade" tints laid over every photo. Sections alternate sand, moss (dark) and sky at full bleed; corners are square everywhere. Display type is Special Gothic 700 at 75% width, lowercase, line-height 0.8-0.86, in sea on sand, sky on moss, moss on sky. Body in Hubot Sans; small labels set wide (125%, weight 300). Facts are spec lists: a bold term with a trailing dash over a wide light value, in an auto-fit grid. The mark is a four-point concave star, used as logo, menu button, bullets, FAQ icon and route markers; it turns 45deg on hover. Buttons are coral or ink rectangles filled from the bottom on hover; links grow a 2px underline. A fixed SVG noise grain at 16% over everything.
+
+PICTURES IN CODE (no image files)
+- Each img carries data-scene and is rendered at load into a JPEG data URL. A single WebGL fragment shader raymarches heightfield terrain in six modes (dunes with ripples, ridged mountains with forest and snow lines, flat plains, a terraced canyon around a road, a lone rock tower, a volcano cone), with soft shadows, haze, clouds, a road with a dashed centre line, water with Fresnel reflections, salt-flat polygons and a night sky with stars and a Milky Way band, then ACES tone mapping, vignette and grain. The same shader draws a night globe with clouds, city lights and atmosphere, a phone on a table under window light with a map on its screen, a stack of coins beside a card, and a shaded topographic map with contour lines.
+- 2D canvas overlays placed by reading the depth under a screen point: a red 4x4 wagon kicking up dust, a dark wagon with a roof tent, a white wagon on a dirt road, a rusted sedan, a row of tents, four camels with riders, five people round a campfire, camp beds under stars, a glowing tent, flight arcs over the globe, a route and pin over the topo map, and four backlit head-and-shoulders silhouettes with rim light for the team.
+- If WebGL is missing or the context is lost, the same scene names render as flat SVG illustrations.
+
+STRUCTURE
+1. Header on sand: star and "Wayfind", six links, a coral "Start a trip"; the star menu button is fixed top right and turns sand over dark sections. It opens a full-screen moss menu that grows out of the button as a diamond clip-path, with huge sky links.
+2. Hero (100svh): four spec facts across the top (Plans in, Works in, Rebooks, Offline), then "wayfind" sized to fill the width exactly, its letters filled with the hero photo (background-clip text aligned to the photo's real position). The photo frame starts clipped to begin at the word's baseline inside the side margins; pinned for 115% of a screen it opens to full bleed while the photo scales to 1.12, the word sinks, the facts fade up and a caption rises in sand over the bottom.
+3. Manifesto: a coral star that turns on scroll, a large paragraph whose lines stretch from 75% to 125% width as they pass, a founders' signature and three facts under a rule that draws across.
+4. Modes: four sticky posters (Weekend, Road trip, Off-grid, The big one) in paper, moss, sky and coral; each has a spec row, a giant title, copy, a price note and a photo that opens from an inset. As the next poster arrives the one under it scales to 0.9, tilts and darkens.
+5. Agents (moss): four rows, each a giant sky name with role, a 16:10 photo that opens from a horizontal slit, and a spec list.
+6. A trip: "Nine days, planned in ninety seconds", pinned and scrolled sideways through six day stops at alternating heights; an SVG route line draws through the star markers, and each stop's star turns coral and its photo wipes open as the line reaches it.
+7. Disruptions (sky): heading, notes and a twelve-month bar chart (thousands fixed per month, the four busiest in coral, Nov and Dec still "-") that grows in; horizontal bars under 600px.
+8. Team: four people with a giant first name overlapping the top of a 4:5 portrait, alternate columns drifting at different parallax speeds. Reviews (moss): a huge sky quote whose lines rise in, and a marquee of six quotes that pauses on hover or focus.
+9. Gallery: a 12-column collage of six photos opening from four directions. Pricing (sky): Free, Plus (coral) and Pro with a Monthly/Yearly switch that slides the price up or down. FAQ: a sticky heading beside six accordion rows whose star turns. Contact (moss): contact facts, "let's go" knocked out of a mountain photo with parallax, a lead and two buttons. Footer on sand with a giant "wayfind", links and the star.
+
+THINGS THAT BREAK
+- Add .motion in the head before first paint unless prefers-reduced-motion, and remove it if GSAP has not arrived after 2.5s; pinning, the sideways itinerary and every hidden start state live behind .motion.
+- Knockout text: compute the photo's drawn size and offset (object-fit cover, object-position) relative to the word and write them as background size and position; redo it on load, font load, resize and when the scene finishes rendering.
+- Render the hero and contact scenes first, then whatever is nearest the viewport, one per frame, and fire a resize once the knockouts have their photos so ScrollTrigger re-measures.
+- Sticky posters need their top offsets set in JS so the stack stays on screen, recalculated on ScrollTrigger refreshInit.
+- Build the route path from the real marker positions on every refresh.
+
+THE FLOOR
+One h1, a main, every section with an id. Every img has alt text and width and height. The menu button uses aria-expanded and swaps its label, the menu is inert while closed and Escape closes it. FAQ is details/summary; the price switch uses aria-pressed; the marquee clones are aria-hidden and untabbable. Focus rings on everything. prefers-reduced-motion: no pinning, scrubbing or grain animation, the itinerary as a grid. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 24, 2026",
+    demo: "/demos/wayfind-ai-travel.html",
+    bestFor: ["travel and booking apps", "AI agents and assistants", "consumer subscription apps", "outdoor and adventure brands"],
+    style: ["editorial", "expedition-poster", "knockout-type", "webgl", "scroll-driven"],
+    thumbnail: "/thumbs/wayfind-ai-travel.jpg",
+    theme: "light",
+  },
+  {
+    title: "Tarn File Transfer Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A frosted steel-grey page for a heavy-file transfer service: the hero zooms out of a giant glass send button into its frame, a magnifying lens glides across the manifesto, a light sweeps the service tiles, and a send button you can try with your own file",
+    credits: [
+      { label: "8B AI Website Builder", href: "https://8b.com/", note: "Generated this page from a single prompt" },
+    ],
+    prompt: `Build a landing page for Tarn, a fictional heavy-file transfer service for studios ("Heavy files, handled lightly.": film cuts, raw shoots and whole archives, 2 TB per send, links that expire, no account needed to receive), as one HTML file. GSAP 3.13 with ScrollTrigger, and Lenis 1.3.4, from jsdelivr. Google Fonts: Hubot Sans (wdth 115, weights 300-400) for display, Geist 400-500 for text.
+
+DESIGN SYSTEM
+One family of steel-blue greys: ground #424C55, deep #333B43, steel #66727A, steel-hi #7E8A91, pane #56616A, frost #D3DDE3, and a near-white glow #E6EFF4, with inks #F3F6F8, #D9DFE3, #AAB4BB and a shade #14191E for shadows. No accent colour: everything is frosted glass. A .glass surface is a vertical gradient of its tint (--gl) with a frost glow at the bottom edge, an inner shadow at the top and a bright 1.5px rim top and bottom (--rim). Pill buttons and round icon buttons; on hover a diagonal sheen slides across, icon buttons lift their arrow and their underglow rises. Big rounded slabs (radius clamp(28px, 4.4vw, 60px)) hold the dark sections; cards at radius 22-30px. Headings in Hubot Sans 300 at width 115%, -0.025em, balanced.
+
+PICTURES IN CODE (no image files)
+- The hero slab is a gradient textured with an SVG filter: fractal noise lit by feSpecularLighting from a point light, blended in overlay, so it reads as brushed, frosted metal.
+- Five gallery "photos" as inline SVG with grain, vignette and slow SMIL drift: a foggy sea with a sun haze and hundreds of glints on the water, a photo studio with an octagonal softbox, a light strip and a camera on a tripod with floating dust, concrete steps under the shadows of bare branches (recursively drawn), a mixing desk with rows of knobs and animated meters, and a mountain lake whose layered ridges, fog and treeline are mirrored through a turbulence displacement ripple. The contact picture is a still lake with trees, also reflected.
+
+STRUCTURE
+1. A fixed glass pill header: a glass dot and "tarn", four links, a "Send files" button; under 1024px a round menu button opens a glass dropdown.
+2. Hero (200svh, sticky): the textured slab fills the screen inside an edge margin with "Heavy files, handled lightly.", a line of copy and three check chips. On load the stage is scaled 4x from its bottom-left corner so the round upload button and "Send files" pill fill the screen; scrolling the first screen shrinks it into place (one --p custom property drives translate and scale). The upload button has a conic highlight orbiting its rim.
+3. Manifesto: a long paragraph in wide light type, signed by the founder; a round glass lens travels across it on scroll in a serpentine path, showing a 1.3x copy of the text inside, aligned to the words underneath.
+4. Services (deep slab): six glass tiles with a chip each (Transfers, Review links, Archive, Vaults, Delivery pages, Watch folders); a large soft light travels across the grid on scroll and each tile's rim lights up as the light passes it.
+5. Process: a sticky heading beside four glass steps, each with an inset toggle switch that flips on as the step reaches the middle of the screen, joined by a line that fills down.
+6. Speed (deep slab): "A 60 GB folder, door to door." with a giant "9 min" and four inset bars (Tarn, shared drive sync, office FTP, email parts) that fill in proportion when they appear, Tarn's bar lit; a footnote on how it was measured.
+7. Try it (lit slab): a big round upload button and a long glass pill. Choose or drop a file and the pill fills to "Link ready" and shows a fake link; nothing leaves the device.
+8. Work: a 12-column collage of the five pictures with glass captions hanging off their bottom edges; each picture opens from a small pill shape to its full frame.
+9. Pricing (lit slab): a monthly/yearly segmented control with a sliding glass thumb that swaps the prices with a rise; three plans (Light $0, Studio $16, House $44 per seat), the middle one glowing. Voices: six glass quote cards in a marquee that pauses on hover. FAQ: a sticky heading beside six glass accordion rows whose plus turns into an x. Contact: details list, the lake picture and a glass form overlapping it that thanks inline. Footer: a line, links and a giant engraved "tarn" wordmark rising into the bottom edge.
+
+THINGS THAT BREAK
+- Add .motion in the head before first paint unless prefers-reduced-motion, and remove it if GSAP has not arrived after 2.5s; the 200svh hero, the zoom and every hidden starting state live behind .motion.
+- The lens copy must be the same width as the paragraph and offset by K x (lens position), measured again on every ScrollTrigger refresh, or the magnified words drift off the real ones.
+- Measure tile centres on refresh, not once, so the light still lines up after the grid reflows.
+- Clone the marquee cards once, mark the clones aria-hidden and inert, and animate the track by -50%.
+- Pause the orbit, lens, light and marquee while their sections are off screen.
+
+THE FLOOR
+One h1, a main, every section with an id. Pictures are role="img" with a label and an aria-hidden SVG. The menu button uses aria-expanded and swaps its label; Escape closes it. FAQ questions are buttons with aria-expanded and aria-controls; the billing toggle uses aria-pressed; the send label and form note are live regions. Focus rings on everything. prefers-reduced-motion: no zoom, lens or light, switches shown on, marquee as a static grid. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 23, 2026",
+    demo: "/demos/tarn-file-transfer.html",
+    bestFor: ["file transfer and storage products", "creative and media tools", "B2B SaaS for studios", "developer and infrastructure tools"],
+    style: ["glassmorphism", "monochrome", "frosted", "svg-illustration", "scroll-driven"],
+    thumbnail: "/thumbs/tarn-file-transfer.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Somatic AI Wellness Companion Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "An acid-lime page for an AI wellness companion: a breathing point-sphere orb sits behind \"SOMATIC SIGNALS\" stretched to the full width, a diamond window opens to fill the screen as you scroll, five programs slide past sideways, and every heart trace, sleep map and portrait is drawn in code",
+    prompt: `Build a landing page for Somatic, a fictional AI wellness companion ("the AI that listens to your body": it reads sleep, heart rhythm, breath and movement from the ring, watch or phone you already own and turns them into one calm plan for today), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Anybody (wdth 50-150, 100-900) at 58% width and weight 900 for display words, Bodoni Moda italic for the one emphasised word per heading, Space Grotesk 300-700 for text, Space Mono for labels.
+
+DESIGN SYSTEM
+Acid #D4FF3F, ink #0D0C0B, paper #ECEBE4, moss #1F2B24 and coral #FF5E3A, with a periwinkle #7AA0FF only inside the art. Sections alternate moss, acid, ink and paper at full bleed, no rounded corners anywhere: the shape language is the diamond (a 45deg square) for bullets, ticker separators, step marks, the menu icon and every reveal. Display words in Anybody 900 uppercase, condensed and set very tight; each h2 ends on a Bodoni italic word in coral or paper. Buttons are ink or acid rectangles whose hover fills from the centre with a rotated square; links have a block highlight that rises from a thin underline. A 22% SVG noise grain over the hero.
+
+STRETCHED TYPE
+- Rows of display type fill their container exactly: each .row is var(--r) x 100cqw tall, and its word's font-size is 100cqw / (--len x --k), then scaleY stretches it to the row height using the font's cap-height ratio --cap.
+- After fonts load, measure the real cap height of Anybody on a canvas (actualBoundingBoxAscent at 100px) and each word's real width, and write --cap and --k back, so the words land edge to edge in any browser. --len (letter count) on each word is the fallback before the script runs.
+
+PICTURES IN CODE (no image files)
+- Hero: a canvas with a dark moss gradient, a coral glow bottom-left and a periwinkle glow top-right, 20 drifting contour rings, and a Fibonacci point sphere of 1,300 points that breathes, warps with two sines and turns toward the pointer; near points are acid and larger, far points paper and faint. The same frame is copied into a second canvas clipped to a diamond in the centre of the screen. Cap DPR at 1.5, pause off screen, one still frame under reduced motion.
+- Program posters in SVG: a crescent moon over twinkling stars and sleep-stage bars (Sleep), pulsing concentric rings (Breathe), a filled HRV wave with a coral marker (Recover), a three-colour macro ring (Fuel), an orbiting focus dot (Focus).
+- An ECG line with a coral scan running along it, a sleep hypnogram of coloured blocks on four levels, three topographic contour fields from perturbed circles, a scatter of 30 days of HRV dots with a trend line, a conic readiness ring, and a CSS breathing diamond that cycles Inhale, Hold, Exhale over 14 seconds.
+- Team portraits are gradient fields with a diamond frame and the person's initials in Bodoni italic, blended with overlay.
+
+STRUCTURE
+1. A fixed acid header: wordmark "SOMATIC" with an italic "ai", five mono links, a "Start free" button; it hides on scroll down. Under 960px a Menu button with a turning diamond opens a full-screen acid menu with huge links.
+2. Hero (moss, full height): a ticker, "SOMATIC" and "SIGNALS" stretched across the width, a reverse ticker, the two words again; the orb canvas behind, the diamond window on top. Pinned for 110% of a screen: the diamond grows until it covers the screen, the photo settles from 1.08 to 1, and the type rows stretch taller and drift up. The letters ripple in a slow scaleY wave.
+3. About (acid): a ticker of biomarkers, a large lead paragraph whose lines rise in from masks, a 3:4 readiness figure (contours, a ring at 86, time 06:42) with parallax, three facts (24/7, 09, 4 min) and a button.
+4. Programs (ink): pinned and scrolled sideways: an intro ("Pick your practice") and five tall posters, each with the program name stretched across its top, a mono meta strip between acid rules and a line of text; the art and the names drift in parallax as they cross.
+5. Values (moss): four giant words (Private, Evidence, No guilt, Human loop), each letter stretching from flat to full height and beyond as it scrolls past, with a paragraph under each.
+6. Your day (paper): five rows (Wake, Work, Pause, Move, Rest) with a giant day word, title and line, time, program and duration; each row is swept by an acid bar that wipes in and out before its content appears, and fills acid on hover.
+7. Team (ink): four portraits that open from a point into a diamond and then to the full frame. Voices (acid): a featured quote whose words brighten as you scroll, a marquee of six ink quote cards that pauses on hover and focus, and a note that the testimonials are samples.
+8. First week (paper): four steps on a rising staircase joined by a drawn line. Signals (ink with an acid frame): a bento of six tiles (live ECG, breathing diamond, last night's hypnogram, stress landscape, HRV dots, readiness ring) that tilt up into place.
+9. The year so far (moss): three stats and a bar chart of nine months that grows in. Pricing (paper): three plans at $0, $12 and $29, the middle one acid, rising at different speeds. FAQ (acid): a sticky heading beside five accordion rows with a diamond plus that turns into an X. Contact (moss): drifting blurred colour orbs and contours behind "Begin gently", a waitlist card that thanks inline and sends nothing, and "LISTEN CLOSER" stretched across the bottom. Footer: a ticker, the wordmark, links and a medical disclaimer.
+
+THINGS THAT BREAK
+- Add a .motion class in the head before first paint unless prefers-reduced-motion, and drop it if GSAP has not loaded after 2.5s; pins, the sideways rail and every hidden-until-revealed state live behind .motion.
+- The program rail's length is the track's scrollWidth minus the viewport: measure it on refreshInit with invalidateOnRefresh, or the pin ends early after a resize.
+- The diamond window grows a custom property (--dd) inside clip-path; tween it with function values so it is recomputed on resize.
+- Fit the stretched type after document.fonts.ready and only then create the ScrollTriggers, or every pin starts at the wrong place.
+- Tickers clone their items enough times to cover the width, loop by exactly one period, play only while visible, and speed up with scroll velocity before easing back.
+- Run every GSAP setup from a queue, one per task, so the first scroll does not stall.
+
+THE FLOOR
+One h1, a main, every section with an id. Decorative SVG and canvases are aria-hidden; the readiness figure has a role="img" label; cloned ticker items are aria-hidden and untabbable. The menu uses aria-expanded and swaps its label; Escape closes it. The FAQ buttons control their regions with aria-controls. Focus rings everywhere. The form status is a live region. A footer line says the product is a wellness tool that does not diagnose. prefers-reduced-motion: no pinning, no marquee, the orb drawn once. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 23, 2026",
+    demo: "/demos/somatic-ai-wellness.html",
+    bestFor: ["AI health and wellness apps", "wearables and sleep tracking", "digital health startups", "consumer AI companions"],
+    style: ["acid", "bold-type", "stretched-type", "canvas", "scroll-driven", "horizontal-scroll"],
+    thumbnail: "/thumbs/somatic-ai-wellness.jpg",
+    theme: "light",
+  },
+  {
     title: "Latent AI Fashion Atelier Page",
     category: "web",
     categoryLabel: "WEB",

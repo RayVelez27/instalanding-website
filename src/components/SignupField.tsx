@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { useSubscribe } from "@/hooks/useSubscribe";
+import { track } from "@/lib/track";
 
 /** Inline "notify me about new components" signup, sized for the sidebar or the mobile menu. */
 const SignupField = ({ variant = "sidebar" }: { variant?: "sidebar" | "overlay" }) => {
@@ -13,7 +14,10 @@ const SignupField = ({ variant = "sidebar" }: { variant?: "sidebar" | "overlay" 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (status === "loading") return;
-    if (await subscribe(email)) setEmail("");
+    if (await subscribe(email)) {
+      setEmail("");
+      track("newsletter_signup", { from: variant === "overlay" ? "menu" : "sidebar" });
+    }
   };
 
   return (

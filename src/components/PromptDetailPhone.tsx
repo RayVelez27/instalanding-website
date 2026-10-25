@@ -12,6 +12,7 @@ import { mobileThumbFor } from "@/data/mobileThumbs";
 import { categoryHref, type PromptEntry } from "@/data/prompts";
 import type { SystemEntry } from "@/data/systems";
 import type { MotionEntry } from "@/data/motion";
+import { track } from "@/lib/track";
 
 /**
  * The prompt page on a phone. Built for reading and trying, not for building:
@@ -83,7 +84,7 @@ const PhonePreview = ({ entry }: { entry: PromptEntry }) => {
           <iframe className="pdm-frame" src={entry.demo} title={`${entry.title} live demo`} />
           <p className="pdm-live-bar">
             <span><i aria-hidden="true" /> LIVE</span>
-            <a href={entry.demo} target="_blank" rel="noreferrer">FULL SCREEN <ExternalLink size={11} aria-hidden="true" /></a>
+            <a href={entry.demo} target="_blank" rel="noreferrer" onClick={() => track("open_demo", { template: entry.slug, from: "phone_fullscreen" })}>FULL SCREEN <ExternalLink size={11} aria-hidden="true" /></a>
           </p>
         </>
       ) : (
@@ -132,6 +133,7 @@ const PromptDetailPhone = ({ entry, prev, next, related, system, motions = [], f
   const copyLink = async () => {
     await copyText(`${SITE_URL}/prompt/${entry.slug}`);
     setLinkCopied(true);
+    track("copy_link", { template: entry.slug });
     setTimeout(() => setLinkCopied(false), 1800);
   };
 
@@ -301,7 +303,7 @@ const PromptDetailPhone = ({ entry, prev, next, related, system, motions = [], f
           </ul>
         )}
         {primary ? (
-          <a className="pdm-btn pdm-btn--solid pdm-btn--grow" href={primary.href} target="_blank" rel="noreferrer">
+          <a className="pdm-btn pdm-btn--solid pdm-btn--grow" href={primary.href} target="_blank" rel="noreferrer" onClick={() => { if (entry.demo && primary.href === entry.demo) track("open_demo", { template: entry.slug, from: "phone" }); }}>
             {primary.label} <ExternalLink size={13} aria-hidden="true" />
           </a>
         ) : (

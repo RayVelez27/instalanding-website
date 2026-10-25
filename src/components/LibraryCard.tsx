@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Bot, Check, Copy, Eye, Play } from "lucide-react";
 import { copyTextLater } from "@/lib/copyText";
+import { track } from "@/lib/track";
 
 /**
  * The library card, everywhere an item is listed: the HOME rails and the
@@ -84,6 +85,10 @@ const LibraryCard = ({ kind, title, sub, to, state, image, art, frames, copy, co
       return;
     }
     onCopied?.(agent ? "TASK COPIED" : "HTML COPIED");
+    // The slug is the last segment of the card's link (/prompt/x, /systems/x, /motion/x)
+    const slug = to.split("/").pop() ?? "";
+    if (kind === "page") track("copy_code", { template: slug, from: "card", copied: agent ? "agent_task" : copyLabel === "COPY PROMPT" ? "prompt" : "code" });
+    else track(kind === "system" ? "copy_system" : "copy_motion", { [kind]: slug, from: "card" });
     setCopied(true);
     window.clearTimeout(copyTimer.current);
     copyTimer.current = window.setTimeout(() => setCopied(false), 1600);
