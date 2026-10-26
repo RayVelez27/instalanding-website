@@ -17,6 +17,8 @@ import { useSeo } from "@/hooks/useSeo";
 import { useIsPhone } from "@/hooks/useIsPhone";
 import PromptDetailPhone from "@/components/PromptDetailPhone";
 import { track } from "@/lib/track";
+import { codePrompt, codePromptIntro } from "@/lib/codePrompt";
+import { SITE_URL } from "@/lib/agentMode";
 
 /**
  * The standalone /prompt/:slug page: what a shared link, a refresh, a new tab
@@ -64,19 +66,13 @@ const PromptDetail = () => {
 
   const file = entry.demo?.split("/").pop() ?? "index.html";
 
-  // A brief alone is ambiguous, so the prompt section copies the brief together
-  // with the reference source when the entry has a single-file demo.
-  const withSource = (src: string) =>
-    [
-      entry.prompt,
-      "---",
-      "REFERENCE BUILD. This is the exact expected output. Reproduce it faithfully, then adapt the content.",
-      `${file}:`,
-      "```html\n" + src + "\n```",
-    ].join("\n\n") + "\n";
+  // The prompt is the code: a short instruction, then the whole HTML file, the
+  // same text /p/<slug>.txt and MCP get_prompt give an agent. An entry with no
+  // single-file demo has no code, so it keeps its written brief.
+  const promptText = entry.demo && code ? codePrompt(entry, code, SITE_URL) : entry.prompt;
   const handleCopyPrompt = async () => {
     if (!entry.demo) await copyText(entry.prompt);
-    else await copyText(withSource(code ?? (await loadDemoSource(entry.demo))));
+    else await copyText(codePrompt(entry, code ?? (await loadDemoSource(entry.demo)), SITE_URL));
     setPromptCopied(true);
     track("copy_prompt", { template: entry.slug, from: phone ? "phone" : "page" });
     setTimeout(() => setPromptCopied(false), 2000);
@@ -206,7 +202,7 @@ const PromptDetail = () => {
                   <div><dt>PREVIEW</dt><dd>{entry.demo ? "LIVE DEMO" : entry.preview.replace("-", " ").toUpperCase()}</dd></div>
                 )}
                 <div><dt>ADDED</dt><dd>{entry.added}</dd></div>
-                {!entry.youtube && <div><dt>LENGTH</dt><dd>{entry.prompt.length} CHARS</dd></div>}
+                {!entry.youtube && <div><dt>LENGTH</dt><dd>{promptText.length.toLocaleString()} CHARS</dd></div>}
                 {entry.demo && <div><dt>DEMO</dt><dd>SINGLE FILE</dd></div>}
                 {entry.repoUrl && <div><dt>SOURCE</dt><dd>GITHUB REPO</dd></div>}
               </dl>
@@ -256,14 +252,14 @@ const PromptDetail = () => {
                   {promptCopied ? "COPIED" : "COPY PROMPT"}
                 </button>
               </div>
-              <pre className="detail-prompt-body">{entry.prompt}</pre>
+              <pre className="detail-prompt-body">{entry.demo ? codePromptIntro(entry, SITE_URL) : entry.prompt}</pre>
               {entry.demo && (
                 <div className="detail-prompt-ref">
-                  <p className="detail-prompt-ref-title">+ REFERENCE BUILD</p>
+                  <p className="detail-prompt-ref-title">+ THE CODE</p>
                   <p>
-                    The full source of <b>{file}</b>
-                    {code && ` (${code.split("\n").length.toLocaleString()} lines · ${Math.round(code.length / 1024)} KB)`} is
-                    part of this prompt: COPY PROMPT adds it under the brief as the exact expected output.
+                    The whole of <b>{file}</b>
+                    {code && ` (${code.split("\n").length.toLocaleString()} lines · ${Math.round(code.length / 1024)} KB)`} follows
+                    this instruction: COPY PROMPT copies both, exactly what an agent gets from /p/{entry.slug}.txt.
                   </p>
                   <p className="detail-prompt-ref-links">
                     <a href={entry.demo} target="_blank" rel="noreferrer" onClick={() => track("open_demo", { template: entry.slug, from: "page_prompt" })}>

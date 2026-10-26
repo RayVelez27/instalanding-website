@@ -378,8 +378,8 @@ Generated at build by `plugins/library-endpoints.mjs`, served from memory in dev
 | path | what it is |
 | --- | --- |
 | `/prompts.json` | manifest: every entry's metadata, URLs, token estimate, credits, `bestFor`, `style`, and — read off the demo — `sections`, `stack`, `demoBytes` |
-| `/p/<slug>.txt` | one prompt, ready to paste verbatim, after a two-line credit (title, MIT, page URL) |
-| `/p/<slug>.json` | the same prompt plus its metadata |
+| `/p/<slug>.txt` | one PROMPT: a short instruction (keep the design, replace the brand, convert to the user's stack, credit line), then the page's whole HTML file. Built by `src/lib/codePrompt.ts`, the same function behind the site's COPY PROMPT |
+| `/p/<slug>.json` | the same prompt plus its metadata; the old prose brief is not published |
 | `/llms.txt` | markdown index of the library, per the llms.txt convention |
 | `/SKILL.md` | the agent skill, from `mcp/SKILL.md` with URLs rewritten to `SITE_URL` |
 | `/sitemap.xml` | every crawlable route: library, categories, agents, builder pages, about |
@@ -398,8 +398,15 @@ it reads the library from the origin that received the request, so a deploy prev
 serves that preview's prompts.
 
 Keep these promises when changing the plugin: `prompts.json` always has a `prompts` array, slugs
-are stable, `/p/<slug>.txt` is the credit line and then the prompt **and nothing else** (no other
-header or banner — it gets pasted verbatim, and the credit is written to be pasted with it).
+are stable, and `/p/<slug>.txt` is exactly `codePrompt(entry, html)` **and nothing else** — it gets
+pasted verbatim, by people and agents alike.
+
+**Code or nothing.** A prose brief makes the builder guess; the code cannot be misread. So the
+agent surfaces (`prompts.json`, `llms.txt`, `/p/*`, MCP, route shells) carry only entries with a
+single-file demo, and each one's prompt is its code with an instruction on top. CODE (the demo
+file) and PROMPT (instruction + the same file) are the same page. The `prompt` field in
+`src/data/prompts.ts` stays as the written brief: the site shows it for the few entries with no
+demo, and the search and fit-check text (description, bestFor, style) still comes from the entry.
 
 ## Deployment notes
 

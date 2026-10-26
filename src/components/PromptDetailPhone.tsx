@@ -8,6 +8,7 @@ import Lineage from "@/components/Lineage";
 import DemoCode from "@/components/DemoCode";
 import { copyText } from "@/lib/copyText";
 import { SITE_URL } from "@/lib/agentMode";
+import { codePrompt, codePromptIntro } from "@/lib/codePrompt";
 import { mobileThumbFor } from "@/data/mobileThumbs";
 import { categoryHref, type PromptEntry } from "@/data/prompts";
 import type { SystemEntry } from "@/data/systems";
@@ -231,14 +232,14 @@ const PromptDetailPhone = ({ entry, prev, next, related, system, motions = [], f
         <details className="pdm-prompt">
           <summary>
             <span>Show the one-shot prompt</span>
-            <span className="pdm-prompt-len">{entry.prompt.length.toLocaleString()} chars</span>
+            <span className="pdm-prompt-len">{(entry.demo && code ? codePrompt(entry, code, SITE_URL) : entry.prompt).length.toLocaleString()} chars</span>
           </summary>
           <div className="pdm-prompt-body">
-            <pre>{entry.prompt}</pre>
+            <pre>{entry.demo ? codePromptIntro(entry, SITE_URL) : entry.prompt}</pre>
             {entry.demo && (
               <p className="pdm-prompt-ref">
-                <b>+ Reference build.</b> COPY PROMPT adds the full source of {file}
-                {code && ` (${Math.round(code.length / 1024)} KB)`} under the brief, as the exact expected output.
+                <b>+ The code.</b> The whole of {file}
+                {code && ` (${Math.round(code.length / 1024)} KB)`} follows this instruction; COPY PROMPT copies both.
               </p>
             )}
             <button className="pdm-btn pdm-btn--solid pdm-btn--wide" onClick={onCopyPrompt}>

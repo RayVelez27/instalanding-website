@@ -4,7 +4,7 @@
  *
  *   instalanding search "dark technical ai"
  *   instalanding inspect monax-analytics-landing-page
- *   instalanding get monax-analytics-landing-page > brief.txt
+ *   instalanding get monax-analytics-landing-page > prompt.txt
  *   instalanding add monax-analytics-landing-page ./public
  *   instalanding skill --install
  *   instalanding mcp
@@ -29,9 +29,9 @@ Usage
   instalanding search [words...]     find entries by use, look or stack
         --category <web|motion|product|navigation|forms>   --limit <n> (default 8)
   instalanding inspect <slug>        stack, sections, best-for, sizes — before you commit
-  instalanding get <slug>            the one-shot brief, raw, to stdout
+  instalanding get <slug>            the prompt (instruction + the page's code) to stdout
         --meta                       prepend a short metadata header
-  instalanding add <slug> [path]     write the reference build (one HTML file)
+  instalanding add <slug> [path]     write the code alone (one HTML file)
         path: a file, or a directory (gets <slug>.html). Default ./<slug>.html
         --force                      overwrite an existing file
   instalanding skill                 print the agent skill (SKILL.md)
@@ -45,7 +45,7 @@ Global
   --base-url <url>    read another library, e.g. http://localhost:8081
                       (or INSTALANDING_BASE_URL)
 
-The flow: search → inspect → get (build from the brief) or add (start from the code).
+The flow: search → inspect → get (the prompt, for an agent) or add (the code, into your project).
 `;
 
 /* ── argument parsing ─────────────────────────────────────────────────── */
@@ -149,7 +149,7 @@ const commands = {
       `Wrote ${entry.title} (${Math.round(result.bytes / 1024)} KB). Open it directly — no build step.\n` +
         (result.sections.length ? `Sections: ${result.sections.join(", ")} (data-section attributes).\n` : "") +
         "The header comment maps the tokens, scripts and what breaks when you change them.\n" +
-        `Brief it was built from: instalanding get ${entry.slug}`
+        `The same file with the build instruction on top: instalanding get ${entry.slug}`
     );
   },
 

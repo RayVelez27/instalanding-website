@@ -106,19 +106,24 @@ export const agentCommand = (slug: string) =>
 
 /** What a tile's copy button puts on the clipboard in Agent Mode: a task, not the raw brief. */
 export const agentHandoff = (entry: PromptEntry) => {
-  const reference = entry.demo
-    ? `Reference build (one HTML file, opens from disk): ${SITE_URL}${entry.demo}`
-    : entry.repoUrl
-      ? `Reference code: ${entry.repoUrl}`
-      : null;
+  // No single-file page means no code to hand over: the written brief goes inline instead.
+  if (!entry.demo) {
+    return [
+      `Build "${entry.title}" from INSTALANDING.AI in this project.`,
+      entry.repoUrl ? `Code: ${entry.repoUrl}` : null,
+      "",
+      entry.prompt,
+    ]
+      .filter((line) => line !== null)
+      .join("\n");
+  }
   return [
     `Build "${entry.title}" from INSTALANDING.AI in this project.`,
-    `Brief: ${SITE_URL}/p/${entry.slug}.txt`,
-    reference,
-    `If the instalanding MCP server is connected (${MCP_URL}), get_prompt("${entry.slug}") returns the same brief.`,
-    `How to use the library: ${SITE_URL}/SKILL.md`,
+    `Prompt (a short instruction, then the page's whole HTML file): ${SITE_URL}/p/${entry.slug}.txt`,
+    `The code alone (one HTML file, opens from disk): ${SITE_URL}${entry.demo}`,
+    `If the instalanding MCP server is connected (${MCP_URL}), get_prompt("${entry.slug}") returns the same prompt.`,
     "",
-    "Build from the brief in this project's stack. Replace the fictional brand, copy and numbers with mine; keep the brief's design values and its warnings. Verify in a real browser: no console errors, no horizontal scroll at 390px, reduced motion respected.",
+    "Fetch the prompt and do what its instruction says: keep the page's layout, design values and motion exactly; replace the fictional brand, copy and numbers with mine; convert it to this project's stack. Verify in a real browser: no console errors, no horizontal scroll at 390px, reduced motion respected.",
   ]
     .filter((line) => line !== null)
     .join("\n");

@@ -94,13 +94,14 @@ export function createServer(library) {
     { name: "instalanding", version: VERSION },
     {
       instructions:
-        "The INSTALANDING.AI library of one-shot prompts for landing pages and UI components. " +
+        "The INSTALANDING.AI library of landing pages and UI components, each one a single HTML file. " +
         "Search with search_prompts (plain words: what it is for and how it should look), " +
         "check a candidate with inspect_prompt (stack, sections, best-for, size — cheap), then " +
-        "get_prompt to read the full brief and build from it. Prompts are prose briefs, not code — " +
-        "follow the brief and write the code yourself, in the user's stack. get_demo_source returns " +
-        "a working reference implementation as a single HTML file, which is large: read it only when " +
-        "the prompt alone is not enough, and lift sections by their data-section attribute. " +
+        "get_prompt for the one you pick. A prompt is code, not prose: a short instruction (keep the " +
+        "design, replace the fictional brand and copy, convert to the user's stack if they have one) " +
+        "followed by the page's whole HTML file, which is the specification. get_demo_source returns " +
+        "the same file without the instruction. Most run 15,000–60,000 tokens (inspect_prompt gives the size); to take one part, " +
+        "lift it by its data-section attribute. " +
         "The library has two more layers. Design systems: search_systems, then get_system for an " +
         "instruction (tokens inline) that restyles an existing project in that language. Motion studies: " +
         "get_motion lists them; get_motion(slug) gives the choreography as data and the one-shot prompt. " +
@@ -147,7 +148,7 @@ export function createServer(library) {
           "",
           ...results.map(describe),
           "",
-          `Then: inspect_prompt("<slug>") to check the fit, get_prompt("<slug>") for the full brief.`,
+          `Then: inspect_prompt("<slug>") to check the fit, get_prompt("<slug>") for the prompt (instruction + code).`,
         ].join("\n\n")
       );
     })
@@ -174,7 +175,8 @@ export function createServer(library) {
     {
       title: "Get a one-shot prompt",
       description:
-        "Return the complete one-shot prompt for a slug — the brief to build the component from. " +
+        "Return the one-shot prompt for a slug: a short instruction, then the page's whole HTML file. " +
+        "Build the page from it as the instruction says. " +
         "Use the slug exactly as search_prompts reported it.",
       inputSchema: {
         slug: z.string().describe('Prompt slug, e.g. "rive-fire-button".'),
@@ -219,8 +221,9 @@ export function createServer(library) {
     {
       title: "Get a demo's source",
       description:
-        "Return the built reference implementation for a prompt: one self-contained HTML file with " +
-        "every asset inlined. These run 40–160 KB, so by default this reports the size and how to " +
+        "Return the code alone — the same HTML file get_prompt carries, without the instruction: " +
+        "one self-contained file with " +
+        "every asset inlined. Most run 60–240 KB, so by default this reports the size and how to " +
         "fetch it; pass inline: true to read it into the conversation. A few entries live in their " +
         "own repository instead — this reports where.",
       inputSchema: {
@@ -253,7 +256,7 @@ export function createServer(library) {
             `URL: ${entry.demoUrl}`,
             "",
             `To read it here: get_demo_source({ slug: "${entry.slug}", inline: true }).`,
-            `To build instead of copy: get_prompt("${entry.slug}") — the brief is far cheaper.`,
+            `With the instruction on top: get_prompt("${entry.slug}").`,
           ].join("\n")
         );
       }
@@ -468,7 +471,7 @@ export function createServer(library) {
     }),
     {
       title: "One-shot prompt",
-      description: "The full brief for one component in the library.",
+      description: "One page's prompt: a short instruction, then its whole HTML file.",
       mimeType: "text/plain",
     },
     async (uri, { slug }) => {

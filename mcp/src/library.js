@@ -124,7 +124,7 @@ export class Library {
     );
   }
 
-  /** The raw one-shot prompt, exactly as it should be pasted. */
+  /** The one-shot prompt (instruction + the page's HTML), exactly as it should be pasted. */
   async promptText(slug) {
     const entry = await this.entry(slug);
     return { entry, text: await this.#get(`p/${entry.slug}.txt`) };

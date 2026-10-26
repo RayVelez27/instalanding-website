@@ -36,7 +36,7 @@ check("inspect shows stack and next step", inspect.code === 0 && /Stack/.test(in
   inspect.out.split("\n")[0]);
 
 const get = run("get", slug);
-check("get prints only the brief", get.code === 0 && get.out.length > 400 && !/ONE-SHOT PROMPT/.test(get.out),
+check("get prints only the prompt", get.code === 0 && get.out.length > 400 && !/ONE-SHOT PROMPT/.test(get.out),
   `${get.out.length} chars`);
 
 const dir = mkdtempSync(path.join(tmpdir(), "instalanding-cli-"));

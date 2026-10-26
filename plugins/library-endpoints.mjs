@@ -2,7 +2,8 @@
  * Publishes the prompt library as flat files an agent can read without running JS.
  *
  *   /prompts.json        the whole manifest (metadata only, no prompt bodies)
- *   /p/<slug>.txt        one prompt, raw, ready to paste verbatim
+ *   /p/<slug>.txt        one PROMPT: a short instruction, then the page's whole HTML file
+ *                        (src/lib/codePrompt.ts, the same text the site's COPY PROMPT gives)
  *   /p/<slug>.json       the same prompt with its metadata
  *   /llms.txt            a markdown index, per the llms.txt convention
  *   /systems.json        every design system: tokens, components, files, linked pages
@@ -36,6 +37,8 @@ const SYSTEMS_FILE = "src/data/systems.ts";
 const MOTION_FILE = "src/data/motion.ts";
 // Only type imports, which esbuild drops, so loadData can read it like the data files
 const SYSTEM_AGENT_FILE = "src/lib/systemAgent.ts";
+// Import-free, shared with the site's COPY PROMPT
+const CODE_PROMPT_FILE = "src/lib/codePrompt.ts";
 
 /** Load a TS data module without a bundler: they have no imports by design. */
 const loadData = (root, rel) => {
@@ -191,12 +194,13 @@ const buildManifest = ({ prompts, categories }, base, siteName, root, layers) =>
   name: siteName,
   url: base,
   description:
-    "Premium landing pages built for humans and agents: single HTML files with no dependencies, each with the one-shot prompt that builds it. Copy it, remix it, ship it. Free, MIT, no account.",
+    "Premium landing pages built for humans and agents: single HTML files with no dependencies. Each one's prompt is the code itself, with a short instruction on top: paste it into any agent and it builds that page. Free, MIT, no account.",
   generated: new Date().toISOString(),
   count: prompts.length,
   license: "MIT",
   usage: {
     prompt: `${base}p/<slug>.txt`,
+    promptIs: "a short instruction followed by the page's whole HTML file; demoUrl is the same file on its own",
     promptJson: `${base}p/<slug>.json`,
     index: `${base}llms.txt`,
     skill: `${base}SKILL.md`,
@@ -332,11 +336,13 @@ const buildLlmsTxt = (manifest, { prompts }) => {
     "",
     `> ${manifest.description}`,
     "",
-    "Each prompt below is a complete, self-contained brief: paste one into an AI builder and it",
-    "produces a single working file. Fetch only the prompts you need — the whole library is large.",
+    "Each prompt below is the page's code: a short instruction, then the whole HTML file. Give one",
+    "to an agent and it builds that page; nothing to guess. Fetch only the ones you need: most are",
+    "15,000-60,000 tokens and a few run past 100,000 (each line below gives its size). The code alone",
+    "is the entry's demoUrl in prompts.json.",
     "",
     `- Manifest (all metadata, one fetch): ${manifest.url}prompts.json`,
-    `- Any prompt, raw text: ${manifest.url}p/<slug>.txt`,
+    `- Any prompt (instruction + code): ${manifest.url}p/<slug>.txt`,
     `- Agent skill (how to use this library, step by step): ${manifest.url}SKILL.md`,
     `- MCP server, hosted (Streamable HTTP, no install, no key): ${manifest.url}mcp`,
     `  Claude Code: claude mcp add --transport http instalanding ${manifest.url}mcp`,
@@ -362,8 +368,8 @@ const buildLlmsTxt = (manifest, { prompts }) => {
   lines.push(
     "## Notes",
     "",
-    "- Prompts are prose briefs, not code. They name the stack, the structure and the details that",
-    "  usually get missed; the builder writes the code.",
+    "- Prompts are code, not prose: the instruction on top says what to keep and what to replace,",
+    "  and the HTML file underneath is the exact page. Its header comment has MAP and ADAPTING notes.",
     "- Demos are single HTML files with every asset inlined. They run from `file://` with no build step.",
     "- Slugs are stable. Prompts may be revised in place; `prompts.json` carries a `generated` timestamp.",
     ""
@@ -417,18 +423,6 @@ const buildSitemap = (library, builders, base, seoPages = [], layers = { systems
   ].join("\n");
 };
 
-/**
- * The first lines of every /p/<slug>.txt. A brief that is pasted into a builder
- * travels without its URL; this is the one thing that comes back. It asks, in
- * plain view, for the credit the MIT licence already expects.
- */
-const credit = (entry, base) =>
-  `Brief: ${entry.title} · INSTALANDING.AI (MIT) · ${base}prompt/${entry.slug}
-` +
-  `Credit, if you build from it: keep the line above as a comment at the top of the file you produce.
-
-`;
-
 /** Dates in the data are written "Oct 24, 2026"; anything added this week counts as fresh. */
 const isFresh = (added, now = Date.now(), days = 7) => {
   const t = Date.parse(added ?? "");
@@ -445,8 +439,25 @@ const buildIndexNow = (library, layers, base) => ({
   ],
 });
 
+/**
+ * Code or nothing: the agent surfaces carry only entries with a single-file
+ * page, and each one's prompt becomes the code prompt (instruction + the whole
+ * HTML file). The prose brief stays in the data as `brief` for the site.
+ */
+const withCode = (library, root, base) => {
+  const { codePrompt } = loadData(root, CODE_PROMPT_FILE);
+  const prompts = library.prompts.flatMap((p) => {
+    const file = p.demo && path.resolve(root, "public", p.demo.replace(/^\//, ""));
+    if (!file || !existsSync(file)) return [];
+    return [{ ...p, brief: p.prompt, prompt: codePrompt(p, readFileSync(file, "utf8"), base) }];
+  });
+  const used = new Set(prompts.map((p) => p.category));
+  return { prompts, categories: library.categories.filter((c) => used.has(c.slug)) };
+};
+
 /** Build every published file as { path: contents }. */
-const renderFiles = (library, builders, base, siteName, root) => {
+const renderFiles = (codeless, builders, base, siteName, root) => {
+  const library = withCode(codeless, root, base);
   const layers = loadLayers(root);
   const manifest = buildManifest(library, base, siteName, root, layers);
   const systems = buildSystems(layers, library, base, root);
@@ -482,7 +493,7 @@ const renderFiles = (library, builders, base, siteName, root) => {
     files["SKILL.md"] = readFileSync(skill, "utf8").replaceAll("https://instalanding.ai/", base);
   }
   for (const entry of library.prompts) {
-    files[`p/${entry.slug}.txt`] = credit(entry, base) + entry.prompt;
+    files[`p/${entry.slug}.txt`] = entry.prompt;
     files[`p/${entry.slug}.json`] = JSON.stringify(
       { ...toEntry(entry, base, root, layers), prompt: entry.prompt },
       null,
@@ -493,7 +504,8 @@ const renderFiles = (library, builders, base, siteName, root) => {
 };
 
 /** The routes that get their own shell, from the same data the endpoints publish. */
-const renderRoutes = (library, base, root) => {
+const renderRoutes = (codeless, base, root) => {
+  const library = withCode(codeless, root, base);
   const layers = loadLayers(root);
   const systems = buildSystems(layers, library, base, root).json.systems;
   const motion = buildMotion(layers, library, base).json.motion;

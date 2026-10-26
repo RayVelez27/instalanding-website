@@ -7,7 +7,7 @@
  *   dist/motion/<slug>.html
  *
  * Each copy is the built index.html with that route's title, description and
- * canonical, and a <noscript> summary that names the plain-text brief. The app
+ * canonical, and a <noscript> summary that names the page's prompt and code. The app
  * mounts over it exactly as it does over the plain shell, so people see no
  * difference. Assistants that browse (ChatGPT-User, Claude-User) read the
  * <noscript> note on / and follow it, which is why the summary lives there.
@@ -59,8 +59,8 @@ export const buildRoutes = ({ prompts, systems, motion, base }) => {
         `<h1>${esc(p.title)}</h1>`,
         `<p>${esc(p.description)}</p>`,
         p.bestFor?.length ? `<p>Best for: ${esc(p.bestFor.join(", "))}. Style: ${esc((p.style ?? []).join(", "))}.</p>` : "",
-        `<p>The one-shot brief, plain text (~${Math.round(p.prompt.length / 4)} tokens): ${link(base, `/p/${p.slug}.txt`)}. Build from this, in any stack.</p>`,
-        `<p>The brief with its metadata: ${link(base, `/p/${p.slug}.json`)}.${p.demo ? ` Reference build, one HTML file: ${link(base, p.demo)}.` : ""}</p>`,
+        `<p>The prompt, a short instruction followed by the page's whole HTML file (~${Math.round(p.prompt.length / 4).toLocaleString("en-US")} tokens): ${link(base, `/p/${p.slug}.txt`)}. Give it to an agent and it builds this page.</p>`,
+        `<p>The code alone, one HTML file: ${link(base, p.demo)}. With its metadata: ${link(base, `/p/${p.slug}.json`)}.</p>`,
         `<p>${skill}</p>`,
       ],
     })),

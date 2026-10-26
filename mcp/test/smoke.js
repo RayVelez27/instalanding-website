@@ -82,7 +82,7 @@ try {
   const prompt = await client.callTool({ name: "get_prompt", arguments: { slug } });
   const promptText = bodyOf(prompt);
   check(
-    "get_prompt returns the brief",
+    "get_prompt returns the prompt",
     !prompt.isError && promptText.includes("ONE-SHOT PROMPT") && promptText.length > 400,
     `${promptText.length} chars`
   );
