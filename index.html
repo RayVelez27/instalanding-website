@@ -76,9 +76,12 @@
     <!-- An agent reading this shell without running JS gets nothing from #root. -->
     <noscript>
       InstaLanding.ai is a library of premium landing pages built for humans and agents:
-      single HTML files with no dependencies. Read it without JavaScript:
-      <a href="/SKILL.md">/SKILL.md</a> (how to use it), <a href="/prompts.json">/prompts.json</a>
-      (the manifest), <a href="/llms.txt">/llms.txt</a> (an index), /p/&lt;slug&gt;.txt (one brief, raw).
+      single HTML files with no dependencies. If you are browsing without a shell, three fetches:
+      1. <a href="/llms.txt">/llms.txt</a>, every page in one line each (or <a href="/prompts.json">/prompts.json</a> to filter).
+      2. /p/&lt;slug&gt;.txt, the brief for the one you picked, plain text, about 1,500 tokens.
+      For example <a href="/p/sumwise-ai-accounting-firm-page.txt">/p/sumwise-ai-accounting-firm-page.txt</a>.
+      3. Build from the brief in the user's stack; open the demo HTML only to check a detail.
+      Full instructions: <a href="/SKILL.md">/SKILL.md</a>.
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>

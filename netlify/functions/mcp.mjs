@@ -27,6 +27,53 @@ const libraryFor = (origin) => {
   return libraries.get(origin);
 };
 
+/**
+ * One DataFast goal per MCP call, so agent use shows up beside the site's own goals.
+ *
+ * DataFast only records goals for a visitor that already has a pageview, and an
+ * MCP client never loads a page. So every call is filed under one fixed visitor
+ * (DATAFAST_MCP_VISITOR_ID: the datafast_visitor_id cookie of a browser that has
+ * opened the site once), and the goal carries the tool, the slug and the client.
+ * Needs DATAFAST_API_KEY (the website's df_ key) as well; without both it does
+ * nothing. Goals: mcp_connect (initialize) and mcp_<tool> for every tool call.
+ */
+const GOALS_URL = "https://datafa.st/api/v1/goals";
+const clip = (value) => (value == null || value === "" ? undefined : String(value).slice(0, 255));
+
+const goalsFor = (body, userAgent) => {
+  const messages = Array.isArray(body) ? body : [body];
+  return messages.flatMap((m) => {
+    if (m?.method === "initialize") {
+      const client = m.params?.clientInfo;
+      return [{ name: "mcp_connect", metadata: { client: clip(client ? `${client.name} ${client.version ?? ""}`.trim() : userAgent) } }];
+    }
+    if (m?.method !== "tools/call" || typeof m.params?.name !== "string") return [];
+    const args = m.params.arguments ?? {};
+    return [{
+      name: `mcp_${m.params.name}`.toLowerCase().replace(/[^a-z0-9_:-]/g, "_").slice(0, 64),
+      metadata: { slug: clip(args.slug), query: clip(args.query), category: clip(args.category ?? args.theme), client: clip(userAgent) },
+    }];
+  });
+};
+
+const trackGoals = async (goals) => {
+  const key = process.env.DATAFAST_API_KEY;
+  const visitor = process.env.DATAFAST_MCP_VISITOR_ID;
+  if (!key || !visitor || !goals.length) return;
+  await Promise.all(goals.map(({ name, metadata }) =>
+    fetch(GOALS_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        datafast_visitor_id: visitor,
+        name,
+        metadata: Object.fromEntries(Object.entries(metadata).filter(([, v]) => v !== undefined)),
+      }),
+      signal: AbortSignal.timeout(4000),
+    }).catch(() => {})
+  ));
+};
+
 const withCors = (response) => {
   const headers = new Headers(response.headers);
   for (const [key, value] of Object.entries(CORS)) headers.set(key, value);
@@ -47,11 +94,18 @@ Tools: search_prompts, inspect_prompt, get_prompt, get_demo_source, list_categor
 Docs: https://instalanding.ai/agents
 `;
 
-export default async (request) => {
+export default async (request, context) => {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
   if (request.method === "GET" && !(request.headers.get("accept") ?? "").includes("text/event-stream")) {
     return new Response(ABOUT, { headers: { ...CORS, "Content-Type": "text/plain; charset=utf-8" } });
+  }
+
+  // Read a copy of the call for the goal; the transport still gets the original body.
+  if (request.method === "POST") {
+    const goals = await request.clone().json().then((body) => goalsFor(body, request.headers.get("user-agent")), () => []);
+    const sent = trackGoals(goals);
+    if (context?.waitUntil) context.waitUntil(sent);
   }
 
   const origin = new URL(request.url).origin;

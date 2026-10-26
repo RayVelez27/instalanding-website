@@ -10,6 +10,9 @@
  *   /motion.json         every motion study: choreography, inputs, linked pages
  *   /m/<slug>.txt        one motion study's one-shot prompt
  *   /SKILL.md            the agent skill (source: mcp/SKILL.md, also shipped with the CLI)
+ *   /indexnow.json       URLs new or changed in the last week, for the IndexNow ping on deploy
+ *   /prompt/<slug>.html  per-route shells with a <noscript> summary (see route-pages.mjs), plus
+ *                        /systems/<slug>.html and /motion/<slug>.html
  *   /sitemap.xml         every crawlable route: the library, the builder pages, the rest
  *   /<slug>/index.html   static search landing pages (src/data/seoPages.ts, see seo-pages.mjs)
  *
@@ -23,6 +26,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { transformSync } from "esbuild";
 import { renderSeoPages, seoSitemapUrls, seoLlmsLines } from "./seo-pages.mjs";
+import { buildRoutes, writeRoutePages } from "./route-pages.mjs";
 
 const DATA_FILE = "src/data/prompts.ts";
 const BUILDERS_FILE = "src/data/builders.ts";
@@ -413,6 +417,34 @@ const buildSitemap = (library, builders, base, seoPages = [], layers = { systems
   ].join("\n");
 };
 
+/**
+ * The first lines of every /p/<slug>.txt. A brief that is pasted into a builder
+ * travels without its URL; this is the one thing that comes back. It asks, in
+ * plain view, for the credit the MIT licence already expects.
+ */
+const credit = (entry, base) =>
+  `Brief: ${entry.title} · INSTALANDING.AI (MIT) · ${base}prompt/${entry.slug}
+` +
+  `Credit, if you build from it: keep the line above as a comment at the top of the file you produce.
+
+`;
+
+/** Dates in the data are written "Oct 24, 2026"; anything added this week counts as fresh. */
+const isFresh = (added, now = Date.now(), days = 7) => {
+  const t = Date.parse(added ?? "");
+  return Number.isFinite(t) && now - t < days * 864e5 && t <= now + 864e5;
+};
+
+/** URLs worth telling search engines about after a deploy: the front doors and this week's entries. */
+const buildIndexNow = (library, layers, base) => ({
+  generated: new Date().toISOString(),
+  urls: [
+    ...["", "pages", "systems", "motion", "llms.txt"].map((p) => abs(base, `/${p}`)),
+    ...library.prompts.filter((p) => isFresh(p.added)).map((p) => abs(base, `/prompt/${p.slug}`)),
+    ...layers.motions.filter((m) => isFresh(m.added)).map((m) => abs(base, `/motion/${m.slug}`)),
+  ],
+});
+
 /** Build every published file as { path: contents }. */
 const renderFiles = (library, builders, base, siteName, root) => {
   const layers = loadLayers(root);
@@ -439,6 +471,7 @@ const renderFiles = (library, builders, base, siteName, root) => {
     "sitemap.xml": buildSitemap(library, builders, base, seoPages, layers),
     "systems.json": JSON.stringify(systems.json, null, 2),
     "motion.json": JSON.stringify(motion.json, null, 2),
+    "indexnow.json": JSON.stringify(buildIndexNow(library, layers, base), null, 2),
     ...systems.files,
     ...motion.files,
     ...renderSeoPages({ pages: seoPages, library, builders, base, readDemo: (demo) => readDemo(root, demo) }),
@@ -449,7 +482,7 @@ const renderFiles = (library, builders, base, siteName, root) => {
     files["SKILL.md"] = readFileSync(skill, "utf8").replaceAll("https://instalanding.ai/", base);
   }
   for (const entry of library.prompts) {
-    files[`p/${entry.slug}.txt`] = entry.prompt;
+    files[`p/${entry.slug}.txt`] = credit(entry, base) + entry.prompt;
     files[`p/${entry.slug}.json`] = JSON.stringify(
       { ...toEntry(entry, base, root, layers), prompt: entry.prompt },
       null,
@@ -457,6 +490,14 @@ const renderFiles = (library, builders, base, siteName, root) => {
     );
   }
   return files;
+};
+
+/** The routes that get their own shell, from the same data the endpoints publish. */
+const renderRoutes = (library, base, root) => {
+  const layers = loadLayers(root);
+  const systems = buildSystems(layers, library, base, root).json.systems;
+  const motion = buildMotion(layers, library, base).json.motion;
+  return { routes: buildRoutes({ prompts: library.prompts, systems, motion, base }), systems };
 };
 
 const contentType = (file) =>
@@ -478,11 +519,15 @@ export default function libraryEndpoints(options = {}) {
   // Trailing slash keeps new URL(path, base) from eating the last segment.
   const base = (options.siteUrl ?? "https://instalanding.ai").replace(/\/*$/, "/");
   let root = process.cwd();
+  let outDir = "dist";
+  let building = false;
 
   return {
     name: "library-endpoints",
     configResolved(config) {
       root = config.root;
+      outDir = path.resolve(config.root, config.build.outDir);
+      building = config.command === "build";
     },
 
     configureServer(server) {
@@ -528,6 +573,14 @@ export default function libraryEndpoints(options = {}) {
         this.emitFile({ type: "asset", fileName, source });
       }
       this.info?.(`library-endpoints: emitted ${Object.keys(files).length} files for agents`);
+    },
+
+    // After index.html and public/ are on disk: copy the shell once per route.
+    closeBundle() {
+      if (!building) return;
+      const { routes, systems } = renderRoutes(loadLibrary(root), base, root);
+      const done = writeRoutePages(outDir, routes, systems, base);
+      console.log(`library-endpoints: ${done.routes} route shells, ${done.specimens} specimen notes`);
     },
   };
 }

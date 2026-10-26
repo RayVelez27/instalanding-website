@@ -26,4 +26,13 @@
 /free-html-landing-page-template     /free-html-landing-page-templates/  301
 /ai-landing-page-template            /ai-landing-page-templates/      301
 
+# Agent endpoints. Real briefs are static files and are served first; anything
+# else under these prefixes is a typo or a scraped URL, and gets a 404 that says
+# where the real list is, never the app shell with a 200. Paths that end in ")"
+# or "):" (pulled out of markdown links) are 301'd to the clean URL first, by
+# netlify/edge-functions/agent-paths.mjs.
+/p/*  /not-in-library.txt  404
+/m/*  /not-in-library.txt  404
+/s/*  /not-in-library.txt  404
+
 /*  /index.html  200

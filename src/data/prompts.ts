@@ -110,6 +110,125 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Plinth AI Merchant Agents Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A gallery-quiet page for AI agents that run online stores: the store console stands on a marble and brass plinth in 3D, a pinned stack separates into the three layers every agent stands on, blueprint frames draw round each agent at work, and onboarding runs sideways along a lit wire",
+    prompt: `Build a landing page for Plinth, a fictional company that deploys AI agents for independent online stores (support, catalog, inventory, pricing and retention agents, trained on the store's own policies, working inside its existing tools, with spend limits, approval rules and a signed receipt for every action), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Source Serif 4 (light, with italics) for display and Hubot Sans with its width axis for text and wide caps.
+
+DESIGN SYSTEM
+A quiet gallery in warm off-white: bg #F4F4F1, ink #22252E, brass accent #7F5F27, plus cool, paper and field tints and mixed muted, soft and line colours. Display headings Source Serif 4 at weight 300 with an italic brass word; small labels in Hubot Sans 112% wide, uppercase, tracked. Square corners; a 3.5% noise over everything. Buttons fill ink from the bottom with a corner mark that grows; links redraw their underline; round-free icon buttons with a plus that turns. A team section switches the whole page tone to a cool stone.
+
+PICTURES IN CODE (no image files)
+One shared SVG library: soft wall light with window gobos, gold and brass gradients, a matte black coffee bag with a foil label, a cognac leather tote with brass rings, coffee beans, and a portrait bust that takes --top, --skin and --hair so four team portraits share one drawing. Product scenes under studio light (coffee bag and steaming cup, tote on a marble plinth, amber serum bottle, a kraft shipping box with a label, a phone storefront, a brass watch listing, a night globe with order routes), and app scenes (support inbox with the agent's logged reasoning, pricing chart holding above a margin floor, forecast with a drafted purchase order, knowledge sources and brand-voice sliders, agent switches with guardrails, a Black Friday spike).
+
+STRUCTURE
+1. A fixed left rail on desktop (30vw): the wordmark with a stepped brass mark, an isometric line drawing of a plinth whose plates rise as the page scrolls, and section links that light as you pass. On phones a top bar with a menu button. A floating brass "Book a demo" button appears except over the hero, contact and footer.
+2. Hero: two pills joined by a wire with a travelling brass signal, "Your store never sleeps." huge and light, the lead and buttons. Beside it a 3D scene in CSS perspective: the Plinth console (sidebar, greeting "Good night, Irene. Your agents have it.", three KPI cards with sparklines, a revenue chart, a live activity feed) standing on a marble and brass plinth with crystal shards and a brass column, plus an autonomy donut (92%) and a dark restock-approval card floating at different depths. Layers rise in on load, float gently and tilt toward the pointer.
+3. Platform (pinned on desktop): "Every agent stands on three layers you control" with Context, Agents and Guardrails beside a framed diagram of the Plinth core wired to six store systems; on scroll the frame tilts back and separates into coloured plates with dashed guides, each plate sliding out as its note lights.
+4. Merchants: three stacked case cards (a coffee roaster, a leather-goods maker, a skincare brand) with tags, a spec list of results, a product scene with parallax and a small inset app scene; each card scales back and dims as the next covers it.
+5. Agents: a 12-column contact sheet of six frames whose blueprint borders, crosses and captions draw in before the picture wipes up. Pricing: Starter $490, Growth $1,900 (featured, fills brass after it rises), Enterprise Custom.
+6. Onboarding (pinned): four steps (Connect, Train, Launch, Scale) scroll sideways while a brass wire grows along their pills, lighting each one. Team (cool tone): four people with portrait, role, bio and a short CV, as an accordion on phones.
+7. Voices: a large quote whose words brighten as you scroll, and two smaller quotes. Results: a line chart drawn from the axis numbers (18k to 81k orders a month) that reveals left to right, and three big figures. FAQ: sticky intro and five accordion questions with brass rules that draw in. Journal: three entries with app or still-life thumbnails. Contact: details and a form whose underlines draw in. Footer in brass with a giant wordmark whose letters rise.
+
+THINGS THAT BREAK
+- Add .motion in the head before first paint unless prefers-reduced-motion, and remove it if GSAP has not arrived after 2.5s.
+- Size the 3D hero in em units from a container query so the whole scene scales as one; keep it inside an overflow-hidden, masked box.
+- Measure the onboarding wire and pill positions on refreshInit, and refresh ScrollTrigger when an accordion opens.
+- Queue the scroll scenes and build them in small time slices so the page stays responsive, then split headings only as they come near.
+
+THE FLOOR
+One h1, a main, every section with an id. Scenes have role="img" and a label; decorative layers are aria-hidden. The menu button uses aria-expanded and swaps its label; Escape closes it. Accordions are buttons with aria-expanded. The form has labels and a polite status and sends nothing. Focus rings on everything. prefers-reduced-motion: no pinning, scrubbing, 3D float or Lenis. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 25, 2026",
+    demo: "/demos/plinth-merchant-agents.html",
+    bestFor: ["e-commerce and retail AI", "B2B SaaS for merchants", "AI agent platforms", "premium product launches"],
+    style: ["editorial", "luxury", "3d-css", "svg-illustration", "scroll-driven"],
+    thumbnail: "/thumbs/plinth-merchant-agents.jpg",
+    theme: "light",
+  },
+  {
+    title: "Sumwise AI Accounting Firm Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A print-shop page for an AI accounting firm: an ink cover opens to full screen as eight duotone illustration tiles fly out and back, a sample monthly close walks itself through, halftone dots resolve into each service, a chat replays an AI answering from the books, and the tax year scrolls past on a pinned track",
+    prompt: `Build a landing page for Sumwise, a fictional AI accounting firm for small business (bookkeeping, taxes, payroll, invoicing, bill pay and cash forecasts, done around the clock by an AI and checked by a licensed CPA), as one HTML file. GSAP 3.13 with ScrollTrigger, and Lenis 1.3, from jsdelivr. Google Sans 400-700 with a metric-matched Arial fallback.
+
+DESIGN SYSTEM
+White paper, ink #0b0b0b, orange #fe7141, lilac #cdabfe and sage #d1ddd3, with two greys. Square corners everywhere and hairline rules that draw in from the left. Headings Google Sans 500, very tight (-0.055em). Buttons are ink or orange blocks whose opposite colour opens from the centre on hover, with an arrow that slides or a plus that turns; links fill lilac from the bottom; highlighted words get a coloured marker that wipes in. Small uppercase badges in white.
+
+PICTURES IN CODE (no image files)
+One hidden SVG sprite holds every illustration, drawn in greys at 400 x 500 and multiplied over each frame's flat tint (orange, lilac or sage) with a grain overlay, so they print as duotone: receipts under a scanning beam, an invoice that gets a PAID stamp and flies off as a paper plane, a cash forecast with a pulsing dot, a tax return stamped FILED, an AI chip with dots running along its traces, a cheque and a calendar ticked off, a CPA shield with a check that draws in, a calculator on a ledger, a bank wired to cards and phones, a kitchen team marked PAID, a shoebox of receipts being scanned, and seven portraits built from one shared face with different hair, glasses, clothes and props. All animation is SMIL inside the sprite.
+
+STRUCTURE
+1. A white top bar with an ink wordmark and orange "AI" tag, an orange "Start free for 30 days" button, four bordered links and an orange scroll progress line; it hides on scroll down. Under 900px a "Menu +" button opens a full ink menu.
+2. Hero (sticky stage): an ink cover card in the middle with "Accounting that does it all.", the lead, a live counter of transactions categorized today with a pinging dot, buttons and a big "24/7"; eight tinted illustration tiles with badges scattered around it. On scroll the ink spreads from the card to fill the screen, the tiles fly outward and back, and a statement appears with three highlighted trades (cut hair, bake bread, wire houses) above three principles.
+3. Monthly close (lilac): four numbered notes beside a sticky one-page sample report for a bakery (profit, twelve cash bars, tax set aside, a "done for you" tally); as each note passes, its number fills and a sage band slides to the matching part of the report.
+4. Services: three full-screen stacked slabs (Books orange, Taxes sage, Payroll lilac) with a giant name, copy, an illustration that resolves from big halftone dots, and an included list; each slab shrinks as the next covers it.
+5. Everything: a ruled 4 x 3 grid of twelve jobs with icons and tags (Automated, You approve, CPA-signed) that deal in and fill colour on hover. Ask (orange): sample questions beside an ink chat window that replays a conversation with typing dots, including a mini cash chart card.
+6. Switching: the shoebox illustration and three ruled steps. Tax year (ink, pinned): twelve month columns of deadline chips scroll sideways past an orange line, each chip filling with its colour as it crosses.
+7. Stories: three alternating rows of an ink portrait panel and a tinted quote. Accountants: four portraits with CPA / CPP / EA badges that settle into the grid. FAQ (sage): six details rows.
+8. Pricing: three plans ($49, $199, $499) whose coloured blocks are as tall as their price and rise on scroll. Contact: details and an ink form with coloured checkbox chips and a local-only status. Footer: columns, an orange "24/7" and a giant "Sumwise".
+
+THINGS THAT BREAK
+- Queue every motion setup and run them in order after fonts load; if one throws, revert its GSAP context and undo the attribute changes it made.
+- Measure tile vectors, report bands and chip positions inside functions and use invalidateOnRefresh.
+- Pause the hero tile pans when the stage is off screen, and only stack the service slabs on screens at least 900 x 680.
+
+THE FLOOR
+One h1, a main, every section with an id. Illustrations have role="img" and a label; sprites, rules and decorative bands are aria-hidden. The menu button uses aria-expanded, takes focus to Close and Escape closes it. FAQ is details/summary; the form has labels and a status line and sends nothing. Focus rings on everything. prefers-reduced-motion: no smooth scroll, pinning or scrubbing, and the chat shows in full. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 25, 2026",
+    demo: "/demos/sumwise-ai-accounting.html",
+    bestFor: ["fintech and accounting", "small-business SaaS", "AI services firms", "professional services"],
+    style: ["duotone", "editorial", "svg-illustration", "bold-color", "scroll-driven"],
+    thumbnail: "/thumbs/sumwise-ai-accounting.jpg",
+    theme: "light",
+  },
+  {
+    title: "Infra AI Thermal Agent Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A thermal-camera page for an AI agent that sees heat: a giant condensed \"INFRA\" over a swirling WebGL heat plume, its letters stretching from the centre out as you scroll, every picture painted as a live heat field with a camera HUD, and a probe that reads the temperature under your cursor",
+    prompt: `Build a landing page for Infra, a fictional AI agent that watches thermal and infrared cameras, understands what the heat means and acts on it (six agents: Triage, Crowd, Machine, Building, Space, Rack; under 40 ms per frame, no faces stored, edge, cloud or on-prem), as one HTML file. GSAP 3.13 with ScrollTrigger, and Lenis 1.3.4, from jsdelivr. Google Fonts: Hubot Sans with its width axis (75% wide for condensed caps, 112-125% for tracked labels) and Kalnia for a light serif.
+
+DESIGN SYSTEM
+The palette of a thermal camera: ink #09050f, night #1c1046, cool #06a7e1, pink #e8098a, hot #ef3f29, sun #fbee0c, paper #e8e6e0. Sections alternate full blocks of hot, paper, ink, night and sun, each with an SVG noise grain. Big radial "heat halos" (cool at the core through pink to hot) sit behind headings and cards. Headings are Hubot Sans 75% wide, weight 820, uppercase, very tight; display serif moments in Kalnia 200 at 125% width. Square ink tags in tracked caps; buttons whose fill rises as a hot-to-sun gradient; links with a heat-gradient underline that runs in; icon buttons that fill sun from a circle.
+
+PICTURES IN CODE (no image files)
+Every image is a <canvas class="thermo"> painted by a small renderer: a greyscale scene drawn at low resolution where brightness is heat (a portrait with hair and glasses options, a sunny street, a concert crowd with raised hands, a heart made of hands, an operator at warm equipment, a gallery, a team at a board, a machine with hot rollers, a cinema, a sunlit hall), then blurred, bloomed, given value noise and posterised steps, and mapped through a heat, cold or fever palette chosen by the nearest data-map. Each frame gets a camera HUD: corner brackets, a crosshair and reading on the hottest point, MAX / MIN / emissivity, a colour scale bar, and a blinking LIVE IR 8-14µm label on live feeds, which re-render with moving sensor noise. Hovering any thermal image shows a crosshair probe that reads the temperature under the pointer.
+
+STRUCTURE
+1. A fixed header of separate ink blocks (wordmark in sun, links, a sun "Book a demo") that hides on scroll down; under 1100px a menu button opens a full-screen hot menu with a cool radial glow.
+2. Hero (sticky for 115vh more): a hot field with a WebGL thermal plume (fbm-warped swirl in cool, night, pink and hot, iso-lines and sun flecks, following the pointer), falling back to the CSS halo; a tracked eyebrow "The AI agent that sees heat", a thin ellipse ring with a cool dot orbiting it, "INFRA" in weight 330 filling the width and scaled tall, a live thermal portrait in a paper frame with a tag, and two tags and a button. On scroll the letters stretch taller from the centre out, the ring flattens and fades, the plume grows and the feed rises.
+3. Manifesto (paper): "See the / warmth" in the serif across the width over a pink halo and a thermal street photo, three big figures (40 ms, 0.05 °C, 0 faces) and the story.
+4. Capabilities (ink): six cards (Watch, Detect, Reason, Act, Explain, Private) in rotating section colours with a glow, titles filling the card width, clipping up into view.
+5. Agents (night): six portraits in a staggered grid that start in the cold palette and are scanned into the heat palette by a sun line as you scroll.
+6. How it works (ink, pinned and scrolled sideways): an intro then three step cards (Sense, Reason, Act), each with a thermal frame that pans slightly and a timed log of what the agent did (00.00 to 01.30).
+7. In the field (paper): a 12-column collage of six thermal frames with captions and offset outline frames, drifting at different parallax speeds. Alerts (ink): two marquees in opposite directions of quote cards, each an alert in one plain sentence, pausing on hover and focus.
+8. API (sun): a vertical "Build on it", facts (latency, SDKs, free tier, runs on) and a framed thermal portrait whose outline draws in. Pricing (night): three plans (€49, €39 per camera, Custom) with tall thin prices; the middle card is hot with a rising glow.
+9. CTA: "See heat" in outline over a 34-step text-shadow trail running cool to sun to hot to pink to night that grows down as you scroll. FAQ (paper): sticky title and six details rows with rules that draw in. Contact (night): address, details and buttons beside concentric isotherm ellipses that draw in around a sun core. Footer (hot): halo, columns, a giant stretched "INFRA".
+
+THINGS THAT BREAK
+- Add .motion in the head before first paint unless prefers-reduced-motion, and remove it if GSAP has not arrived after 2.5s.
+- Render each thermal canvas at its real size (DPR capped at 2) through a ResizeObserver, cache the heat fields, re-render after fonts load, and run live feeds only while on screen.
+- Render the WebGL plume at 0.6x resolution with DPR capped at 1.5, stop it off screen and handle context loss.
+- Place the hero feed from measured positions so it never covers the eyebrow at any size.
+
+THE FLOOR
+One h1 (the eyebrow and the wordmark), a main, every section with an id. Thermal canvases have role="img" and a label; halos, rings and duplicates are aria-hidden. The menu button uses aria-expanded and swaps its label; Escape closes it. FAQ is details/summary. Marquee copies are aria-hidden and untabbable. Focus rings on everything. prefers-reduced-motion: no pinning, scrubbing, marquees or live noise. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 25, 2026",
+    demo: "/demos/infra-thermal-agent.html",
+    bestFor: ["computer vision and AI agents", "industrial and IoT monitoring", "security and safety products", "developer APIs"],
+    style: ["thermal", "bold-color", "canvas-art", "webgl", "scroll-driven"],
+    thumbnail: "/thumbs/infra-thermal-agent.jpg",
+    theme: "dark",
+  },
+  {
     title: "Easel AI Artist Assistant Page",
     category: "web",
     categoryLabel: "WEB",

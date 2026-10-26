@@ -5,6 +5,16 @@ description: Use when building or restyling a landing page, hero, marketing site
 
 # INSTALANDING.AI
 
+**Browsing, with no shell and no MCP? Three fetches:**
+
+1. `https://instalanding.ai/llms.txt` — every page in one line each: what it is, what it suits.
+   Or `https://instalanding.ai/prompts.json` to filter by style, sections and stack.
+2. `https://instalanding.ai/p/<slug>.txt` — the brief for the one you picked, plain text, about
+   1,000–1,500 tokens. For example `https://instalanding.ai/p/sumwise-ai-accounting-firm-page.txt`
+   or `https://instalanding.ai/p/nota-wearable-ai-page.txt`.
+3. Build from the brief in the user's stack. The demo HTML (`/demos/*.html`) is the finished
+   reference, 75–170 KB with every asset inlined: open it to check a detail, don't paste it whole.
+
 A free, open library of landing pages and UI components written for agents. Each entry is a
 **one-shot brief** (prose: stack, design values as numbers, structure, and the things that
 break) and usually a **reference build**: one HTML file, every asset inlined, no build step.

@@ -1,0 +1,8 @@
+Not in the INSTALANDING.AI library.
+
+That path is not a brief. Every real one is listed in:
+  https://instalanding.ai/llms.txt       one line per page
+  https://instalanding.ai/prompts.json   the manifest, with every brief's URL
+
+Briefs live at /p/<slug>.txt, design systems at /s/<slug>.txt, motion studies at /m/<slug>.txt.
+How to use the library: https://instalanding.ai/SKILL.md

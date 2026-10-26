@@ -378,12 +378,14 @@ Generated at build by `plugins/library-endpoints.mjs`, served from memory in dev
 | path | what it is |
 | --- | --- |
 | `/prompts.json` | manifest: every entry's metadata, URLs, token estimate, credits, `bestFor`, `style`, and — read off the demo — `sections`, `stack`, `demoBytes` |
-| `/p/<slug>.txt` | one prompt, raw, ready to paste verbatim |
+| `/p/<slug>.txt` | one prompt, ready to paste verbatim, after a two-line credit (title, MIT, page URL) |
 | `/p/<slug>.json` | the same prompt plus its metadata |
 | `/llms.txt` | markdown index of the library, per the llms.txt convention |
 | `/SKILL.md` | the agent skill, from `mcp/SKILL.md` with URLs rewritten to `SITE_URL` |
 | `/sitemap.xml` | every crawlable route: library, categories, agents, builder pages, about |
 | `/mcp` | the hosted MCP server (a Netlify Function, not a static file — not served by `npm run dev`) |
+| `/prompt/<slug>`, `/systems/<slug>`, `/motion/<slug>` | per-route copies of the app shell (`plugins/route-pages.mjs`): that route's title, description, canonical and a `<noscript>` summary naming the plain-text brief. The app mounts over them as usual |
+| `/indexnow.json` | the front doors plus entries added this week; `netlify/functions/deploy-succeeded.mjs` sends them to IndexNow after each production deploy |
 
 Entries carry `videoUrl` and `repoUrl` in the manifest, so an agent can tell a repo-hosted
 template from a single-file demo without fetching anything.
@@ -396,8 +398,8 @@ it reads the library from the origin that received the request, so a deploy prev
 serves that preview's prompts.
 
 Keep these promises when changing the plugin: `prompts.json` always has a `prompts` array, slugs
-are stable, `/p/<slug>.txt` is the prompt **and nothing else** (no header, no banner — it gets
-pasted verbatim).
+are stable, `/p/<slug>.txt` is the credit line and then the prompt **and nothing else** (no other
+header or banner — it gets pasted verbatim, and the credit is written to be pasted with it).
 
 ## Deployment notes
 
@@ -409,6 +411,16 @@ pasted verbatim).
   agents can read them. Reproduce that on any other host.
 - `SITE_URL` at build time sets the absolute URLs inside `prompts.json` and `llms.txt`. Set it to
   the production origin or the manifest will point at `https://instalanding.ai`.
-- Known gap: the SPA is not prerendered, so `/prompt/<slug>` returns the app shell to a fetcher.
-  The flat endpoints exist precisely so agents do not need it — but prerendering is the next win
-  for crawlers and link unfurls.
+- The SPA is not prerendered, but `/prompt/<slug>`, `/systems/<slug>` and `/motion/<slug>` each
+  get their own copy of the shell with real meta tags and a `<noscript>` summary, so a fetcher
+  that does not run JavaScript still learns what the page is and where its brief lives.
+- Unknown `/p/*`, `/m/*` and `/s/*` paths return `public/not-in-library.txt` with a 404, never
+  the app shell. Paths ending in `)` or `):` (URLs scraped out of markdown) are 301'd to the
+  clean path by `netlify/edge-functions/agent-paths.mjs`.
+- MCP calls are counted as DataFast goals (`mcp_connect`, `mcp_<tool>` with the slug, query and
+  client) when two Netlify environment variables are set: `DATAFAST_API_KEY` (the website's
+  `df_` API key) and `DATAFAST_MCP_VISITOR_ID` (a fixed DataFast visitor that has a pageview;
+  goals need one, and an MCP client never loads a page). Without them `/mcp` works and counts
+  nothing.
+- IndexNow: the key is in `deploy-succeeded.mjs` and served as `public/<key>.txt`. Keep the two
+  in step if the key is ever rotated.
