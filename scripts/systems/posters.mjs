@@ -35,6 +35,9 @@ const HEROES = {
   tessel: ["hero@1200", "blocks@1000", "utilisation@600", "guide@760"],
   agentic: ["hero@1200", "art@1100", "stats@1100", "programme@1100"],
   hearthly: ["art@1100", "plates@1100", "team@1100", "pricing@1100"],
+  corvane: ["hero@1200", "criteria@1100", "team@1100", "ledger@1100"],
+  lemegeton: ["seal@760", "wards@1100", "summon@1100", "pricing@1100"],
+  ochre: ["hero@1200", "phones@1000", "pricing@1100", "soundscapes@1100"],
 };
 
 // Systems whose identity background is a pattern: their small text sits on a label
