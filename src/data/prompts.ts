@@ -110,6 +110,360 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Linework AI Architect Assistant Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A quiet, paper-white page for an AI architect assistant where everything is drawn line by line in code: an amphitheatre in ink with a roaming blue blueprint lens, a skyline of nine procedural buildings you filter and open into a drawing-versus-render slider, a house that draws itself stage by stage as you scroll, and a harbour city footer",
+    prompt: `Build a landing page for Linework, a fictional AI architect assistant from Copenhagen (reads the site, maps sun, wind and setbacks, sketches massing options, drafts plans, sections and 1:5 details, and keeps every sheet in step; the architect makes every decision), as one HTML file. No libraries. Google Fonts: Urbanist for body, Instrument Sans 400 for headings, IBM Plex Mono for labels.
+
+DESIGN SYSTEM
+Drafting paper #f5f5f1 with a 22px dot grid, ink #121212, one electric blue #4353ff with a soft tint, hairline rules #e1e1da and muted grey. Headings Instrument Sans 400 at -.035em; small uppercase mono eyebrows in parentheses, like ( How it works ). Ink buttons with 6px corners that turn blue on hover; round outline arrow buttons; square white cards with hairlines and a long soft shadow.
+
+PICTURES IN CODE (no image files)
+A stroke draw system: every path has pathLength=1, a 1/2 dash and a dash offset of 1, and an .on class animates it to 0 with a per-path delay, ordered by line class (outline, lines, windows, details, hatch, glazing, trees and people). Nine procedural buildings, each a function returning a footprint fill and classed line sets: a gridded library cube, a stepped tower with a glazed slot, a seven-bay vaulted arcade, a domed mosque with a minaret, a striped bathing hut with a flag, stacked offset concrete trays, a cantilevered forest pavilion, a stepped hillside villa and a long low house under palms. Each can also be painted as a render (sky gradient, sun bloom, hills, a skewed blurred shadow, glazing gradients, a side shade). Generated trees, palms, cypresses and stick people.
+
+STRUCTURE
+1. A fixed header that frosts after 24px of scroll, with a logo, four links that track the section in view, Get early access, and a full-screen numbered menu on phones.
+2. Hero: "Design places that last." over a generated ink amphitheatre (four tiers of arches in perspective that crumble into a ruin, with cypresses, people, perspective guides and a 41.0 m dimension). A blue blueprint lens with corner marks, a DETAIL A, 1:200 label and live X / H coordinates follows the pointer (or tap), drifting on its own when idle; a scan line sweeps the drawing first.
+3. Services: a white card with a hairline X behind it, a heading and lead, and three tiles whose line icons draw in.
+4. Projects: filter chips with counts, a skyline of the nine buildings drawn in on scroll (hover to lift one in blue with hatching and centre lines, a pill bubble names it, numbered ticks below, horizontal swipe on phones), and a panel whose drawing reveals the render through a circle that follows the cursor, with copy, area, status and previous / next. Clicking opens a dialog with a draggable drawing-versus-render split, the full story and a "With Linework" note.
+5. How it works: a sticky drawing box with a stage bar and five step buttons, beside five scroll steps; a community house draws itself in stages (site with sun and north arrow, massing with hatch, structure with dimensions, facade and detail, people and trees), the current stage in blue.
+6. Why Linework: a greyscale studio figure (drawings pinned on a wall, a desk, a lamp, a blurred colleague walking past), two columns of copy, three principles and four count-up stats.
+7. Quotes: a three-quote carousel with dots, arrows and an 8-second auto-advance. Footer (ink): a call to action, address and links, and a wide harbour city drawn in white lines (townhouses, a warehouse, a mosque, a gallery, a library, towers with cranes, a bridge, boats and water).
+
+THINGS THAT BREAK
+- Use a seeded random generator so the drawings are the same on every load.
+- Use pathLength="1" on every stroked path so one dash rule draws any path at any size, and set a --sw variable to keep stroke widths even when a building is scaled.
+- Give every hatch pattern and render gradient an id unique to where it is drawn.
+- Restart the skyline's draw when a filter changes by removing .on, forcing layout, then adding it back.
+
+THE FLOOR
+One h1, one main with labelled sections, and every drawing with role="img" and a description of what it shows. Filter chips and quote dots use aria-pressed; the menu button uses aria-expanded; dialogs are native with a labelled close button; the compare slider is a labelled range input; the early access form has labels and sends nothing. prefers-reduced-motion: strokes show fully drawn, animations and transitions are near zero. No horizontal scroll at 390px outside the skyline's own scroller.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 28, 2026",
+    demo: "/demos/linework-architect-assistant.html",
+    bestFor: ["architecture and AEC software", "design and CAD tools", "AI assistants for professionals", "studios with a portfolio"],
+    style: ["light", "minimal", "line-drawing", "svg-illustration", "scroll-driven"],
+    thumbnail: "/thumbs/linework-architect-assistant.jpg",
+    theme: "light",
+  },
+  {
+    title: "AI/CONF Frontier AI Conference Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A pink-and-cobalt bento page for a frontier AI conference: a huge outlined headline over slow orbit rings and a typed prompt, a sticky sidebar with a morphing glass orb agenda and a live countdown ticket, and navy scenes in liquid glass (a gooey neural net, a compute chip, an attention heatmap, test-tube benchmarks and server racks)",
+    prompt: `Build a landing page for AI/CONF, a fictional two-day conference for ML engineers and AI builders (14-15 April 2027, Pier 48, San Francisco; five tracks, 120+ talks, 40+ GPU build labs; passes at $499, $1,199 and $3,900), as one HTML file. No libraries. Google Fonts: Space Grotesk 400-700 and JetBrains Mono.
+
+DESIGN SYSTEM
+Pink #ffb3c1 and cobalt #0027ba as the two main colours, each with alpha steps, plus light grey #e8eaf1, off-white #f4f4f4 and navy #000a32. Everything is uppercase Space Grotesk at weight 400 with very tight tracking (a 128px h1 at -6.4px, 64px h2s at -3.2px); mono labels in brackets like [Program]. A bento of rounded 12px boxes with 8px gutters; pill buttons that swap pink and blue on hover with an arrow that nudges up-right; a grain overlay on the pink boxes. A shared "liquid glass" language: gradients from pink to blue with a pink top rim and blue bottom rim, inner glows, and SVG goo filters so drops merge.
+
+PICTURES IN CODE (no image files)
+One SVG defs block shared by everything: icons, two portrait figures (short and long hair) coloured through CSS variables, liquid gradients, a rim glow and three goo filters. Navy "depth" scenes with a moving perspective grid floor and a breathing halo: a gooey neural net where drops travel from a core to six nodes inside a glass hexagon under tilted orbit rings; a compute chip with pulsing traces and a liquid blob roaming a 3x3 cell grid; a glass attention heatmap (12x12, causal) that repaints; an agent terminal with rising thought bubbles; benchmark test tubes with waving liquid and bubbles; a gooey RAG pipeline (Documents, Embed, Retrieve, LLM answer) with dripping drops; six glass server racks with blinking LEDs over a cooling loop. Testimonial portraits clipped to a star, an arch and a rounded square, inside a glass lens.
+
+STRUCTURE
+1. An 8-column layout: six columns of content and a two-column sticky sidebar (100vh) holding an agenda card with a morphing glass orb, three times and a button, and a ticket card with a live countdown, a dashed perforation with notches and a big Get a Pass link.
+2. Hero (pink, full height): logo, a centred outlined pill menu and a Get a Pass button; slowly rotating orbit rings; a live badge, the headline with "AI" outlined, a line, two buttons and a typed prompt that cycles train / eval / deploy / align calls. Below it three cobalt info boxes (When, Where, For who).
+3. A navy marquee of topics. About: a heading box, then three numbered cards with glass icon tokens alternating with the net, chip and attention scenes.
+4. Partners: a cobalt heading box and four logo tiles with a cursor spotlight. Program: a pink box with five track pills, a signature experiences card and three stat cards with tiny gradient sparklines.
+5. Passes: three tiers (grey, cobalt with Most popular, navy) with masked tick lists. Testimonials: three rows alternating portrait and quote card.
+6. FAQ: two columns of toggles. Journal: three posts with the terminal, tube and pipeline covers. Archive: four past-edition blocks over the data-centre scene.
+7. Contact (pink): sticky big contact pills beside a cobalt form with a select and a thank-you state. Footer (navy): a giant faint mark, the closing line, link pills, a newsletter form and a full-width Get Your Pass bar.
+
+THINGS THAT BREAK
+- Under 1160px hide the sidebar and show a fixed bottom ticket bar once the hero is 60% scrolled past.
+- Size the h1 with min(128px, 11.5vh) so it fits short desktop screens, and switch to left-aligned clamp() sizes on phones.
+- Collapse FAQ answers by animating grid-template-rows from 0fr to 1fr.
+- Give each goo-filtered group a fill from one shared gradient so the merged blobs read as one liquid.
+
+THE FLOOR
+One h1 and a main hero, every section with an id and a heading, and real labels on every form field. Decorative scenes are aria-hidden; the burger has an aria-label. Forms send nothing. prefers-reduced-motion: every animation and transition is off and revealed content shows at once. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 28, 2026",
+    demo: "/demos/ai-conf-frontier.html",
+    bestFor: ["AI conferences and events", "developer and research summits", "ticketed launches with tiers", "community meetups"],
+    style: ["light", "bento", "liquid-glass", "svg-illustration", "brutalist-type"],
+    thumbnail: "/thumbs/ai-conf-frontier.jpg",
+    theme: "light",
+    credits: [
+      {
+        label: "Morphing orb by andrew-manzyk on Uiverse.io",
+        href: "https://uiverse.io/",
+        note: "The agenda card's morphing glass orb (MIT)",
+      },
+    ],
+  },
+  {
+    title: "Synthra AI Workspace Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A bright lime SaaS page for an AI workspace of specialist agents: a phone running a live chat stands over a ticker of generative art tiles, then dark grainy cards with mesh gradients and glass panels carry the features, six sticky customer stories, pricing, six glowing agent orbs and a rotating 3D ring of product tiles",
+    prompt: `Build a landing page for Synthra, a fictional AI workspace where six specialist agents (Atlas research, Quill writing, Lens analytics, Forge engineering, Relay automation, Echo voice) share context and do the work; 500+ integrations, free Starter, $29 per seat Pro, custom Enterprise, as one HTML file. No libraries. Google Fonts: Plus Jakarta Sans 400-700 and JetBrains Mono.
+
+DESIGN SYSTEM
+Pale lime paper #fbfde9 with a huge blurred lime glow behind the hero, ink #0a0a0a, lime #d2e823 with a soft tint and an olive #a5b00f, and accents in mint #7ee7c4, violet #8b7bff and pink #ff8fb1. Plus Jakarta Sans 600 headings at -.02em with a lime-olive gradient phrase; pill eyebrows with a dot; pill buttons whose fill wipes across on hover. Premium dark "surface" cards: near-black #07080a, a radial mesh-gradient backdrop, drifting blurred orbs, an SVG film grain in overlay and a diagonal shine sweep; frosted glass panels inside them.
+
+PICTURES IN CODE (no image files)
+A small icon sprite. Eight CSS art tiles for the hero ticker, each with one glass product hint: morphing liquid blobs (Quill writing with a caret), stacked arches under a sun (4 workflows running), aurora ribbons with stars (Echo listening, live wave bars), a glass sphere on a pastel mesh (Atlas thinking), rotating topographic contours on lime (Lens +24.8%), a breathing halftone sphere (Vision 98% match), op-art rings behind a lime disc (Studio generating 87%) and spinning petals on lilac (12 ideas generated). Six product tiles (chat, image generation unblurring, voice wave, code, revenue chart, an automation checklist). SVG feature visuals: a chat with skeleton lines, a workflow graph with dots flowing Email and CRM into AI and out to Slack and Report, and a forecast chart drawing in.
+
+STRUCTURE
+1. A floating black pill nav (logo with a conic-gradient mark, five links, Start Free); a burger menu under 810px.
+2. Hero: a live pill tag, the headline, a lead and two buttons, then a 600px stage where a phone with a dynamic island loops a chat (typing dots, then answers) over an infinite ticker of the art tiles that pauses on hover.
+3. Logo marquee of nine invented brands with edge fades. Features: three dark cards with visuals, a title, a line and an arrow button that turns on hover.
+4. Customer stories: six full-width dark cards, position: sticky at stepped tops so they stack, each with a team pill, a company, a story and a glass impact panel (a big gradient metric and bars, a line, a swatch grid or a diff).
+5. Pricing: Starter and Enterprise on the lime tint, Pro as a dark surface with a lime mesh and a Most popular badge. Agents: six cards with a glowing sphere, conic halo and a tilted orbit with a satellite in three staggered columns; hover or tap scales in a glass panel with a description and chips.
+6. Testimonials: an endless track of lime quote cards with stars and gradient initials, pausing on hover. FAQ: a lime card with a sphere, a dashed spinning ring and floating question bubbles, beside a single-open accordion.
+7. CTA on black: a 3D ring of twelve product tiles rotating on rotateY with a lime glow, and two buttons. Footer: a lime brand card with social pills and a black link card with contact rows and an "All systems operational" status.
+
+THINGS THAT BREAK
+- Duplicate the ticker, marquee and testimonial content and animate to -50% so the loops are seamless.
+- Content is generated from arrays in the script, so give every SVG gradient inside a repeated tile an id that cannot clash with the static ones.
+- The sticky story cards need increasing top offsets or they cover each other completely.
+- The single-open accordion animates grid-template-rows from 0fr to 1fr rather than height.
+
+THE FLOOR
+The hero headline is the h1, with a header and labelled sections. Agent cards and accordion rows are focusable and work with Enter; the burger has an aria-label. Decorative art carries no text that matters. prefers-reduced-motion: every animation and transition is off and revealed content and chat messages show at once. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 27, 2026",
+    demo: "/demos/synthra-ai-workspace.html",
+    bestFor: ["AI SaaS and agent platforms", "productivity and workspace tools", "B2B startups with pricing tiers", "AI assistant launches"],
+    style: ["light", "glassmorphism", "mesh-gradient", "generative-art", "3d-css"],
+    thumbnail: "/thumbs/synthra-ai-workspace.jpg",
+    theme: "light",
+  },
+  {
+    title: "Quillo AI Tutor Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A bright, hand-made page for an AI tutor on a graph-paper grid: a giant QUILLO in a selection box with handles, sticky notes, cursor tags and owl avatars, a statement that lights word by word, draggable polaroids, four feature cards with folder tabs that stack as you scroll, and a googly-eyed blob that follows your cursor",
+    prompt: `Build a landing page for Quillo, a fictional AI tutor for grades 6-12 that asks Socratic questions so students find answers themselves, gives teachers live insight into who is stuck, and keeps families in the loop (free for teachers), as one HTML file. No libraries. Google Fonts: Archivo (wide, 900) for display, Inter Tight for body, DM Mono for uppercase labels, Just Me Again Down Here for handwriting.
+
+DESIGN SYSTEM
+White paper #fff on a 100px light-grey graph grid, ink #111212, with bright flat accents: cyan #36c5f0, yellow #ecb22e, green #2fbc81, pink #e01e5a, brown #522e29, each with a pale tint. Display type is Archivo at 900 and 118% width, uppercase, line-height .82. Labels are DM Mono uppercase; asides are handwritten. Square edges, 2px ink borders, design-tool selection boxes with corner handles, rotated sticky notes, and speech-bubble shapes with one square corner.
+
+PICTURES IN CODE (no image files)
+A shared <symbol> sprite: an owl mascot in a mortarboard (avatar), chevrons, a four-point spark, steps, an arrow, a cursor pointer, a file icon and a heart. Four feature scenes in SVG, each with ids prefixed i1-i4 and a film-grain filter: a teacher dashboard (class heatmap with pulsing stuck cells, a mastery trend line drawing in, a 78% mastery ring, a "3 students are stuck" card); a phone study planner on a pink gradient (today's sessions, a focus timer ring, a 12-day streak flame, +40 XP); a kitchen-table laptop at dusk with the tutor chat, a steaming mug, a plant and a "Homework done" toast; and a night mountain path that winds up through skill checkpoints to a north star, with twinkling stars and a glowing dot travelling the path.
+
+STRUCTURE
+1. A "Thinking…" speech-bubble loader that wipes up. Fixed frosted header: logo, mono links with icons (active one cyan), help and language chips, avatar and a Start free button; a Menu button under 980px.
+2. Hero: a sliding ruler, a live clock ("STUDY TIME"), "meet your new tutor" in handwriting, QUILLO split into letters inside a cyan selection box with two sticky notes, a pulsing "Now open for the spring semester" line, a lede with inline pencil and spark icons, a Start learning button whose chevrons swap and sparks appear on hover, and floating cursor tags and owl bubbles.
+3. How it works: a squiggle divider, "how it works!" and "hi, learner" in a handle box, two draggable polaroids, a statement with inline icons whose words light up with scroll, and colour skill pills with animated icon tiles.
+4. Features: "Built For Learning" with a sticky note, then four full-height cards (Teacher Insights, Study Planner, Learn at Home, Guided Paths) that are position: sticky so each slides over the last, each with a folder tab at a stepped offset, date line, title, description, an Explore link, notched tags and a framed scene with corner handles and an Image.jpg label.
+5. CTA: a spinning green blob with blinking eyes that follow the pointer beside "Let's Learn"; a brown dotted panel with a comment card that pops in (with a reaction toggle) and a tilted cyan Start Free block with spinning tiles. Footer: ruler and a mono base row.
+
+THINGS THAT BREAK
+- Split headings into per-letter spans grouped by word (white-space: nowrap) so lines never break mid-word, and clear the stagger delay after the reveal so hover is snappy.
+- The folder tabs' curved flanks are clip-path paths on ::before and ::after inheriting the tab's background.
+- Prefix every id inside the inline scene SVGs, since four copies share one document.
+- Under 810px unstick the feature cards, stack text over the scene, and put the polaroids in flow.
+
+THE FLOOR
+One h1 (QUILLO), a header and a main, and every section reachable from the nav. Decorative SVGs are aria-hidden; the menu button has a label. Polaroids drag with pointer capture and touch-action: none. prefers-reduced-motion: no animations or transitions and split or revealed text shows at once. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 27, 2026",
+    demo: "/demos/quillo-ai-tutor.html",
+    bestFor: ["edtech and AI tutoring", "consumer AI products", "school and classroom software", "playful startup launches"],
+    style: ["light", "playful", "brutalist", "svg-illustration", "scroll-driven"],
+    thumbnail: "/thumbs/quillo-ai-tutor.jpg",
+    theme: "light",
+  },
+  {
+    title: "Auren AI Meditation Guide Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A hushed, near-black page for an AI meditation guide: a counting intro splits open on a full-width AUREN wordmark over three living tiles (misty dawn ridges, the app mid-session, a breathing glass orb), a WebGL aurora band, sticky stacked cards of paired art, marquee rows of seventeen generative scenes and a stories carousel",
+    prompt: `Build a landing page for Auren, a fictional AI meditation guide (a one-minute voice check-in reads tone, pace and breath, then it composes each session's length, pacing, voice and generative sound around how you arrive; private, no ads, 14 days free), as one HTML file. No libraries. Google Fonts: DM Sans 200-700 with optical sizing, and Instrument Serif italic for accent phrases.
+
+DESIGN SYSTEM
+Near-black #09090b, warm ink #f2eee7, muted #8e8a94, gold #d6b98a, with an aurora text gradient (cream, peach, lilac, sky) on serif accents. Light weights (200-300) and very tight tracking on big type; small uppercase meta; a gold slash before every eyebrow. Pill buttons (cream fill, ghost outline); a moving film grain over the page. The header is mix-blend-mode: difference so it reads over everything.
+
+PICTURES IN CODE (no image files)
+An ART library painted into any [data-art] element with a seeded RNG, sized with container query units, with a vignette and grain, and paused off screen: a glass orb with rotating conic colour and caustics, misty dawn ridges, the app mid-session (a phone with breathing rings and an orb core), an AI chat card with a voice waveform, aurora over a lake, a moon with a shimmering reflection, desert dunes with ripples, breath rings, silk light waves, stacked stones, water ripples in perspective, a crescent night, a bloom of petals, a swirling ink blot, raked zen sand with stones, window light with drifting dust, and soft aura blobs. A WebGL domain-warped fbm shader for the method band, with the aura scene as fallback.
+
+STRUCTURE
+1. Intro: two panels with a scrolling word list (Arriving, Listening, Breathing…), an orb thumbnail and a 000-100 counter with a gradient bar, then the panels split; Skip button.
+2. Hero: AUREN in a heavy uppercase wordmark fitted to the full width, letters rising in; three art tiles below with glass tags (Dawn · 06:12, Live session, Listening); then "Meditation that listens, then guides you home." with a bobbing scroll button, an early-access pill, two paragraphs and two buttons.
+3. Method: a full-height WebGL band with parallax, a centred statement, three stats (60s, ∞, 0) and a link.
+4. Practices: five session cards (art, category, length, title, description, a play button on hover), the last one centred and wide.
+5. How it works: six sticky stacked cards, each with two tilted art tiles that fan out on hover and a big title (It listens, It adapts, It breathes with you, It sounds like calm, It walks you to sleep, It keeps your trust).
+6. Explore: three marquee rows of art tiles under a dark gradient with "A library that writes itself". Stories: a glass card over the aura with three quotes that blur and tilt between slides, auto-advancing with a progress line, pausing on hover, swipe and arrow keys.
+7. Field notes: a featured note and two more; each opens a dialog with its art. Footer: "Begin tonight.", store buttons, links and a giant shimmering gradient wordmark sliding up out of the bottom.
+
+THINGS THAT BREAK
+- Fit the wordmark by measuring it at 100px and scaling to its container, again after fonts load and on resize.
+- Give every generated SVG gradient and filter an id suffixed with the art's index so many copies can coexist.
+- Pause art animations with an IntersectionObserver and only run the shader while it is on screen, at half resolution.
+- Split headings into masked words without losing nested accent spans.
+
+THE FLOOR
+One h1 (the wordmark, with an aria-label), a skip link and a main. Art tiles that carry meaning have role="img" and a label; decorative ones are aria-hidden. The menu button uses aria-expanded and Escape; the carousel is a labelled region with a live status; field notes open a native dialog. prefers-reduced-motion: the intro is skipped, animations and transitions are near zero, and marquees stop. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 27, 2026",
+    demo: "/demos/auren-ai-meditation.html",
+    bestFor: ["wellness and meditation apps", "consumer AI products", "audio and sleep apps", "calm, premium brand launches"],
+    style: ["dark", "minimal", "generative-art", "webgl", "scroll-driven"],
+    thumbnail: "/thumbs/auren-ai-meditation.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Lumora AI Home Solar Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A warm, sunlit page for an AI that runs a home's solar and battery: a 3D modernist villa built from CSS boxes sits in a golden landscape and turns to evening with one switch, a manifesto lights word by word, a working energy dashboard tilts up into view, and Forecast, Store and Save slide past on a pinned horizontal track",
+    prompt: `Build a landing page for Lumora, a fictional AI that runs a home's solar panels and battery (forecasts the roof's sunshine at 15-minute resolution, plans charging around the backup reserve and the rate plan, and runs the house on stored sun through the evening peak; $8 a month, works with existing inverters and batteries over Wi-Fi), as one HTML file. No libraries. Google Fonts: Inter, Inter Tight for headings, Newsreader for a serif second line, JetBrains Mono for small numbers.
+
+DESIGN SYSTEM
+Warm paper #f4f5f1, ink #0e1a12, muted #5c6a61, a green scale (#1e8538, #145a27, forest #0b1f14, leaf #57c76a) and sun amber #f4b23f, with a blue for data. Headings Inter Tight 700-800, tight, with a Newsreader second line; eyebrow pills with an amber dot; pill buttons in deep green gradients. A 4.5% multiply noise over everything. Forest-green sections with blurred aurora blobs and a dot grid; paper sections with white cards.
+
+PICTURES IN CODE (no image files)
+One SVG sprite of icons and the logo. A hero sky in SVG (gradient sky, rotating sun rays, bloom, clouds, mist, then a night sky with stars, a shooting star and a masked crescent moon). A CSS 3D villa in a terrain: a box builder makes a plinth, a glass living volume, a cantilevered upper floor with tilted solar panels, an annex with a garage and a wall battery, a pool with caustics, cypresses and olive trees as billboards facing the camera, lavender beds, a path with bollards and a fire pit. Its colours are registered @property custom properties, so switching to evening eases every wall, window glow and lamp over 1.6s. Seeded SVG landscapes (forecast valley, dusk, night town with fireflies) and a golden-hour rooftop with a moving sheen.
+
+STRUCTURE
+1. Forest curtain with the logo that wipes up, a scroll progress line, and a header that is a wide bar over the hero and shrinks to a floating pill after scrolling.
+2. Hero (sticky for 175vh): on a 1780 x 884 stage scaled to the viewport, "Sun by day." over "Storage by night." in serif, a lead, two buttons and social proof, three glass chips (solar now, home use, battery with live bars), an energy arc, and a Morning / Evening switch whose sliding indicator turns the whole scene to night, swaps the caption and changes the readings. On scroll the scene insets into a rounded card, darkens and shows a tagline.
+3. Partners marquee. Manifesto (sticky): words and three inline picture pills light up with scroll beside a "Sun put to work" meter.
+4. The app (forest): a dashboard that tilts up from rotateX(26deg): sidebar, tabs, Today / Tomorrow / This week, four KPI cards with sparklines, a usage vs solar chart with a forecast band, now line, peak marker, hover and keyboard tooltip and a hidden data table, a power-mix bar, and three suggested actions you can schedule. Three feature notes.
+5. How it saves: on desktop the section pins and a track slides sideways through an intro, Forecast (a phone on a dusk valley), Store (a charge ring and 24-hour plan) and Save (hourly price bars), plus three background features, while a three-stage progress line fills.
+6. Results: four count-up stats and three sample quotes, one on a dusk landscape. How it works: a centre rail that fills, with cards that tip up from 3D as they arrive. About: the rooftop art revealed by a clip, a mission card, stats and trust points. FAQ: sticky intro and six details rows.
+7. Estimate (forest card on a night town): checklist and a validated form with pill checkboxes and a success state. Early access: a big headline, an email form, and a draggable 3D solar array with a battery cabinet and Front / Side / Back / Top views. Footer with a giant gradient wordmark that rises letter by letter.
+
+THINGS THAT BREAK
+- Lay the hero out on a fixed stage and compute the SVG viewBox and the villa layer's transform from the viewport, with a separate stacked layout under 900px.
+- Register every villa colour with @property or the evening switch snaps instead of easing.
+- Measure the horizontal track's scroll width on load, font load and resize, and set the section height from it.
+- Batch scroll work into one requestAnimationFrame.
+
+THE FLOOR
+One h1, a main and a skip link, every section with an id and a heading. Decorative art is aria-hidden; the chart has a keyboard path, a live region and a data table; the 3D model takes arrow keys. Toggles use aria-pressed; the menu uses aria-expanded. Forms have labels, inline errors with aria-invalid, and send nothing. prefers-reduced-motion: no curtain, near-zero animations, paused SVG animation. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 26, 2026",
+    demo: "/demos/lumora-home-solar.html",
+    bestFor: ["climate tech and home energy", "smart home and IoT apps", "consumer AI products", "subscription apps with a dashboard"],
+    style: ["light", "3d-css", "svg-illustration", "scroll-driven", "interactive"],
+    thumbnail: "/thumbs/lumora-home-solar.jpg",
+    theme: "light",
+  },
+  {
+    title: "Orrery AI Services Ring Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A single-screen carousel for an AI platform of nine services: nine glass lenses with refracting edges turn on a ticked ring, each opening a full-screen world painted live in canvas (a neon city in rain, an aurora over a frozen lake, a synthwave horizon, a reef, Earth from orbit, cherry blossom, a circuit canyon, a crystal cave, a Mars base) as the accent colour drifts to match",
+    prompt: `Build a landing page for Orrery, a fictional AI platform made of nine specialist services (City Pulse forecasting, Aurora Watch monitoring, Horizon Studio generative, Deep Reef search, Orbit Vision geospatial, Bloom Coach coaching, Circuit Forge code agents, Crystal Lens documents, Frontier Lab research) sharing one account and one API, as one HTML file. No libraries. Google Fonts: Instrument Serif (with italic), Geist 300-500 and Geist Mono.
+
+DESIGN SYSTEM
+Near-black #050505 and warm ink #f5f2ec with 60% and 36% tints. One accent registered with @property so it eases over 1.6s to each service's colour (cyan, green, magenta, blue, ice, pink, amber, violet, orange). Huge Instrument Serif names with the first word italic; wide-tracked Geist Mono uppercase labels; glass pills and round chevrons with backdrop blur; a moving film grain over everything.
+
+PICTURES IN CODE (no image files)
+A canvas toolkit (seeded RNG and 1D noise, fbm ridgelines, additive glow sprites, light rays, pines, water reflection with rippled rows, a cheap bloom pass, a caustic tile). Nine painters each paint a 1600 x 1000 still at load, and nine animators draw a live layer over the active one: a neon spire city with a maglev, flying cars and rain; an aurora over snowy peaks and a frozen lake with a cabin; a synthwave sun sliced by scrolling bars over a racing grid; a reef with god rays, caustics, a fish school, jellyfish and kelp; Earth's limb from orbit with a station and lens flares; a pastel valley with a pagoda, torii and falling petals; a circuit canyon with pulses running down traces and floating cubes; a crystal cave with glinting clusters and drips; a Mars base with domes, a rocket, a rover and a dust devil. Each still is encoded to a blob URL; a lens thumbnail and a tiny blurred emblem backdrop come from the same canvas.
+
+STRUCTURE
+1. Loader: "Orrery" rising letter by letter, a thin bar and "Calibrating <service> · 03/09" while the worlds are painted one per frame.
+2. Fixed nav: the ring mark with an orbiting dot, the wordmark, a glass pill (Services, Platform, Contact); under 760px a Menu button opens a blurred full-screen takeover.
+3. The stage: the active world full-bleed with slow parallax to the pointer, a vignette and an accent glow. A huge ring arcs up from below the fold with fine tick marks and a travelling accent arc; nine round lenses sit on it, scaling and fading by angle, each with an SVG displacement filter that splits RGB at the edge like glass, a specular rim that follows the pointer, a halo and a glowing line icon in a frosted centre. The service name splits into letters that blur in and out, with a mono subline and a tag pill. Chevrons left and right.
+4. HUD: the current number over 09 and nine segments; the active segment fills while the ring waits to auto-advance every 8s once idle.
+5. Platform and Contact open as blurred sheets over the stage: a glass card with copy, three stats and a button per service; a pilot form whose service select preselects the active one, sending nothing.
+
+THINGS THAT BREAK
+- Paint the worlds one per animation frame so the loader keeps moving, and show the first world as soon as it exists.
+- Spring the ring toward an integer target; drag maps pixels to angle and a flick throws up to two steps; wheel steps are rate-limited.
+- Size the live canvas to cover the background exactly as background-size: cover does, with DPR capped at 1.25.
+- Resize the lens filter and its displacement scales with the lens size in layout().
+
+THE FLOOR
+One h1 (the service name, aria-live). The stage is a labelled carousel; lenses are focusable buttons (Enter selects); segments are tabs with aria-selected; arrows rotate and Escape closes sheets. Sheets toggle aria-hidden; the takeover uses aria-expanded. The form has labels. prefers-reduced-motion: no grain or auto-advance, and the live layer draws one still frame. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 26, 2026",
+    demo: "/demos/orrery-services-ring.html",
+    bestFor: ["AI platforms with many products", "multi-product SaaS", "AI agencies and studios", "immersive brand launches"],
+    style: ["dark", "canvas-art", "glassmorphism", "carousel", "immersive"],
+    thumbnail: "/thumbs/orrery-services-ring.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Orvane AI LiDAR Drone Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A pale survey-instrument page for an AI LiDAR drone: a point-cloud preloader splits open on a shaded 3D drone sweeping a laser line across scanned terrain, sticky scenes flag a sagging bridge, morph point clouds between industries and draw a mountain range line by line, and a working controller lets you fly the drone",
+    prompt: `Build a landing page for Orvane Cortex, a fictional AI-powered LiDAR drone that flies itself, measures bridges, power lines, plants and terrain to the centimetre and flags structural risks automatically (240,000 pulses a second, five echoes per pulse, ±2 cm, 450 m range, a finished deliverable under 20 minutes after landing), as one HTML file. No libraries. Google Fonts: Inter Tight 300-500 and JetBrains Mono.
+
+DESIGN SYSTEM
+Pale instrument grey: bg #f6f8f8, ink #1d2a31, haze #7d8a91, pale #b9c3c8, hairlines #dde3e5, glacier cyan #8fe3f0 / #5fbfd0 as the only accent, mist #e8f1f4 for the terrain section. Display type Inter Tight 300, very tight (-0.075em) and huge; labels in JetBrains Mono uppercase wrapped in [ brackets ] or { braces }. Fixed side rails with ruler ticks, hairlines that draw in, square ink buttons, a difference-blend cursor dot and a scroll ring in the corner whose reel counts the sections.
+
+PICTURES IN CODE (no image files)
+Everything is canvas through one tiny 3D projector (camera, yaw / pitch, perspective) and a render registry that only draws canvases on screen. A shaded mesh drone (ellipsoid shell with a glass canopy, carbon arms, motors, gimbal lens, landing skids, translucent rotor discs with motion-blurred blades, glowing nav lights), and a lighter point drone reused in other scenes. A scanned dot terrain with a sweeping cyan laser fan, a bridge deck sagging with a crack flag, a multi-echo radar, a 3D point-cloud scene per industry (solar rows, a truss bridge, a tank farm, a forest over bare ground), a capabilities live view (360° sweep, a two-band link, a drone folding to 42 cm), and a mountain range of 44 scan lines.
+
+STRUCTURE
+1. Preloader: a point sphere fills top-down while a cyan band scans it, a big percentage, four pre-flight stages and a point count; two panels split open.
+2. Frosted header (wordmark, centre label, live GMT clock, menu pill opening a full-screen list). Hero card: a ghost "orvane" wordmark, the hovering drone tracked by corner brackets and labels, a HUD, and a two-line h1 that rises in.
+3. Promise (sticky): words brighten with scroll beside the bridge whose sag grows and gets an AI crack flag. Gear: a giant "Gear" over the radar, sensor specs and two lines that brighten.
+4. Numbers (sticky): a half-dial arc fills while three stats (5 echoes, ±2 cm, 450 m) take turns with their own small animations. Solutions (sticky): four tabs driven by scroll; the point cloud morphs between scenes, copy, caption and chips swap, six counting specs.
+5. Capabilities: letters darken with scroll, three steps with a tick, the live view and a big figure. Controller: a 3D stage with a compass and a working pad (two draggable sticks, L2 / R2 triggers, light / scan / wake buttons, WASD and arrows) flying the drone while ground lights up as mapped, with live telemetry.
+6. Software: a touchdown-to-delivery pipeline that times itself over five stages and lights up four output files. Terrain (sticky): the clip opens out and the range draws line by line under the drone's laser fan, with four hotspots whose cards show AI readings.
+7. Footer: a drag-to-turn drone viewer, a CTA that opens a survey request dialog (validated locally, honeypot, sends nothing), a giant wordmark and link columns.
+
+THINGS THAT BREAK
+- Lock scrolling (html.loading) only while the preloader runs, and remove the preloader after its panels open.
+- Size each canvas from its box every frame with DPR capped at 2, and only render registered canvases that are intersecting.
+- Read every sticky scene's progress from its own section, so the tall sections can change height without retuning.
+- Only take keyboard flight input while the controller section fills the screen, and never from form fields.
+
+THE FLOOR
+One h1, a main, every section with an id and a heading. Canvases are aria-hidden; the viewer is a focusable application with arrow keys. The menu uses aria-expanded, inert when closed and Escape. Tabs are buttons with aria-selected. The dialog is a native dialog with labels and inline errors. prefers-reduced-motion: animations and transitions cut to near zero and a short preloader. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 26, 2026",
+    demo: "/demos/orvane-lidar-drone.html",
+    bestFor: ["drones and robotics", "industrial inspection and infrastructure AI", "geospatial and mapping", "hardware product launches"],
+    style: ["light", "minimal", "canvas-art", "3d-canvas", "scroll-driven", "interactive"],
+    thumbnail: "/thumbs/orvane-lidar-drone.jpg",
+    theme: "light",
+  },
+  {
+    title: "Kairo AI Time Assistant Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A near-black product page for an AI assistant that tracks your time: a huge glowing \"Meet Kairo.\" splits in letter by letter beside a tilting 3D phone whose live app types out the assistant's messages, bento cards draw timelines, focus rings and charts, integrations orbit a second phone, and a dark / light switch re-skins the app",
+    prompt: `Build a landing page for Kairo, a fictional AI assistant that tracks your time for you (it follows your calendar, apps and commits, logs every hour to the right client and project, protects focus time, answers questions about your hours in plain English, and drafts reports and invoices; no timers), as one HTML file. No libraries. Google Fonts: Inter, Inter Tight 500-800 for display and JetBrains Mono for labels and numbers.
+
+DESIGN SYSTEM
+Near-black #050506 with cards #0d0d10 / #121216, hairline white lines at 7% and 13%, text #f4f4f6, muted #8d8d96. Orange accent #ff6b2c with #ffb36b, plus violet #8b7bff, mint #4fe3b1, sky #5cc8ff and rose #ff5c8a for data. Display headings Inter Tight 700, tight (-0.04em to -0.06em); mono eyebrows in pills with a pulsing orange dot; gradient words that shine white to orange. Pill buttons: white, and an orange gradient with a light sweep. A 5% noise overlay. A late section switches to warm paper #f2f0ec with white cards.
+
+PICTURES IN CODE (no image files)
+A CSS phone (frame, side buttons, dynamic island, glare) sized from one --pw variable, with the whole app screen built once in JS and stamped into every phone: greeting, a live tracking timer with a progress ring, a weekly bar chart, an AI suggestion card with Approve / Edit, three logged entries and a tab bar; a .light class re-themes it. Also CSS / SVG: a day timeline of coloured blocks with a moving NOW line, two synced devices, three concentric focus rings, an area chart of billable hours, a marquee of eight invented logos, seven integration tiles, a hub-and-spoke node map, a team hours bar chart, project pill groups and three fanned report documents (CSV, XLSX, PDF).
+
+STRUCTURE
+1. A fixed nav (brand mark "K" with an orange star, pill links, a cart button with an empty-cart panel, Sign up) that frosts on scroll; under 900px a menu button and drop panel.
+2. Hero: a grid and drifting orbs with canvas sparks rising; "Meet / Kairo." huge with a breathing orange glow, a floating phone with a rotating conic halo and two floating chips (Logged 2h 14m, Invoice drafted), the lead, an email form and stars; then the logo marquee.
+3. Experience: "Do the work. Kairo keeps the time." over a 12-column bento of four cards (Tracks while you work, One timeline every device, Protects your focus, Answers in plain English) with a pointer spotlight border.
+4. Integrations: tiles orbiting a phone inside dashed rings with ripples, then a two-column note with keyboard shortcuts that press themselves in turn.
+5. Stats: a sticky intro beside four rows (5.0 rating, 10+ hours, $0 to start, 98% right first time) that count up, fill a bar, and dim except the one nearest the middle of the screen.
+6. Download: store buttons and a theme stage whose switch slides a knob and re-skins the stage and phone between dark and light, auto-flipping every 4s until touched.
+7. Sign up (paper): seven white bento cards (Learns from your tools, Hands-free logging with a live counter, a mesh-gradient logo card, Reports you can talk to with a light phone, Team insights, Smart categorization, Invoices on autopilot) and a dark CTA with an email form. Footer on paper with columns and a giant "Kairo." wordmark that rises and scales in with scroll.
+
+THINGS THAT BREAK
+- Add .js before reveals so the page shows without script; reveal with an IntersectionObserver once.
+- Split the hero into letters and titles into masked words in JS, carrying gradient words over per word.
+- Turn on card tilt only after the reveal has settled, so the two transforms do not fight; only on fine pointers.
+- Pause the hero tilt loop and the sparks canvas when the hero is off screen; cap the canvas DPR at 2.
+
+THE FLOOR
+One h1, a main, every section with an id. Decorative canvases and the wordmark are aria-hidden. The menu button uses aria-expanded; the cart is a labelled dialog. Forms validate locally and send nothing, with a polite status. prefers-reduced-motion: no animation, transitions, glow, sparks or ripples, and everything is shown. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 26, 2026",
+    demo: "/demos/kairo-time-assistant.html",
+    bestFor: ["AI assistants and productivity apps", "time tracking and invoicing SaaS", "mobile app launches", "freelancer and agency tools"],
+    style: ["dark", "bento", "css-device-mockup", "glow", "micro-interactions"],
+    thumbnail: "/thumbs/kairo-time-assistant.jpg",
+    theme: "dark",
+  },
+  {
     title: "Plinth AI Merchant Agents Page",
     category: "web",
     categoryLabel: "WEB",
