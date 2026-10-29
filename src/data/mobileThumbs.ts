@@ -22,7 +22,7 @@ const PHONE: ReadonlySet<string> = new Set([
   "ochre-meditation.jpg",
   "tokenhaus-design-academy.jpg",
   "ostler-hotel-concierge.jpg",
-  "wayfind-ai-travel.jpg",
+  "wayfind-ai-travel-v2.jpg",
   "somatic-ai-wellness.jpg",
   "tarn-file-transfer.jpg",
   "rowline-agronomy-ai.jpg",

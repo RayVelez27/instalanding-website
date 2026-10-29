@@ -751,7 +751,7 @@ One h1, a main, every section with an id. Every picture is an SVG with role="img
     theme: "dark",
   },
   {
-    title: "Wayfind AI Travel Companion Page",
+    title: "Wayfind AI Travel Companion Page V2",
     category: "web",
     categoryLabel: "WEB",
     description: "A sand-and-sea expedition poster of a page for an AI travel companion: \"wayfind\" is cut out of a desert photo that opens to full bleed as you scroll, mode posters stack and tilt, a nine-day route draws itself sideways, and every photo is raymarched live in WebGL",
@@ -779,7 +779,7 @@ STRUCTURE
 THINGS THAT BREAK
 - Add .motion in the head before first paint unless prefers-reduced-motion, and remove it if GSAP has not arrived after 2.5s; pinning, the sideways itinerary and every hidden start state live behind .motion.
 - Knockout text: compute the photo's drawn size and offset (object-fit cover, object-position) relative to the word and write them as background size and position; redo it on load, font load, resize and when the scene finishes rendering.
-- Render the hero and contact scenes first, then whatever is nearest the viewport, one per frame, and fire a resize once the knockouts have their photos so ScrollTrigger re-measures.
+- Loading (the V2 fix): show every picture's SVG illustration on first paint and boot WebGL only after load. Compile the shader in the background with KHR_parallel_shader_compile, polling COMPLETION_STATUS_KHR, and keep the illustrations if the extension is missing: on Windows the Direct3D compile of a shader this long can block the page for minutes. Render a scene only when it comes within one screen of the viewport, one at a time, drawn in scissored strips across frames, sized to its on-screen size (1.5x density at most, about 1280px for the hero and contact, 900px for the rest) and encoded with toBlob. The first version compiled on the main thread and rendered all 26 scenes up front, and froze for minutes. Fire a resize once the knockouts have their photos so ScrollTrigger re-measures.
 - Sticky posters need their top offsets set in JS so the stack stays on screen, recalculated on ScrollTrigger refreshInit.
 - Build the route path from the real marker positions on every refresh.
 
@@ -788,10 +788,10 @@ One h1, a main, every section with an id. Every img has alt text and width and h
     preview: "hero",
     variant: "large",
     added: "Oct 24, 2026",
-    demo: "/demos/wayfind-ai-travel.html",
+    demo: "/demos/wayfind-ai-travel-v2.html",
     bestFor: ["travel and booking apps", "AI agents and assistants", "consumer subscription apps", "outdoor and adventure brands"],
     style: ["editorial", "expedition-poster", "knockout-type", "webgl", "scroll-driven"],
-    thumbnail: "/thumbs/wayfind-ai-travel.jpg",
+    thumbnail: "/thumbs/wayfind-ai-travel-v2.jpg",
     theme: "light",
   },
   {

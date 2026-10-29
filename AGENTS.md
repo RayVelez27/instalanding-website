@@ -228,6 +228,35 @@ Layering, learned the hard way on that page:
 Tint with several inks mixed across the frame, not one `uTint` — a single tint reads as grey
 mud — and take them from the gradient you are replacing so the page's palette survives.
 
+### Heavy shaders that render pictures (the Wayfind V2 fix)
+
+`wayfind-ai-travel-v2.html` paints 26 "photos" with one long raymarching shader. The first
+version took minutes to become usable, on Windows laptops especially. That had three causes:
+
+1. **The compile blocked the page.** A plain `compileShader` + `LINK_STATUS` check waits for the
+   driver. On Windows, ANGLE hands GLSL to the Direct3D compiler, which unrolls long loops (300
+   march steps over 9-octave noise) and can take minutes on integrated graphics, with the main
+   thread frozen the whole time.
+2. **Everything rendered up front:** all 26 pictures at up to 1400px, one after another,
+   including ones nobody had scrolled to.
+3. **Each render was one blocking job:** a single full-frame draw (long enough to trip the 2 s
+   Windows GPU watchdog), then a synchronous read-back and `toDataURL` JPEG encode.
+
+The rules, for any page whose shader is more than a background tint:
+
+- Paint a cheap version first (Wayfind keeps an SVG illustration of every scene) so the page is
+  complete on first paint, and boot WebGL only after `load`.
+- Compile with `KHR_parallel_shader_compile`: compile, link, then poll
+  `getProgramParameter(prog, ext.COMPLETION_STATUS_KHR)` on a timer before asking for
+  `LINK_STATUS` or any shader log (asking earlier blocks). No extension: keep the cheap version.
+- Render only what is within about a screen of the viewport (IntersectionObserver), one at a time.
+- Size the render to the element's on-screen size × min(DPR, 1.5), with a cap, not to its
+  `width`/`height` attributes: pixel count is the cost.
+- Draw in scissored strips, one per frame, with `preserveDrawingBuffer: true` and `gl.flush()`.
+- Encode with `canvas.toBlob` and `URL.createObjectURL`, not `toDataURL`.
+- Headless Chrome is useless for timing this: its software GL never finishes such a shader. Pass
+  `--use-angle=d3d11 --enable-gpu --ignore-gpu-blocklist` to time it on the real GPU.
+
 ### ASCII exhibits
 
 A character-grid scene is cheap and reads as instrumentation rather than decoration, but
