@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowRight, Check, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import { AgentPanel } from "@/components/AgentMode";
-import { MOTION_ITEMS, PAGES, PAGE_ITEMS, SYSTEM_ITEMS, variedOrder, type Item } from "@/lib/libraryItems";
+import { MOTION_ITEMS, PAGES, SYSTEM_ITEMS, variedOrder, moreCovers, type Item } from "@/lib/libraryItems";
 import { shuffle } from "@/data/prompts";
 import HtmlTypewriter from "@/components/HtmlTypewriter";
-import LibraryCard from "@/components/LibraryCard";
+import HomePagesGrid from "@/components/HomePagesGrid";
+import { Card, MoreCard } from "@/components/HomeCards";
 import { copyText } from "@/lib/copyText";
 import { useAgentDark } from "@/hooks/useAgentDark";
-import { useIsPhone } from "@/hooks/useIsPhone";
 import { useSeo } from "@/hooks/useSeo";
 
 /**
@@ -23,53 +23,9 @@ import { useSeo } from "@/hooks/useSeo";
  */
 
 
-/* A fresh order on every load, like the feeds; kept for the visit. The pages
-   rail shows 14: every page from the latest drop day (PAGES is newest first,
-   PAGE_ITEMS matches it) plus a random pick of the rest, all dealt together, so
-   a new page is always on home but never in the same place. */
-const LATEST = Math.max(1, PAGES.filter((p) => p.added === PAGES[0]?.added).length);
-const RANDOM_PAGES = variedOrder(
-  [...PAGE_ITEMS.slice(0, LATEST), ...shuffle(PAGE_ITEMS.slice(LATEST)).slice(0, Math.max(0, 14 - LATEST))],
-  "dark",
-);
+/* A fresh order on every load, like the feeds; kept for the visit */
 const RANDOM_MOTION = shuffle(MOTION_ITEMS);
 const RANDOM_SYSTEMS = variedOrder(SYSTEM_ITEMS, "dark");
-
-/* The last card of a rail: three covers the rail did not show, under a
-   count and a link to the whole collection */
-const moreCovers = (all: Item[], shown: Item[]) => {
-  const seen = new Set(shown.map((it) => it.key));
-  const rest = all.filter((it) => !seen.has(it.key));
-  return (rest.length >= 3 ? rest : all).slice(0, 3).map((it) => it.image);
-};
-
-const MoreCard = ({ to, count, noun, images }: { to: string; count: number; noun: string; images: string[] }) => (
-  <div className="home-card home-more">
-    <Link to={to} className="home-card-link" aria-label={`Explore all ${count} ${noun}`}>
-      <span className="home-card-art home-more-art">
-        <span className="home-more-stack" aria-hidden="true">
-          {images.map((src, i) => (
-            <img key={src + i} src={src} alt="" loading="lazy" decoding="async" />
-          ))}
-        </span>
-        <span className="home-more-copy">
-          <span className="home-more-count">{count}</span>
-          <span className="home-more-noun">{noun.toUpperCase()}</span>
-          <span className="home-more-cta">
-            EXPLORE THE LIBRARY <ArrowRight size={13} aria-hidden="true" />
-          </span>
-        </span>
-      </span>
-      <span className="home-card-text">
-        <span>
-          <b>SEE EVERYTHING</b>
-          <small>The full collection, newest first</small>
-        </span>
-        <ArrowRight size={14} aria-hidden="true" />
-      </span>
-    </Link>
-  </div>
-);
 
 /** The demo file the band's code window copies */
 const BAND_PAGE =
@@ -122,26 +78,6 @@ const CtaIcon = ({ kind }: { kind: "pages" | "motion" | "systems" }) => (
     </svg>
   </span>
 );
-
-/* ── a card: the shared library card, fed from an item ── */
-const Card = ({ item, onCopied }: { item: Item; onCopied: (m: string) => void }) => {
-  const location = useLocation();
-  const phone = useIsPhone();
-  // Pages open as the dialog over home on desktop, like the feed does
-  const state = item.kind === "page" && !phone ? { backgroundLocation: location } : undefined;
-  return (
-    <LibraryCard
-      kind={item.kind}
-      title={item.title}
-      sub={item.sub}
-      to={item.to}
-      state={state}
-      image={item.image}
-      copy={() => fetch(item.code).then((r) => r.text())}
-      onCopied={onCopied}
-    />
-  );
-};
 
 /* ── a section: head (title, count, description, tools) and a rail ── */
 const Rail = ({
@@ -330,16 +266,7 @@ const Home = () => {
         </section>
         <AgentPanel />
 
-        <Rail
-          id="pages"
-          title="LANDING PAGES"
-          count={PAGES.length}
-          sub="Production-ready landing pages. One file, no dependencies."
-          all="/pages"
-          items={RANDOM_PAGES}
-          more={{ noun: "landing pages", pool: PAGE_ITEMS }}
-          onCopied={say}
-        />
+        <HomePagesGrid onCopied={say} />
         <Rail
           id="motion"
           title="MOTION STUDIES"

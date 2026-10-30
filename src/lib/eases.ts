@@ -10,6 +10,7 @@ export const EASES: Record<EaseName, (t: number) => number> = {
   "power1.inOut": (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),
   "power4.inOut": (t) => (t < 0.5 ? 16 * Math.pow(t, 5) : 1 - Math.pow(-2 * t + 2, 5) / 2),
   "power1.out": (t) => 1 - (1 - t) * (1 - t),
+  "power2.inOut": (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
   "power2.in": (t) => t * t * t,
   "power3.out": (t) => 1 - Math.pow(1 - t, 4),
   "elastic.out(1, 0.3)": elasticOut(0.3),

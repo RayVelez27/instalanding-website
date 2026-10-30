@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glow Strands · InstaLanding Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #05060a; }
+  body { cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+  .mark {
+    position: fixed; left: 24px; bottom: 20px; z-index: 2;
+    font: 500 11px/1.4 "JetBrains Mono", ui-monospace, monospace; letter-spacing: .24em; text-transform: uppercase;
+    color: rgba(255,255,255,.55);
+  }
+  .mark b { color: #fff; font-weight: 500; }
+  .mark i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: 1px; }
+  .fallback { position: fixed; inset: 0; display: grid; place-items: center; color: #aab; font: 14px/1.5 system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<canvas id="gl" role="img" aria-label="Glowing ribbons of light weave across a dark field, tapering to nothing at both ends"></canvas>
+<div class="mark" aria-live="polite"><b>Strands</b> · <span id="pname">Ember</span> <span id="swatch"></span></div>
+
+<script>
+/* ------------------------------------------------------------------
+   Glow Strands. One fragment shader draws every strand: each is two
+   summed sine waves, and its brightness falls off as thickness over
+   distance, squared, so the core is sharp and the halo long. A cosine
+   envelope tapers the strands at both ends, colour slides along a
+   looping palette, and a tone curve (1 - e^-x) keeps overlaps from
+   clipping to white.
+   ------------------------------------------------------------------ */
+const PARAMS = { count: 5, speed: 0.5, waviness: 1, thickness: 0.7, glow: 2.6, scale: 1.5 };
+
+// Palettes are resampled to eight slots so any two can crossfade slot by slot
+const PRESETS = [
+  { name: "Ember",    colors: ["#ff4242", "#7c3aed", "#06b6d4", "#eab308"] },
+  { name: "Glacier",  colors: ["#e0f2fe", "#38bdf8", "#6366f1", "#a5f3fc"] },
+  { name: "Aurora",   colors: ["#22c55e", "#14b8a6", "#a855f7", "#f0abfc"] },
+  { name: "Solar",    colors: ["#f97316", "#facc15", "#fde68a", "#ef4444"] },
+  { name: "Spectrum", colors: ["#ff3b3b", "#ffb020", "#e8ff3a", "#2bff88", "#2b9bff", "#b23bff"] },
+];
+
+const VERT = `#version 300 es
+in vec2 position;
+void main() { gl_Position = vec4(position, 0.0, 1.0); }`;
+
+const FRAG = `#version 300 es
+precision highp float;
+uniform float uTime;
+uniform vec2 uResolution;
+uniform vec3 uColors[8];
+uniform int uStrandCount;
+uniform float uWaviness, uThickness, uGlow, uTaper, uIntensity, uScale, uSaturation;
+out vec4 fragColor;
+const float PI = 3.14159265;
+vec3 samplePalette(float t) {
+  t = fract(t);
+  float scaled = t * 8.0;
+  int idx = int(floor(scaled));
+  int nextIdx = idx + 1 >= 8 ? 0 : idx + 1;
+  return mix(uColors[idx], uColors[nextIdx], fract(scaled));
+}
+void main() {
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution) / uResolution.y;
+  uv /= max(uScale, 0.0001);
+  float e = 0.06 + uIntensity * 0.94;
+  float env = pow(max(cos(uv.x * PI * 1.3), 0.0), uTaper);   // taper both ends
+  vec3 col = vec3(0.0);
+  for (int i = 0; i < 12; i++) {
+    if (i >= uStrandCount) break;
+    float fi = float(i);
+    float ph = fi * 1.7;
+    float freq = (2.0 + fi * 0.35) * uWaviness;
+    float spd = 1.4 + fi * 1.2;
+    float tt = uTime;
+    float w = sin(uv.x * freq + tt * spd + ph) * 0.60
+            + sin(uv.x * freq * 1.1 - tt * spd * 0.7 + ph * 1.7) * 0.40;
+    float y = w * (0.1 + 0.02 * e) * env;
+    float d = abs(uv.y - y);
+    float thick = (0.001 + 0.05 * e) * (0.35 + env) * uThickness;
+    float g = thick / (d + thick * 0.45);
+    g = g * g;
+    float h = fi / float(uStrandCount) + uv.x * 0.30 + uTime * 0.08;
+    col += samplePalette(h) * g * env;
+  }
+  col *= 0.45 + 0.7 * e;
+  col = 1.0 - exp(-col * uGlow);                                // tone curve: overlaps never clip
+  float gray = dot(col, vec3(0.2126, 0.7152, 0.0722));
+  col = max(mix(vec3(gray), col, uSaturation), 0.0);
+  float alpha = clamp(max(max(col.r, col.g), col.b), 0.0, 1.0);
+  fragColor = vec4(col, alpha);
+}`;
+
+const canvas = document.getElementById("gl");
+const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: true, preserveDrawingBuffer: true });
+if (!gl) {
+  document.body.insertAdjacentHTML("beforeend", '<div class="fallback">WebGL2 is not supported in this browser.</div>');
+  throw new Error("WebGL2 unavailable");
+}
+function compile(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+
+// one triangle that covers the screen
+const vao = gl.createVertexArray();
+gl.bindVertexArray(vao);
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+const posLoc = gl.getAttribLocation(prog, "position");
+gl.enableVertexAttribArray(posLoc);
+gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+const U = {};
+for (const n of ["uTime", "uResolution", "uStrandCount", "uWaviness", "uThickness", "uGlow", "uTaper", "uIntensity", "uScale", "uSaturation"])
+  U[n] = gl.getUniformLocation(prog, n);
+U.uColors = gl.getUniformLocation(prog, "uColors[0]");
+gl.clearColor(0, 0, 0, 0);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+/* ---------------- palettes and the crossfade ---------------- */
+const hexToRgb = (hex) => { const n = parseInt(hex.replace("#", ""), 16); return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]; };
+function eightSlots(colors) {             // walk the palette loop in eight even steps
+  const rgb = colors.map(hexToRgb), out = new Float32Array(24);
+  for (let i = 0; i < 8; i++) {
+    const s = i / 8 * rgb.length, a = Math.floor(s), k = s - a, A = rgb[a], B = rgb[(a + 1) % rgb.length];
+    for (let c = 0; c < 3; c++) out[i * 3 + c] = A[c] + (B[c] - A[c]) * k;
+  }
+  return out;
+}
+const SLOTS = PRESETS.map((p) => eightSlots(p.colors));
+let preset = 0, from = SLOTS[0], fadeStart = -10;
+const FADE = 1.2;
+const live = new Float32Array(24);
+function setPreset(i) {
+  // start the fade from whatever is on screen right now
+  from = live.slice();
+  preset = ((i % PRESETS.length) + PRESETS.length) % PRESETS.length;
+  fadeStart = t;
+  document.getElementById("pname").textContent = PRESETS[preset].name;
+  document.getElementById("swatch").innerHTML = PRESETS[preset].colors.map((c) => `<i style="background:${c}"></i>`).join("");
+}
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(innerWidth * dpr);
+  canvas.height = Math.round(innerHeight * dpr);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+addEventListener("resize", resize);
+resize();
+
+/* ---------------- the clock ----------------
+   Time runs on its own clock (dt x speed) so the lab can slow it, and
+   the shader only ever sees t. */
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = 4, speed = PARAMS.speed * (reduce ? 0.2 : 1), last = performance.now(), external = false;
+
+function draw() {
+  const k = Math.min(1, Math.max(0, (t - fadeStart) / FADE)), e = k * k * (3 - 2 * k);
+  const to = SLOTS[preset];
+  for (let i = 0; i < 24; i++) live[i] = from[i] + (to[i] - from[i]) * e;
+  // narrow screens: zoom out so the tapered strands still fit the width
+  const aspect = canvas.width / canvas.height;
+  const scale = aspect < 1 ? PARAMS.scale * Math.max(0.42, aspect) : PARAMS.scale;
+  gl.useProgram(prog);
+  gl.bindVertexArray(vao);
+  gl.uniform1f(U.uTime, t);
+  gl.uniform2f(U.uResolution, canvas.width, canvas.height);
+  gl.uniform3fv(U.uColors, live);
+  gl.uniform1i(U.uStrandCount, Math.min(Math.max(Math.round(PARAMS.count), 1), 12));
+  gl.uniform1f(U.uWaviness, PARAMS.waviness);
+  gl.uniform1f(U.uThickness, PARAMS.thickness);
+  gl.uniform1f(U.uGlow, PARAMS.glow);
+  gl.uniform1f(U.uTaper, 3.0);
+  gl.uniform1f(U.uIntensity, 0.6);
+  gl.uniform1f(U.uScale, scale);
+  gl.uniform1f(U.uSaturation, 1.5);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+function frame(now) {
+  const dt = Math.min(0.1, (now - last) / 1000);
+  last = now;
+  if (!external) { t += dt * speed; draw(); }
+  requestAnimationFrame(frame);
+}
+live.set(SLOTS[0]);
+setPreset(0);
+requestAnimationFrame(frame);
+addEventListener("click", () => setPreset(preset + 1));
+
+// Frame-exact capture: window.__renderAt(seconds) draws that instant
+window.__renderAt = (s) => { external = true; t = s; fadeStart = -10; draw(); };
+window.__ready = true;
+
+/* ------------------------------------------------------------------
+   Lab hooks (InstaLanding Motion). The strands run on their own; when
+   framed, the lab drives them with postMessage and they report the
+   palette and strand count.
+     ?autoplay=2000   rotate palettes every 2s (previews)
+     { source: 'il-motion', type: 'speed', value: 0.25 }   scales the flow speed
+     { ..., type: 'step', value: 1 | -1 }        next / previous palette
+     { ..., type: 'count', value: 5 }            strands, 1-12
+     { ..., type: 'waviness', value: 1 }         wave frequency
+     { ..., type: 'thickness', value: 0.7 }      core width
+     { ..., type: 'glow', value: 2.6 }           tone-curve gain
+     { ..., type: 'autoplay', value: true }      rotate palettes every 3.2s
+------------------------------------------------------------------ */
+{
+  let timer = 0;
+  const autoplay = (on, ms = 3200) => {
+    clearInterval(timer);
+    if (on) timer = setInterval(() => { if (!document.hidden) setPreset(preset + 1); }, ms);
+  };
+  const qs = new URLSearchParams(location.search);
+  if (qs.has('autoplay')) autoplay(true, Number(qs.get('autoplay')) || 3200);
+  const num = (v, lo, hi, d) => { const n = Number(v); return isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
+  addEventListener('message', (e) => {
+    const d = e.data;
+    if (!d || d.source !== 'il-motion') return;
+    if (d.type === 'speed') speed = PARAMS.speed * Math.max(0.05, Number(d.value) || 1);
+    if (d.type === 'step') setPreset(preset + (d.value > 0 ? 1 : -1));
+    if (d.type === 'count') PARAMS.count = num(d.value, 1, 12, 5);
+    if (d.type === 'waviness') PARAMS.waviness = num(d.value, 0.2, 3, 1);
+    if (d.type === 'thickness') PARAMS.thickness = num(d.value, 0.2, 2, 0.7);
+    if (d.type === 'glow') PARAMS.glow = num(d.value, 0.5, 6, 2.6);
+    if (d.type === 'autoplay') autoplay(Boolean(d.value));
+  });
+  if (parent !== window) {
+    let lastText = '';
+    const report = () => {
+      const text = `${PRESETS[preset].name.toUpperCase()} · ${Math.round(PARAMS.count)} STRANDS`;
+      if (text !== lastText) {
+        lastText = text;
+        parent.postMessage({ source: 'il-motion-demo', type: 'status', text }, '*');
+      }
+      requestAnimationFrame(report);
+    };
+    requestAnimationFrame(report);
+  }
+}
+</script>
+</body>
+</html>

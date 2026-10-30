@@ -128,3 +128,10 @@ export const variedOrder = (items: readonly Item[], first?: string): Item[] => {
   }
   return out;
 };
+
+/** Covers for a section's closing card: three the section did not show */
+export const moreCovers = (all: readonly Item[], shown: readonly Item[]) => {
+  const seen = new Set(shown.map((it) => it.key));
+  const rest = all.filter((it) => !seen.has(it.key));
+  return (rest.length >= 3 ? rest : all).slice(0, 3).map((it) => it.image);
+};

@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Fighter Combo · InstaLanding Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Teko:wght@300;400&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #050508; }
+  body { cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+  /* The piece is laid out on a fixed 1920x1080 board (1420x1300 on tall screens)
+     and scaled to the window by fit(); every size below is board pixels. */
+  #root {
+    position: fixed; left: 50%; top: 50%;
+    width: 1920px; height: 1080px; margin: -540px 0 0 -960px;
+    transform: scale(var(--zoom, 1)); transform-origin: center center;
+    overflow: hidden; font-family: "Press Start 2P", monospace; color: #fff;
+    background: radial-gradient(ellipse 120% 90% at 50% 30%, #1b1b3a 0%, #0b0b18 60%, #050508 100%);
+  }
+  .portrait #root { width: 1420px; height: 1300px; margin: -650px 0 0 -710px; }
+  /* faint arcade scanlines over everything */
+  #root::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 40;
+    background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0,0,0,.18) 3px 4px);
+  }
+
+  /* ── stage: a 440x230 pixel scene drawn once on a canvas, shown at x3 ── */
+  .stageWrap { position: absolute; left: 90px; top: 195px; width: 1328px; height: 698px; z-index: 1; }
+  .portrait .stageWrap { left: 46px; top: 60px; }
+  .stage { position: absolute; inset: 0; overflow: hidden; border: 4px solid #000; box-shadow: 0 0 0 3px #3a3a5c; background: #0b0b18; }
+  .stage canvas { position: absolute; image-rendering: pixelated; }
+  #bg { left: 0; top: 0; width: 1320px; height: 690px; }
+  #fighter { width: 240px; height: 300px; }
+  #shadow { position: absolute; bottom: 22px; width: 150px; height: 26px; border-radius: 50%; background: radial-gradient(closest-side, rgba(12,4,22,.8), rgba(12,4,22,0)); }
+  #orb { width: 120px; height: 90px; visibility: hidden; }
+
+  /* ── HUD ── */
+  .hud { position: absolute; top: 24px; left: 30px; right: 30px; z-index: 5; font-size: 24px; text-shadow: 3px 3px 0 #000; }
+  .hud .bars { display: flex; align-items: center; gap: 18px; }
+  .healthbar { flex: 1; height: 30px; border: 6px solid #fff; outline: 3px solid #000; background: #b81c0c; position: relative; }
+  .healthbar .fill { position: absolute; inset: 0; background: linear-gradient(#7ef0d8, #2bb59a); }
+  .healthbar.right .fill { left: 12%; }
+  .timerbox { width: 90px; text-align: center; font-size: 36px; color: #7ef0d8; }
+  .hud .names { display: flex; justify-content: space-between; margin-top: 9px; font-size: 21px; color: #7ef0d8; }
+
+  .callout {
+    position: absolute; left: 50%; top: 288px; z-index: 6; opacity: 0;
+    transform: translate(-50%, 0) scale(0); white-space: nowrap;
+    font-size: 39px; color: #fff3b0; -webkit-text-stroke: 9px #7a1fa8; paint-order: stroke fill;
+    text-shadow: 6px 6px 0 #000;
+  }
+
+  /* ── the 3D CSS controller (to the right; below the stage on tall screens) ── */
+      #padWrap {
+        --angle: 35deg;
+        position: absolute;
+        inset: 0;
+        perspective: 1500px;
+        /* vanishing point on the controller, not frame center — otherwise
+           the oblique projection smears it off the right edge */
+        perspective-origin: 1650px 500px;
+        font-family: Teko, Helvetica, Arial, sans-serif;
+        font-size: 32px;
+        pointer-events: none;
+      }
+
+      #padWrap input[type="radio"] {
+        position: absolute;
+        left: -1000in;
+      }
+
+      #cam1:checked ~ #gamepad { --x: -1; --y: 1; }
+      #cam2:checked ~ #gamepad { --x: -1; }
+      #cam3:checked ~ #gamepad { --x: -1; --y: -1; }
+      #cam4:checked ~ #gamepad { --y: 1; }
+      #cam6:checked ~ #gamepad { --y: -1; }
+      #cam7:checked ~ #gamepad { --x: 1; --y: 1; }
+      #cam8:checked ~ #gamepad { --x: 1; }
+      #cam9:checked ~ #gamepad { --x: 1; --y: -1; }
+
+      #cam1:checked ~ #camera label:nth-child(1),
+      #cam2:checked ~ #camera label:nth-child(2),
+      #cam3:checked ~ #camera label:nth-child(3),
+      #cam4:checked ~ #camera label:nth-child(4),
+      #cam5:checked ~ #camera label:nth-child(5),
+      #cam6:checked ~ #camera label:nth-child(6),
+      #cam7:checked ~ #camera label:nth-child(7),
+      #cam8:checked ~ #camera label:nth-child(8),
+      #cam9:checked ~ #camera label:nth-child(9) {
+        background: #f004;
+        mix-blend-mode: color-burn;
+      }
+
+      #camera {
+        --color1: #ccc;
+        position: absolute;
+        top: 22px;
+        right: 22px;
+        width: 108px;
+        aspect-ratio: 1;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        background:
+          linear-gradient(#0000 0 30%, #fff 0 36.66%, #0000 0 63.33%, #fff 0 70%, #0000 0),
+          linear-gradient(90deg, #0000 0 30%, #fff 0 36.66%, #0000 0 63.33%, #fff 0 70%, #0000 0),
+          radial-gradient(closest-side, #ccc 33.33%, #0000 0 40%, #ccc 0 99.99%, #0000 0);
+        border-radius: 50%;
+        overflow: hidden;
+        gap: calc(0.125 * var(--u));
+      }
+
+      #gamepad {
+        --x: 0;
+        --y: 0;
+        --pos: calc(0.2 * var(--u));
+        --rotate: rotate3d(var(--x), var(--y), 0, var(--angle));
+        --gray-light: #ccc;
+        --gray: #b5b5bb;
+        --gray-dark: #585a58;
+        --purple-light: #bbe;
+        --purple-dark: #64b;
+        --button-x: #3c62f8;
+        --button-y: #14b161;
+        --button-a: #f03025;
+        --button-b: #e9dd34;
+        position: absolute;
+        width: calc(80 * var(--u));
+        height: calc(34 * var(--u));
+        top: 46%;
+        left: 1650px;
+        transform: translate(-50%, -50%) scale(0.5) var(--rotate);
+        transform-style: preserve-3d;
+      }
+
+      #gamepad * {
+        position: absolute;
+        box-sizing: border-box;
+        transform-style: preserve-3d;
+      }
+
+      .is3d > div {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .is3d > div:nth-child(1) { transform: translateZ(calc(var(--pos) * 1)); }
+      .is3d > div:nth-child(2) { transform: translateZ(calc(var(--pos) * 2)); }
+      .is3d > div:nth-child(3) { transform: translateZ(calc(var(--pos) * 3)); }
+      .is3d > div:nth-child(4) { transform: translateZ(calc(var(--pos) * 4)); }
+      .is3d > div:nth-child(5) { transform: translateZ(calc(var(--pos) * 5)); }
+      .is3d > div:nth-child(6) { transform: translateZ(calc(var(--pos) * 6)); }
+      .is3d > div:nth-child(7) { transform: translateZ(calc(var(--pos) * 7)); }
+      .is3d > div:nth-child(8) { transform: translateZ(calc(var(--pos) * 8)); }
+      .is3d > div:nth-child(9) { transform: translateZ(calc(var(--pos) * 9)); }
+      .is3d > div:nth-child(10) { transform: translateZ(calc(var(--pos) * 10)); }
+      .is3d > div:nth-child(11) { transform: translateZ(calc(var(--pos) * 11)); }
+      .is3d > div:nth-child(12) { transform: translateZ(calc(var(--pos) * 12)); }
+
+      #gamepad button {
+        border: 0;
+        color: transparent;
+        background: transparent;
+        padding: 0;
+        transform-style: preserve-3d;
+      }
+
+      /* pressed: layers drop near-flat — but keep DISTINCT z planes; the
+         pen's unitless 0.05 collapses them coplanar, which z-fights
+         nondeterministically in headless raster */
+      #gamepad button.active,
+      #gamepad button:active {
+        --pos: calc(0.05 * var(--u));
+      }
+
+      /* general frame */
+      .face,
+      .face div {
+        --pos: calc(-0.7 * var(--u));
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background:
+          radial-gradient(closest-side, #0000 97%, #fff2 99%, #0000 0) calc(48 * var(--u)) calc(2 * var(--u)) / calc(30 * var(--u)) calc(30 * var(--u)) no-repeat,
+          radial-gradient(closest-side, var(--gray) 99%, #0002 99.8%, #0000 100%) calc(48 * var(--u)) calc(2 * var(--u)) / calc(30 * var(--u)) calc(30 * var(--u)) no-repeat,
+          radial-gradient(farthest-side at 100% 50%, #0000 94%, #00000002 99.9%, #0000 0) calc(7.5 * var(--u)) calc(7.5 * var(--u)) / calc(9.5 * var(--u)) calc(19 * var(--u)) no-repeat,
+          radial-gradient(farthest-side at calc(1 * var(--u)) 50%, #0000 96%, #ffffff1f 99.9%, #0000 0) calc(16 * var(--u)) calc(7.5 * var(--u)) / calc(10.5 * var(--u)) calc(19 * var(--u)) no-repeat,
+          radial-gradient(farthest-side, #0000 80%, #00000004 99.9%, #0000 0) calc(7.5 * var(--u)) calc(7.5 * var(--u)) / calc(19 * var(--u)) calc(19 * var(--u)) no-repeat,
+          radial-gradient(circle at calc(17 * var(--u)) calc(17 * var(--u)), var(--gray-light) calc(16.95 * var(--u)), #0000 calc(17 * var(--u))),
+          radial-gradient(circle at calc(63 * var(--u)) calc(17 * var(--u)), var(--gray-light) calc(16.95 * var(--u)), #0000 calc(17 * var(--u))),
+          linear-gradient(#0000, #fff2 0.01%, #0000 2% 98%, #0001) 50% 0 / calc(46 * var(--u)) calc(30 * var(--u)) no-repeat,
+          linear-gradient(var(--gray-light) 0 0) 50% 0 / calc(46 * var(--u)) calc(30 * var(--u)) no-repeat;
+        pointer-events: none;
+      }
+
+      .face div {
+        filter: contrast(0.9);
+        background:
+          radial-gradient(circle at calc(17 * var(--u)) calc(17 * var(--u)), var(--gray-light) calc(16.9 * var(--u)), #0000 calc(17 * var(--u))),
+          radial-gradient(circle at calc(63 * var(--u)) calc(17 * var(--u)), var(--gray-light) calc(16.9 * var(--u)), #0000 calc(17 * var(--u))),
+          linear-gradient(var(--gray-light) 0 0) 50% 0 / calc(46 * var(--u)) calc(30 * var(--u)) no-repeat;
+      }
+
+      #gamepad h1 {
+        top: calc(3.5 * var(--u));
+        left: 45%;
+        margin: 0;
+        transform: translate(-50%, 0%);
+        font-size: calc(4 * var(--u));
+        font-style: italic;
+        color: var(--gray-dark);
+        font-weight: 300;
+      }
+
+      #gamepad h1 + p {
+        background: var(--gray-dark);
+        color: var(--gray-light);
+        margin: 0;
+        padding: calc(0 * var(--u)) calc(0.75 * var(--u));
+        line-height: calc(3 * var(--u));
+        height: calc(2.5 * var(--u));
+        font-style: italic;
+        font-size: calc(1.66 * var(--u));
+        top: calc(8 * var(--u));
+        left: 45.25%;
+        transform: translate(-50%, 0);
+        letter-spacing: calc(0.2 * var(--u));
+      }
+
+      .letter {
+        color: var(--gray-light);
+        font-style: italic;
+        font-size: calc(3.75 * var(--u));
+        transform: skew(3deg);
+        line-height: 0;
+      }
+
+      .letter-a { top: 28%; left: 92.9%; }
+      .letter-b { top: 69%; left: 71.25%; }
+      .letter-x { top: 11%; left: 83.5%; }
+      .letter-y { top: 52%; left: 62%; }
+
+      /* Top buttons */
+      #l, #r {
+        --pos: calc(-0.2 * var(--u));
+        width: calc(17.25 * var(--u));
+        height: calc(5 * var(--u));
+        top: calc(-1.5 * var(--u));
+        left: calc(8.75 * var(--u));
+        background:
+          linear-gradient(#fff0, #fff6),
+          var(--gray-light);
+        border-radius: 55% calc(1 * var(--u)) 0 0;
+        box-shadow:
+          inset 0 calc(0.125 * var(--u)) calc(0.25 * var(--u)) #0002,
+          inset 0 calc(2.5 * var(--u)) calc(0.5 * var(--u)) calc(-1 * var(--u)) var(--gray-light),
+          inset 0 calc(3 * var(--u)) calc(1 * var(--u)) calc(-1 * var(--u)) #0004;
+        transform: translateZ(calc(-2.75 * var(--u)));
+      }
+
+      #l div,
+      #r div {
+        box-shadow:
+          inset 0 calc(0.125 * var(--u)) calc(0.25 * var(--u)) #0002,
+          inset 0 calc(2.5 * var(--u)) calc(0.5 * var(--u)) calc(-1 * var(--u)) var(--gray-light),
+          inset 0 calc(3 * var(--u)) calc(1 * var(--u)) calc(-1 * var(--u)) #0004;
+        border-radius: 55% calc(1 * var(--u)) 0 0;
+      }
+
+      #l.active,
+      #l:active {
+        box-shadow:
+          inset 0 calc(0.125 * var(--u)) calc(0.25 * var(--u)) #0002,
+          inset 0 calc(2.5 * var(--u)) calc(0.75 * var(--u)) calc(-1.66 * var(--u)) var(--gray-light),
+          inset 0 calc(3 * var(--u)) calc(1 * var(--u)) calc(-1 * var(--u)) #0004;
+        transform: translateZ(calc(-2.75 * var(--u))) translateY(calc(1 * var(--u)));
+      }
+
+      #r {
+        top: calc(-1.5 * var(--u));
+        left: auto;
+        right: calc(8.75 * var(--u));
+        transform: scaleX(-1) translateZ(calc(-2.75 * var(--u)));
+      }
+
+      #r.active,
+      #r:active {
+        box-shadow:
+          inset 0 calc(0.125 * var(--u)) calc(0.25 * var(--u)) #0002,
+          inset 0 calc(2.5 * var(--u)) calc(0.75 * var(--u)) calc(-1.66 * var(--u)) var(--gray-light),
+          inset 0 calc(3 * var(--u)) calc(1 * var(--u)) calc(-1 * var(--u)) #0004;
+        transform: scaleX(-1) translateZ(calc(-2.75 * var(--u))) translateY(calc(1 * var(--u)));
+      }
+
+      /* axis */
+      .axis, .axis div {
+        --color: #111;
+        background:
+          linear-gradient(#0000 31%, #000c 33.33% 66.66%, #0000 70%),
+          linear-gradient(90deg, #0000 31%, #000c 33.33% 66.66%, #0000 70%);
+        width: calc(13.5 * var(--u));
+        aspect-ratio: 1;
+        top: calc(9.75 * var(--u));
+        left: calc(10.5 * var(--u));
+        pointer-events: none;
+        box-shadow:
+          calc(-4.5 * var(--u)) 0 calc(0.25 * var(--u)) calc(-4.4 * var(--u)) #000c,
+          calc(4.5 * var(--u)) 0 calc(0.25 * var(--u)) calc(-4.4 * var(--u)) #000c,
+          0 calc(-4.5 * var(--u)) calc(0.25 * var(--u)) calc(-4.4 * var(--u)) #000c,
+          0 calc(4.5 * var(--u)) calc(0.25 * var(--u)) calc(-4.4 * var(--u)) #000c;
+      }
+
+      .axis div {
+        --color: #34393a;
+        --shadows:
+          radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 36.66% 0% / 10% 10% no-repeat,
+          radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 62.66% 0% / 10% 10% no-repeat,
+          radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 36.66% 100% / 10% 10% no-repeat,
+          radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 62.66% 100% / 10% 10% no-repeat,
+          radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 0 36.66% / 10% 10% no-repeat,
+          radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 0 62.66% / 10% 10% no-repeat,
+          radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 100% 36.66% / 10% 10% no-repeat,
+          radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 100% 62.66% / 10% 10% no-repeat,
+          linear-gradient(var(--color) 0 0) 50% 50% / 100% 26.66% no-repeat,
+          linear-gradient(var(--color) 0 0) 50% 50% / 26.66% 100% no-repeat,
+          linear-gradient(var(--color) 0 0) 50% 50% / 93.33% 33.33% no-repeat,
+          linear-gradient(var(--color) 0 0) 50% 50% / 33.33% 93.33% no-repeat;
+        top: 0;
+        left: 0;
+        box-shadow: none;
+        background: var(--shadows);
+      }
+
+      .axis div:last-of-type {
+        --color: #3a4448;
+        background:
+          linear-gradient(#fff1, #fff0 20% 80%, #fff1),
+          linear-gradient(90deg, #fff1, #fff0 20% 80%, #fff1),
+          var(--shadows);
+        box-shadow:
+          inset 0 0 calc(2 * var(--u)) calc(-0.5 * var(--u)) #0009,
+          inset calc(-4.5 * var(--u)) calc(-4.5 * var(--u)) calc(3 * var(--u)) #2102,
+          inset calc(4.5 * var(--u)) calc(4.5 * var(--u)) calc(3 * var(--u)) #ffff0005;
+        clip-path: polygon(33.33% 0, 66.66% 0, 66.66% 33.33%, 100% 33.33%, 100% 66.66%, 66.66% 66.66%, 66.66% 100%, 33.33% 100%, 33.33% 66.66%, 0 66.66%, 0 33.33%, 33.33% 33.33%);
+        -webkit-mask: var(--shadows);
+        mask: var(--shadows);
+      }
+
+      .axis div:last-of-type::before {
+        content: "";
+        position: absolute;
+        width: 25%;
+        aspect-ratio: 1;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(#0000, #0002);
+        box-shadow:
+          inset calc(-0.25 * var(--u)) 0 calc(0.5 * var(--u)) #28282855,
+          inset 0 0 calc(1 * var(--u)) calc(0.25 * var(--u)) #28282855,
+          inset calc(-1 * var(--u)) calc(-0.25 * var(--u)) calc(0.5 * var(--u)) calc(-0.25 * var(--u)) #ffffff11;
+        border-radius: 50%;
+        opacity: 0.9;
+      }
+
+      #up, #right, #left, #down {
+        width: calc(4.5 * var(--u));
+        height: calc(4.5 * var(--u));
+      }
+
+      #up { top: calc(9.75 * var(--u)); left: calc(15 * var(--u)); }
+      #left { top: calc(14.25 * var(--u)); left: calc(10.5 * var(--u)); }
+      #right { top: calc(14.25 * var(--u)); left: calc(19.5 * var(--u)); }
+      #down { top: calc(18.75 * var(--u)); left: calc(15 * var(--u)); }
+
+      #up.active ~ .axis div,
+      #up:active ~ .axis div {
+        transform-origin: 50% 100%;
+        transform: translateZ(calc(var(--pos) * var(--z))) rotateX(5deg);
+      }
+
+      #down.active ~ .axis div,
+      #down:active ~ .axis div {
+        transform-origin: 50% 0%;
+        transform: translateZ(calc(var(--pos) * var(--z))) rotateX(-5deg);
+      }
+
+      #left.active ~ .axis div,
+      #left:active ~ .axis div {
+        transform-origin: 100% 50%;
+        transform: translateZ(calc(var(--pos) * var(--z))) rotateY(-5deg);
+      }
+
+      #right.active ~ .axis div,
+      #right:active ~ .axis div {
+        transform-origin: 0% 50%;
+        transform: translateZ(calc(var(--pos) * var(--z))) rotateY(5deg);
+      }
+
+      /* Menu buttons */
+      #select,
+      #start {
+        width: calc(6 * var(--u));
+        height: calc(2 * var(--u));
+        border-radius: calc(2.5 * var(--u));
+        background: #444;
+        transform: translate(-50%, -50%) rotate(-35deg);
+        top: calc(19.5 * var(--u));
+        left: calc(32.5 * var(--u));
+        box-shadow:
+          0 0 0 calc(0.2 * var(--u)) #0007,
+          0 0 calc(0.3 * var(--u)) calc(0.1 * var(--u)) #fff4,
+          0 0 0 calc(0.2 * var(--u)) #0002,
+          0 calc(0.5 * var(--u)) calc(0.5 * var(--u)) #0004;
+      }
+
+      #start { left: calc(41 * var(--u)); }
+
+      button#start.is3d div,
+      button#select.is3d div {
+        --color: #222;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform: translateZ(calc(var(--pos) * var(--z))) scale(calc(1 - var(--z) * 0.03));
+        border-radius: calc(2.5 * var(--u));
+        background: #444;
+        box-shadow:
+          inset 0 0 calc(0.5 * var(--u)) var(--color),
+          inset calc(2.25 * var(--u)) calc(2.25 * var(--u)) calc(0.5 * var(--u)) calc(-2.25 * var(--u)) #fff2,
+          inset calc(-2.25 * var(--u)) calc(-0.5 * var(--u)) calc(1 * var(--u)) calc(-2.25 * var(--u)) #fff2,
+          inset calc(-2.25 * var(--u)) calc(-0.5 * var(--u)) calc(1.5 * var(--u)) #fff1,
+          inset calc(0.5 * var(--u)) calc(1 * var(--u)) calc(0.5 * var(--u)) #0002,
+          inset calc(1 * var(--u)) calc(0 * var(--u)) calc(0.5 * var(--u)) #0002,
+          inset calc(-1.5 * var(--u)) calc(-1 * var(--u)) calc(2 * var(--u)) calc(-0.5 * var(--u)) #2583,
+          inset calc(-1 * var(--u)) calc(-0.5 * var(--u)) calc(0.5 * var(--u)) #fff3;
+      }
+
+      #start div {
+        box-shadow:
+          inset 0 0 calc(0.5 * var(--u)) var(--color),
+          inset calc(2.25 * var(--u)) calc(2.25 * var(--u)) calc(0.5 * var(--u)) calc(-2.25 * var(--u)) #fff2,
+          inset calc(0.5 * var(--u)) calc(1 * var(--u)) calc(0.5 * var(--u)) #0002,
+          inset calc(1 * var(--u)) calc(0 * var(--u)) calc(0.5 * var(--u)) #0002,
+          inset calc(-1.5 * var(--u)) calc(-1 * var(--u)) calc(2 * var(--u)) calc(-0.5 * var(--u)) #2583,
+          inset calc(-1 * var(--u)) calc(-0.5 * var(--u)) calc(0.5 * var(--u)) #fff3;
+      }
+
+      .letter-start,
+      .letter-select {
+        color: var(--gray);
+        font-size: calc(2 * var(--u));
+        transform: translate(-50%, 0);
+        filter: brightness(0.8);
+        top: 60%;
+        font-style: italic;
+        letter-spacing: calc(0.15 * var(--u));
+      }
+
+      .letter-start { left: calc(41 * var(--u)); }
+      .letter-select { left: calc(32.5 * var(--u)); }
+
+      /* Action buttons */
+      #gamepad button.circle,
+      #gamepad button.circle div {
+        --shadow:
+          inset 0 0 0 calc(0.25 * var(--u)) var(--color),
+          inset calc(2.25 * var(--u)) calc(2.25 * var(--u)) calc(0.5 * var(--u)) calc(-2.25 * var(--u)) #fff8,
+          inset calc(-2.25 * var(--u)) calc(-0.5 * var(--u)) calc(1 * var(--u)) calc(-2.25 * var(--u)) #fff8,
+          inset calc(-2.25 * var(--u)) calc(-0.5 * var(--u)) calc(1.5 * var(--u)) #fff2,
+          inset calc(0.5 * var(--u)) calc(1 * var(--u)) calc(0.5 * var(--u)) #0001,
+          inset calc(1 * var(--u)) calc(0 * var(--u)) calc(0.5 * var(--u)) #0001,
+          inset calc(-1.5 * var(--u)) calc(-1 * var(--u)) calc(2 * var(--u)) calc(-0.5 * var(--u)) #2583,
+          inset calc(-1 * var(--u)) calc(-0.5 * var(--u)) calc(0.5 * var(--u)) #fff3;
+        width: calc(6 * var(--u));
+        aspect-ratio: 1;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--color);
+        z-index: 2;
+        box-shadow:
+          0 0 0 calc(0.25 * var(--u)) #0002,
+          0 0 calc(0.3 * var(--u)) calc(0.1 * var(--u)) #0008,
+          0 0 calc(0.3 * var(--u)) calc(0.1 * var(--u)) #fff4,
+          0 0 0 calc(0.2 * var(--u)) #0002,
+          var(--shadow);
+      }
+
+      #gamepad button.circle div {
+        box-shadow:
+          0 0 0 calc(0.25 * var(--u)) #0002,
+          0 0 calc(0.3 * var(--u)) calc(0.1 * var(--u)) #fff4,
+          0 0 0 calc(0.2 * var(--u)) #0001,
+          var(--shadow);
+      }
+
+      /* Fix: the centering translate above also hit the inner 3D layers,
+         offsetting them from the base and doubling each button. Layers sit
+         exactly on the base and only extrude along Z. */
+      #gamepad button.circle > div { top: 0; left: 0; width: 100%; height: 100%; }
+      #gamepad button.circle > div:nth-child(1) { transform: translateZ(calc(var(--pos) * 1)); }
+      #gamepad button.circle > div:nth-child(2) { transform: translateZ(calc(var(--pos) * 2)); }
+      #gamepad button.circle > div:nth-child(3) { transform: translateZ(calc(var(--pos) * 3)); }
+      #gamepad button.circle > div:nth-child(4) { transform: translateZ(calc(var(--pos) * 4)); }
+
+      #x { top: calc(9 * var(--u)); left: calc(14.75 * var(--u)); --color: var(--button-x); }
+      #y { top: calc(15 * var(--u)); left: calc(7.125 * var(--u)); --color: var(--button-y); }
+      #a { top: calc(15 * var(--u)); right: calc(1.5 * var(--u)); --color: var(--button-a); }
+      #b { top: calc(21 * var(--u)); left: calc(14.75 * var(--u)); --color: var(--button-b); }
+
+      .buttons {
+        width: calc(30 * var(--u));
+        height: calc(30 * var(--u));
+        border-radius: 50%;
+        right: calc(2 * var(--u));
+        top: calc(2 * var(--u));
+        box-shadow:
+          calc(0 * var(--u)) calc(0 * var(--u)) calc(1 * var(--u)) calc(1.4 * var(--u)) var(--gray-light),
+          calc(1.25 * var(--u)) calc(1 * var(--u)) calc(1 * var(--u)) calc(0 * var(--u)) #fffc,
+          calc(1.25 * var(--u)) calc(-1 * var(--u)) calc(1 * var(--u)) calc(0 * var(--u)) #fffa;
+        border: 1px solid #0001;
+      }
+
+      .buttons::before,
+      .buttons::after {
+        content: "";
+        position: absolute;
+        border-radius: calc(10 * var(--u));
+        transform: rotate(-38deg);
+        width: calc(17.75 * var(--u));
+        height: calc(7.75 * var(--u));
+        background: var(--gray-light);
+        z-index: 1;
+        top: calc(8.1 * var(--u));
+        left: calc(2.05 * var(--u));
+        box-shadow:
+          inset 0 0 0 calc(0.125 * var(--u)) #0003,
+          inset 0 0 0 calc(0.25 * var(--u)) #fff2;
+      }
+
+      .buttons::after {
+        top: calc(14.05 * var(--u));
+        left: calc(9.75 * var(--u));
+      }
+
+      /* cord */
+      #cord {
+        width: calc(2 * var(--u));
+        aspect-ratio: 1;
+        background: var(--gray-dark);
+        border-radius: 50%;
+        left: 50%;
+        top: 0;
+        transform-origin: 50% 0%;
+        transform: translate(-50%, 0) rotateX(-90deg) translate(0, calc(3 * var(--u)));
+        box-shadow:
+          0 0 calc(1 * var(--u)) calc(0.2 * var(--u)) #000c,
+          0 0 0 calc(1.5 * var(--u)) var(--gray-light);
+        outline: calc(0.0625 * var(--u)) solid #0001;
+        outline-offset: calc(1.5 * var(--u));
+      }
+
+      #cord div {
+        width: 100%;
+        height: 600%;
+        background: linear-gradient(#585a58, #585a5888 20%, #585a5800);
+        top: 50%;
+        transform-origin: 50% 0%;
+        transform: rotateX(-90deg);
+      }
+
+      #cord div:nth-child(1) { transform: rotateX(-90deg) rotateY(calc(1 * 36deg)); }
+      #cord div:nth-child(2) { transform: rotateX(-90deg) rotateY(calc(2 * 36deg)); }
+      #cord div:nth-child(3) { transform: rotateX(-90deg) rotateY(calc(3 * 36deg)); }
+      #cord div:nth-child(4) { transform: rotateX(-90deg) rotateY(calc(4 * 36deg)); }
+      #cord div:nth-child(5) { transform: rotateX(-90deg) rotateY(calc(5 * 36deg)); }
+      #cord div:nth-child(6) { transform: rotateX(-90deg) rotateY(calc(6 * 36deg)); }
+      #cord div:nth-child(7) { transform: rotateX(-90deg) rotateY(calc(7 * 36deg)); }
+      #cord div:nth-child(8) { transform: rotateX(-90deg) rotateY(calc(8 * 36deg)); }
+      #cord div:nth-child(9) { transform: rotateX(-90deg) rotateY(calc(9 * 36deg)); }
+      #cord div:nth-child(10) { transform: rotateX(-90deg) rotateY(calc(10 * 36deg)); }
+
+      /* current-move caption under the pad */
+
+  #padWrap { --u: 10.8px; }
+  .portrait #padWrap { perspective-origin: 710px 1010px; }
+  .portrait #gamepad { left: 710px; top: 1010px; }
+  .portrait #camera { top: auto; bottom: 30px; right: 40px; }
+  #moveName {
+    position: absolute; left: 1665px; top: 760px; transform: translateX(-50%); white-space: nowrap;
+    font-family: "Press Start 2P", monospace; font-size: 16px; color: #7ef0d8; text-shadow: 2px 2px 0 #1a4d63;
+  }
+  .portrait #moveName { left: 710px; top: 1220px; font-size: 22px; }
+  .hide-callouts .callout { display: none; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="stageWrap">
+    <div class="stage">
+      <canvas id="bg" width="440" height="230" role="img" aria-label="A pixel-art rooftop dojo at dusk: striped sun, purple mountains, a lit skyline, lanterns and a plank deck"></canvas>
+      <div class="hud">
+        <div class="bars">
+          <div class="healthbar"><div class="fill"></div></div>
+          <div class="timerbox" id="timer">99</div>
+          <div class="healthbar right"><div class="fill"></div></div>
+        </div>
+        <div class="names"><span>RIN</span><span>ODA</span></div>
+      </div>
+      <div class="callout" id="callout"></div>
+      <div id="shadow"></div>
+      <canvas id="fighter" width="160" height="200" role="img" aria-label="Rin, a pixel karate fighter in a shaded teal gi, hand wraps and a red headband"></canvas>
+      <canvas id="orb" width="40" height="30" aria-hidden="true"></canvas>
+    </div>
+  </div>
+<div id="padWrap">
+        <!-- Code to handle the camera angle -->
+        <input tabindex="-1" type="radio" name="cam" id="cam1" />
+        <input tabindex="-1" type="radio" name="cam" id="cam2" />
+        <input tabindex="-1" type="radio" name="cam" id="cam3" />
+        <input tabindex="-1" type="radio" name="cam" id="cam4" />
+        <input tabindex="-1" type="radio" name="cam" id="cam5" />
+        <input tabindex="-1" type="radio" name="cam" id="cam6" checked />
+        <input tabindex="-1" type="radio" name="cam" id="cam7" />
+        <input tabindex="-1" type="radio" name="cam" id="cam8" />
+        <input tabindex="-1" type="radio" name="cam" id="cam9" />
+
+        <div id="camera">
+          <label for="cam1"></label>
+          <label for="cam2"></label>
+          <label for="cam3"></label>
+          <label for="cam4"></label>
+          <label for="cam5"></label>
+          <label for="cam6"></label>
+          <label for="cam7"></label>
+          <label for="cam8"></label>
+          <label for="cam9"></label>
+        </div>
+
+        <article id="gamepad" aria-label="Game controller">
+          <!-- cord -->
+          <div id="cord"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+
+          <!-- Buttons on top-->
+          <button id="l" class="is3d">Top left<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></button>
+          <button id="r" class="is3d">Top Right<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></button>
+
+          <!-- frame -->
+          <div class="face is3d"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+
+          <!-- Letters and Text -->
+          <h1>INSTALANDING</h1>
+          <p>MOTION LAB CONTROLLER</p>
+
+          <p class="letter letter-x" aria-hidden="true">X</p>
+          <p class="letter letter-y" aria-hidden="true">Y</p>
+          <p class="letter letter-a" aria-hidden="true">A</p>
+          <p class="letter letter-b" aria-hidden="true">B</p>
+          <p class="letter-start" aria-hidden="true">START</p>
+          <p class="letter-select" aria-hidden="true">SELECT</p>
+
+          <!-- directional buttons + axis -->
+          <button id="up">Up</button>
+          <button id="left">Left</button>
+          <button id="right">Right</button>
+          <button id="down">Down</button>
+          <div class="axis is3d"><div style="--z:1"></div><div style="--z:2"></div><div style="--z:3"></div><div style="--z:4"></div><div style="--z:5"></div><div style="--z:6"></div></div>
+
+          <!-- Menu buttons (start/select) -->
+          <button id="select" class="is3d">Select<div style="--z:1"></div><div style="--z:2"></div><div style="--z:3"></div><div style="--z:4"></div></button>
+          <button id="start" class="is3d">Start<div style="--z:1"></div><div style="--z:2"></div><div style="--z:3"></div><div style="--z:4"></div></button>
+
+          <!-- Action buttons -->
+          <div class="buttons">
+            <button id="x" class="circle is3d">x<div></div><div></div><div></div><div></div></button>
+            <button id="y" class="circle is3d">y<div></div><div></div><div></div><div></div></button>
+            <button id="a" class="circle is3d">a<div></div><div></div><div></div><div></div></button>
+            <button id="b" class="circle is3d">b<div></div><div></div><div></div><div></div></button>
+          </div>
+        </article>
+
+        
+    <div id="moveName">STANCE</div>
+  </div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Pixel Fighter Combo. One 12s timeline, drawn from the time alone:
+   applyTime(t) picks the move, steps its frame, draws the fighter on a
+   80x100 canvas, places the projectile, pops the callout and presses
+   the matching controller buttons. Nothing tweens on its own.
+
+   The fighter is not a sprite sheet: every frame is a pose (angles for
+   torso, arms and legs) drawn as shaded, tapered pixel limbs at twice
+   the stage's pixel density, then grounded on the floor line. Frames are
+   blended in thirds; strikes add smears, specials an aura, the spin
+   afterimages, landings dust.
+   ------------------------------------------------------------------ */
+(function () {
+  "use strict";
+  const DURATION = 12, HOLD = 1.2;
+  const SCALE = 3;                      // stage pixels -> board pixels
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const smooth = (a, b, x) => { const u = clamp01((x - a) / (b - a)); return u * u * (3 - 2 * u); };
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------------- seeded random, so the stage is the same every load ---------------- */
+  let seed = 7;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+
+  /* ---------------- the stage: drawn once ---------------- */
+  (function drawStage() {
+    const c = $("bg").getContext("2d");
+    const W = 440, H = 230;
+    const bands = ["#1b1440", "#2a1850", "#3f1f62", "#5e2a6c", "#86356f", "#b5466c", "#e0625f", "#f58a55"];
+    const bandH = 19;
+    bands.forEach((col, i) => {
+      c.fillStyle = col; c.fillRect(0, i * bandH, W, bandH + 1);
+      if (i > 0) { // checker dither into the band above
+        c.fillStyle = col;
+        for (let x = 0; x < W; x += 2) { c.fillRect(x + ((i % 2) ? 1 : 0), i * bandH - 2, 1, 1); c.fillRect(x, i * bandH - 1, 1, 1); }
+      }
+    });
+    // stars in the top bands
+    c.fillStyle = "#fff6d8";
+    for (let i = 0; i < 40; i++) { const x = Math.floor(rnd() * W), y = Math.floor(rnd() * 50); c.fillRect(x, y, 1, 1); }
+    // striped retro sun
+    const sx = 300, sy = 128, sr = 34;
+    for (let y = -sr; y <= sr; y++) {
+      const w = Math.floor(Math.sqrt(sr * sr - y * y));
+      const gap = y > 4 && (y % 6 === 0 || y % 6 === 1) && y > 8;
+      if (gap) continue;
+      c.fillStyle = y < -12 ? "#fff1a8" : y < 4 ? "#ffd66b" : "#ffad4d";
+      c.fillRect(sx - w, sy + y, w * 2, 1);
+    }
+    // two mountain ranges from seeded noise
+    function ridge(base, amp, col, step) {
+      c.fillStyle = col;
+      let h = base;
+      for (let x = 0; x < W; x += step) {
+        h += (rnd() - 0.5) * amp; h = Math.max(base - amp * 2, Math.min(base + amp, h));
+        c.fillRect(x, Math.floor(h), step, H - Math.floor(h));
+      }
+    }
+    ridge(128, 10, "#55306b", 4);
+    ridge(146, 7, "#38214f", 3);
+    // a skyline of towers with lit windows
+    for (let x = 4; x < W; ) {
+      const w = 10 + Math.floor(rnd() * 16), h = 20 + Math.floor(rnd() * 36), top = 172 - h;
+      c.fillStyle = "#1c1430"; c.fillRect(x, top, w, h + 10);
+      if (rnd() < 0.3) { c.fillRect(x + Math.floor(w / 2), top - 6, 1, 6); }
+      for (let wy = top + 3; wy < 168; wy += 4)
+        for (let wx = x + 2; wx < x + w - 2; wx += 3)
+          if (rnd() < 0.28) { c.fillStyle = rnd() < 0.8 ? "#ffd27a" : "#7ef0d8"; c.fillRect(wx, wy, 1, 2); }
+      x += w + 2 + Math.floor(rnd() * 6);
+    }
+    // railing
+    c.fillStyle = "#2a1a14"; c.fillRect(0, 170, W, 3);
+    for (let x = 6; x < W; x += 14) c.fillRect(x, 170, 2, 14);
+    // plank deck with perspective seams
+    const deckTop = 184;
+    for (let y = deckTop; y < H; y++) {
+      const k = (y - deckTop) / (H - deckTop);
+      c.fillStyle = (y - deckTop) % 7 === 0 ? "#3b241a" : k < 0.5 ? "#6b4330" : "#5a3727";
+      c.fillRect(0, y, W, 1);
+    }
+    c.fillStyle = "#3b241a";
+    for (let i = -12; i <= 12; i++) {
+      const x0 = W / 2 + i * 20, x1 = W / 2 + i * 44;
+      for (let y = deckTop; y < H; y++) { const k = (y - deckTop) / (H - deckTop); c.fillRect(Math.round(x0 + (x1 - x0) * k), y, 1, 1); }
+    }
+    c.fillStyle = "#8a5a40"; c.fillRect(0, deckTop, W, 1);
+    // paper lanterns on posts
+    [[26, 118], [414, 118]].forEach(([x, y]) => {
+      c.fillStyle = "#1a0f0b"; c.fillRect(x - 1, y + 14, 3, deckTop - y - 14);
+      c.fillStyle = "#ff5a3c"; c.fillRect(x - 6, y, 13, 14);
+      c.fillStyle = "#ffb067"; c.fillRect(x - 4, y + 2, 9, 10);
+      c.fillStyle = "#1a0f0b"; c.fillRect(x - 6, y - 2, 13, 2); c.fillRect(x - 6, y + 14, 13, 2);
+      c.fillStyle = "rgba(255,150,80,.18)"; c.fillRect(x - 16, y - 8, 33, 30);
+    });
+  })();
+
+  /* ---------------- the fighter ----------------
+     Drawn at 160x200 and shown at 1.5x, so the fighter has twice the stage's pixel
+     density. Every body part is a tapered capsule of pixel discs, shaded with a
+     three-tone ramp lit from the sunset (upper right) plus a warm rim light. */
+  const FW = 160, FH = 200, HIP_X = 66, FLOOR = 192, PX = 1.5;
+  const fc = $("fighter").getContext("2d");
+  const LEN = { torso: 36, ua: 21, fa: 21, th: 27, sh: 27 };
+  const OUT = "#0a0d18";
+  const R = {
+    gi:    { d: "#123c51", b: "#1f6d8c", l: "#3591b0", rim: "#c98b6c" },
+    giB:   { d: "#0c2a3a", b: "#164f68", l: "#22667f", rim: "#8a6a62" },
+    skin:  { d: "#a55c37", b: "#d99464", l: "#f4c393", rim: "#ffd5a6" },
+    skinB: { d: "#7f4428", b: "#b5714a", l: "#cf9468", rim: "#e6a47a" },
+    wrap:  { d: "#a99c86", b: "#e3d8c4", l: "#fffaf0", rim: "#fff" },
+    belt:  { d: "#050505", b: "#151515", l: "#3c3c3c", rim: "#6a5040" },
+    band:  { d: "#7d1019", b: "#c22430", l: "#ff5d52", rim: "#ffb08a" },
+  };
+  const dir = (a) => [Math.sin(a * Math.PI / 180), Math.cos(a * Math.PI / 180)]; // 0 down, 90 forward, 180 up
+  const add = (p, a, l) => { const [x, y] = dir(a); return [p[0] + x * l, p[1] + y * l]; };
+  const lerpP = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
+
+  function disc(cx, cy, r, col) {
+    fc.fillStyle = col;
+    const ri = Math.max(0.5, r), x0 = Math.round(cx), y0 = Math.round(cy), rr = Math.ceil(ri);
+    for (let dy = -rr; dy <= rr; dy++) {
+      const w = Math.floor(Math.sqrt(Math.max(0, ri * ri - dy * dy)) + 0.35);
+      if (ri * ri - dy * dy < 0) continue;
+      fc.fillRect(x0 - w, y0 + dy, w * 2 + 1, 1);
+    }
+  }
+  function capsule(a, b, r1, r2, col, ox = 0, oy = 0) {
+    const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 1.5));
+    for (let i = 0; i <= n; i++) {
+      const k = i / n, r = r1 + (r2 - r1) * k;
+      disc(a[0] + (b[0] - a[0]) * k + ox * r, a[1] + (b[1] - a[1]) * k + oy * r, r, col);
+    }
+  }
+  // mode "out": silhouette outline; "fill": shaded body; "ghost": flat tint
+  function part(mode, a, b, r1, r2, ramp, tint) {
+    if (mode === "out") return capsule(a, b, r1 + 1.5, r2 + 1.5, OUT);
+    if (mode === "ghost") return capsule(a, b, r1 + 1, r2 + 1, tint);
+    capsule(a, b, r1, r2, ramp.d);
+    capsule(a, b, r1 * 0.82, r2 * 0.82, ramp.b, 0.22, -0.22);
+    capsule(a, b, r1 * 0.3, r2 * 0.3, ramp.l, 0.5, -0.45);
+    if (r1 > 3) capsule(a, b, r1 * 0.1, r2 * 0.1, ramp.rim, 0.86, -0.2);
+  }
+  function blob(mode, c, r, ramp, tint) { part(mode, c, c, r, r, ramp, tint); }
+
+  // A pose -> joints, grounded so the lowest point rests on the floor line
+  function solve(P) {
+    const hip = [0, 0];
+    const top = add(hip, 180 - P.lean, LEN.torso);
+    const shoulder = add(top, -P.lean, 4);
+    const J = {
+      hip, top, shoulder,
+      head: add(top, 180 - P.lean, 13),
+      fa: [shoulder], ba: [shoulder], fl: [[3, 0]], bl: [[-3, 0]],
+    };
+    J.fa.push(add(J.fa[0], P.fa[0], LEN.ua)); J.fa.push(add(J.fa[1], P.fa[1], LEN.fa));
+    J.ba.push(add(J.ba[0], P.ba[0], LEN.ua)); J.ba.push(add(J.ba[1], P.ba[1], LEN.fa));
+    J.fl.push(add(J.fl[0], P.fl[0], LEN.th)); J.fl.push(add(J.fl[1], P.fl[1], LEN.sh));
+    J.bl.push(add(J.bl[0], P.bl[0], LEN.th)); J.bl.push(add(J.bl[1], P.bl[1], LEN.sh));
+    const lowest = Math.max(J.fl[2][1] + 4, J.bl[2][1] + 4, J.head[1] + 14);
+    const ox = HIP_X, oy = FLOOR - lowest;
+    const mv = (p) => [p[0] + ox, p[1] + oy];
+    ["hip", "top", "shoulder", "head"].forEach((k) => (J[k] = mv(J[k])));
+    ["fa", "ba", "fl", "bl"].forEach((k) => (J[k] = J[k].map(mv)));
+    return J;
+  }
+
+  // limbs: wide gi sleeves and trousers, skin and cloth wraps at the ends
+  function arm(mode, L, back, open, tint) {
+    const gi = back ? R.giB : R.gi, skin = back ? R.skinB : R.skin;
+    const cuff = lerpP(L[1], L[2], 0.45);
+    part(mode, L[0], L[1], 6.5, 6, gi, tint);
+    part(mode, L[1], cuff, 6, 6.5, gi, tint);
+    part(mode, cuff, L[2], 3.8, 3.4, skin, tint);
+    const wrist = lerpP(L[1], L[2], 0.86);
+    part(mode, wrist, L[2], 3.9, 3.9, R.wrap, tint);
+    if (open) {                                       // open palm, fingers forward
+      const tip = add(L[2], 90 - 8, 5);
+      part(mode, L[2], tip, 3.6, 2.6, skin, tint);
+    } else blob(mode, L[2], 4.6, skin, tint);
+    if (mode === "fill" && !open) {                   // knuckles
+      fc.fillStyle = skin.l;
+      for (let i = -2; i <= 2; i += 2) fc.fillRect(Math.round(L[2][0] + 2), Math.round(L[2][1] + i - 1), 2, 1);
+    }
+  }
+  function leg(mode, L, back, tint) {
+    const gi = back ? R.giB : R.gi, skin = back ? R.skinB : R.skin;
+    part(mode, L[0], L[1], 8, 7, gi, tint);
+    part(mode, L[1], L[2], 7, 6.5, gi, tint);
+    const ankle = L[2], toe = [ankle[0] + 10, ankle[1] + 2];
+    part(mode, lerpP(L[1], L[2], 0.9), ankle, 4, 3.8, R.wrap, tint);
+    part(mode, ankle, toe, 4, 2.8, skin, tint);
+  }
+
+  function torso(mode, J, P, tint, phase) {
+    const lowChest = lerpP(J.hip, J.top, 0.45);
+    part(mode, J.hip, lowChest, 9, 10, R.gi, tint);
+    part(mode, lowChest, J.top, 10, 11.5, R.gi, tint);
+    blob(mode, J.shoulder, 8, R.gi, tint);
+    // jacket skirt flaring over the hips
+    part(mode, [J.hip[0] - 9, J.hip[1] + 5], [J.hip[0] + 9, J.hip[1] + 5], 6, 6, R.gi, tint);
+    if (mode !== "fill") return;
+    // lapels: a dark crossover line and the open collar
+    capsule(add(J.top, -P.lean + 90, 3), add(lerpP(J.hip, J.top, 0.25), -P.lean + 90, 5), 1.2, 1, R.gi.d);
+    capsule(add(J.top, -P.lean + 90, -2), add(lerpP(J.hip, J.top, 0.5), -P.lean + 90, 4), 1, 0.8, R.gi.d);
+    disc(add(J.top, -P.lean + 90, 2)[0], add(J.top, -P.lean + 90, 2)[1] + 2, 3, R.skin.b);
+    disc(add(J.top, -P.lean + 90, 3)[0], add(J.top, -P.lean + 90, 3)[1] + 1, 1.5, R.skin.l);
+    // belt with a knot and two tails that swing
+    part("fill", [J.hip[0] - 10, J.hip[1]], [J.hip[0] + 10, J.hip[1]], 2.6, 2.6, R.belt);
+    const knot = [J.hip[0] + 4, J.hip[1] + 1], sw = Math.sin(phase * 7) * 2;
+    blob("fill", knot, 3, R.belt);
+    part("fill", knot, [knot[0] + 1 + sw, knot[1] + 11], 1.6, 1.3, R.belt);
+    part("fill", knot, [knot[0] + 5 + sw * 0.7, knot[1] + 10], 1.6, 1.3, R.belt);
+  }
+
+  function head(mode, J, P, tint, phase, wind) {
+    const c = J.head, f = (dx, dy) => [c[0] + dx, c[1] + dy];
+    if (mode !== "fill") {
+      blob(mode, c, 12, R.skin, tint);
+      part(mode, f(-2, -8), f(-14, -14), 5, 2, R.skin, tint);
+      return;
+    }
+    // headband tails first, behind the head: four segments that ripple and stream back
+    const tail = (off, amp) => {
+      let p = f(-11, -5 + off);
+      for (let i = 1; i <= 5; i++) {
+        const q = [p[0] - 5 - wind * 1.2, p[1] + 1.2 + Math.sin(phase * 10 + i * 0.9 + off) * amp * (i / 5) * (1 + wind * 0.3)];
+        capsule(p, q, 2.4 - i * 0.25 + 1, 2.4 - i * 0.25 + 0.6, OUT);
+        capsule(p, q, 2.4 - i * 0.25, 2.4 - i * 0.25 - 0.4, i % 2 ? R.band.b : R.band.d);
+        p = q;
+      }
+    };
+    tail(0, 2.5); tail(3, 3.5);
+    // skull and jaw
+    disc(c[0], c[1], 12, R.skin.d);
+    disc(c[0] + 1, c[1] - 1, 10.5, R.skin.b);
+    disc(c[0] + 4, c[1] - 3, 5, R.skin.l);
+    part("fill", f(2, 5), f(7, 8), 4, 3, R.skin);
+    disc(c[0] - 3, c[1] + 1, 3, R.skin.d); disc(c[0] - 3, c[1] + 1, 1.6, R.skin.b);  // ear
+    // hair: a dark cap over the back and top, with spikes swept back and highlights
+    fc.fillStyle = "#1b110b";
+    for (let dy = -12; dy <= 3; dy++) {
+      const w = Math.floor(Math.sqrt(Math.max(0, 144 - dy * dy)));
+      const right = dy < -5 ? w - 3 : dy < -2 ? -1 : -6;
+      fc.fillRect(Math.round(c[0] - w), Math.round(c[1] + dy), Math.max(0, Math.round(right + w)), 1);
+    }
+    [[-2, -9, -12, -17], [3, -10, -4, -19], [-6, -6, -17, -10], [-9, -2, -18, -3], [6, -9, 3, -16]].forEach(([x1, y1, x2, y2]) => {
+      capsule(f(x1, y1), f(x2, y2), 3.4, 0.8, "#1b110b");
+      capsule(f(x1 + 0.5, y1 - 1), f((x1 + x2) / 2, (y1 + y2) / 2), 0.9, 0.6, "#4e3727");
+    });
+    // headband across the forehead with a knot at the back
+    for (let dx = -11; dx <= 11; dx++) {
+      const yy = c[1] - 5 + Math.round(dx * 0.08);
+      fc.fillStyle = dx > 6 ? R.band.l : R.band.b; fc.fillRect(Math.round(c[0] + dx), yy, 1, 3);
+    }
+    blob("fill", f(-11, -4), 2.8, R.band);
+    // face: brow, eye with a catchlight, nose and mouth
+    fc.fillStyle = OUT;
+    fc.fillRect(Math.round(c[0] + 4), Math.round(c[1] - 2), 6, 1);
+    fc.fillRect(Math.round(c[0] + 5), Math.round(c[1] - 1), 4, 2);
+    fc.fillStyle = "#fff"; fc.fillRect(Math.round(c[0] + 5), Math.round(c[1] - 1), 2, 1);
+    fc.fillStyle = "#5fd4ff"; fc.fillRect(Math.round(c[0] + 7), Math.round(c[1]), 1, 1);
+    fc.fillStyle = R.skin.d; fc.fillRect(Math.round(c[0] + 11), Math.round(c[1] + 1), 2, 2);
+    fc.fillStyle = "#6b2b1c"; fc.fillRect(Math.round(c[0] + 7), Math.round(c[1] + 6), 3, 1);
+  }
+
+  function figure(mode, J, P, tint, phase, wind) {
+    if (mode === "fill") {
+      arm("fill", J.ba, true, P.glow); leg("fill", J.bl, true);
+      torso("fill", J, P, null, phase); head("fill", J, P, null, phase, wind);
+      leg("out", J.fl, false); leg("fill", J.fl, false);
+      arm("out", J.fa, false, P.glow); arm("fill", J.fa, false, P.glow);
+      return;
+    }
+    arm(mode, J.ba, true, P.glow, tint); leg(mode, J.bl, true, tint);
+    torso(mode, J, P, tint, phase); head(mode, J, P, tint, phase, wind);
+    leg(mode, J.fl, false, tint); arm(mode, J.fa, false, P.glow, tint);
+  }
+
+  // a strike smear: a fading arc swept behind the striking hand or foot
+  function smear(J, which, col) {
+    const L = J[which], root = L[0], end = L[2];
+    const ang = Math.atan2(end[0] - root[0], end[1] - root[1]) * 180 / Math.PI, len = Math.hypot(end[0] - root[0], end[1] - root[1]);
+    fc.globalAlpha = 0.55;
+    for (let i = 1; i <= 7; i++) {
+      const p = add(root, ang - i * 7, len), q = add(root, ang - (i + 1) * 7, len);
+      capsule(p, q, 5 - i * 0.55, 4.5 - i * 0.55, col);
+      fc.globalAlpha *= 0.82;
+    }
+    fc.globalAlpha = 1;
+  }
+
+  function drawFighter(st, phase) {
+    const P = st.pose;
+    fc.setTransform(1, 0, 0, 1, 0, 0);
+    fc.clearRect(0, 0, FW, FH);
+    // landing dust, on the floor line in front of and behind the feet
+    if (st.dust > 0) {
+      const k = st.dust;
+      fc.globalAlpha = 0.55 * (1 - k);
+      for (let i = 0; i < 6; i++) {
+        const sx = i < 3 ? -1 : 1, x = HIP_X + sx * (14 + k * 30 + (i % 3) * 7), y = FLOOR - 3 - (i % 3) * 3 - k * 6;
+        disc(x, y, 4 + (i % 3) + k * 4, i % 2 ? "#cdb7c9" : "#9f88a8");
+      }
+      fc.globalAlpha = 1;
+    }
+    if (P.flip) fc.setTransform(-1, 0, 0, 1, HIP_X * 2, 0);
+    // afterimages for the spin: the two previous frames as cyan silhouettes
+    (st.ghosts || []).forEach((g, i) => {
+      fc.save();
+      fc.setTransform(g.flip ? -1 : 1, 0, 0, 1, g.flip ? HIP_X * 2 - (i + 1) * 9 : -(i + 1) * 9, 0);
+      fc.globalAlpha = 0.2 - i * 0.08;
+      figure("ghost", solve(g), g, "#5ff3ff", phase, 0);
+      fc.restore();
+    });
+    const J = solve(P);
+    // special-move aura: a flickering cyan halo around the silhouette
+    if (st.aura > 0) {
+      fc.globalAlpha = (0.16 + 0.08 * Math.sin(phase * 40)) * st.aura;
+      figure("ghost", J, P, "#38d8ff", phase, 0);
+      fc.globalAlpha = (0.1 + 0.05 * Math.sin(phase * 33)) * st.aura;
+      fc.save(); fc.translate(0, -1);
+      figure("ghost", J, P, "#b5f6ff", phase, 0);
+      fc.restore();
+      fc.globalAlpha = 1;
+    }
+    if (P.smear) smear(J, P.smear, P.smear === "fa" ? "#ffffff" : "#fff2c6");
+    figure("out", J, P, null, phase, st.wind);
+    figure("fill", J, P, null, phase, st.wind);
+    // energy gathering between the palms
+    if (P.glow) {
+      const g = lerpP(J.fa[2], J.ba[2], 0.5), pul = Math.sin(phase * 30) * 1.2;
+      fc.globalAlpha = 0.35; disc(g[0] + 3, g[1], 11 + pul, "#2d7bff");
+      fc.globalAlpha = 0.6; disc(g[0] + 3, g[1], 7 + pul, "#5ff3ff");
+      fc.globalAlpha = 1; disc(g[0] + 3, g[1], 3.5, "#ffffff");
+      fc.fillStyle = "#e9fdff";
+      for (let i = 0; i < 6; i++) { const a = phase * 9 + i; fc.fillRect(Math.round(g[0] + 3 + Math.cos(a) * 13), Math.round(g[1] + Math.sin(a * 1.3) * 10), 1, 1); }
+    }
+  }
+
+  // in-between frames: pose lists are blended in thirds, which reads smoother than
+  // a raw sprite step while keeping a deliberate, stepped feel
+  function blend(A, B, k) {
+    if (!B || A.flip !== B.flip) return A;
+    const m = (a, b) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
+    return Object.assign({}, k < 0.5 ? A : B, {
+      lean: A.lean + (B.lean - A.lean) * k, fa: m(A.fa, B.fa), ba: m(A.ba, B.ba), fl: m(A.fl, B.fl), bl: m(A.bl, B.bl),
+    });
+  }
+  function poseAt(list, fpos, loop) {
+    const n = list.length;
+    let i = Math.floor(fpos), k = Math.floor((fpos - i) * 3) / 3;
+    if (loop) i = ((i % n) + n) % n; else if (i >= n - 1) return list[n - 1];
+    return blend(list[i], list[loop ? (i + 1) % n : i + 1], k);
+  }
+
+  /* ---------------- poses: each move is a short list of frames ---------------- */
+  const S = (o) => Object.assign({ lean: 8, fa: [40, 160], ba: [15, 120], fl: [30, 8], bl: [-28, -4] }, o);
+  const POSES = {
+    stance: [S({}), S({ lean: 9, fa: [42, 158], fl: [34, 4], bl: [-30, -8] }), S({ lean: 10, fa: [44, 156], fl: [36, 2], bl: [-32, -10] }), S({ lean: 9, fa: [42, 158], fl: [34, 4], bl: [-30, -8] })],
+    walk: [S({}), S({ fl: [15, 0], bl: [-10, -25] }), S({ fl: [0, -15], bl: [10, -5] }), S({ fl: [-15, -10], bl: [25, 10] }), S({ fl: [10, -5], bl: [-5, -15] })],
+    punch: [S({}), S({ lean: 14, fa: [88, 90], ba: [10, 110] }), S({ lean: 12, fa: [70, 120] })],
+    kick: [
+      S({ lean: 0, fl: [50, -20], bl: [-8, -4] }), S({ lean: -8, fl: [85, 20], bl: [-10, -6] }),
+      S({ lean: -15, fl: [95, 95], bl: [-12, -6], fa: [30, 140] }), S({ lean: -10, fl: [90, 60], bl: [-10, -6] }), S({ lean: 0, fl: [45, 0], bl: [-8, -4] }),
+    ],
+    rkick: [
+      S({ lean: 5, bl: [-30, -60], fl: [5, 0] }), S({ lean: -10, bl: [40, 0], fl: [5, 0] }),
+      S({ lean: -25, bl: [100, 110], fl: [5, 0], fa: [20, 120], ba: [-40, -20] }), S({ lean: -15, bl: [90, 70], fl: [5, 0] }), S({ lean: 0, bl: [20, 0], fl: [10, 0] }),
+    ],
+    kneel: [S({ lean: 18, fa: [50, 150], ba: [20, 120], fl: [80, -5], bl: [40, -40] })],
+    jump: [
+      S({ lean: 14, fl: [50, 0], bl: [20, -20] }),
+      S({ lean: 5, fa: [60, 170], ba: [30, 140], fl: [100, 10], bl: [80, -10] }),
+      S({ lean: 2, fa: [60, 175], ba: [30, 145], fl: [115, 15], bl: [95, -5] }),
+      S({ lean: 2, fa: [60, 175], ba: [30, 145], fl: [115, 15], bl: [95, -5] }),
+      S({ lean: 5, fa: [60, 170], ba: [30, 140], fl: [100, 10], bl: [80, -10] }),
+      S({ lean: 8, fl: [60, 0], bl: [30, -10] }),
+      S({ lean: 16, fa: [50, 150], fl: [70, -10], bl: [35, -35] }),
+    ],
+    pulse: [
+      S({ lean: -5, fa: [-30, -60], ba: [-35, -70], fl: [35, 10], bl: [-35, -10], glow: true }),
+      S({ lean: -8, fa: [-40, -70], ba: [-45, -80], fl: [38, 12], bl: [-38, -12], glow: true }),
+      S({ lean: 15, fa: [85, 90], ba: [80, 88], fl: [40, 10], bl: [-40, -10] }),
+      S({ lean: 15, fa: [85, 90], ba: [80, 88], fl: [40, 10], bl: [-40, -10] }),
+    ],
+    rising: [
+      S({ lean: 20, fa: [30, 120], fl: [75, -5], bl: [35, -40] }),
+      S({ lean: 5, fa: [150, 175], fl: [60, -10], bl: [0, -10] }),
+      S({ lean: 0, fa: [175, 180], ba: [-20, 10], fl: [100, 20], bl: [10, -20] }),
+      S({ lean: 0, fa: [175, 180], ba: [-20, 10], fl: [100, 20], bl: [10, -20] }),
+      S({ lean: 2, fa: [170, 180], fl: [90, 0], bl: [5, -15] }),
+      S({ lean: 6, fa: [120, 150], fl: [40, 0], bl: [-10, -5] }),
+      S({}),
+    ],
+    cyclone: (function () {
+      const out = [S({ lean: 4, fl: [100, 0], bl: [80, -30], fa: [60, 150] })];
+      for (let i = 0; i < 11; i++) out.push(S({ lean: -6, fa: [100, 100], ba: [-80, -80], fl: [95, 95], bl: [40, -60], flip: i % 2 === 1 }));
+      out.push(S({}));
+      return out;
+    })(),
+  };
+
+  /* ---------------- the projectile ---------------- */
+  const oc = $("orb").getContext("2d");
+  function drawOrb(mode, f) {
+    oc.clearRect(0, 0, 40, 30);
+    const put = (x, y, w, h, col) => { oc.fillStyle = col; oc.fillRect(x, y, w, h); };
+    if (mode === "fly") {
+      for (let i = 0; i < 4; i++) put(2 + i * 4 + (f ? 1 : 0), 13 - i % 2, 6, 3 + (i % 2), i % 2 ? "#2d7bff" : "#5ff3ff");
+      for (let dy = -9; dy <= 9; dy++) {
+        const w = Math.floor(Math.sqrt(81 - dy * dy));
+        put(26 - w, 15 + dy, w * 2, 1, Math.abs(dy) > 6 ? "#2d7bff" : Math.abs(dy) > 3 ? "#5ff3ff" : "#ffffff");
+      }
+      put(23 + (f ? 2 : 0), 12, 3, 3, "#ffffff");
+    } else {                                    // the burst: a ring of squares opening out
+      const r = 3 + f * 4;
+      for (let i = 0; i < 12; i++) {
+        const a = i / 12 * Math.PI * 2 + f * 0.3, x = 20 + Math.cos(a) * r, y = 15 + Math.sin(a) * r * 0.8;
+        put(Math.round(x) - 1, Math.round(y) - 1, 3 - (f > 2 ? 1 : 0), 3 - (f > 2 ? 1 : 0), f < 2 ? "#ffffff" : i % 2 ? "#5ff3ff" : "#2d7bff");
+      }
+      if (f < 2) { for (let dy = -4 + f; dy <= 4 - f; dy++) { const w = Math.floor(Math.sqrt(Math.max(0, (4 - f) * (4 - f) - dy * dy))); put(20 - w, 15 + dy, w * 2, 1, "#ffffff"); } }
+    }
+  }
+
+  /* ---------------- choreography: every cue on the master clock ---------------- */
+  const MOVES = [
+    { name: "walkR", t: 0.8, d: 1.0 }, { name: "punch", t: 1.9, d: 0.45 }, { name: "kick", t: 2.5, d: 0.5 },
+    { name: "rkick", t: 3.15, d: 0.5 }, { name: "kneel", t: 3.8, d: 0.4 }, { name: "jump", t: 4.4, d: 1.0 },
+    { name: "pulse", t: 5.6, d: 0.5 }, { name: "rising", t: 7.3, d: 1.0 }, { name: "cyclone", t: 8.5, d: 2.0 },
+    { name: "walkL", t: 10.7, d: 0.7 },
+  ];
+  const FB = { spawn: 5.85, x0: 270, speed: 250, hitX: 350, burst: 0.5 };
+  FB.hit = FB.spawn + (FB.hitX - FB.x0) / FB.speed;
+  FB.gone = FB.hit + FB.burst;
+  const CALLOUTS = [{ t: 5.6, text: "PULSE WAVE!" }, { t: 7.3, text: "RISING FIST!" }, { t: 8.5, text: "CYCLONE KICK!" }];
+  const MOVE_NAMES = {
+    walkR: "WALK", walkL: "WALK", punch: "JAB", kick: "FRONT KICK", rkick: "ROUNDHOUSE", kneel: "CROUCH",
+    jump: "JUMP", pulse: "PULSE WAVE!", rising: "RISING FIST!", cyclone: "CYCLONE KICK!",
+  };
+  const BEATS = [0].concat(MOVES.map((m) => m.t));
+  const PAD_IDS = ["up", "down", "left", "right", "x", "y", "a", "b", "l", "r", "start", "select"];
+  const CAMS = [
+    { t: 0, id: 6, x: 0, y: -1 }, { t: 3.0, id: 4, x: 0, y: 1 }, { t: 5.4, id: 6, x: 0, y: -1 },
+    { t: 7.2, id: 2, x: -1, y: 0 }, { t: 8.4, id: 8, x: 1, y: 0 }, { t: 10.6, id: 6, x: 0, y: -1 },
+  ];
+
+  const $shadow = $("shadow"), $fighter = $("fighter"), $orb = $("orb"), $timer = $("timer"), $callout = $("callout"), $moveName = $("moveName"), $pad = $("gamepad");
+  const $btn = {}; PAD_IDS.forEach((k) => ($btn[k] = $(k)));
+  const $cams = {}; for (let i = 1; i <= 9; i++) $cams[i] = $("cam" + i);
+
+  // x across the piece: walk out, fight, walk back; it ends where it starts, so it loops
+  function xAt(t) {
+    if (t < 0.8) return 150;
+    if (t < 1.8) return 150 + 60 * (t - 0.8);
+    if (t < 10.7) return 210;
+    if (t < 11.4) return 210 - 60 * ((t - 10.7) / 0.7);
+    return 150;
+  }
+  const activeMove = (t) => MOVES.find((m) => t >= m.t && t < m.t + m.d) || null;
+  const shot = (p, n) => Math.min(n - 1, Math.floor(p * n));        // play once, hold the last frame
+  const cyc = (t, cycle, n) => Math.floor(((t % cycle) / cycle) * n) % n;
+  const fShot = (p, n) => Math.min(n - 1, p * n);                     // float frame positions for blending
+  const fCyc = (t, cycle, n) => ((t % cycle) / cycle) * n;
+  // which limb smears on which frames of each strike
+  const SMEAR = { punch: [1, "fa"], kick: [2, "fl"], rkick: [2, "bl"], rising: [1, "fa"], cyclone: [-1, "fl"] };
+
+  function fighterState(t, idle) {
+    const m = activeMove(t);
+    const st = { pose: poseAt(POSES.stance, fCyc(idle, 0.8, 4), true), lift: 0, x: xAt(t), aura: 0, dust: 0, wind: 0, ghosts: null };
+    // dust kicks up for 0.35s after each landing
+    [[5.4, 1], [8.3, 1], [10.2, 0.8], [3.65, 0.5]].forEach(([at, s]) => { if (t >= at && t < at + 0.35) st.dust = (t - at) / 0.35 * s + (1 - s); });
+    if (!m) return st;
+    const p = clamp01((t - m.t) / m.d), lt = t - m.t;
+    const sm = SMEAR[m.name];
+    switch (m.name) {
+      case "walkR": case "walkL": st.pose = poseAt(POSES.walk, fCyc(lt, 0.55, 5), true); st.wind = 1; break;
+      case "punch": {
+        const f = fCyc(lt, 0.15, 3); st.pose = poseAt(POSES.punch, f, true);
+        if (Math.floor(f) === 1) st.pose = Object.assign({}, st.pose, { smear: "fa" });
+        break;
+      }
+      case "kick": st.pose = poseAt(POSES.kick, fShot(p, 5), false); break;
+      case "rkick": st.pose = poseAt(POSES.rkick, fShot(p, 5), false); break;
+      case "kneel": st.pose = POSES.kneel[0]; break;
+      case "jump": st.pose = poseAt(POSES.jump, fShot(p, 7), false); st.lift = 113 * Math.sin(Math.PI * p); st.wind = 2; break;
+      case "pulse": st.pose = poseAt(POSES.pulse, fShot(p, 4), false); st.aura = p < 0.5 ? 1 : 1 - (p - 0.5) * 2; break;
+      case "rising": st.pose = poseAt(POSES.rising, fShot(p, 7), false); st.lift = 113 * Math.sin(Math.PI * p); st.aura = p < 0.7 ? 1 : 0; st.wind = 3; break;
+      case "cyclone": {
+        const i = shot(p, 13);
+        st.pose = POSES.cyclone[i];
+        if (i > 0 && i < 12) st.ghosts = [POSES.cyclone[Math.max(1, i - 1)], POSES.cyclone[Math.max(1, i - 2)]];
+        st.lift = lt < 0.2 ? 20 * (lt / 0.2) : lt < 1.5 ? 20 : lt < 1.7 ? 20 - 20 * ((lt - 1.5) / 0.2) : 0;
+        st.x = 210 + 22 * Math.sin(Math.PI * clamp01(lt / 1.7));
+        st.aura = i > 0 && i < 12 ? 0.8 : 0; st.wind = 3;
+        break;
+      }
+    }
+    if (sm && sm[0] >= 0 && m.name !== "punch") {
+      const n = POSES[m.name].length, fi = shot(p, n);
+      if (fi === sm[0] || fi === sm[0] + 1) st.pose = Object.assign({}, st.pose, { smear: sm[1] });
+    }
+    if (m.name === "cyclone" && st.ghosts) st.pose = Object.assign({}, st.pose, { smear: "fl" });
+    return st;
+  }
+
+  const CFG = { tilt: 35, callouts: true };
+
+  function applyTime(t, idle) {
+    // fighter: hip lands at x*3 + 105 on the board; feet on the deck line
+    const s = fighterState(t, idle);
+    drawFighter(s, idle);
+    $fighter.style.left = (s.x * SCALE + 105 - HIP_X * PX) + "px";
+    $fighter.style.bottom = (36 - (FH - FLOOR) * PX + s.lift * SCALE) + "px";
+    // the contact shadow stays on the floor and shrinks as the fighter rises
+    const sk = 1 - Math.min(0.6, s.lift / 190);
+    $shadow.style.left = (s.x * SCALE + 105 - 75) + "px";
+    $shadow.style.transform = "scale(" + sk.toFixed(3) + ")";
+    $shadow.style.opacity = (0.55 * sk).toFixed(3);
+
+    // projectile
+    if (t >= FB.spawn && t < FB.gone) {
+      $orb.style.visibility = "visible";
+      $orb.style.bottom = "141px";
+      if (t < FB.hit) {
+        $orb.style.left = ((FB.x0 + FB.speed * (t - FB.spawn)) * SCALE) + "px";
+        drawOrb("fly", cyc(t - FB.spawn, 0.15, 2));
+      } else {
+        $orb.style.left = (FB.hitX * SCALE + 60) + "px";
+        drawOrb("burst", shot(clamp01((t - FB.hit) / FB.burst), 4));
+      }
+    } else $orb.style.visibility = "hidden";
+
+    $timer.textContent = String(99 - Math.floor(Math.min(t, DURATION - 0.001)));
+
+    // callout: pop in with a little overshoot, hold, fade
+    const co = CALLOUTS.find((c) => t >= c.t && t < c.t + 1.1);
+    if (co) {
+      const lt = t - co.t, pop = lt < 0.14 ? lt / 0.14 : 1;
+      const back = 1 + 0.5 * Math.pow(1 - pop, 2) * Math.sin(pop * Math.PI);
+      $callout.textContent = co.text;
+      $callout.style.transform = "translate(-50%,0) scale(" + (pop * back).toFixed(4) + ")";
+      $callout.style.opacity = clamp01(lt > 0.8 ? 1 - (lt - 0.8) / 0.3 : 1).toFixed(3);
+    } else { $callout.style.opacity = "0"; $callout.style.transform = "translate(-50%,0) scale(0)"; }
+
+    // controller presses: Y jab, B kick, A roundhouse, specials with motion inputs
+    const m = activeMove(t), press = {};
+    if (m) {
+      const lt = t - m.t;
+      switch (m.name) {
+        case "walkR": press.right = true; break;
+        case "walkL": press.left = true; break;
+        case "punch": press.y = lt % 0.15 < 0.09; break;
+        case "kick": press.b = lt < 0.3; break;
+        case "rkick": press.a = lt < 0.3; break;
+        case "kneel": press.down = true; break;
+        case "jump": press.up = lt < 0.4; break;
+        case "pulse": if (lt < 0.16) press.down = true; else if (lt < 0.32) press.right = true; else press.x = true; break;
+        case "rising": if (lt < 0.14) press.right = true; else if (lt < 0.28) press.down = true; else if (lt < 0.7) press.r = true; break;
+        case "cyclone": if (lt < 0.14) press.down = true; else if (lt < 0.28) press.left = true; else if (lt < 0.9) press.l = true; break;
+      }
+    }
+    press.start = t > 0.15 && t < 0.55;
+    press.select = t > 11.45 && t < 11.7;
+    for (const k of PAD_IDS) $btn[k].classList.toggle("active", !!press[k]);
+
+    // camera preset and the interpolated tilt of the pad
+    let ci = 0;
+    for (let i = 0; i < CAMS.length; i++) if (t >= CAMS[i].t) ci = i;
+    const cur = CAMS[ci], prev = CAMS[Math.max(0, ci - 1)], cp = ci === 0 ? 1 : smooth(cur.t, cur.t + 0.6, t);
+    $pad.style.setProperty("--x", (prev.x + (cur.x - prev.x) * cp).toFixed(4));
+    $pad.style.setProperty("--y", (prev.y + (cur.y - prev.y) * cp).toFixed(4));
+    $pad.style.setProperty("--angle", CFG.tilt + "deg");
+    if (!$cams[cur.id].checked) $cams[cur.id].checked = true;
+
+    $moveName.textContent = m ? MOVE_NAMES[m.name] : "STANCE";
+  }
+
+  /* ---------------- fit the board to the window ---------------- */
+  let fitW = 0, fitH = 0;
+  function fit() {
+    fitW = innerWidth; fitH = innerHeight;
+    const tall = innerWidth / innerHeight < 1.2;
+    document.documentElement.classList.toggle("portrait", tall);
+    const bw = tall ? 1420 : 1920, bh = tall ? 1300 : 1080;
+    document.documentElement.style.setProperty("--zoom", Math.min(innerWidth / bw, innerHeight / bh));
+  }
+  addEventListener("resize", fit);
+  fit();
+
+  /* ---------------- playback ----------------
+     Framed in the lab it plays once and holds (the stance keeps breathing on
+     its own idle clock); autoplay loops it. Standalone it loops. A click
+     replays from the top. */
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const framed = parent !== window;
+  let t = 0, idle = 0, held = 0, speed = 1, loop = !framed, last = performance.now();
+  const qs = new URLSearchParams(location.search);
+  if (qs.has("autoplay")) loop = true;
+  const replay = () => { t = 0; held = 0; };
+  addEventListener("click", replay);
+  if (reduce) { t = 6.3; loop = false; }
+
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000) * speed;
+    last = now;
+    if (innerWidth !== fitW || innerHeight !== fitH) fit();   // the viewport can settle after load
+    if (!reduce) {
+      idle += dt;
+      if (t < DURATION) t = Math.min(DURATION, t + dt);
+      else if (loop && (held += dt) > HOLD) replay();
+    }
+    applyTime(reduce ? 6.3 : t, idle);
+    requestAnimationFrame(frame);
+  }
+
+  // Frame-exact capture: window.__renderAt(seconds) draws that instant
+  window.__renderAt = (s) => { fit(); t = s; held = 0; speed = 0; applyTime(s, s); };
+
+  /* ------------------------------------------------------------------
+     Lab hooks (InstaLanding Motion). The page works on its own; when it
+     is framed, the lab drives it with postMessage and it reports the
+     current move and time.
+       ?autoplay=2000   loop the clip (previews); the number is ignored
+       { source: 'il-motion', type: 'speed', value: 0.25 }
+       { ..., type: 'step', value: 1 | -1 }          jump to the next / previous move
+       { ..., type: 'tilt', value: 35 }              the controller's camera tilt, degrees
+       { ..., type: 'callouts', value: true | false } the special-move captions
+       { ..., type: 'autoplay', value: true | false } loop, or play once and hold
+  ------------------------------------------------------------------ */
+  const step = (dir) => {
+    held = 0;
+    if (dir > 0) { const b = BEATS.find((x) => x > t + 0.01); t = b === undefined ? 0 : b; }
+    else { const b = [...BEATS].reverse().find((x) => x < t - 0.25); t = b === undefined ? BEATS[BEATS.length - 1] : b; }
+  };
+  addEventListener("message", (e) => {
+    const d = e.data;
+    if (!d || d.source !== 'il-motion') return;
+    if (d.type === 'speed') speed = Math.max(0.05, Number(d.value) || 1);
+    if (d.type === 'step') step(d.value > 0 ? 1 : -1);
+    if (d.type === 'tilt') CFG.tilt = Math.max(0, Math.min(70, Number(d.value) || 0));
+    if (d.type === 'callouts') { CFG.callouts = Boolean(d.value); document.documentElement.classList.toggle("hide-callouts", !CFG.callouts); }
+    if (d.type === 'autoplay') { loop = Boolean(d.value); if (loop && t >= DURATION) replay(); }
+  });
+
+  applyTime(t, 0);
+  document.fonts.ready.then(() => { last = performance.now(); requestAnimationFrame(frame); window.__ready = true; });
+
+  if (!framed) return;
+  let lastText = '';
+  const report = () => {
+    const m = activeMove(t);
+    const text = `${m ? MOVE_NAMES[m.name].replace('!', '') : t >= DURATION ? 'HELD · CLICK TO REPLAY' : 'STANCE'} · ${t.toFixed(1)}s / ${DURATION.toFixed(1)}s`;
+    if (text !== lastText) {
+      lastText = text;
+      parent.postMessage({ source: 'il-motion-demo', type: 'status', text }, '*');
+    }
+    requestAnimationFrame(report);
+  };
+  requestAnimationFrame(report);
+})();
+</script>
+</body>
+</html>

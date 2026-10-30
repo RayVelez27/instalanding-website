@@ -16,6 +16,7 @@ export type EaseName =
   | "power1.inOut"
   | "power4.inOut"
   | "power1.out"
+  | "power2.inOut"
   | "power2.in"
   | "power3.out"
   | "elastic.out(1, 0.3)"
@@ -94,6 +95,272 @@ export interface MotionEntry {
 }
 
 export const motions: MotionEntry[] = [
+  {
+    slug: "glow-strands",
+    title: "Glow Strands",
+    kind: "WEBGL SHADER",
+    tagline: "Ribbons of coloured light weave through each other on a dark field, tapering to a point at both ends like a voice waveform",
+    description:
+      "Five glowing strands braid across the screen, each one two sine waves summed and running at its own speed, so they cross, part and re-cross without ever repeating. Colour slides along a looping palette from one end to the other, overlaps bloom toward white without clipping, and a cosine envelope pinches every strand to a point at both edges. One fragment shader on a single full-screen triangle draws all of it. Click, or step in the lab, to crossfade through five palettes; the knobs set the strand count, waviness, core thickness and glow.",
+    added: "Oct 30, 2026",
+    theme: "dark",
+    demo: "/motion-lab/glow-strands.html",
+    poster: "/motion-lab/glow-strands.jpg",
+    library: { name: "WebGL2", version: "GLSL ES 3.0", plugins: ["no libraries", "one fragment shader"] },
+    life: 6,
+    lifeLabel: "ONE PALETTE CROSSFADE AND DRIFT",
+    drawSeconds: 6,
+    elements: 5,
+    tracks: [
+      { prop: "uTime · the strands", change: "flows on a dt clock; each strand runs 1.4 + 1.2i times faster", start: 0, end: 1, ease: "none" },
+      { prop: "uColors · the palette", change: "crossfades slot by slot to the next preset in 1.2s", start: 0, end: 0.2, ease: "power2.inOut" },
+      { prop: "hue · along each strand", change: "drifts 0.08 of the palette loop per second", start: 0, end: 1, ease: "none" },
+    ],
+    status: "EMBER · 5 STRANDS",
+    stepLabels: ["Previous palette", "Next palette"],
+    reelAutoplay: 2400,
+    inputs: [
+      { keys: ["CLICK"], does: "Crossfades to the next palette" },
+      { keys: ["AUTOPLAY"], does: "Rotates the palettes every 3.2s" },
+    ],
+    knobs: [
+      { id: "count", label: "STRANDS", min: 1, max: 12, step: 1, value: 5, note: "How many strands the shader sums. Each new one is a little faster and wavier than the last." },
+      { id: "waviness", label: "WAVINESS", min: 0.2, max: 3, step: 0.1, value: 1, note: "Wave frequency along the strand. Low is a slow swell; high is a tight braid." },
+      { id: "thickness", label: "THICKNESS", min: 0.2, max: 2, step: 0.05, value: 0.7, note: "Width of each bright core. The halo grows with it." },
+      { id: "glow", label: "GLOW", min: 0.5, max: 6, step: 0.1, value: 2.6, note: "Gain into the tone curve. High pushes overlaps toward white without ever clipping." },
+    ],
+    toggles: [],
+    trick: {
+      title: "Glow as a falloff, not a blur",
+      steps: [
+        "No geometry: one triangle covers the screen and the fragment shader asks, for every pixel, how far it is from each strand. A strand's height at x is two sines summed with different frequencies, directions and phases, which is why the braid never visibly repeats.",
+        "Brightness is (thickness / (distance + thickness × 0.45))², an inverse falloff squared. The core comes out sharp and the halo long and soft, with no blur pass and no extra framebuffer.",
+        "An envelope, pow(cos(x × π × 1.3), 3), scales both the wave height and the brightness, so every strand pinches to a point at both ends like a waveform.",
+        "Colour comes from an eight-slot palette loop sampled by strand index, position along x and time. Strands are summed, then passed through 1 − e^(−x × glow): overlaps bloom toward white but never clip, and saturation is pushed back up to 1.5 after.",
+        "Palettes of any length are resampled to eight slots in JS, so switching presets is a slot-by-slot crossfade of one uniform array, eased with a smoothstep.",
+      ],
+    },
+    tags: ["webgl", "shader", "glow", "waveform", "ambient", "generative"],
+    bestFor: ["AI voice and audio product heroes", "dark launch pages", "loading and thinking states", "section backgrounds behind a headline"],
+    pairsWith: ["mirai-ai-companion-page", "synthra-ai-workspace-page", "event-horizon-orbital-page", "auren-ai-meditation-guide-page"],
+    credits: [],
+    prompt: `Build glowing light strands as one HTML file: plain WebGL2, no libraries. A full-screen canvas on #05060a; one fragment shader draws everything on a single full-screen triangle.
+
+THE SHADER
+- uv = (fragCoord − 0.5 × resolution) / resolution.y, divided by a scale of 1.5.
+- Envelope: env = pow(max(cos(uv.x × π × 1.3), 0), 3), so strands taper to a point at both ends.
+- For each strand i (up to 12, default 5): freq = (2 + 0.35i) × waviness, speed = 1.4 + 1.2i, phase = 1.7i. Height y = (sin(x·freq + t·speed + ph) × 0.6 + sin(x·freq·1.1 − t·speed·0.7 + ph·1.7) × 0.4) × 0.1 × env.
+- Glow: thick = (0.001 + 0.05e) × (0.35 + env) × thickness; g = (thick / (|uv.y − y| + thick × 0.45))². Add palette(i / count + uv.x × 0.3 + t × 0.08) × g × env.
+- Tone: col = 1 − exp(−col × glow), then push saturation to 1.5 around Rec. 709 luma. Output alpha = the max channel, premultiplied.
+
+THE PALETTE
+- Eight vec3 slots sampled as a loop. Presets of any length (Ember: #ff4242 #7c3aed #06b6d4 #eab308; Glacier; Aurora; Solar; a six-stop Spectrum) are resampled to eight slots in JS. Click crossfades to the next preset over 1.2s with a smoothstep, starting from whatever is on screen.
+- A small label bottom-left: STRANDS · preset name and its swatches, in JetBrains Mono.
+
+THE CLOCK
+- t advances by dt × 0.5 each frame (dt capped at 0.1s) rather than reading performance.now() directly, so speed can change without a jump. Expose window.__renderAt(seconds) to draw any instant for capture.
+- On screens narrower than they are tall, zoom out by the aspect ratio (not below 0.42) so the tapered ends still fit.
+
+THINGS THAT BREAK
+- Without the tone curve, five overlapping strands clip to a flat white bar.
+- Square the falloff; a plain 1/d glow has no visible core.
+- Break out of the loop on the strand count instead of looping a variable bound, which GLSL ES does not allow.
+
+THE FLOOR
+- A WebGL2 fallback message. The canvas has role="img" and an aria-label. Under prefers-reduced-motion the flow runs at a fifth of the speed. Works at 390px wide.`,
+  },
+  {
+    slug: "pixel-fighter-combo",
+    title: "Pixel Fighter Combo",
+    kind: "SPRITE TIMELINE",
+    tagline: "A pixel karate fighter runs a twelve-second combo on a dusk rooftop while a 3D CSS controller beside the stage presses every button in sync",
+    description:
+      "Rin, an original pixel fighter in a shaded teal gi with hand and ankle wraps and a streaming red headband, walks out on a rooftop dojo at dusk and runs a combo: jab, front kick, roundhouse, crouch, jump, then three specials with arcade callouts (Pulse Wave throws a glowing projectile that bursts at the far edge, Rising Fist launches skyward, Cyclone Kick spins across the deck) before walking back to the start, so the clip loops seamlessly. Beside the stage, a 3D controller built from stacked CSS layers presses the matching buttons and motion inputs, and tilts to a new camera angle between moves. The fighter is not a sprite sheet: every frame is a pose of joint angles drawn as shaded, tapered pixel limbs at twice the stage's pixel density, blended in thirds between frames, with strike smears, a special-move aura, spin afterimages, landing dust and a contact shadow.",
+    added: "Oct 30, 2026",
+    theme: "dark",
+    demo: "/motion-lab/pixel-fighter-combo.html",
+    poster: "/motion-lab/pixel-fighter-combo.jpg",
+    library: { name: "Canvas 2D", version: "1.0", plugins: ["no libraries", "3D CSS transforms"] },
+    life: 12,
+    lifeLabel: "THE WHOLE COMBO",
+    drawSeconds: 12,
+    elements: 3,
+    tracks: [
+      { prop: "x · the fighter", change: "walks out 60px, then back to the start", start: 0.067, end: 0.15, ease: "none" },
+      { prop: "frame · the pose", change: "steps through each move's frames, holding the last", start: 0.067, end: 0.95, ease: "none" },
+      { prop: "--x · --y · controller tilt", change: "eases to the next camera angle in 0.6s", start: 0.25, end: 0.3, ease: "power1.inOut" },
+      { prop: "y · the jump", change: "rises 113px and falls on a sine arc", start: 0.367, end: 0.45, ease: "power1.inOut", yoyo: true },
+      { prop: "scale · the callout", change: "0 → 1 in 0.14s with a small overshoot, fades after 0.8s", start: 0.467, end: 0.558, ease: "power3.out" },
+      { prop: "left · the projectile", change: "flies 80px at a constant speed, then bursts", start: 0.488, end: 0.556, ease: "none" },
+      { prop: "y · the rising fist", change: "launches 113px and lands", start: 0.608, end: 0.692, ease: "power1.inOut", yoyo: true },
+    ],
+    status: "STANCE · 0.0s / 12.0s",
+    stepLabels: ["Previous move", "Next move"],
+    reelAutoplay: 2000,
+    inputs: [
+      { keys: ["CLICK"], does: "Replays the combo from the top" },
+      { keys: ["IDLE"], does: "Plays once and holds; the fighter keeps breathing in stance" },
+      { keys: ["AUTOPLAY"], does: "Loops the combo with a short hold at the end" },
+    ],
+    knobs: [
+      {
+        id: "tilt",
+        label: "PAD TILT",
+        min: 0,
+        max: 70,
+        step: 5,
+        value: 35,
+        unit: "°",
+        note: "How far the controller turns toward each camera angle. 0 shows it flat; higher shows off the stacked layers.",
+      },
+    ],
+    toggles: [{ id: "callouts", label: "CALLOUTS", value: true }],
+    trick: {
+      title: "Sprites without a sprite sheet",
+      steps: [
+        "Every frame of the fighter is a pose: a lean for the torso and two absolute angles each for the arms and legs. A small solver turns the angles into joints from the hip, then shifts the whole figure so its lowest point sits on the floor line. Kicks and crouches land on their feet without hand-placed offsets.",
+        "Every body part is a tapered capsule of pixel discs on a 160x200 canvas shown at 1.5x, twice the stage's pixel density. Each capsule is shaded in four passes: a shadow tone, a base tone shifted toward the light, a small highlight and a thin warm rim from the sunset. A dark silhouette pass goes down first and the near limbs are re-outlined, which gives the pixel-art outline for free.",
+        "Polish is layered on the same pose: frames blend in thirds, strikes sweep a fading smear behind the fist or foot, specials wrap the silhouette in a flickering cyan halo, the spin leaves two cyan afterimages, landings kick up dust, and a floor shadow shrinks as the fighter rises.",
+        "The moves are stepped the way sprite sheets are: shot(progress, frames) plays a move once and holds its last frame, cyc(time, cycle, frames) loops walks and the stance. The Cyclone Kick fakes a spin by mirroring alternate frames.",
+        "One applyTime(t) drives everything: the pose, the jump arc, the projectile, the callout pop, the timer and the controller. The controller's buttons press by toggling an .active class that drops their stacked layers, and its tilt is interpolated in JS instead of a CSS transition, so any instant can be drawn exactly.",
+        "The controller is about 50 stacked divs, each translated a little further along Z. Its sizes use a fixed unit (--u) instead of vmin, so the whole board can be scaled to fit the window without the controller shrinking twice.",
+      ],
+    },
+    tags: ["pixel art", "sprite animation", "3D CSS", "fighting game", "timeline"],
+    bestFor: ["game studio and indie game pages", "esports and gaming community sites", "retro and arcade-themed launches", "gamepad or controller product pages"],
+    pairsWith: ["cyber-bird-arcade-game-page", "starfork-game-studio-landing-page", "game-dev-agent-landing-page", "sakura-corgi-game-landing-page"],
+    credits: [],
+    prompt: `Build a twelve-second pixel fighting-game combo as one HTML file: an original pixel fighter runs a combo on a dusk rooftop stage while a 3D CSS game controller beside the stage presses the matching buttons. No libraries; Canvas 2D for the art, CSS 3D transforms for the controller. Google Fonts: Press Start 2P for the HUD and callouts, Teko for the controller labels.
+
+THE BOARD
+- Lay everything out on a fixed 1920x1080 board (1420x1300 on screens taller than about 1.2:1, with the controller below the stage) and scale it to the window. Make the board position: fixed so its unscaled size never widens a phone's layout viewport.
+- Arcade scanlines over everything: a repeating linear gradient, 1px dark every 4px.
+
+THE STAGE (a 440x230 canvas shown at 3x, pixelated)
+- Dusk sky in eight flat bands (#1b1440 to #f58a55) with checker dithering between them, a few stars, and a striped retro sun. Two seeded mountain ridges, a skyline of towers with lit windows, a railing, a plank deck with perspective seams, and two paper lanterns on posts. Use a seeded random generator so it is the same on every load.
+- HUD: two health bars (teal fill; the right one partly drained), a round timer counting down from 99 with the clip, and the names RIN and ODA.
+
+THE FIGHTER (a 160x200 canvas at 1.5x, twice the stage's pixel density)
+- A pose is { lean, fa:[upper, lower], ba, fl, bl, flip?, glow? }: torso lean plus absolute angles for the front and back arms and legs (0 points down, 90 points forward, 180 up). Solve joints from the hip (torso 20, upper arm 11, forearm 11, thigh 14, shin 14), then shift so the lowest point sits on the floor line.
+- Draw every part as a tapered capsule of pixel discs, shaded in four passes (shadow tone; base tone offset toward the upper-right light; small highlight; thin warm rim). Order: silhouette outline, back limbs in a darker ramp, torso with lapels, a jacket skirt and a knotted belt whose tails swing, the head (jaw, ear, eye with a catchlight, swept-back spiky hair with highlights, a red headband whose two tails stream back faster when moving), then the near leg and arm re-outlined. Wide gi sleeves and trousers, cloth wraps at the wrists and ankles, bare feet, fists with knuckle highlights (open palms during Pulse Wave).
+- Blend between pose frames in thirds. Strikes sweep a fading smear behind the fist or foot; specials get a flickering cyan halo around the silhouette; the spin leaves two cyan afterimages; landings kick up dust; a floor shadow shrinks as the fighter rises.
+- Moves are lists of poses: stance (4, looping), walk (5, looping), jab (3, looping), front kick (5), roundhouse (5), crouch (1), jump (7), Pulse Wave (4, palms glowing during the wind-up), Rising Fist (7), Cyclone Kick (13, alternate frames mirrored).
+
+THE TIMELINE (12s, every cue on one clock)
+- 0.8 walk out (x 150 → 210), 1.9 jab, 2.5 front kick, 3.15 roundhouse, 3.8 crouch, 4.4 jump (113px sine arc), 5.6 Pulse Wave (projectile spawns at 5.85, flies at 250px/s, bursts in a ring of squares for 0.5s), 7.3 Rising Fist (113px arc), 8.5 Cyclone Kick (2s, lifted 20px and drifting forward), 10.7 walk back to 150.
+- Callouts for the three specials pop from scale 0 in 0.14s with a small overshoot and fade after 0.8s.
+- The controller presses: right/left to walk, Y per jab, B kick, A roundhouse, down to crouch, up to jump, down-right-X for Pulse Wave, right-down-R for Rising Fist, down-left-L for Cyclone Kick, START at the top and SELECT at the end. Six camera presets tilt it between moves, interpolated with a 0.6s smoothstep.
+
+THE CONTROLLER
+- Built from stacked CSS layers: a body face of radial and linear gradients repeated ten times along Z, a D-pad, two pill buttons, four coloured face buttons, two shoulder buttons and a cord. A pressed button drops its layers closer together (keep them on distinct Z planes). Use a fixed unit variable instead of vmin so it scales with the board. Keep it unbranded.
+
+THINGS THAT BREAK
+- Never tween with CSS transitions; set every value from t so the clip can be stepped and captured exactly.
+- Ground each pose by its lowest point, not a fixed hip height, or kicks float and crouches sink.
+- Keep the pose canvas wide enough for the longest reach (kicks and the punch) and mirror around the hip for the spin.
+
+THE FLOOR
+- Canvases carry role="img" and aria-labels. Under prefers-reduced-motion show one still frame (the projectile in flight). Works at 390px wide.`,
+  },
+  {
+    slug: "aeon-flux-eye-roll",
+    title: "Aeon Flux Eye Roll",
+    kind: "SVG TIMELINE",
+    tagline: "A lashed eye rolls its violet iris to the corner while a fly buzzes in the lashes, then a title fades in: seven seconds, one render(t)",
+    description:
+      "An inked eye with a cage of long black lashes, after the Æon Flux title image: a fly sits caught in the lower lashes. At one second it wakes, its wings beating and its body jittering, and the lashes shiver with it one after another; the violet iris rolls in along a soft curve, growing as it comes and narrowing at the corner, red veins slide in on one side and shrink away on the other, the pupil tightens, and INSTALANDING.AI fades in below. Every frame is set from the time alone, so the clip plays, loops, steps and scrubs to any instant.",
+    added: "Oct 30, 2026",
+    theme: "light",
+    demo: "/motion-lab/aeon-flux-eye-roll.html",
+    poster: "/motion-lab/aeon-flux-eye-roll.jpg",
+    library: { name: "SVG", version: "1.1", plugins: ["no libraries", "requestAnimationFrame"] },
+    life: 7,
+    lifeLabel: "THE WHOLE CLIP",
+    drawSeconds: 7,
+    elements: 22,
+    tracks: [
+      { prop: "x · y · the iris", change: "rolls in along a soft bezier, at even speed", start: 0.143, end: 0.371, ease: "power1.inOut" },
+      { prop: "scale · the iris", change: "0.6 → 1 as it rolls", start: 0.143, end: 0.371, ease: "power1.inOut" },
+      { prop: "x · scale · right veins", change: "slide in 100px, 0.4 → 1", start: 0.214, end: 0.4, ease: "power1.inOut" },
+      { prop: "scaleX · the iris", change: "→ 0.7, turning into the corner", start: 0.264, end: 0.35, ease: "power1.out" },
+      { prop: "x · scale · left veins", change: "1 → 0.3, drifting 25px out", start: 0.3, end: 0.414, ease: "power1.out" },
+      { prop: "scale · the pupil", change: "1 → 0.45", start: 0.371, end: 0.486, ease: "power2.inOut" },
+      { prop: "opacity · the title", change: "0 → 0.85", start: 0.486, end: 0.629, ease: "none" },
+      { prop: "rotation · the fly's wings", change: "−40° ↔ 30° every 0.07s, from 1s on", start: 0.143, end: 1, ease: "power1.out", yoyo: true },
+    ],
+    status: "STILL · THE FLY WAITS · 0.0s / 7.0s",
+    stepLabels: ["Previous beat", "Next beat"],
+    reelAutoplay: 2000,
+    inputs: [
+      { keys: ["CLICK"], does: "Replays the clip from the first frame" },
+      { keys: ["IDLE"], does: "Plays once and holds the last frame; the fly keeps buzzing" },
+      { keys: ["AUTOPLAY"], does: "Loops the clip with a short hold at the end" },
+    ],
+    knobs: [
+      {
+        id: "pupil",
+        label: "PUPIL",
+        min: 0.2,
+        max: 1,
+        step: 0.05,
+        value: 0.45,
+        note: "How far the pupil tightens at 2.6s. 1 leaves it open; lower is a pinprick. Applies at once, even on the held frame.",
+      },
+    ],
+    toggles: [{ id: "fly", label: "THE FLY", value: true }],
+    trick: {
+      title: "A clip that is a function of time",
+      steps: [
+        "Nothing tweens. One render(t) sets every transform from t alone: each move maps t into its own window, clamps it to 0..1, eases it and interpolates. The same t always draws the same frame, so playback, looping, stepping and frame-exact capture all call the same function.",
+        "The iris follows five points as a soft bezier: quadratic segments that run between the midpoints of the control points. An arc-length table makes the speed even, so the ease alone shapes the roll.",
+        "Every scale and rotation turns about a corner measured once with getBBox: the veins grow from their outer corners, the wings hinge at their roots, each lash pivots where it meets the lid. That is GSAP's transformOrigin, written out as translate, rotate, scale, translate back.",
+        "The iris is clipped by a copy of the eyeball's outline, so it can start outside the eye and roll in.",
+        "The fly's jitter is seeded noise: a hash of the 0.2s slot number gives each target, and it eases from the last slot's target to the next. Each lash reads the same noise 0.01s later than the one before, so the shiver runs along the lid.",
+        "The fly has its own clock, which keeps running while the last frame is held: the scene stays alive without replaying.",
+      ],
+    },
+    tags: ["svg", "timeline", "eye", "illustration", "logo reveal"],
+    bestFor: ["intro and logo reveals", "title cards for launch videos", "loading and splash screens", "editorial hero moments"],
+    pairsWith: ["noctua-ai-night-owl-page", "facetry-security-landing-page", "sidera-ai-astrology-page", "generative-editorial-product-page"],
+    credits: [
+      {
+        label: "Æon Flux, created by Peter Chung",
+        href: "https://en.wikipedia.org/wiki/%C3%86on_Flux",
+        note: "The eye with a fly caught in its lashes, from the show's title sequence; the original's lettering is replaced with INSTALANDING.AI",
+      },
+    ],
+    prompt: `Build a seven-second SVG title animation as one HTML file: an inked eye with long black lashes, a fly caught in the lower lashes, an iris that rolls into view, and a title that fades in below. No libraries; Google Font Marcellus for the title. White background.
+
+THE ART (inline SVG, one viewBox of 924x520 centred on the eye and title)
+- The eye: a brown radial-gradient lid lining with a 3px ink outline; the eyeball, an almond white-to-grey radial gradient; a translucent violet-black eyeshadow crescent on the inner side; a soft white highlight dot.
+- Inside a clipPath that copies the eyeball's outline: two groups of thin red vein strokes (one at each side) and the iris group: a violet radial-gradient iris (r ≈ 70, deep #301550 rim to lilac #7C6AAF) with a near-black pupil (r 25). At rest the iris sits outside the eye shape, so it is hidden.
+- Lid lines: soft grey shading strokes and thin ink contour lines round the eye and brow.
+- About 14 top lashes and 14 bottom lashes: long tapered black filled curves that sweep out from the lids and cross over the eyeball like a cage.
+- The fly, drawn between the two lash layers: two dark-green gradient body segments, two dark-red compound eyes, three thin bent legs, and two translucent pale wings with grey edges.
+- The title: INSTALANDING.AI in Marcellus 47px, letter-spacing 2.4, #301550 at 85%, centred under the eye.
+
+THE TIMELINE (render(t) sets everything from t; never tween)
+- 0–1s: still.
+- 1.0–2.6s: the iris rolls along a soft bezier through (0,0) (0,8) (−104,−22) (−229,−5) (−344,52), at even speed via an arc-length table, power1.inOut, scaling 0.6 → 1 and rotated 4°. From 1.85s its scaleX eases to 0.7 over 0.6s (power1.out).
+- 1.5–2.8s: the right veins become visible, slide in from +100px and scale 0.4 → 1 from their bottom-right corner (power1.inOut).
+- 2.1–2.9s: the left veins scale to 0.3 from their bottom-left corner and drift 25px left (power1.out).
+- 2.6–3.4s: the pupil scales 1 → 0.45 about its centre (power2.inOut).
+- 3.4–4.4s: the title fades from 0 to its 85%.
+- From 1s on: the wings swing −40° → 30° about their roots in 0.06s strokes, back and forth; the fly's body jitters to a new ±3px offset every 0.2s (seeded noise, eased power1.out); each bottom lash rotates ±1° from its outer corner on the same noise, 0.01s behind the one before.
+
+PLAYBACK
+- Play once and hold the last frame, with the fly's own clock still running; a click replays. ?autoplay loops with a 1.6s hold.
+- Expose window.__renderAt(seconds) to draw any instant for capture.
+- On screens taller than about 1.3:1, switch the viewBox to a tighter crop on the eye and title.
+
+THINGS THAT BREAK
+- Measure each element's box once with getBBox and rotate or scale about the right corner, written as translate(origin), rotate, scale, translate(−origin). Without it the veins fly off and the wings spin about the page origin.
+- The iris must stay inside the clipPath group, or it shows outside the eye before it rolls in.
+- Use a seeded hash for the jitter, not Math.random, so the same t draws the same frame.
+
+THE FLOOR
+- The SVG has role="img" and an aria-label describing the scene. Under prefers-reduced-motion show the final frame with the fly at rest. Works at 390px wide.`,
+  },
   {
     slug: "conveyor-gallery",
     title: "Conveyor Gallery",

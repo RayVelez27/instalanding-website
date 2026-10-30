@@ -5146,3 +5146,7 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 .home-card-art .card-live.is-ready { opacity: 1; }
 .home-card:has(.card-live.is-ready) .home-card-art img { transform: none; }
 .home-card:has(.card-live.is-ready) .home-card-art::after { opacity: 0.35; }
+/* HOME's pages grid: 8 pages + the CTA fill 3 rows of 3. At two columns the
+   8th page steps aside so the CTA closes an even 4 rows instead of sitting alone. */
+.home-pages-grid { padding-top: 2px; }
+@media (min-width: 641px) and (max-width: 1100px) { .home-pages-grid > .home-card:nth-child(8) { display: none; } }
