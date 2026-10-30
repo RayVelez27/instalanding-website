@@ -38,6 +38,9 @@ const HEROES = {
   corvane: ["hero@1200", "criteria@1100", "team@1100", "ledger@1100"],
   lemegeton: ["seal@760", "wards@1100", "summon@1100", "pricing@1100"],
   ochre: ["hero@1200", "phones@1000", "pricing@1100", "soundscapes@1100"],
+  easel: ["hero@1200", "inks@1100", "pricing@1100", "studio@1100"],
+  kairo: ["hero@1200", "bento@1100", "orbit@1100", "cta@1100"],
+  tokenhaus: ["tiles", "hero@1200", "courses@1100", "numbers@1100"],
 };
 
 // Systems whose identity background is a pattern: their small text sits on a label
