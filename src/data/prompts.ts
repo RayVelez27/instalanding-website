@@ -110,6 +110,90 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Noctua AI Night Owl Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A stark black-on-white page for an AI that works the night shift: a quartered loader with blinking owl eyes and a counter, a giant NIGHT ——◐ OWL headline whose moon slides through its phases, the viewer's own clock and a greeting for their hour, and four illustrated feature cards (a starlit draft, an overnight task queue, glowing owl eyes, a sunrise digest) drawn in SVG",
+    prompt: `Build a landing page for Noctua, a fictional AI service for night owls (writes with you at 1AM, untangles code at 3AM, runs a task queue while you sleep and leaves a Dawn Digest at 6AM), as one HTML file. No libraries. Google Fonts: Inter 400-800 for everything, Space Grotesk 500-700 for the logo and loader digits.
+
+DESIGN SYSTEM
+Pure white #fff and black #000 with one muted grey (rgba black at 64%), hairlines at 24% and pills at 8%; colour only lives inside the feature art. Huge bold Inter with tight tracking (-.06em at 160px), 12px medium labels, a 32px lead with a 25% first-line indent. Black pill buttons that invert on hover, underline links that wipe in, a hover colour of #ccc. Easing cubic-bezier(.22,1,.36,1) everywhere.
+
+PICTURES IN CODE (no image files)
+All SVG and CSS gradients: a two-eyed owl logo; a moon in the hero rule whose shadow slides through its phases; Midnight Draft (120 generated stars, a crescent moon with a glow, a chapter draft card with a blinking caret and "Noctua is writing…"); Night Shift (an overnight checklist ticking off items with a progress bar over drifting violet haze); Hoot (glowing amber owl eyes that blink and glance aside, with a voice waveform); Dawn Digest (a rising sun over hills with a "Good morning" summary card); four slides (a late-night desk with a steaming mug, a Zz type specimen, moon phases on a grid, an aurora); four invented customer logos with gradient hover fills.
+
+STRUCTURE
+0. Loader (2.2s): four white quarters that fly to the corners, blinking owl eyes over a four-digit counter, corner copy, a service list that ticks in, random-width bars and an equaliser filling to "Waking up 100%".
+1. A fixed white nav: logo, peak hours, email and a Start a night shift pill; four links and three socials stacked in columns; the viewer's local clock with a blinking dot and a toggleable equaliser. On phones it becomes a Menu button with a full-screen panel.
+2. Hero: NIGHT, a thick black rule ending in the moon, OWL, rising in after the loader; below, a tagline and a greeting set by the viewer's hour.
+3. Features: the lead, a big arrow, a muted peek list and four 600px cards in a 2x2 grid with a time stamp, a caption and a round Open badge on hover, then an Explore all link.
+4. How it works: a 3AM stat that rises in, a crossfading slideshow, a lead, a four-row night schedule with the 3AM row marked live, and fourteen feature pills that pop in one by one.
+5. Two huge words, NIGHT and OWL, between three diagonal arrows. Night owls: lead, a 2M+ stat and four logo tiles.
+6. Footer: an email form that shows a toast and sends nothing, big social links, legal links and a dusk-to-dawn line.
+
+THINGS THAT BREAK
+- The hero words rise from below an overflow-hidden row, so hold them down until the loader adds body.ready, and unlock scrolling at the same moment.
+- On phones size the hero words to the viewport (about 15vw, capped at 72px) and give the rule a minimum width, or the moon lands on the T and OWL is clipped.
+- Format the clock with Intl in the viewer's own time zone and set the greeting from the same hour.
+
+THE FLOOR
+One h1 row for the hero and labelled sections. The loader is aria-hidden and removed after it opens; the equaliser works by click or Enter. The form validates in place and sends nothing. prefers-reduced-motion cuts every transition and animation. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 30, 2026",
+    demo: "/demos/noctua-night-owl.html",
+    bestFor: ["AI assistants and agents", "productivity tools", "consumer AI launches", "brands with a playful, editorial voice"],
+    style: ["light", "minimal", "brutalist", "editorial", "svg-illustration"],
+    thumbnail: "/thumbs/noctua-night-owl.jpg",
+    theme: "light",
+  },
+  {
+    title: "Sidera AI Astrology Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A midnight-and-gold page for an AI astrologer: a Three.js orb of gold and violet glass sits on an obsidian podium inside a turning zodiac wheel and gold astrolabe rings, wrapped in nebula smoke and bloom, while the headline and CTA are redrawn as refracting 3D glass; below, a live natal chart per sun sign, today's real moon phase and a stars-to-pricing landing page",
+    prompt: `Build a landing page for Sidera, a fictional AI astrologer (reads your natal chart, live transits, lunar cycles and personal patterns together and answers with windows of good timing; reflection, not prediction; free Stargazer, $12 Plus, $24 Constellation), as one HTML file. Three.js 0.169 with its postprocessing addons, from jsdelivr through an importmap. Google Fonts: Cormorant Garamond 500-600 with italics for display, Inter 400-600 for text.
+
+DESIGN SYSTEM
+Midnight #07061a and #0a0820, ink #f4efe6, gold #e9c98c with a light-to-bronze gradient, violet accents (#8a5cff, #b9a3ff). Big Cormorant headings with one italic gold phrase; small uppercase gold kickers with a fading rule; Inter body at 60-70% ink. Rounded glass cards with gold hairlines that lift on hover; gold gradient pill buttons and ghost pills; star dust over the whole page.
+
+PICTURES IN CODE (no image files)
+The hero is one WebGL scene: a baked tileable noise atlas; a shader sky (indigo gradient, slow nebula, three twinkling star layers with pointer parallax); smoke and glow billboards that fade softly against a depth pre-pass and pick up the orb's gold-to-violet light; five lathe-turned podium tiers (a gold plate, then obsidian steps with gold bevels, fresnel rims, orb reflections, a light pool and a click pulse wave, sinking into fog); a celestial orb whose nine-stop gold-to-indigo gradient flows with triplanar noise and holds tiny gold motes, with shimmering rims and a halo; three gold astrolabe rings with travelling highlights and two planets; a zodiac wheel drawn on a 2048px canvas (degree scale, sign names, Roman numerals) turning under the orb; 420 drifting dust points; selective bloom screened over the image, a vignette and film grain. The hero words and the CTA are rebuilt as meshes in a second scene: words rise in from depth, buttons are extruded rounded slabs of refracting, chromatic glass lit by the orb and the pointer. The rest is SVG: orbit and timing diagrams, a natal chart, a synastry diagram, a live moon, generated journal covers and a zodiac wheel.
+
+STRUCTURE
+1. A floating pill header that frosts on scroll: star logo, four links, Join the waitlist.
+2. Hero (100svh): "See your whole sky aligned before your next move." beside the orb (above it on tall screens), a lead and a gold Reveal my chart button that pulses the scene and sweeps a sheen across the gold words before scrolling to the waitlist.
+3. A marquee of the twelve signs and their dates. How it reads: three cards (your birth sky, the sky right now, your next move) with animated SVG art.
+4. Daily reading: copy with three points beside an app card: sign tabs (defaulting to today's sun sign), a seeded natal chart with aspects, a timing score with a bar, three transits with times and a line of guidance.
+5. Features: five glass cards, one wide with a synastry diagram. The sky tonight: the real moon phase from the device clock (illumination, age, days to full) with a 29-day ring and the next four phases with dates.
+6. Principles: three numbered columns and a quote. Pricing: three plans with a monthly / yearly switch. Journal: three posts with generated starfield covers.
+7. FAQ as details rows; a waitlist box over a spinning zodiac wheel with a validated email form; a footer with four columns, a giant fading wordmark and a credit line.
+
+THINGS THAT BREAK
+- Place the orb from the hero copy's measured box (setViewOffset on the camera), not fixed coordinates, and ease between layouts.
+- Hide the DOM hero words and glass buttons only once the 3D copies exist (html.ui3d), and keep the DOM elements for clicks, focus and accessibility.
+- Render a depth pre-pass of the solid objects so smoke and glows fade where they meet them instead of clipping.
+- Stop rendering once the hero is scrolled past and drop to 30fps when idle; cap device pixel ratio at 2.
+
+THE FLOOR
+One h1 and labelled sections. The 3D canvas is decorative and every control works without it; a fallback message shows if WebGL fails. Sign tabs use role="tab" and aria-selected; the email form validates in place and sends nothing. prefers-reduced-motion: reveals show at once, CSS spins and the marquee stop, and the 3D scene runs at a quarter speed. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 29, 2026",
+    demo: "/demos/sidera-ai-astrology.html",
+    bestFor: ["astrology and wellness apps", "consumer AI products", "subscription apps with a waitlist", "premium mystical brands"],
+    style: ["dark", "webgl", "three-js", "glassmorphism", "luxury"],
+    thumbnail: "/thumbs/sidera-ai-astrology.jpg",
+    theme: "dark",
+    credits: [
+      {
+        label: "3D scene by Shakuro",
+        href: "https://shakuro.com",
+        note: "The hero's orb, podium and glass UI scene, credited in the page footer",
+      },
+    ],
+  },
+  {
     title: "Linework AI Architect Assistant Page",
     category: "web",
     categoryLabel: "WEB",

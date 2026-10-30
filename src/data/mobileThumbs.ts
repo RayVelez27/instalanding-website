@@ -5,6 +5,8 @@
  * screenshot instead.
  */
 const PHONE: ReadonlySet<string> = new Set([
+  "noctua-night-owl.jpg",
+  "sidera-ai-astrology.jpg",
   "linework-architect-assistant.jpg",
   "ai-conf-frontier.jpg",
   "synthra-ai-workspace.jpg",
