@@ -110,6 +110,87 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Ditherform AI Dither Generator Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A near-black, grid-ruled page for an AI that turns a prompt into a live 3D dither element: every picture on it is a raymarched shape morphing between a cube, sphere, torus and more, Bayer-dithered in two muted inks with a crisp outline, under fitted condensed headlines, a scroll-driven marquee, a logo wall and a cream changelog whose rows slide a plate in on hover",
+    prompt: `Build a landing page for Ditherform, a fictional AI generator of 3D dither elements (describe a shape, get a live raymarched object in ordered Bayer dots; pick a palette and matrix, export a WebGL embed, a looping video or a sprite sheet), as one HTML file. Plain WebGL2, no libraries. Google Fonts: Sofia Sans Extra Condensed 600/900 for display, Martian Mono 400/700 for everything else.
+
+DESIGN SYSTEM
+Near-black #0e0e0e with #161616 cards, warm off-white #edeae3 text, muted #8a8a85, hairlines at 14% of the text colour. One cream #edeae3 band (the changelog) in dark ink. Display type is 900, uppercase, line height .88, and every section heading is fitted to the full container width by measuring it at 100px and scaling. Labels are 12px uppercase mono with .04em tracking; body copy 12px mono at 1.6. Square corners everywhere; outline buttons whose arrow slides out diagonally as a second slides in; nav and footer links that roll their text up. Two eases: cubic-bezier(.12,.23,.27,1) for reveals and (.65,0,.2,1) for rolls.
+
+PICTURES IN CODE (no image files)
+Every image box is a <div class="art" data-art="name"> drawn by one shared WebGL2 context. Pass one raymarches a signed-distance shape (rounded box, sphere, cylinder, torus, octahedron, capsule, Goursat surface) on a floor plane with a key light, soft shadows, ambient occlusion and a fill light, writing luminance and a hit mask to two targets. Pass two thresholds luminance against a 2x2, 4x4 or 8x8 Bayer matrix into two inks (ink and light), leaves empty sky as the flat background colour, and draws a 1-2px outline wherever a background pixel touches the mask. Each plate is a SPEC entry: shape list, palette (sage, clay, sand, peach, stone, pool), zoom, yaw, pitch, morph interval, matrix size and outline width. Shapes morph by mixing two distance fields over 1.1s; the camera turns slowly and leans toward the pointer. Plates render at half resolution into the shared canvas and are copied into their own 2D canvases with smoothing off. Eight invented client logos are inline SVG.
+
+STRUCTURE
+1. A fixed 64px blurred nav split by hairlines: wordmark; a "New: Morph v2" link with a live thumbnail plate; Gallery, Product, Changelog, Get access. Under 810px a Menu/Close word swap opens a full-screen panel of 64px links.
+2. Hero: DITHERFORM fitted to the width, sticky under the nav with mix-blend-mode: difference, over an 80vh plate that eases in from a 1.04 scale and drifts with a small parallax.
+3. Intro: three columns; a sticky statement, a 760px plate, and a short paragraph with a How it works button.
+4. Generated elements: a fitted heading and a two-column grid of plates (full, tall, tall, full) with sticky difference-blended captions and meta labels that appear on hover; a Browse all presets band that flashes through every plate's palette and shape every 140ms on hover.
+5. A marquee of "Type a shape, get dots" whose type fills the 320px band (100cqh), moved by both time and scroll.
+6. A 4x2 logo wall with project labels. Changelog on cream: a fitted heading, an intro and five rows (date, title, excerpt, round arrow) where hovering slides a dark-scrimmed plate down behind the row and turns the text light.
+7. CTA: a fitted START DITHERING, an outline button and a small WebGL2 note. A hairline footer of links.
+
+THINGS THAT BREAK
+- Use one WebGL context for every plate; browsers cap live contexts at about sixteen. Size the shared targets to the largest plate and draw each into the bottom-left corner.
+- Only draw plates that are on screen, and gate changelog and band plates on :hover, or the page renders a dozen raymarchers every frame.
+- Take the outline from the hit mask, not from lighting, or edges shimmer as the shape turns.
+- The hover plate in each changelog row is parked above the row and scaled up; give its wrapper overflow: hidden or a sliver of it shows along the top of every row.
+- Fit the headings again once fonts load and on resize; the fallback font is much wider.
+
+THE FLOOR
+One h1, labelled sections, aria-labels on the logo images and aria-expanded on the menu button. Without WebGL2 each plate falls back to its palette colour with a CSS dot grid. prefers-reduced-motion: reveals show at once, transitions stop and plates hold their first shape, redrawing only on pointer moves. Breakpoints at 1200px and 810px; no horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 30, 2026",
+    demo: "/demos/ditherform-ai-dither.html",
+    bestFor: ["AI creative and generative tools", "design and dev tool launches", "WebGL and shader showcases", "studios with a print or retro-computing look"],
+    style: ["dark", "webgl", "dithered", "bold-type", "editorial"],
+    thumbnail: "/thumbs/ditherform-ai-dither.jpg",
+    theme: "dark",
+  },
+  {
+    title: "Peelo AI Sticker Printer Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A warm-black subscription page for an AI sticker printer: a condensed SAY IT. STICK IT. headline that blurs in letter by letter under an orange glow with four die-cut stickers popping around it, a gallery of sticker sheets with their prompts on hover, five how-it-works rows that stack as you scroll, the printer and its refills on tilted cards, three plans and a drag-to-scroll review slider, every picture drawn in SVG",
+    prompt: `Build a landing page for Peelo, a fictional AI sticker printer sold as a subscription (describe a sticker, the app draws four options, the desk printer prints and kiss-cuts it in about a minute; the printer, ink and vinyl come with the plan), as one HTML file. No libraries. Google Fonts: Bricolage Grotesque (variable, opsz 12-96, wdth 75-100, weights 400-800) for everything, Gloock for the serif lines and prices.
+
+DESIGN SYSTEM
+Warm near-black #0a0908, cards #15120f with #2b241e hairlines, cream text #fff3e6, muted #a8998a and dim #7d7064. One hot orange #ff5a00 with a lighter #ff8a3d and an ember #c74300, and soft peaches (#ffb37a, #ffd2b0) inside the art. The headline is Bricolage at wdth 75 and opsz 96, 800, uppercase, 188px with .86 line height and -.035em tracking; section heads are 58px Gloock in the muted colour; card titles are Bricolage 700 at wdth 80-85. Pill buttons: a dark gradient with a hairline, or an orange gradient that deepens on hover; an arrow icon slides in from the left. Radii 999 for pills, 16 for cards, 30 for the printer card.
+
+PICTURES IN CODE (no image files)
+All inline SVG: four hero stickers with thick cream borders (a robot, a flame with a face, a "print!" speech bubble, a lightning bolt on a dashed orange disc); four sticker sheets (Café Club: a coffee cup, a croissant, a "oui!" pill and a macaron; Tiny Monsters: three fire creatures; Trail Badges: a mountain disc, a triangle and a 128 KM label; Sprint Moods: stickers on a laptop lid); five how-it-works scenes (a prompt field with a blinking caret, a 2x2 of generated options with one ticked, an editor with a holographic gradient and finish and size controls, the printer with a sheet sliding out, a hand peeling a sticker onto a bottle); a Peelo One printer as one <symbol> reused three times; eight invented brand logos for a ticker.
+
+STRUCTURE
+1. A fixed nav over a fade to the background: logo mark, four links, a Get Peelo pill. On phones, a two-line menu button that crosses and opens a full-width panel.
+2. Hero, centred, 100vh: a "Peelo One is shipping now" pill with a pinging dot, SAY IT. over an orange STICK IT., the serif line "The AI sticker printer for your desk", a lede and two buttons. Each headline letter blurs up in turn (45ms apart), the lede word by word, and the four stickers pop in with a springy overshoot at a slight tilt; clicking one bumps it.
+3. A logo ticker at 30% opacity with masked edges that pauses on hover.
+4. Gallery: "Printed on Peelo (1.2M+)" against a right-aligned lead, a 2x2 of sheet cards; on hover the art scales and a blurred overlay shows the prompt that made it.
+5. How it works: five rows (number, title, text, scene) that are position: sticky under the nav, so each slides over the last.
+6. Printer: a rounded card with an orange top glow and a masked dot grid, "Meet Peelo One", four spec chips, and four tilted photo cards that straighten on hover.
+7. Plans: Doodler $9, Studio $19 (filled orange, "Most picked"), Crew $49, with tick lists and a cancel-anytime line.
+8. Reviews: a header on the left and a snap-scrolling slider on the right with drag on desktop, dots and a 5s autoplay that pauses on hover.
+9. Footer: "Your first sticker is a sentence away", an email form, socials, two link columns and a copyright line over a bottom glow.
+
+THINGS THAT BREAK
+- The stickers are positioned against the title block, and the serif line under the headline is wider than it on desktop: place the two lower stickers beside STICK IT., not at the bottom of the block, or the speech bubble covers "desk".
+- Split the headline into letter spans in JS and set white-space: nowrap on each line, or a line can break mid-word while the letters animate.
+- The sticky rows need an opaque background and the hairlines need their own sticky top one pixel above, or the rows show through each other.
+- Duplicate the ticker's children for the loop and mark the copies aria-hidden.
+
+THE FLOOR
+Breakpoints at 1200px and 810px; no horizontal scroll at 390px. Stickers are buttons with aria-labels; the slider dots are labelled buttons; the menu button sets aria-expanded. The email form validates in place and sends nothing. prefers-reduced-motion cuts every animation and stops the ticker.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 30, 2026",
+    demo: "/demos/peelo-sticker-printer.html",
+    bestFor: ["consumer hardware and gadgets", "subscription products", "AI creative tools", "playful D2C launches"],
+    style: ["dark", "bold-type", "stickers", "svg-illustration", "scroll-driven"],
+    thumbnail: "/thumbs/peelo-sticker-printer.jpg",
+    theme: "dark",
+  },
+  {
     title: "Noctua AI Night Owl Page",
     category: "web",
     categoryLabel: "WEB",
