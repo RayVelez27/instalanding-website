@@ -18,8 +18,8 @@ import { track } from "@/lib/track";
 const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[] = [
   { to: "/", label: "HOME" },
   { to: "/pages", label: "PAGES" },
-  { to: "/systems", label: "SYSTEMS", isNew: true },
-  { to: "/motion", label: "MOTION", isNew: true },
+  { to: "/systems", label: "SYSTEMS" },
+  { to: "/motion", label: "MOTION" },
   // PRODUCT and STACK are out of the menu, not removed: /product and /stack
   // still serve their ComingSoon pages, so nothing shared breaks.
   // { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED

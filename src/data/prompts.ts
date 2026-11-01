@@ -110,6 +110,50 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Linnet AI Housekeeping Swarm Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A pine-and-brass page for a swarm of AI assistants that runs housekeeping: an illustrated housekeeper in the hero who pops in, blinks and follows the pointer, a manifesto that lights word by word before a diagonal wipe, four agents on a pinned scroll stage, flip-up plan cards, sticky stacked testimonials and an about section that unmasks from an arch, every picture drawn in SVG",
+    prompt: `Build a landing page for Linnet, a fictional swarm of AI assistants for housekeepers, cleaning companies, hotel teams and short-let hosts (a Scheduler, a Supply, a Concierge and an Inspector agent that plan routes, reorder linen, answer guests and check room photos), as one HTML file. GSAP 3.13 with CustomEase and CustomWiggle from jsDelivr, used only for the hero character. Google Fonts: Geist 400-700, Geist Mono 400/500, Instrument Serif italic.
+
+DESIGN SYSTEM
+Paper #f3efe6 with ink #151a18, and night #0e1311 for the dark bands. Pine #1e3a31 for glows and one testimonial, brass #c9a064 as the single accent, fog #dad6cb, muted #8e9189. Headlines are Geist 500 with tight tracking (-.04 to -.045em); serif italic in brass only for accent words. Labels are 12px Geist Mono uppercase at .12em with a short brass rule before section eyebrows. Pill buttons with a round arrow chip that nudges right on hover, in brass, outline-light, outline-dark and night. Brass diamonds (rotated squares) as bullets and separators. One ease, cubic-bezier(.2,.8,.2,1), and a (.7,0,.2,1) for clip-path wipes.
+
+PICTURES IN CODE (no image files)
+The hero is an inline SVG cartoon housekeeper (hair, glasses, ears, eyes, brows, a mint blob behind) animated with GSAP: an elastic pop-in, a blink every 5s, face layers that parallax toward the pointer, and a dizzy CustomWiggle when the mouse is flicked very fast. Every other picture is an SVG string built by one ART map and written into .art[data-art] boxes: keeper (a portrait with an earpiece), bed, cart, swarm (chevron "linnets" joined by faint links around a glowing hub), phone (a task list or a chat with the Concierge), linen shelves, corridor and check (a bathroom seen through a camera with dashed detection boxes). Each has variants from a seed, a fractal-noise grain and most are shown in greyscale.
+
+STRUCTURE
+1. A fixed pill nav that gains a blurred night background after 40px and hides on scroll down: logo diamond, five links, a Start free trial pill. Under 1100px a Menu button opens a full-screen paper panel of big numbered links.
+2. Hero on a night card that scales down and rounds its corners as you scroll away: an onboarding pill, "Every room ready. Before you ask.", a lede, two buttons, three stats, and the character with a glass quote card that rotates three quotes every 5.2s with tick marks.
+3. A client name ticker with masked edges that pauses on hover.
+4. Manifesto (340vh, sticky): the statement lights word by word as you scroll while two pictures drift up, then a night panel wipes in on a diagonal reading "Four kinds of crew."
+5. Who: four huge rows that indent on hover, dim the others and show a floating picture that trails the pointer.
+6. How it works (420vh, sticky above 900px): a giant brass step number, title and text swap through Plan, Stock, Answer, Check while matching pictures wipe up on the right and a progress bar fills.
+7. Plans: Solo $29, Crew $12 per seat, Property from $1,900; each card's night back slides up on hover or tap with a feature list and price.
+8. Results on a night band with slanted edges: a sticky side of three numbers and four staggered case studies with two metrics each.
+9. Testimonials: a sticky intro and five quote cards that stack as sticky slots, each in a different surface (white, night, fog, pine, brass).
+10. About (300vh): "Meet" and an italic "Linnet" part as a swarm picture grows from an arch to full screen and darkens under the founder story and four credentials.
+11. Field notes (four cards), an FAQ accordion, a pine CTA with a slanted top and a spinning text ring on a brass disc, and a footer with a huge wordmark and a live San Francisco clock.
+
+THINGS THAT BREAK
+- Give html and body overflow-x: clip, not hidden, or every sticky stage stops sticking.
+- Read the tall sections' progress from getBoundingClientRect in one requestAnimationFrame per scroll, and set CSS variables (--sp, --w, --mp, --u, --v) rather than styles per element.
+- Scope the character's GSAP selectors to its own container; its class names (.eye, .face) are generic and would match elsewhere.
+- Split the manifesto into word spans in JS but keep the em elements, so the accent words light in brass.
+- On phones the pinned method stage is turned off and each step shows its own picture inline instead.
+
+THE FLOOR
+One h1, a main, aria-expanded on the menu and FAQ buttons, aria-hidden on the drawn pictures and the ticker copy. Breakpoints at 1200px, 900px and 810px; no horizontal scroll at 390px. prefers-reduced-motion: transitions and animations are cut, the character appears without moving, counters stay put.`,
+    preview: "hero",
+    variant: "large",
+    added: "Oct 31, 2026",
+    demo: "/demos/linnet-ai-housekeeping.html",
+    bestFor: ["AI agents and assistant swarms", "vertical SaaS for operations teams", "hospitality and cleaning businesses", "B2B products with a warm, editorial feel"],
+    style: ["dark", "editorial", "scroll-driven", "svg-illustration", "character-animation"],
+    thumbnail: "/thumbs/linnet-ai-housekeeping.jpg",
+    theme: "dark",
+  },
+  {
     title: "Ditherform AI Dither Generator Page",
     category: "web",
     categoryLabel: "WEB",
