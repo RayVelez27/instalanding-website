@@ -110,6 +110,93 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Fullday AI Money Agent Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A soft blue-and-peach page for an AI money agent that works around your calendar: a hero with a live feed of tasks it just finished and a phone with sliding payment cards, a self-typing \"can I afford it\" prompt, sticky how-it-works steps, a results chart whose dashed line draws in, a story switcher, a snap-scrolling benefits row, monthly/yearly pricing toggles and rounded sections that tuck under each other",
+    prompt: `Build a landing page for Fullday, a fictional AI money agent for busy people (it reads your accounts, cards and calendar, then pays bills, saves toward goals, splits shared costs and books plans inside limits you set), as one HTML file. No libraries. Google Fonts: Inter Tight 300-600 for everything, Montserrat 600 only on the payment cards.
+
+DESIGN SYSTEM
+Background #f5f7fa, ink #000 with 70%, 50% and 20% tints, hairlines at 10%, coral #ec5a4f, peach #f79276, green #16854a for positive figures, near-black #141414 for the dark band. One ease, cubic-bezier(.22,.8,.24,1). Type classes: .h1 96px/500/-.045em, .h2 64px, .h3 48px, .h4 40px, .h5 32px, .h6 24px, body 16px at 1.35 in 70% ink. White cards with 24-32px radii; sections end in 64px bottom radii that overlap the next section. The button is a pill inside a faint pill: a dark #1c1c1c→#545454 gradient, 46px tall, whose label is two copies that roll up on hover. Section tags are uppercase with a small orbit icon (a ring with a dot and a spinning arc) and a numbered "/ 01". The logo is an almost-closed ring in a peach gradient.
+
+PICTURES IN CODE (no images)
+One phone mockup lives in a <template> (status bar, greeting, a black AI brief, "free to spend" with a count-up, two Montserrat payment cards that slide left and back on a 9s loop, four action buttons, a "handled for you" list) and is cloned into every [data-phone] slot. Everything else is HTML and inline SVG: a bar chart, receipts with torn edges and a ticking clock, a donut and goal bars, a ring of connected nodes, a sparkline, a goal ring that draws to 72%, a 30-day area chart, a drawn portrait, journal thumbnails.
+
+STRUCTURE
+1. Nav: logo, five links whose text rolls on hover, Start free. Under 810px a burger opens a full-screen sliding menu.
+2. Hero on blue and peach radial glows over a faint 64px grid: left column with an "AI MONEY AGENT" pill, a glass live-feed card adding a finished task every 2.8s with a ticking clock and a "min saved" bar, and stacked avatars; centre the h1 "Say yes to more.", lead and CTAs; right the phone with two bobbing chips. Below, a white card with copy and a time-handed-back bar chart.
+3. Problem: a heading beside a card with the receipts picture and a giant "4+ hrs".
+4. Solution: three tall cards: a dark one where "Can I do Lisbon and the concert this month?" types itself and a white answer card counts up to $1,840, a month plan with a donut, and connected nodes on two counter-rotating dashed rings.
+5. How it works: a sticky left column and three sticky numbered step cards that stack as you scroll.
+6. Features: two cards (overlapping spending panels; a goal card with the ring) and a wide dark card with the phone rising out of its bottom edge.
+7. Product: a phone beside a vertical slider with up/down arrows and dots.
+8. Results: the area chart with a dashed line that draws in, three count-up stats, then stories: a portrait beside a quote with avatar buttons and prev/next.
+9. Benefits on the dark band: a horizontal snap scroller of three cards, a progress line and dots.
+10. Pricing: two plan rows, each with a monthly/yearly toggle whose knob slides and rewrites the price and note, and a payment card beside it.
+11. FAQ accordion (one open at a time), a journal of three posts, a CTA card with the phone floating over its middle, and a dark footer with a newsletter stub.
+
+THINGS THAT BREAK
+- Scope the answer card's caption rule to direct children (.answer > span): a bare ".answer span" also catches the counter inside the big figure and drops the number onto its own tiny line.
+- Side-slide reveals start 40px off the edge; on phones that widens the page before they run, so under 810px make them rise instead.
+- Give the closed mobile menu visibility: hidden after its slide-out, or its links stay in the tab order.
+- The results line animates by stroke-dashoffset over its full length, then the 12.5px dash pattern has to be put back once it finishes.
+- The sections overlap by their rounded corners, so the wrappers behind the results, benefits and pricing sections must paint the dark colour.
+
+THE FLOOR
+One h1, a main, aria-expanded on the burger and the FAQ buttons, Escape closes the menu, real buttons for the story avatars and benefit dots, aria-pressed on the billing toggles, aria-hidden on the mockups and drawn art. Breakpoints at 1300px, 1200px and 810px; no horizontal scroll at 390px. prefers-reduced-motion cuts every animation and transition, shows reveals at once, and stops the live feed, typing and line draw.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 7, 2026",
+    demo: "/demos/fullday-ai-money-agent.html",
+    bestFor: ["fintech and personal finance apps", "AI agents that act for users", "consumer subscription products", "calendar and productivity tools"],
+    style: ["light", "soft-gradients", "phone-mockups", "scroll-reveals", "rounded-sections"],
+    thumbnail: "/thumbs/fullday-ai-money-agent.jpg",
+    theme: "light",
+  },
+  {
+    title: "Fortix AI Money Copilot App Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A bright, airy app page for an AI money copilot: a headline set with glossy gradient app icons, six dark glass phone screens drawn entirely in HTML and SVG (net worth, AI chat, autopilot rules, a forecast with a confidence band, a blocked-fraud alert), a turning 3D ring of stat cards, floating badges and chat bubbles, a landscape dashboard that tips up into view and a tap-through 3D feature carousel",
+    prompt: `Build a landing page for Fortix, a fictional AI money copilot app (it budgets, forecasts cash flow, saves and invests on autopilot, and blocks suspicious charges), as one HTML file. No libraries. Google Fonts: Inter 400-900, with font-feature-settings "cv03","cv04","cv09","cv11","tnum".
+
+DESIGN SYSTEM
+White page, ink #1a1a1a with 65%, 50%, 10% and 5% tints for secondary text, labels, rules and soft fills. An 800px column with 24px gutters and 240px between sections (200px on phones). Type: h1 80px, h2 48px, h3 36px, all 700 with -.04em tracking and ~1.0 line height; leads 24px 500 at 65% ink. Seven 225deg gradients as tokens: purple #7c4dff→#4a1fb8, red #f85032→#e73827, orange #fdc830→#f37335, pink #e60b79→#990750, green #50b224→#3f8c1c, blue #3a8bff→#0d4fd1, cyan #22d3ee→#0e7490. App icons are 72px rounded squares (radius 24px) in a gradient with a white top-sheen pseudo-element and a white-to-55% glyph gradient. Black App Store / Google Play buttons, 60px tall.
+
+THE PHONES (no images)
+One .phone component sized only by width: aspect-ratio .462, a brushed graphite gradient frame, side buttons from pseudo-elements, a dynamic island and a diagonal glare. It is a size container, and the screen sets font-size: 3.85cqw so every value inside is in em and the UI scales with the phone. Screens are dark #06060b with violet, cyan and pink radial glows: glass cards (white 10%→3% gradient, 1px white-10% border, 12px backdrop blur), gradient text from #c4b5fd to #67e8f9, a spinning conic-gradient AI orb, and a status bar. Build six screens as template strings and stamp them into every .phone[data-screen]: home (net worth $84,210, area chart, AI suggestion card with a gradient border, three spend/save/invest tiles), chat (a Lisbon trip plan with progress bars and a typing indicator), chat2 (large orb, "How can I help, Alex?"), autopilot (a progress ring and four rules with toggles), forecast (segmented 7D/30D/90D/1Y, a solid line that turns dashed with a confidence band, two upcoming bills), shield (a struck-through blocked charge with Freeze card, a 98 safety ring, three security rows). Write chart() to turn a list of y values into a smooth cubic SVG path with gradient stroke, area fill and optional band and dashed split, and ring() for progress rings. A landscape phone (aspect 2.16) holds a three-column dashboard.
+
+STRUCTURE
+1. Fixed nav: two links either side of a centred square logo mark, on a white-to-clear gradient. Under 768px it becomes logo + burger, opening a full-screen white menu.
+2. Hero: the four-line headline with an icon popping in beside three words (on phones the icons move to a row above), the lead, the two store buttons, then two phones rising into a 560px clipped stage that fades to white.
+3. Three invented partner logos in grey, colour on hover.
+4. About: big 48px statements in 50% ink with bold phrases in full ink, inline star, stacked avatar tiles and a mini orb. Below, five gradient stat cards (Members 120K, Saved by AI $48M, Fees 0%, Forecasts 97%, Insights 7.5M) placed on a 3D ring with translate3d and rotateY, advancing every 2.6s.
+5. Experience: two rows of a soft grey square holding a phone with two blurred colour blobs, beside a heading, lead and arrow link; the second row flips.
+6. Message: a centred heading surrounded by three gradient pill badges, four floating gradient coins and three dark chat bubbles with avatar dots and drawn tails.
+7. Details: two columns, each a heading, lead and chip beside a phone that swings in from rotateY(±80deg).
+8. Wallet: the landscape dashboard tipping up from rotateX(45deg).
+9. Features: four gradient cards in a 3D carousel (front, left, right and back positions by data-pos); click, Enter or Space advances, it auto-advances every 3.5s and pauses on hover or focus.
+10. Download: a phone rising out of a fading 240px window, heading, store buttons. Footer with the logo, a legal line, and four link columns. A fixed blur strip masks the bottom 144px of the viewport.
+
+THINGS THAT BREAK
+- Reveal classes (.rv, .pop, .rise, .turn, .wide, .fx) start hidden and one IntersectionObserver adds .in. Anything with those classes that is not observed stays invisible.
+- .pop animates transform, so the badges must be centred with the separate translate property; with transform: translate(-50%,-50%) the reveal's transform: none throws them off centre and the last one runs off a 390px screen.
+- The hero phones are centred on their left %, so .rise keeps translateX(-50%) in both its hidden and shown states.
+- The stat ring's transforms are set in JS on desktop only; under 768px the cards become a horizontal snap scroller and the JS must return early or it fights the CSS.
+- Give the closed mobile menu visibility: hidden as well as opacity 0, or its links stay in the tab order.
+
+THE FLOOR
+One h1, a main, aria-expanded on the burger, Escape closes the menu, aria-hidden on the phone mockups, icons and decorative art, a labelled role="button" carousel. Breakpoints at 1159px and 767px; no horizontal scroll at 390px. prefers-reduced-motion shows every reveal at once and stops both carousels and the orbs.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 7, 2026",
+    demo: "/demos/fortix-ai-money-copilot.html",
+    bestFor: ["fintech and personal finance apps", "AI assistants and copilots", "mobile app launches", "consumer apps with an App Store CTA"],
+    style: ["light", "glassmorphism", "phone-mockups", "3d-carousel", "gradient-icons"],
+    thumbnail: "/thumbs/fortix-ai-money-copilot.jpg",
+    theme: "light",
+  },
+  {
     title: "Linnet AI Housekeeping Swarm Page",
     category: "web",
     categoryLabel: "WEB",

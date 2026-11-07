@@ -4758,6 +4758,42 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 .hire-start-text strong { font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hire-start-clear { flex: 0 0 auto; display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #000; background: #fff; cursor: pointer; }
 .hire-start-clear:hover { background: #000; color: #fff; }
+/* Tiers: three cards above the explainer + form; the picked one inverts. */
+.hire-tiers { margin: 0 0 clamp(24px, 3vw, 44px); }
+.hire-tier-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #000; }
+.hire-tier { display: flex; flex-direction: column; padding: 20px; min-width: 0; background: #fff; color: #333; font-size: 12px; line-height: 1.6; transition: background 160ms ease, color 160ms ease; }
+.hire-tier + .hire-tier { border-left: 1px solid #000; }
+.hire-tier.is-picked { background: #000; color: #ddd; }
+.hire-tier-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; }
+.hire-tier-num { color: #888; }
+.hire-tier-badge { padding: 3px 7px; background: #000; color: #fff; }
+.hire-tier.is-picked .hire-tier-badge { background: #fff; color: #000; }
+.hire-tier-name { margin: 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(22px, 2.2vw, 28px); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; color: #000; }
+.hire-tier.is-picked .hire-tier-name { color: #fff; }
+.hire-tier-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 10px 0 12px; padding-bottom: 12px; border-bottom: 1px solid #ddd; }
+.hire-tier.is-picked .hire-tier-price { border-bottom-color: #333; }
+.hire-tier-price strong { font-size: 13px; letter-spacing: 0.06em; color: inherit; }
+.hire-tier-price span { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
+.hire-tier-pitch { margin: 0 0 12px; font-weight: 600; color: #000; }
+.hire-tier.is-picked .hire-tier-pitch { color: #fff; }
+.hire-tier-includes { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 7px; }
+.hire-tier-includes li { display: grid; grid-template-columns: 12px 1fr; gap: 8px; align-items: start; }
+.hire-tier-includes svg { margin-top: 4px; }
+.hire-tier-cta { margin-top: auto; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 14px; border: 1px solid #000; background: #fff; color: #000; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; transition: background 160ms ease, color 160ms ease; }
+.hire-tier-cta:hover { background: #000; color: #fff; }
+.hire-tier.is-picked .hire-tier-cta { border-color: #fff; }
+.hire-tier.is-picked .hire-tier-cta:hover { background: #fff; color: #000; }
+.hire-tier-cta:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+.hire-tier.is-picked .hire-tier-cta:focus-visible { outline-color: #fff; }
+.hire-service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; }
+.hire-service .sponsor-pick { margin-bottom: 8px; }
+@media (max-width: 960px) {
+  .hire-tier-list { grid-template-columns: minmax(0, 1fr); }
+  .hire-tier + .hire-tier { border-left: 0; border-top: 1px solid #000; }
+}
+@media (max-width: 420px) {
+  .hire-service-grid { grid-template-columns: minmax(0, 1fr); }
+}
 
 /* ── MOTION: view toggle and the DECK (one study at a time) ── */
 .mo-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-family: 'IBM Plex Mono', monospace; }
@@ -5150,3 +5186,85 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
    8th page steps aside so the CTA closes an even 4 rows instead of sitting alone. */
 .home-pages-grid { padding-top: 2px; }
 @media (min-width: 641px) and (max-width: 1100px) { .home-pages-grid > .home-card:nth-child(8) { display: none; } }
+
+/* ── WORLD: the library as an isometric factory floor ── */
+@font-face { font-family: "Silk"; src: url("/world/silkscreen.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Silk"; src: url("/world/silkscreen-bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+.world { position: relative; }
+.world-stage {
+  position: relative; overflow: hidden; height: calc(100svh - 79px); min-height: 520px;
+  background: #0b0d14; color: #e9e6dc; font-family: "Silk", monospace; touch-action: none;
+  user-select: none; -webkit-user-select: none;
+}
+.world-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; }
+.world-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 75% 70% at 50% 48%, rgba(0,0,0,0) 55%, rgba(4,5,10,.55) 100%); }
+.world-tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.world-tag {
+  position: absolute; left: 0; top: 0; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 6px 9px 5px; font: 400 11px/1 "Silk", monospace; letter-spacing: .5px; color: #e9e6dc;
+  background: rgba(11,13,20,.78); border: 2px solid rgba(233,230,220,.16); opacity: .82; will-change: transform;
+}
+.world-tag i { display: inline-block; width: 8px; height: 8px; margin-right: 7px; font-style: normal; }
+.world-tag.is-active { z-index: 2; max-width: 300px; font-size: 13px; font-weight: 700; opacity: 1; border-color: #e9e6dc; box-shadow: 4px 4px 0 rgba(0,0,0,.5); }
+.world-hud {
+  position: absolute; z-index: 3; font: 700 14px/1 "Silk", monospace; letter-spacing: 1px; color: #e9e6dc;
+  text-shadow: 0 2px 0 #0b0d14, 2px 0 0 #0b0d14, -2px 0 0 #0b0d14, 0 -2px 0 #0b0d14; pointer-events: none;
+}
+.world-hud button { pointer-events: auto; }
+.world-hud--tl { left: 28px; top: 24px; }
+.world-t1 { margin: 0; font: inherit; font-size: 18px; }
+.world-t2 { margin-top: 9px; font-weight: 400; font-size: 11px; color: #8d93a8; }
+.world-hud--tr { right: 28px; top: 24px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.world-count { color: #ffd166; }
+.world-bar { position: relative; width: 170px; height: 10px; background: #23273a; border: 2px solid #0b0d14; box-sizing: content-box; }
+.world-bar b { position: absolute; left: 0; top: 0; bottom: 0; display: block; background: linear-gradient(#73a7ff, #3c62d2); transition: width .4s; }
+.world-bar--hp { width: 100%; margin-top: 12px; }
+.world-bar--hp b { width: 100%; }
+.world-map { width: 170px; height: 120px; background: rgba(11,13,20,.6); border: 2px solid rgba(233,230,220,.18); }
+.world-card {
+  left: 28px; bottom: 28px; width: min(420px, calc(100% - 56px)); box-sizing: border-box; padding: 16px 18px 18px;
+  background: rgba(11,13,20,.88); border: 3px solid rgba(233,230,220,.35); box-shadow: 6px 6px 0 rgba(0,0,0,.5); text-shadow: none;
+  transition: border-color .2s;
+}
+.world-card.is-on { border-color: #e9e6dc; }
+.world-k { font-size: 11px; font-weight: 400; color: #8d93a8; }
+.world-n { margin-top: 8px; font-size: 19px; line-height: 1.2; }
+.world-s { margin-top: 8px; font-size: 13px; color: #ffd166; }
+.world-open {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; padding: 9px 14px 8px; cursor: pointer;
+  font: 700 13px/1 "Silk", monospace; letter-spacing: 1px; color: #0b0d14; background: #ffd166;
+  border: 3px solid #0b0d14; box-shadow: 4px 4px 0 #0b0d14;
+}
+.world-open:hover { background: #ffe17a; }
+.world-open:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #0b0d14; }
+.world-open:focus-visible, .world-zoom button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.world kbd { display: inline-block; padding: 3px 5px 2px; font: inherit; font-size: 10px; color: #0b0d14; background: #e9e6dc; border-radius: 2px; text-shadow: none; }
+.world-open kbd { background: #0b0d14; color: #ffd166; }
+.world-keys { right: 28px; bottom: 28px; display: flex; align-items: flex-end; gap: 14px; }
+.world-legend { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 11px; font-weight: 400; }
+.world-zoom { display: flex; flex-direction: column; gap: 6px; }
+.world-zoom button {
+  display: grid; place-items: center; width: 34px; height: 34px; cursor: pointer; color: #e9e6dc;
+  background: rgba(11,13,20,.85); border: 2px solid rgba(233,230,220,.3);
+}
+.world-zoom button:hover { border-color: #e9e6dc; }
+.world-boot { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; padding: 24px; text-align: center; font-size: 15px; letter-spacing: 1px; background: #0b0d14; color: #8d93a8; }
+.world-list { padding: 24px 26px 48px; }
+.world-list ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px 24px; margin: 0; padding: 0; list-style: none; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+.world-list a { color: inherit; }
+@media (max-width: 720px) {
+  /* the phone header and its search row stand above the stage */
+  .world-stage { height: calc(100svh - 150px); min-height: 420px; }
+  .world-hud--tl { left: 16px; top: 16px; }
+  .world-t1 { font-size: 11px; }
+  .world-t2 { display: none; }
+  .world-hud--tr { font-size: 11px; }
+  .world-hud--tr { right: 16px; top: 16px; }
+  .world-bar { width: 110px; }
+  .world-map { width: 110px; height: 80px; }
+  .world-card { left: 16px; bottom: 16px; width: calc(100% - 84px); padding: 12px 14px 14px; }
+  .world-n { font-size: 15px; }
+  .world-keys { right: 16px; bottom: 16px; }
+  .world-legend { display: none; }
+  .world-tag { font-size: 10px; max-width: 160px; }
+}

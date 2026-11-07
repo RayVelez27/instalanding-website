@@ -21,6 +21,7 @@ import { builders } from "@/data/builders";
 import ComingSoon from "./pages/ComingSoon";
 import Systems from "./pages/Systems";
 import Motion from "./pages/Motion";
+import World from "./pages/World";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -64,6 +65,8 @@ const AppRoutes = () => {
         {/* Motion studies, and each study's lab at its own URL */}
         <Route path="/motion" element={<Motion />} />
         <Route path="/motion/:slug" element={<Motion />} />
+        {/* The library as a walkable factory floor (three.js loads only here) */}
+        <Route path="/world" element={<World />} />
         <Route
           path="/stack"
           element={<ComingSoon title="Stack" blurb="Whole app stacks — frontend, backend, auth, payments and deploy — as one-shot prompts with a reference build." />}

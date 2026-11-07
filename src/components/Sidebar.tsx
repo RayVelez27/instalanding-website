@@ -20,6 +20,8 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[
   { to: "/pages", label: "PAGES" },
   { to: "/systems", label: "SYSTEMS" },
   { to: "/motion", label: "MOTION" },
+  // WORLD is hidden, not removed: /world still resolves. Restore this line to bring it back.
+  // { to: "/world", label: "WORLD" },
   // PRODUCT and STACK are out of the menu, not removed: /product and /stack
   // still serve their ComingSoon pages, so nothing shared breaks.
   // { to: "/product", label: "PRODUCT", soon: true }, // PRODUCT-PARKED
