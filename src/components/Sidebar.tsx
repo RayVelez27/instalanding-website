@@ -93,9 +93,14 @@ const Sidebar = () => {
   }, [location.pathname]);
   useEffect(() => {
     if (!searchOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSearchOpen(false);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [searchOpen]);
 
   // BUILDERS stays lit on the individual builder pages too, since those live
@@ -152,12 +157,12 @@ const Sidebar = () => {
           <button
             type="button"
             className="sidebar-icon-btn"
-            onClick={() => setSearchOpen((o) => !o)}
-            aria-label={searchOpen ? "Close search" : "Search pages, motion and design systems"}
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search pages, motion and design systems"
             aria-expanded={searchOpen}
             aria-controls="phone-search"
           >
-            {searchOpen ? <X size={21} /> : <Search size={20} />}
+            <Search size={20} />
           </button>
           <GithubIconLink className="sidebar-icon-btn sidebar-icon-btn--gh" />
           <button
@@ -174,8 +179,17 @@ const Sidebar = () => {
         </div>
 
         {searchOpen && (
-          <div className="phone-search" id="phone-search">
-            <LibrarySearch items={EVERYTHING} autoFocus onDone={() => setSearchOpen(false)} />
+          <div className="phone-search" id="phone-search" role="dialog" aria-modal="true" aria-label="Search the library">
+            <button type="button" className="phone-search-backdrop" aria-label="Close search" tabIndex={-1} onClick={() => setSearchOpen(false)} />
+            <div className="phone-search-sheet">
+              <div className="phone-search-head">
+                <span>SEARCH</span>
+                <button type="button" className="sidebar-icon-btn" onClick={() => setSearchOpen(false)} aria-label="Close search">
+                  <X size={20} />
+                </button>
+              </div>
+              <LibrarySearch items={EVERYTHING} autoFocus onDone={() => setSearchOpen(false)} />
+            </div>
           </div>
         )}
       </nav>

@@ -3796,10 +3796,19 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #fff; }
   .sidebar-icon-btn:hover, .sidebar-icon-btn[aria-expanded="true"] { color: #000; }
   .sidebar-icon-btn--gh .rainbow-btn-mark { width: 20px; height: 20px; }
   .sidebar-icon-btn:focus-visible, .sidebar-phone-icons .sidebar-hamburger:focus-visible { outline: 2px solid #000; outline-offset: -4px; }
-  .phone-search { display: block; position: absolute; top: 100%; left: 0; right: 0; z-index: 150; padding: 4px 12px 12px; background: #fff; border-bottom: 1px solid #eee; box-shadow: 0 18px 30px -22px rgba(0, 0, 0, 0.35); }
-  .phone-search .home-search { height: 46px; }
+  /* A pop-up: a dimmed backdrop and a sheet at the top. The input is 16px so
+     iOS doesn't zoom the page in when it takes focus. */
+  .phone-search { display: block; position: fixed; inset: 0; z-index: 250; }
+  .phone-search-backdrop { position: absolute; inset: 0; width: 100%; border: 0; padding: 0; background: rgba(10, 10, 10, 0.45); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); cursor: default; animation: phone-search-fade 0.2s ease; }
+  .phone-search-sheet { position: relative; margin: 10px; padding: 6px 12px 12px; border-radius: 14px; background: #fff; box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.5); animation: phone-search-drop 0.25s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .phone-search-head { display: flex; align-items: center; justify-content: space-between; margin: 0 -6px 4px 2px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: #000; }
+  .phone-search .home-search { height: 48px; }
+  .phone-search .home-search input { font-size: 16px; }
   .phone-search .home-search-kbd { display: none; }
-  .phone-search .home-search-results { top: 52px; max-height: min(440px, 70vh); }
+  .phone-search .home-search-results { top: 58px; left: -12px; right: -12px; max-height: calc(100svh - 150px); }
+  @keyframes phone-search-fade { from { opacity: 0; } }
+  @keyframes phone-search-drop { from { opacity: 0; transform: translateY(-12px); } }
+  @media (prefers-reduced-motion: reduce) { .phone-search-backdrop, .phone-search-sheet { animation: none; } }
   .app-layout .home-top { display: none; }
   .mobile-overlay-agent { margin-top: 24px; padding: 0 12px; }
   .mobile-overlay-agent .agent-toggle { width: 100%; justify-content: space-between; }
@@ -3807,7 +3816,8 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #fff; }
 }
 html.agent-dark .sidebar-icon-btn { color: #8a8a8a; }
 html.agent-dark .sidebar-icon-btn:hover, html.agent-dark .sidebar-icon-btn[aria-expanded="true"] { color: #fff; }
-html.agent-dark .phone-search { background: #000; border-bottom-color: #222; }
+html.agent-dark .phone-search-sheet { background: #0d0d0d; border: 1px solid #222; }
+html.agent-dark .phone-search-head { color: #fff; }
 
 /* ── Site footer: one quiet line on every page ── */
 .site-footer {

@@ -104,11 +104,16 @@ const GithubButton = () => {
   );
 };
 
-/** The phone header's version: the mark alone, same link */
+/* Phones hand github.com links to the GitHub app, which asks a signed-out
+   visitor to log in. www.github.com redirects to the same public page in the
+   browser and is not claimed by the app. */
+const REPO_URL_BROWSER = `https://www.github.com/${GITHUB_REPO}`;
+
+/** The phone header's version: the mark alone, opening the repo in the browser */
 export const GithubIconLink = ({ className }: { className?: string }) => (
   <a
     className={className}
-    href={REPO_URL}
+    href={REPO_URL_BROWSER}
     target="_blank"
     rel="noreferrer"
     title={`${GITHUB_REPO} on GitHub`}
