@@ -62,7 +62,7 @@ const useStarCount = () => {
 };
 
 /** GitHub's mark, solid, on its own 438.549 grid (lucide's Github is an outline). */
-const GithubMark = () => (
+export const GithubMark = () => (
   <svg className="rainbow-btn-mark" viewBox="0 0 438.549 438.549" aria-hidden="true">
     <path
       fill="currentColor"
@@ -103,5 +103,20 @@ const GithubButton = () => {
     </a>
   );
 };
+
+/** The phone header's version: the mark alone, same link */
+export const GithubIconLink = ({ className }: { className?: string }) => (
+  <a
+    className={className}
+    href={REPO_URL}
+    target="_blank"
+    rel="noreferrer"
+    title={`${GITHUB_REPO} on GitHub`}
+    aria-label={`${GITHUB_REPO} on GitHub`}
+    onClick={() => track("github_click", { from: "phone-header" })}
+  >
+    <GithubMark />
+  </a>
+);
 
 export default GithubButton;

@@ -5,7 +5,7 @@ import { LABEL, type Item } from "@/lib/libraryItems";
 import { useIsPhone } from "@/hooks/useIsPhone";
 
 /* ── search across all three layers, ⌘K / Ctrl+K ── */
-const LibrarySearch = ({ items }: { items: Item[] }) => {
+const LibrarySearch = ({ items, autoFocus, onDone }: { items: Item[]; autoFocus?: boolean; onDone?: () => void }) => {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -52,6 +52,7 @@ const LibrarySearch = ({ items }: { items: Item[] }) => {
   const pick = (it: Item) => {
     setOpen(false);
     setQ("");
+    onDone?.();
     navigate(it.to, {
       state:
         it.kind === "page" && !phone
@@ -70,6 +71,7 @@ const LibrarySearch = ({ items }: { items: Item[] }) => {
       <Search size={15} aria-hidden="true" />
       <input
         ref={input}
+        autoFocus={autoFocus}
         type="search"
         value={q}
         placeholder="Search pages, motion, systems…"
@@ -95,6 +97,7 @@ const LibrarySearch = ({ items }: { items: Item[] }) => {
           } else if (e.key === "Escape") {
             setOpen(false);
             input.current?.blur();
+            onDone?.();
           }
         }}
       />

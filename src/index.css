@@ -3784,18 +3784,30 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #fff; }
   html.agent-dark .feed-banner { border: 1px solid #333; }
 }
 
-/* Compact GITHUB in the phone header, left of the hamburger */
-.sidebar-github { display: none; }
+/* The phone header: one row, the logo left and three icons right (search,
+   GitHub, the menu). Search drops a panel under the header; Agent Mode lives
+   in the menu, so the second row (.home-top) is gone on phones. */
+.sidebar-phone-icons, .phone-search { display: none; }
 @media (max-width: 768px) {
-  .sidebar-github { display: flex; align-items: center; margin-left: auto; position: relative; z-index: 0; }
-  .sidebar-github + .sidebar-hamburger { margin-left: 6px; }
-  .sidebar-github .rainbow-btn { height: 30px; padding: 0 9px; gap: 7px; font-size: 9px; }
-  .sidebar-github .rainbow-btn-label { gap: 5px; }
-  .sidebar-github .rainbow-btn-mark { width: 13px; height: 13px; }
-  .sidebar-github .rainbow-btn-count svg { width: 11px; height: 11px; }
-  .sidebar-github .rainbow-btn::before { filter: blur(10px); opacity: 0.6; }
-  .library-intro-actions .rainbow-btn { display: none; }
+  .sidebar { padding: 10px 8px 10px 20px; }
+  .sidebar-phone-icons { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+  .sidebar-phone-icons .sidebar-hamburger { margin-left: 0; padding: 10px; }
+  .sidebar-icon-btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 8px; background: none; color: #666; cursor: pointer; text-decoration: none; }
+  .sidebar-icon-btn:hover, .sidebar-icon-btn[aria-expanded="true"] { color: #000; }
+  .sidebar-icon-btn--gh .rainbow-btn-mark { width: 20px; height: 20px; }
+  .sidebar-icon-btn:focus-visible, .sidebar-phone-icons .sidebar-hamburger:focus-visible { outline: 2px solid #000; outline-offset: -4px; }
+  .phone-search { display: block; position: absolute; top: 100%; left: 0; right: 0; z-index: 150; padding: 4px 12px 12px; background: #fff; border-bottom: 1px solid #eee; box-shadow: 0 18px 30px -22px rgba(0, 0, 0, 0.35); }
+  .phone-search .home-search { height: 46px; }
+  .phone-search .home-search-kbd { display: none; }
+  .phone-search .home-search-results { top: 52px; max-height: min(440px, 70vh); }
+  .app-layout .home-top { display: none; }
+  .mobile-overlay-agent { margin-top: 24px; padding: 0 12px; }
+  .mobile-overlay-agent .agent-toggle { width: 100%; justify-content: space-between; }
+  .mobile-overlay-agent .agent-toggle-label { align-items: flex-start; }
 }
+html.agent-dark .sidebar-icon-btn { color: #8a8a8a; }
+html.agent-dark .sidebar-icon-btn:hover, html.agent-dark .sidebar-icon-btn[aria-expanded="true"] { color: #fff; }
+html.agent-dark .phone-search { background: #000; border-bottom-color: #222; }
 
 /* ── Site footer: one quiet line on every page ── */
 .site-footer {
@@ -4627,6 +4639,7 @@ html.agent-dark .home-more-art { border-color: #222; }
   .home-band-r { padding: 32px; border-left: 0; border-top: 1px solid rgba(255, 255, 255, 0.12); }
 }
 @media (max-width: 720px) {
+  .home-reveal { opacity: 1; transform: none; transition: none; }
   .home { --home-gap: 10px; padding: 0 12px; }
   /* the phone header is already at the top, so this bar scrolls with the page */
   .home-top { position: static; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 0; padding: 8px 12px 12px; backdrop-filter: none; -webkit-backdrop-filter: none; }

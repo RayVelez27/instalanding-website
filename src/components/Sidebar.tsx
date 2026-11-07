@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BrandLogo from "@/components/BrandLogo";
 import { Link, useLocation } from "react-router-dom";
 import { builders } from "@/data/builders";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SignupField from "@/components/SignupField";
-import GithubButton from "@/components/GithubButton";
+import { GithubIconLink } from "@/components/GithubButton";
+import LibrarySearch from "@/components/LibrarySearch";
+import { AgentModeToggle } from "@/components/AgentMode";
+import { EVERYTHING } from "@/lib/libraryItems";
 import { track } from "@/lib/track";
 
 /**
@@ -81,7 +84,19 @@ const BrandMark = () => (
 const Sidebar = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  // The phone search panel closes on navigation and on Escape
+  useEffect(() => {
+    setSearchOpen(false);
+  }, [location.pathname]);
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSearchOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [searchOpen]);
 
   // BUILDERS stays lit on the individual builder pages too, since those live
   // at the search term (/lovable-prompts) rather than under /builders/.
@@ -132,19 +147,37 @@ const Sidebar = () => {
           <SignupField />
         </div>
 
-        {/* Phones: a compact GITHUB beside the hamburger (the intro's own is hidden there) */}
-        <div className="sidebar-github">
-          <GithubButton />
+        {/* Phones: one row of icons on the right: search, GitHub, the menu */}
+        <div className="sidebar-phone-icons">
+          <button
+            type="button"
+            className="sidebar-icon-btn"
+            onClick={() => setSearchOpen((o) => !o)}
+            aria-label={searchOpen ? "Close search" : "Search pages, motion and design systems"}
+            aria-expanded={searchOpen}
+            aria-controls="phone-search"
+          >
+            {searchOpen ? <X size={21} /> : <Search size={20} />}
+          </button>
+          <GithubIconLink className="sidebar-icon-btn sidebar-icon-btn--gh" />
+          <button
+            type="button"
+            className="sidebar-hamburger"
+            onClick={() => {
+              setSearchOpen(false);
+              setMobileMenuOpen(true);
+            }}
+            aria-label="Open menu"
+          >
+            <Menu size={24} />
+          </button>
         </div>
 
-        {/* Mobile hamburger button */}
-        <button
-          className="sidebar-hamburger"
-          onClick={() => setMobileMenuOpen(true)}
-          aria-label="Open menu"
-        >
-          <Menu size={24} />
-        </button>
+        {searchOpen && (
+          <div className="phone-search" id="phone-search">
+            <LibrarySearch items={EVERYTHING} autoFocus onDone={() => setSearchOpen(false)} />
+          </div>
+        )}
       </nav>
 
       {/* Mobile full-screen overlay */}
@@ -175,6 +208,9 @@ const Sidebar = () => {
               </li>
             ))}
           </ul>
+          <div className="mobile-overlay-agent">
+            <AgentModeToggle />
+          </div>
           <div className="mobile-overlay-bottom">
             <Socials size={22} className="sidebar-socials sidebar-socials--overlay" />
             <SignupField variant="overlay" />

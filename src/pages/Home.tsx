@@ -170,10 +170,10 @@ const Home = () => {
   });
   const { msg, say } = useToast();
 
-  // Sections fade up as they arrive
+  // Sections fade up as they arrive (on desktop; phones show the whole page at once)
   useEffect(() => {
     const els = document.querySelectorAll(".home-reveal");
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 720px)").matches) {
       els.forEach((el) => el.classList.add("is-in"));
       return;
     }
@@ -185,7 +185,8 @@ const Home = () => {
             io.unobserve(e.target);
           }
         }),
-      { threshold: 0.08 },
+      // Any sliver counts: a tall section never reaches a ratio threshold on a short screen
+      { threshold: 0, rootMargin: "0px 0px -6% 0px" },
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
