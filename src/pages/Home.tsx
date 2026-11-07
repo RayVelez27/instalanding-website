@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, ChevronLeft, ChevronRight, Copy } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import { AgentPanel } from "@/components/AgentMode";
@@ -44,40 +44,16 @@ const useToast = () => {
   return { msg, say };
 };
 
-/* ── the hero buttons' icons: a glass tile per layer, tinted in its colour,
-   with a glyph drawn for it (a browser of stacked pages, an easing curve whose
-   dot rides it on hover, a 2x2 grid of tokens) ── */
-const CtaIcon = ({ kind }: { kind: "pages" | "motion" | "systems" }) => (
-  <span className={`home-cta-icon home-cta-icon--${kind}`} aria-hidden="true">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      {kind === "pages" && (
-        <>
-          <rect className="ci-back" x="6.5" y="3.5" width="14" height="11" rx="2" opacity="0.45" />
-          <rect x="3.5" y="7.5" width="14" height="12" rx="2" fill="rgba(255,255,255,0.08)" />
-          <path d="M3.5 11h14" />
-          <circle cx="6" cy="9.3" r="0.55" fill="currentColor" stroke="none" />
-          <circle cx="7.8" cy="9.3" r="0.55" fill="currentColor" stroke="none" />
-          <path d="M6.5 14.5h6M6.5 17h4" opacity="0.7" />
-        </>
-      )}
-      {kind === "motion" && (
-        <>
-          <path d="M3.5 19.5h17M3.5 19.5v-15" opacity="0.3" />
-          <path className="ci-curve" d="M4 19C10 19 9.5 5 20 5" />
-          <circle className="ci-dot" cx="20" cy="5" r="2.1" fill="currentColor" stroke="none" />
-        </>
-      )}
-      {kind === "systems" && (
-        <>
-          <rect className="ci-t ci-t1" x="3.5" y="3.5" width="7.5" height="7.5" rx="2" fill="currentColor" stroke="none" />
-          <rect className="ci-t ci-t2" x="13" y="3.5" width="7.5" height="7.5" rx="3.75" />
-          <rect className="ci-t ci-t3" x="3.5" y="13" width="7.5" height="7.5" rx="2" />
-          <rect className="ci-t ci-t4" x="13" y="13" width="7.5" height="7.5" rx="2" fill="rgba(255,255,255,0.12)" />
-        </>
-      )}
-    </svg>
-  </span>
-);
+/* The hero's CODE rings: scroll to the section after the hero, clear of the sticky bar */
+const toNextSection = (e: MouseEvent<HTMLAnchorElement>) => {
+  const next = e.currentTarget.closest(".home-hero")?.nextElementSibling;
+  if (!next) return;
+  e.preventDefault();
+  const bar = document.querySelector(".home-top");
+  const offset = bar && getComputedStyle(bar).position === "sticky" ? bar.getBoundingClientRect().height : 0;
+  const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: next.getBoundingClientRect().top + window.scrollY - offset, behavior: smooth ? "smooth" : "auto" });
+};
 
 /* ── a section: head (title, count, description, tools) and a rail ── */
 const Rail = ({
@@ -227,6 +203,7 @@ const Home = () => {
             <i />
           </div>
           <div className="home-hero-copy">
+            <p className="home-badge">Copy. Remix. Ship It.</p>
             <h1 id="home-title" className="home-title">
               <span className="home-ln">
                 <span>PREMIUM HTML</span>
@@ -238,31 +215,18 @@ const Home = () => {
                 <span className="home-title-outline">AND AGENTS</span>
               </span>
             </h1>
-            <p className="home-lede">
-              Landing pages, motion studies and design systems.
-              <br />
-              Free, open source and one file each, with no dependencies.
-              <br />
-              Copy it, remix it, ship it.
-            </p>
           </div>
-          <div className="home-ctas">
-            <Link to="/pages" className="home-cta home-cta--pages">
-              <CtaIcon kind="pages" />
-              <span className="home-cta-label">EXPLORE PAGES</span>
-              <ArrowRight size={14} aria-hidden="true" />
-            </Link>
-            <Link to="/motion" className="home-cta home-cta--motion">
-              <CtaIcon kind="motion" />
-              <span className="home-cta-label">EXPLORE MOTION</span>
-              <ArrowRight size={14} aria-hidden="true" />
-            </Link>
-            <Link to="/systems" className="home-cta home-cta--systems">
-              <CtaIcon kind="systems" />
-              <span className="home-cta-label">EXPLORE SYSTEMS</span>
-              <ArrowRight size={14} aria-hidden="true" />
-            </Link>
-          </div>
+          {/* After Uiverse.io by Smit-Prajapati: five glass rings ripple out from the word.
+              It takes you down to whatever follows the hero (the agent panel or the pages) */}
+          <a className="home-ripple" href="#sec-pages" aria-label="Jump to the code: browse the pages" onClick={toNextSection}>
+            <span className="home-ripple-box">
+              <span className="home-ripple-word">CODE</span>
+            </span>
+            <span className="home-ripple-box" />
+            <span className="home-ripple-box" />
+            <span className="home-ripple-box" />
+            <span className="home-ripple-box" />
+          </a>
         </section>
         <AgentPanel />
 

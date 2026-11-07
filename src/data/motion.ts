@@ -96,6 +96,120 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "jelly-squeeze",
+    title: "Jelly Squeeze",
+    kind: "DRAG SCRUB",
+    tagline: "Drag down and an acrylic press squashes a glossy jelly flat; let go and it springs back up, wobbling",
+    description:
+      "A raspberry jelly sits on a white plate under a clear acrylic press. Drag vertically and the press follows you down, lagging a touch behind the pointer, and the jelly squashes wide, bulging at the sides with its bubbles carried along. Flick and the press glides on before it stops; lift it and the jelly leaps back on a loose spring, overshooting into the press and rippling until it settles. Tick Follow mouse and the press just tracks the pointer's height. Everything is drawn live in Canvas 2D: no frames, no images.",
+    added: "Nov 7, 2026",
+    theme: "light",
+    demo: "/motion-lab/jelly-squeeze.html",
+    poster: "/motion-lab/jelly-squeeze.jpg",
+    library: { name: "Canvas 2D", version: "1.0", plugins: ["no libraries", "spring physics"] },
+    life: 1.6,
+    lifeLabel: "ONE PRESS AND RELEASE",
+    drawSeconds: 4,
+    elements: 1,
+    tracks: [
+      { prop: "y · the press", change: "follows the drag, 0.11 lag per frame", start: 0, end: 0.45, ease: "power2.inOut" },
+      { prop: "height · the jelly", change: "100% → 42%, capped by the press", start: 0.04, end: 0.48, ease: "power2.inOut" },
+      { prop: "width · the jelly", change: "grows as height shrinks, sides bulge", start: 0.04, end: 0.48, ease: "power2.inOut" },
+      { prop: "height · on release", change: "springs back, overshoots and settles", start: 0.5, end: 1, ease: "elastic.out(1, 0.3)" },
+      { prop: "outline · ripple", change: "a five-lobe wave sized by the spring's speed", start: 0.52, end: 0.9, ease: "power1.out" },
+    ],
+    status: "SQUEEZE 00% · AT REST · DRAG VERTICALLY",
+    stepLabels: ["Let the press up a little", "Press the jelly harder"],
+    reelAutoplay: 2400,
+    inputs: [
+      { keys: ["DRAG ↕"], does: "Moves the press; down squeezes, up lets go. A flick glides on and stops dead at either end" },
+      { keys: ["FOLLOW MOUSE"], does: "The press tracks the pointer's height across the whole window, no click needed" },
+      { keys: ["↑ ↓", "PG UP/DN", "HOME/END"], does: "The press is a slider: step it, jump it, or slam it fully down" },
+    ],
+    knobs: [
+      {
+        id: "travel",
+        label: "DRAG TRAVEL",
+        min: 80,
+        max: 500,
+        step: 10,
+        value: 220,
+        unit: "px",
+        note: "Pointer travel for a full press. Touch uses 55% of it, so a thumb needs less.",
+      },
+      {
+        id: "smoothing",
+        label: "SMOOTHING",
+        min: 0.02,
+        max: 0.5,
+        step: 0.01,
+        value: 0.11,
+        note: "How fast the press catches the pointer each frame (the original's value is 0.11). Lower drags behind like syrup.",
+      },
+      {
+        id: "wobble",
+        label: "WOBBLE",
+        min: 0,
+        max: 1,
+        step: 0.05,
+        value: 0.6,
+        note: "The jelly spring's looseness. 0 is critically damped; 1 rings for seconds.",
+      },
+    ],
+    toggles: [{ id: "followMouse", label: "FOLLOW MOUSE", value: false }],
+    trick: {
+      title: "A press, a lag and a spring",
+      steps: [
+        "Three numbers do the work. goal is where the pointer put the press (0 lifted, 1 full squeeze). shown chases it every frame by (goal − shown) × (1 − e^(−0.11 × 60 × dt)), the original's frame-rate independent lag. h is the jelly's height.",
+        "The drag adds pointer Δy ÷ travel to goal. On release the last few samples give a velocity, and goal glides on with it, losing speed over 0.28s and stopping dead at 0 or 1: Draggable's inertia, in ten lines.",
+        "The jelly is a damped spring pulling h toward its full height (2.1Hz, damping from the WOBBLE knob), integrated in four sub-steps per frame. The press is a ceiling: when h would pass it, h is clamped and any upward speed dropped. Lift the press fast and the spring is free to overshoot into it.",
+        "Width follows height so it reads as the same jelly: w = w₀ × (h₀ ÷ h)^0.55, plus a sideways bulge of sin(πv)^1.4 that grows with the squash. The outline is a superellipse (n = 3.6) sampled at 120 points and tapered 13% toward the top.",
+        "The spring's speed drives the life in it: a five-lobe ripple on the outline, a dome or dip on the top face, and the bubbles, which are mapped through the same function so they ride along.",
+        "Translucency is layering inside a clip: a vertical raspberry gradient, a warm 'screen' glow low and to the right, twelve faint strokes that darken the edges, a sheen on the top face, a rim light, two speculars, and a pink caustic thrown onto the plate.",
+      ],
+    },
+    tags: ["drag", "spring physics", "squash and stretch", "canvas 2d", "playful"],
+    bestFor: ["playful product heroes", "loading and empty states", "toy-like onboarding moments", "food, candy and skincare brands"],
+    pairsWith: ["peptide-skincare-store-landing-page", "fullday-ai-money-agent-page", "fortix-ai-money-copilot-app-page", "generative-editorial-product-page"],
+    credits: [
+      {
+        label: "Voicu Apostol (cerpow.com)",
+        href: "https://www.cerpow.com",
+        note: "The original jelly drag study, which scrubs 215 pre-rendered frames with GSAP Draggable; this version draws the jelly live instead",
+      },
+    ],
+    prompt: `Build a drag-to-squeeze jelly toy as one HTML file: a glossy raspberry jelly on a white plate under a clear acrylic press. Drag vertically to press it flat; let go and it springs back with a wobble. No libraries, no images: everything is drawn in Canvas 2D.
+
+THE STAGE
+- Page #b1b3c0, ink #464e60, system-ui. One screen, overflow hidden, user-select none. A small tracked caps mark top-left. Centred, a 4:3 canvas wrapper, width min(640px, 94vw, (100svh − 96px) × 4/3), canvas radius clamp(22px, 6vw, 42px), fading and scaling in from 0.92.
+- Bottom centre: an h1 "Drag vertically to squeeze" (17px, weight 450) and a custom "Follow mouse" checkbox (16px box, ink fill and white tick when checked), hidden on coarse pointers.
+- Over the middle of the canvas, an invisible drag pad (72% × 78%, pill radius, cursor grab, touch-action none) with role="slider", aria-valuenow 0-100 and aria-valuetext.
+
+THE SCENE (a 640 × 480 design space scaled to the canvas; DPR capped at 2)
+- Background: vertical gradient #d4d5df → #c2c4d0 → #a7a9b8, a soft white floor glow.
+- Plate: a shadow ellipse, a white-to-#d9dae6 ellipse (rx 236, ry 36) and an inner #eceef6 well, floor at y 352.
+- Jelly: a superellipse outline (n = 3.6) sampled at 120 points in its own (u, v) space, mapped as x = cx + u·w/2·(1 − 0.13v + bulge), y = floor − v·h. Rest size 250 × 196.
+- Fill inside a Path2D: a vertical gradient #ff9db0 → #f0416a → #a50f3c at 94% alpha; clipped to it, a warm screen-blend glow low right, twelve faint wide strokes for darker edges, 16 seeded bubbles (ring, faint fill, highlight dot), a white sheen down from the top face, a left rim light (stroke with a horizontal white → clear gradient), a rotated soft specular top-left and a small sharp one right. Outside: a 1px deep-pink outline, a dark contact shadow and a pink caustic glow on the plate.
+- The press: a 42px translucent stem from the top and a 430 × 26 rounded acrylic slab (white gradient, white hairline, an inner highlight line), tinted pink where it touches the jelly. As it nears the jelly, darken the jelly's top face.
+
+THE MOTION
+- goal (0 lifted … 1 full squeeze) comes from the drag: Δy ÷ 220px (× 0.55 on touch). Keep the last 6 samples; on release, velocity = Δgoal ÷ Δt over them (0 if the pointer had stopped for 80ms). The throw: goal += vel·dt, vel ×= e^(−dt/0.28), stop dead at 0 or 1.
+- shown += (goal − shown) × (1 − e^(−0.11·60·dt)). The press bottom sits at floor − (196 + 46) + shown × (196 + 46 − 0.42 × 196).
+- The jelly height h is a damped spring toward 196: a = ω²(196 − h) − 2ζω·hv, ω = 2π·2.1, ζ = 0.05 + (1 − wobble) × 0.55, four sub-steps per frame. If h passes the gap under the press, clamp it and drop upward speed.
+- Width w = 250 × (196 ÷ h)^0.55; bulge = squash × 0.26 × sin(πv)^1.4 where squash = 1 − h/196. Ripple r = 1 + min(|hv| / 5200, 0.035) × sin(5a − 17t) × sin(πv); the top face domes by clamp(hv × 0.035, −10, 14) × (1 − u²) above v 0.55. Bubbles go through the same map.
+- Follow mouse: when ticked, goal = clientY ÷ innerHeight on every mousemove, and the drag is off.
+- Keyboard on the slider: arrows ±0.1, Page Up/Down ±0.25, Home 0, End 1.
+
+THINGS THAT BREAK
+- Scrubbing pre-rendered frames needs hundreds of images; drawing the jelly live keeps it one file and lets the spring overshoot, which frames can't.
+- Without the press as a hard ceiling the spring pushes the jelly through the slab on release.
+- Clamp dt (50ms max) so a backgrounded tab doesn't come back to an exploded spring.
+- A few wide edge strokes band visibly; use many faint ones.
+
+THE FLOOR
+- prefers-reduced-motion: no throw, no ripple or dome, a critically damped jelly that just follows the press, no fade-in. The canvas is aria-hidden; the slider carries the state. No horizontal scroll at 390px.`,
+  },
+  {
     slug: "glow-strands",
     title: "Glow Strands",
     kind: "WEBGL SHADER",
