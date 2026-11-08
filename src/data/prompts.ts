@@ -110,6 +110,46 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Foldwise AI Product Designer Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A quiet grey page for an AI-native product designer, laid out as a folding book: twelve paper and dark-stock panels (a cover, contents, seven case studies, field notes, about and a business-card contact) concertina open in 3D as you scroll, shading as they turn. Every case study plate is drawn in SVG: an agent run with a live step, an approval queue, model routing on two phones, an autonomy dial, a design system sheet, a context-window selector and an undo gap. On phones the book lies flat as one tall stack.",
+    prompt: `Build a landing page for Foldwise, a fictional AI-native senior product designer sold as an app (it reads a brief, drafts flows, designs every state including what the AI says when it's unsure, and hands off with a checklist), as one HTML file. No libraries; Google Font Familjen Grotesk 400-700. The page is a leporello: a strip of panels that folds open in 3D as you scroll.
+
+DESIGN SYSTEM
+Canvas #e2e4e7 with a lighter #eeeff1 glow from the top, paper #f9fafb, dark stock #232427, a darker #1b1c1f board for the contact card, ink #1e2024 with soft #5b5f67 and table #52565e tints, reversed inks #f2f3f5 / #a7abb2. Plate backgrounds #eceef1 and #151619. One ease, cubic-bezier(.2,.7,.2,1); links get a 1px underline that scales in from the left. Type: an 80px/700 cover title at -.045em, 31px/600 panel heads, 15px body.
+
+THE BOOK
+- A fixed bar (name left; Work, Notes, About, Request access right) over a tall strip whose sticky stage has perspective 2400px. Twelve absolutely positioned panels, each drawn at 440x600 and scaled by --k to fit the window (min of (height - 190) / 600 and 42% of the width / 440).
+- Order: cover (the h1 "Foldwise", "An AI-native senior product designer, as an app.", a lede, "Private beta · Made in Amsterdam"); a dark contents panel listing the seven case studies (number, title, client, year) with paging arrows when they don't fit; seven case-study panels (a 318px plate, then title, one line and "For Tessel / 2025"), one of them dark with an "Internal tool" sticker; field notes (three dated notes); a dark about panel (a bio and Brief / Draft / Handoff steps); and the contact card.
+- The fold: progress = scroll through the strip × (N − 1). Panel i opens as progress passes i − 1 → i; its angle is ±(1 − f) × 80°, alternating sign so the strip zig-zags. Chain the positions: x[i+1] = x[i] + width·cos θ, z[i+1] = z[i] − width·sin θ, then shift the whole track so the crease being opened stays centred. Set translate3d(x, 0, z) rotateY(θ) with transform-origin at the left edge.
+- Shading: an overlay per panel mixes a ground shadow at the bottom, a 2px rim highlight on dark stock, a faint tint on every other panel, and a fold shade of |sin θ| × .34 when turned away (× .1 when turned towards).
+- Furniture at the bottom: "Designed with Foldwise", a centred live hint ("Scroll to unfold", then "Model routing · 5 of 12"), and Privacy / Cookies.
+
+THE PLATES (inline SVG, 400x300, drawn by small helpers for text, rects, lines, a browser window and a phone)
+Agent runs (a three-step run with a pulsing current step and a torn receipt of tool calls and confidence), Approval queue (dark: filter chips, eight rows with confidence dots and blurred vendor names, one row selected with an Approve button), Model routing (two phones: a quality curve with the chosen small model, and cost-per-task bars), Autonomy dial (a permissions table with Act alone / Ask first / Off pills and a small dial), Signal design system (dark: colour tokens, buttons, a prompt field with a blinking caret, Thinking / Done / Not sure states, streaming bars, a type specimen), Context window (a phone with a token histogram and a draggable "Remember" range), Undo for agents (a report list with a dashed gap "Click to restore").
+
+THE CONTACT CARD
+"Request access" with a live Amsterdam clock, a line about email, the address set huge on two lines (hello@ / foldwise.example) that copies to the clipboard on click with a "Copied" state, Open in mail app, a decorative QR-style mark drawn from a seeded grid, and "© 2026 Foldwise · a fictional studio".
+
+THINGS THAT BREAK
+- Hide the track until the first layout has run, or the panels flash stacked at the origin.
+- Shift the track by the position of the crease being opened (interpolated between panels), not by a fixed amount, or the book drifts off screen as it unfolds.
+- Panels hold their content at 440x600 and scale with transform: scale(--k); scaling the font sizes instead breaks the plates.
+- Recompute --k and the strip height on resize.
+
+THE FLOOR
+One h1, a main, aria-expanded on the menu button, Escape closes the drawer and focus moves into it and back, the scrim and every plate are aria-hidden, case-study panels are role="link" and open with Enter or Space, arrow keys step panel by panel. Under 810px the book lies flat as a vertical stack with a full-screen drawer; under prefers-reduced-motion it lies flat as a sideways snap scroller and the SVG animations pause. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 7, 2026",
+    demo: "/demos/foldwise-ai-product-designer.html",
+    bestFor: ["portfolios and case-study sites", "AI design and agent tools", "studio and agency pages", "product launch microsites"],
+    style: ["light", "editorial", "3d-fold", "scroll-driven", "svg-illustration"],
+    thumbnail: "/thumbs/foldwise-ai-product-designer.jpg",
+    theme: "light",
+  },
+  {
     title: "Fullday AI Money Agent Page",
     category: "web",
     categoryLabel: "WEB",

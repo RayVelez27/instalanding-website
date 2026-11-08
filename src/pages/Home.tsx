@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
@@ -8,6 +8,7 @@ import { MOTION_ITEMS, PAGES, SYSTEM_ITEMS, variedOrder, moreCovers, type Item }
 import { shuffle } from "@/data/prompts";
 import HtmlTypewriter from "@/components/HtmlTypewriter";
 import HomePagesGrid from "@/components/HomePagesGrid";
+import HeroReel from "@/components/HeroReel";
 import { Card, MoreCard } from "@/components/HomeCards";
 import { copyText } from "@/lib/copyText";
 import { useAgentDark } from "@/hooks/useAgentDark";
@@ -42,17 +43,6 @@ const useToast = () => {
     t.current = window.setTimeout(() => setMsg(""), 1800);
   };
   return { msg, say };
-};
-
-/* The hero's CODE rings: scroll to the section after the hero, clear of the sticky bar */
-const toNextSection = (e: MouseEvent<HTMLAnchorElement>) => {
-  const next = e.currentTarget.closest(".home-hero")?.nextElementSibling;
-  if (!next) return;
-  e.preventDefault();
-  const bar = document.querySelector(".home-top");
-  const offset = bar && getComputedStyle(bar).position === "sticky" ? bar.getBoundingClientRect().height : 0;
-  const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  window.scrollTo({ top: next.getBoundingClientRect().top + window.scrollY - offset, behavior: smooth ? "smooth" : "auto" });
 };
 
 /* ── a section: head (title, count, description, tools) and a rail ── */
@@ -217,17 +207,7 @@ const Home = () => {
               </span>
             </h1>
           </div>
-          {/* After Uiverse.io by Smit-Prajapati: five glass rings ripple out from the word.
-              It takes you down to whatever follows the hero (the agent panel or the pages) */}
-          <a className="home-ripple" href="#sec-pages" aria-label="Jump to the code: browse the pages" onClick={toNextSection}>
-            <span className="home-ripple-box">
-              <span className="home-ripple-word">CODE</span>
-            </span>
-            <span className="home-ripple-box" />
-            <span className="home-ripple-box" />
-            <span className="home-ripple-box" />
-            <span className="home-ripple-box" />
-          </a>
+          <HeroReel />
         </section>
         <AgentPanel />
 

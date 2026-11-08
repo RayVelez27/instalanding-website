@@ -4451,20 +4451,32 @@ html.agent-dark .mlab-page-desc { color: #a0a0a0; }
 .home-badge { display: inline-flex; align-items: center; margin: 0; padding: 7px 14px; border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 999px; background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(6px); font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #fff; opacity: 0; animation: home-fade 0.9s var(--home-ease) forwards; }
 /* Desktop: the three ways in, stacked on the right, the primary on top */
 .home-ctas { display: flex; flex-direction: column; align-items: stretch; gap: 12px; width: 300px; margin-top: 0; opacity: 0; animation: home-fade 0.9s 0.55s var(--home-ease) forwards; }
-/* The hero's one way in (after Uiverse.io by Smit-Prajapati): five frosted rings
-   ripple out from the word in turn, and the word pulses grey to white with them */
-.home-ripple { --size: 220px; --dur: 2s; position: relative; display: block; width: var(--size); aspect-ratio: 1; margin-right: 40px; border-radius: 50%; text-decoration: none; opacity: 0; animation: home-fade 0.9s 0.55s var(--home-ease) forwards; }
-.home-ripple-box { position: absolute; border-radius: 50%; border-top: 1px solid rgba(255, 255, 255, 0.7); background: linear-gradient(0deg, rgba(30, 30, 30, 0.3), rgba(90, 90, 90, 0.2)); box-shadow: rgba(0, 0, 0, 0.45) 0 10px 10px 0; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); animation: home-ripple var(--dur) infinite ease-in-out; }
-.home-ripple-box:nth-child(1) { inset: 34%; z-index: 5; display: grid; place-items: center; }
-.home-ripple-box:nth-child(2) { inset: 26%; z-index: 4; border-color: rgba(255, 255, 255, 0.55); animation-delay: 0.2s; }
-.home-ripple-box:nth-child(3) { inset: 17%; z-index: 3; border-color: rgba(255, 255, 255, 0.4); animation-delay: 0.4s; }
-.home-ripple-box:nth-child(4) { inset: 8.5%; z-index: 2; border-color: rgba(255, 255, 255, 0.25); animation-delay: 0.6s; }
-.home-ripple-box:nth-child(5) { inset: 0; z-index: 1; border-color: rgba(255, 255, 255, 0.12); animation-delay: 0.8s; }
-.home-ripple-word { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.22em; padding-left: 0.22em; color: #8a8a8a; animation: home-ripple-word var(--dur) infinite ease-in-out; }
-.home-ripple:hover { --dur: 1.2s; }
-.home-ripple:focus-visible { outline: 2px solid #fff; outline-offset: 8px; }
-@keyframes home-ripple { 50% { transform: scale(1.22); box-shadow: rgba(0, 0, 0, 0.45) 0 30px 20px 0; } }
-@keyframes home-ripple-word { 50% { color: #fff; } }
+/* The hero's preview reel: newest page heroes, one after another, in a browser frame */
+.hero-reel { position: relative; width: clamp(360px, 34vw, 500px); opacity: 0; animation: home-fade 0.9s 0.55s var(--home-ease) forwards; }
+.hero-reel-frame { display: block; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 12px; background: #0d0d0d; color: #fff; text-decoration: none; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.4); transform: perspective(1400px) rotateY(-7deg) rotateX(2deg); transform-origin: 70% 50%; transition: transform 0.6s var(--home-ease), border-color 0.3s; }
+.hero-reel-frame:hover, .hero-reel-frame:focus-visible { transform: none; border-color: rgba(255, 255, 255, 0.4); }
+.hero-reel-frame:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.hero-reel-bar { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: #161616; }
+.hero-reel-bar i { width: 8px; height: 8px; border-radius: 50%; background: #333; }
+.hero-reel-url { flex: 1; overflow: hidden; margin-left: 10px; padding: 3px 10px; border-radius: 5px; background: #0b0b0b; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.55); text-overflow: ellipsis; white-space: nowrap; }
+.hero-reel-stage { position: relative; display: block; aspect-ratio: 2 / 1; overflow: hidden; background: #111; }
+.hero-reel-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; opacity: 0; transform: scale(1.06); transition: opacity 0.9s ease, transform 0.9s ease; }
+.hero-reel-stage img.is-on { opacity: 1; transform: scale(1); animation: hero-reel-push var(--hold) linear forwards; }
+.hero-reel.is-paused .hero-reel-stage img.is-on { animation-play-state: paused; }
+.hero-reel-open { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 4px; padding: 6px 9px; border-radius: 6px; background: rgba(0, 0, 0, 0.72); font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; opacity: 0; transform: translateY(4px); transition: opacity 0.3s, transform 0.3s var(--home-ease); }
+.hero-reel-frame:hover .hero-reel-open, .hero-reel-frame:focus-visible .hero-reel-open { opacity: 1; transform: none; }
+.hero-reel-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-top: 14px; font-family: 'IBM Plex Mono', monospace; }
+.hero-reel-title { overflow: hidden; font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; text-overflow: ellipsis; white-space: nowrap; }
+.hero-reel-count { flex: none; font-size: 10.5px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.5); }
+.hero-reel-segs { display: flex; gap: 5px; margin-top: 10px; }
+.hero-reel-segs button { flex: 1; height: 14px; padding: 6px 0; border: 0; background: none; cursor: pointer; }
+.hero-reel-segs i { display: block; height: 2px; border-radius: 2px; background: rgba(255, 255, 255, 0.18); background-image: linear-gradient(#fff, #fff); background-repeat: no-repeat; background-size: 0% 100%; }
+.hero-reel-segs .is-done i { background-size: 100% 100%; opacity: 0.55; }
+.hero-reel-segs .is-on i { animation: hero-reel-fill var(--hold) linear forwards; }
+.hero-reel.is-paused .hero-reel-segs .is-on i { animation-play-state: paused; }
+.hero-reel-segs button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@keyframes hero-reel-push { from { transform: scale(1); } to { transform: scale(1.045); } }
+@keyframes hero-reel-fill { to { background-size: 100% 100%; } }
 .home-cta { display: inline-flex; align-items: center; justify-content: center; gap: 12px; height: 50px; padding: 0 24px; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 9px; color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; font-weight: 700; letter-spacing: 0.2em; text-decoration: none; transition: transform 0.3s var(--home-ease), background 0.3s, border-color 0.3s, box-shadow 0.3s; }
 .home-cta:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
 .home-cta svg { transition: transform 0.3s var(--home-ease); }
@@ -4643,7 +4655,7 @@ html.agent-dark .home-more-art { border-color: #222; }
 @media (max-width: 1100px) {
   .home-hero { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .home-ctas { flex-direction: row; flex-wrap: wrap; width: auto; margin-top: 22px; }
-  .home-ripple { display: none; }
+  .hero-reel { display: none; }
   .home-cta { height: 44px; }
   .home-band { grid-template-columns: minmax(0, 1fr); }
   .home-band-r { padding: 32px; border-left: 0; border-top: 1px solid rgba(255, 255, 255, 0.12); }
@@ -4685,7 +4697,10 @@ html.agent-dark .home-more-art { border-color: #222; }
   .home-wordmark { margin-top: 40px; font-size: calc((100vw - 24px) * 0.104); -webkit-text-stroke-width: 1px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .home-ln > span, .home-badge, .home-ctas, .home-ripple, .home-ripple-box, .home-ripple-word { animation: none; transform: none; opacity: 1; }
+  .home-ln > span, .home-badge, .home-ctas, .hero-reel, .hero-reel-stage img { animation: none; opacity: 1; }
+  .hero-reel-stage img:not(.is-on) { opacity: 0; }
+  .hero-reel-stage img, .hero-reel-frame { transition: none; }
+  .hero-reel-segs .is-on i { animation: none; background-size: 100% 100%; }
   .home-reveal { opacity: 1; transform: none; transition: none; }
   .home-live i, .home-cursor, .home-aurora, .home-aurora::before, .home-aurora::after { animation: none; }
   .home-card-art, .home-card-art img, .home-cta, .home-quick, .home-toast { transition: none; }
