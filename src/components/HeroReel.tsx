@@ -4,14 +4,25 @@ import { ArrowUpRight } from "lucide-react";
 import { PAGE_ITEMS } from "@/lib/libraryItems";
 
 /**
- * The home hero's preview reel (desktop only): the newest landing pages' hero
- * thumbnails, one after another in a browser frame. Each holds for a beat with
+ * The home hero's preview reel (desktop only): a fixed, hand-picked set of
+ * landing pages' hero thumbnails (it does not follow new additions), one after
+ * another in a browser frame. Each holds for a beat with
  * a slow push in, then crossfades to the next; the segments underneath show
  * where you are and jump to a page. Hover or focus pauses it; the frame opens
  * the page showing. Under prefers-reduced-motion it holds still until a segment
  * is picked.
  */
-const REEL = PAGE_ITEMS.slice(0, 8);
+const REEL_SLUGS = [
+  "sidera-ai-astrology-page",
+  "manga-panel-dev-tool-page",
+  "side-quest-adoption-center-page",
+  "tarn-file-transfer-page",
+  "cutcrew-ai-video-agents-page",
+  "kairo-ai-time-assistant-page",
+  "synthra-ai-workspace-page",
+  "fullday-ai-money-agent-page",
+];
+const REEL = REEL_SLUGS.flatMap((slug) => PAGE_ITEMS.filter((it) => it.to === `/prompt/${slug}`));
 const HOLD = 3200;
 
 const HeroReel = () => {

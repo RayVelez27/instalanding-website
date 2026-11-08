@@ -110,6 +110,88 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Forgewave Vibe-Manufacturing Studio Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A red-and-ink page for a studio that turns a described vibe into a real product, drawn entirely in animated SVG: a robot arm loading a conveyor in the hero, a typed brief pressed into a speaker, four sticky service cards with faders, linkages, a layer-by-layer printer and a units counter, a projects grid, a team switcher with blinking robot portraits, pricing, a scroll-grown assembly line, a testimonial switcher and a factory-belt footer",
+    prompt: `Build a landing page for Forgewave, a fictional "vibe-manufacturing" studio (you describe how a product should look and feel in plain words; its engineers and partner factories make it), as one HTML file. No libraries and no image files: every picture is inline SVG animated with SMIL. Plus Jakarta Sans for display and body, Inter for bold and italic runs, Oswald inside the illustrations.
+
+DESIGN SYSTEM
+Ink #161616 and #111, factory red #da2114 with a deeper hero red #b10c08, white, greys #787878 / #b9b9b9, hairlines #333, an orange #ff7546 for quote marks and borders. The page sits on three faint vertical column lines; sections are split into left / middle / right cells with 1px dividers. Section titles are 80px semibold with a small red dot; labels look like code: "{01.ALPHA}", "[The Team]", "{ceo}". Every illustration shares one material language: rounded "pill" parts with a bevel filter (white top edge, red bottom edge), dark gradient metal (three shared gradients), white ceramic, chrome ball joints, and a red backdrop with a big glowing disc on the left and a fan of thin red curves sweeping up to the right.
+
+STRUCTURE
+1. Header: a white wave logo mark and "forgewave", About / Services / Projects links that underline on hover, and a Menu button (red bar on phones) opening a full-screen dark-red panel with huge numbered links.
+2. Hero on red: a left column holding a robot arm on a plinth labelled FW-01 that swings over a dark conveyor whose rollers spin while white parts ride past; the h1 "Vibe it. We make it." at 108px with tight leading; a rotated scalloped "Start now" sticker; a glassy "Describe your product" button; a short paragraph on the right.
+3. About: a typed brief ("A SPEAKER THAT FEELS LIKE A STONE") with a blinking cursor, three pistons pressing, white pills riding a track into a finished speaker with a breathing light bar; copy plus two stats (2.4M+ parts, 140+ factories).
+4. Services: four full-width cards that stack with position: sticky as you scroll, each with a number, title, line of copy and its own machine: vibe faders sliding into a spec sheet (64 MM, PA12 / FELT, 2700K), a crank-and-rocker linkage beside a grid of bobbing variants ("214 variants, 1 pick"), a gantry printer building a vase layer by layer, and three conveyors feeding a units counter.
+5. Projects: an offset grid of four product cards (a stone speaker, stacked ceramics, a thermostat dial, a midsole of pulsing cells) with a code label, client name and an arrow.
+6. Team: five members; on desktop a tall portrait column where numbered square buttons [01]-[05] slide the portraits and swap the name, role and bio. Portraits are friendly robots (visors that blink, ear dials that spin, antennae that wag).
+7. Pricing: Prototype Run ($490, 3-5 days) and Production Run ($4,900, 3-4 weeks, red button) with feature lists, and a "See what we've made" link.
+8. "Vibe In. Product Out." in 130px type with an assembly line (SCAN, PRESS, CUT, FIT, TEST, PACK pistons over a moving belt) that grows from a small panel to full width as the section scrolls.
+9. Testimonials on red: a big quote, a column of client images that slides between three clients, three names that switch them, and a name / email / message form.
+10. Field notes: four article cards with category, title, date and Read more.
+11. Footer: a gradient from ink to red with a glowing disc, a thin animated factory belt along the top, "Have a vibe? Let's make it.", four columns (studio links, socials, contact, newsletter pill form), a giant gradient "forgewave" wordmark and a back-to-top button.
+
+THINGS THAT BREAK
+- Each SVG defines its own filters and gradients; give every id a unique suffix per copy, or the second copy paints with the first one's.
+- Shared gradients (metal, ceramic, chrome) belong in one hidden SVG at the top of the body so every picture can reference them.
+- A rotated sticker and absolutely placed arm overflow on phones; drop the arm under the copy as a full-bleed strip below 1200px.
+- The sticky service cards need increasing z-index and an opaque background, or the next card shows through.
+- SMIL animation ignores prefers-reduced-motion CSS; call pauseAnimations() on every SVG.
+
+THE FLOOR
+One h1 and a main; the Menu button reports aria-expanded, moves focus into the panel and back, Escape closes it; the team and testimonial switchers are keyboard buttons that report aria-pressed; every illustration is role="img" with a label and decorative icons are aria-hidden; forms validate in place and send nothing; contact details are placeholders with an .example email. Breakpoints at 1200 and 768px, no horizontal scroll at 390px. prefers-reduced-motion shows reveals at once and pauses every SVG animation.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 8, 2026",
+    demo: "/demos/forgewave-vibe-manufacturing-studio.html",
+    bestFor: ["hardware and product studios", "manufacturing and prototyping services", "industrial design agencies", "AI-to-physical product startups"],
+    style: ["dark", "factory-red", "illustrated", "svg-animation", "sticky-cards"],
+    thumbnail: "/thumbs/forgewave-vibe-manufacturing-studio.jpg",
+    theme: "dark",
+  },
+  {
+    title: "KYMA AI Automation Agency Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A brutalist black, paper and lime page for an AI automation agency, laid on a visible four-column grid: a hero with a live automation pipeline you can play, a sticky section where eight pain points fly off the screen as you scroll, an ROI calculator with sliders, an indexed services table, a six-week process ruler, a case study with drawn art, seeded halftone portraits for the team, an integrations grid, a pricing toggle and generative article covers",
+    prompt: `Build a landing page for KYMA, a fictional AI automation agency (it builds custom AI systems that take repetitive work off a team), as one HTML file. No libraries; Google Fonts TASA Orbiter (falling back to Inter Tight) for headings and body, Roboto Mono for labels. Every picture is SVG drawn by the script; no image files.
+
+DESIGN SYSTEM
+Ink #050505, paper #f4f4e8 and #ffffed, panel #1c1e19, one acid lime #d1ff00, greys #686868 / #bcbcbc / #3d3d3d, hairlines rgba(156,156,156,.18). Sections alternate dark and paper. A fixed four-column grid of hairlines runs behind everything, and every layout snaps to it. Display type is uppercase, weight 700, -.035em, line-height .95; labels are 11px mono caps in the form "[01] ELIMINATE YOUR BOTTLENECK_" with a blinking underscore. Buttons are a dark bar with a lime bottom border and a five-square pixel arrow; on hover a lime fill wipes up from the bottom. A faint animated SVG noise grain overlays the page.
+
+STRUCTURE
+1. A fixed header in mix-blend-mode difference: a logo with a mirrored K and ®, "AI Automation Specialists", "San Francisco, CA" with a live Los Angeles clock, a MENU button. The menu is a full-screen black panel that wipes down (clip-path) with huge numbered links.
+2. Hero on black: the h1 "Scale your operations [10x] / without hiring [100] people." with the brackets in lime, lines rising from a mask; a sub line; Our services; five stacked avatars and "Trusted by 50+ companies"; a giant grey KYMA bleeding off the bottom. In the right column, a demo screen: six glassy nodes (INBOX, CLASSIFY, EXTRACT, VALIDATE, CRM, REPORT) on dashed curved paths, lime packets riding them (blurred where they pass behind the glass), node borders flashing on arrival, TASKS DONE and HRS SAVED counters, a two-line log; the play button runs a 90-second "demo" at 2.4x with a progress line.
+3. A cream marquee of six fictional client marks. Who we are: a four-line statement, a quote with a founder, and four stats that count up above stacks of grey bars that grow in.
+4. Pain: a 260vh section with a sticky frame: "Your team is drowning in work that shouldn't exist." surrounded by eight dark chips (each starting with a lime ✕); as you scroll they fly outward along their angle, spin and fade, then a lime highlight sweeps under "AI automation eliminates them all."
+5. ROI calculator on a black card: employees, hours per week and hourly cost sliders (lime fill up to the thumb), an overhead yes/no toggle, and an eased annual total in huge lime figures (employees × hours × cost × 52, × 1.3 with overhead). A signed note from a person and Book my free audit.
+6. Services on black: an indexed table ([ID] [SERVICE] [WHAT WE DO]) of four services with lime numbers, uppercase headlines and mono tag chips, then a See pricing link.
+7. Process: a ruler with ticks and a lime marker that slides between four staggered week steps (Week 1, 2-3, 4-5, 6), auto-advancing every 3.2s, plus three post-launch cards.
+8. Case study on black: meta rows, two big KPIs and art of concentric lime ellipses slowly rotating over pulsing bars. Testimonials: a big uppercase quote, a giant 4.9 rating, a lime stats card and three review cards with KPIs.
+9. Integrations: a black grid of tool tiles (icons that name themselves on hover) around a "Connect your tools." card and a lime +40 MORE tile. Team: four member cards with seeded halftone portraits drawn in SVG and a lime scan line, socials, a +6 tile, a mission row and a lime hiring card with a dot pattern.
+10. Pricing on black: a monthly/annual switch (prices ease to 80%), three plans with the middle one darker and POPULAR. FAQ: a numbered accordion, one open at a time. Articles: three posts with generative covers (a dark hill with a lime glow, a ribbon of light over a sea, a meteor streak). Contact: three check rows, a glowing crystal slab on rocks, and an audit form with spend chips that validates and walks through loading and done states.
+11. Footer: a newsletter form, an address, a lime email chip, nav links that roll to a grey copy on hover, socials and legal lists, and a giant KYMA.
+
+THINGS THAT BREAK
+- Hide the closed menu with visibility after its wipe, or its links stay in the tab order behind the page.
+- The pain chips sit at fractions of the screen from the centre; keep them inside about 45% or they start off screen, and recompute on resize.
+- The demo's packets need a mask to hide them under the node glass and a clipped blurred copy to show through it; without both they either vanish or draw on top.
+- SMIL animations (case bars, rings, article glows) are not stopped by reduced-motion CSS; call pauseAnimations() on each SVG.
+- Give every SVG gradient, pattern and filter a unique id per portrait, or every avatar paints with the first one's colours.
+
+THE FLOOR
+One h1, a main, aria-expanded on the menu button with focus moved into the menu and back, Escape closes it; the demo screen is a role="button" that also works with Enter and Space and reports aria-pressed; the process steps are keyboard buttons; the billing switch reports aria-pressed; FAQ buttons carry aria-expanded; the article and crystal art are labelled role="img". Both forms validate in place and send nothing. One breakpoint at 980px; no horizontal scroll at 390px. prefers-reduced-motion cuts every animation and transition, shows reveals at once, idles the pipeline until Play, stops the process auto-advance and pauses every SVG animation.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 8, 2026",
+    demo: "/demos/kyma-ai-automation-agency.html",
+    bestFor: ["AI automation agencies and consultancies", "B2B services with an ROI story", "dev and ops studios", "technical founders selling done-for-you work"],
+    style: ["dark", "brutalist", "acid-lime", "grid-lines", "scroll-driven"],
+    thumbnail: "/thumbs/kyma-ai-automation-agency.jpg",
+    theme: "dark",
+  },
+  {
     title: "Cutcrew AI Video Agents Page",
     category: "web",
     categoryLabel: "WEB",
