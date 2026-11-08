@@ -110,6 +110,51 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Cutcrew AI Video Agents Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A bright, playful page for five AI video-editing agents, each a candy-coloured robot mascot drawn in SVG that floats in place: a hero fan of agent cards, a sentence with the robots set inline, a dark timeline strip with hover tooltips, three ways to brief the agents (an accordion with a self-typing prompt and a TypeScript SDK card), a studio services index, a six-week gantt with a sweeping playhead, fanning project decks, an album gallery, a team card deck, auto-advancing stories, monthly/annual pricing and a spinning 3D ring of covers in the CTA",
+    prompt: `Build a landing page for Cutcrew, a fictional set of five AI agents that cut, grade, generate, mix and animate video inside the editor a team already uses (plus a studio that ships with them), as one HTML file. No libraries; Switzer from Fontshare (fall back to Inter) and Geist Mono for code. Every picture is inline SVG drawn by the script; no image files.
+
+DESIGN SYSTEM
+Background #fafafa, greys #ededed / #e3e3e3, darks #0f0f0f / #1e1e1e / #2e2e2e, ink at 60% and 35%, hairlines at 10%, one electric green accent #2bee19 with #bffaba and #e2fddf tints. Type: h1 104px/400 at -.03em, .h2 60px, .h3 44px, .h4 32px, .h5 24px, .h6 20px/500, body 16px at 60% ink, 11px caps. Trays: an 8px-padded #ededed box with 32px radius holding 24px-radius white cards. Dark 32px icon chips with an inset top highlight sit beside every eyebrow. Buttons get a green glow ring on hover.
+
+THE AGENTS (one SVG function, five palettes)
+Cut (green, an antenna ball), Hue (orange, a drop), Nova (purple, a sparkle, big shiny eyes), Echo (blue, headphones), Flow (pink, a squiggle). Each is a chunky robot (rimmed helmet, a pale visor face with simple eyes and mouth, a body with vent lines and white highlights) over a white shape (circle, square, triangle, hexagon or diamond) on its colour, bobbing on a 4s SMIL spline with fading levitation rings underneath. Other pictures are small generators from seven palettes: star, dune, blobs, ghost (a dashed play frame), waves, orbit, grid, sun, bottle, shoe, can, jacket, melon and a simple person.
+
+STRUCTURE
+1. A fixed nav: the logo in a frosted pill; Try for free and a dark Menu pill showing scroll progress (0-100%) that widens into a frosted panel of links.
+2. Hero: "Edit Video / With [a tilted dark chip with a cloud icon] Agents." words blurring in one by one, a line of copy, and a fan of the five agent cards rising in with a springy overshoot.
+3. A big statement with the robots set inline as tilted 58px slots: "Meet [Cut] Cut, [Hue] Hue, …"; the second half in 35% ink.
+4. A dark timeline panel on a green status slab ("All 5 agents are online"), five agent tiles with hover (and focus) tooltips naming each one, and a blinking LIVE pill.
+5. A logo marquee (12 fictional wordmarks in three type styles, masked at the edges), three count-up stats (12M+, 40k, 60fps), four feature cards with tinted gradients and media that rises on hover, and three ways to brief the agents: an accordion of Remix / Describe / Code where the open panel grows, a progress bar fills over 8s and it auto-advances; Describe types a prompt and shows three drafts, Code shows a hue.agent.ts snippet and a live preview row.
+6. Connected: two soft glows, a faded phone outline with the five agents floating over it, three cards. The agents bento (five plus Editor Sync).
+7. Services index rows that grow a picture and a tint on hover (price and timeline), a dark "Not sure which fits?" bar; a six-week gantt on dark with clips that slide in and a green playhead sweeping back and forth.
+8. Projects: three-card decks that fan apart on hover, with a category badge and a stat that drops in. Gallery: floating looks around an album stack with a spine, tags and a category pill, switched by tabs.
+9. Team: a list of seven people beside a dark stage with a stacked card deck (grayscale portraits) that auto-advances every 5s, with prev/next and a progress bar.
+10. Stories: a featured card and a queue of four that auto-advances every 6s with a filling track. Testimonials in three staggered columns, two of them full-bleed portrait cards.
+11. Pricing: a monthly/annual switch (20% off), three plans with the middle one tinted green, and a consultation band. FAQ accordion. Contact: a dark tray with a chat thread and a pinging "team online" beacon beside a form whose send button unlocks once name, email, message and consent are valid; four fact tiles including an email card.
+12. CTA on a blue-to-violet gradient with a slowly spinning 3D ring of twelve covers, and a footer with four link columns and a giant faded wordmark.
+
+THINGS THAT BREAK
+- Give the closed menu panel visibility: hidden after it collapses, or its links stay in the tab order at zero height.
+- The levitation rings and the bob are SMIL, which prefers-reduced-motion CSS does not stop; pause each SVG with pauseAnimations().
+- Start the auto-advancing parts (ways, team, stories) when they scroll into view, not on load, and never under reduced motion.
+- The hero fan is 150% wide on phones; the hero clips it, so keep overflow: hidden on the hero.
+- Gantt clip labels are narrow on phones: keep them on one line and clip them.
+
+THE FLOOR
+One h1, a main, aria-expanded on the menu button with Escape to close, real buttons for the FAQ (aria-expanded), the team list (aria-pressed) and the gallery tabs, a role="switch" pricing toggle, keyboard access to the agent tiles, story queue and the three ways, every picture aria-hidden. The form validates in place and sends nothing. Breakpoints at 1199px and 809px; no horizontal scroll at 390px. prefers-reduced-motion cuts every animation and transition, shows reveals at once, holds the auto-advancing parts still, prints the prompt in full and pauses the mascots.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 7, 2026",
+    demo: "/demos/cutcrew-ai-video-agents.html",
+    bestFor: ["AI video and creative tools", "multi-agent products", "SaaS with a studio or services arm", "playful consumer and prosumer apps"],
+    style: ["light", "playful", "svg-mascots", "bento", "electric-green"],
+    thumbnail: "/thumbs/cutcrew-ai-video-agents.jpg",
+    theme: "light",
+  },
+  {
     title: "Foldwise AI Product Designer Page",
     category: "web",
     categoryLabel: "WEB",
