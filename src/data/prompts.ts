@@ -110,6 +110,133 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Bryo AI Moss Cultivation Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A misty sage-and-lime page for an AI that grows moss, painted entirely in code: a floating moss island with a fern under a scroll-driven camera that dollies down into a fogged conifer valley, telling a five-beat story (headline, word-by-word vision, an account with sensor hotspots, a field card with a coverage sparkline and a feature list), then use-case cards with generated aerial art, counting stats, four growth loops, a live moss-growth simulation with AI detection boxes, pricing, an FAQ and a waitlist CTA",
+    prompt: `Build a landing page for Bryo, a fictional AI that grows moss (camera-and-mister Pods watch a stone surface and decide when to mist, shade and reseed so moss carpets take hold in weeks), as one HTML file. No libraries and no image files: every picture is painted with canvas 2D at load. Inter Tight for text, JetBrains Mono for uppercase labels, both from Google Fonts.
+
+DESIGN SYSTEM
+Misty sage and forest ink: mist #e7ebe8, paper #f6f7f4, ink #10291a, lime #c6f35c (with #a9dd3a for lines). Small lime chips in tracked mono caps sit above every headline. Headlines are medium weight with tight tracking (-0.04em). Frosted glass panels (backdrop blur) float over the scene; the lower page is white with hairlines, then a deep-green CTA and footer.
+
+THE SCROLL STORY (a 640vh section with a sticky, full-screen stage)
+- The scene is a 1600×900 frame of depth layers: a pale sky with sun rays; far, mid and near ridges edged with conifers (one near row holds a small lattice flux tower with a lime beacon); translucent mist bands; distant floating islands; then, in front, a large floating island whose moss top, rock strata and hanging moss fringe are shaded pixel by pixel with bump-mapped light from the upper right, roots dangling below, and a big bipinnate fern with fiddleheads on top.
+- Scroll moves a virtual camera toward the vanishing point: each layer scales by z ÷ (z − camera) and fades as the camera passes it, so you fly over the island into the valley. Pointer movement adds a little parallax.
+- Five beats keyed to scroll progress: (1) the h1 "The AI That Grows Moss" above the fern with a "Live colony" HUD (species, humidity, growth), a caption and "Scroll to explore", blurring away as you go; two floating rocks fly past the camera. (2) A white headline "From Bare Stone to Living, Breathing Green Carpet" rising word by word. (3) A fog bank drifts in, a paragraph lights up word by word, and four lime + hotspots (spore density, mist cycle, colony health, light) pop in and reveal a reading. (4) "Living surfaces that tend themselves", a glass card counting moss coverage to 86% with a drawn-on sparkline and a +9% / wk tag, and a list of five features. (5) A thin progress bar at the bottom.
+
+BELOW THE STORY
+1. Use cases on a white sheet that slides up over the stage: three tall cards (restoration, solar and road verges, rare species) whose backgrounds are generated aerial art (a moss forest with a creek; a tilted patchwork of fields with a road and cars), tilting toward the pointer and revealing copy on hover; four stats that count up (1,240 beds, 38 species, 2.1 million m², 99.4% survival).
+2. How it grows: four step cards (Scan, Seed, Tend, Learn) with line icons.
+3. The Bryo Pod: copy and a spec list beside a dark panel running a live simulation: moss spreading from five seeds over grey stone, a lime scan line, dashed detection boxes labelled "COLONY 01 · 75%", and day, coverage, humidity and next-mist readouts.
+4. Pricing: Seedling $29, Colony $24 per Pod (featured, dark), Canopy custom. An FAQ in details elements with lime plus buttons. A dark CTA with a waitlist email form and a blurred moss blob. A footer with three link columns.
+
+THINGS THAT BREAK
+- Painting the scene is expensive: render each layer once into an offscreen canvas and only transform them while scrolling; render the opening frame as a still image so the hero appears before the first scroll.
+- Ease the scroll progress (lerp toward the real value) or the camera jitters; give each beat its own progress window and keep them in order.
+- Hotspots and feature rows are toggles: make them focusable buttons that report aria-pressed.
+
+THE FLOOR
+One h1 and a main; data-section on every region; decorative art hidden from screen readers; the form validates and sends nothing. No horizontal scroll at 390px (the menu hides under 820px and the panels restack). prefers-reduced-motion stops the drifting mist, fog, bobbing and pings, shows the headline at once, counts the stats instantly and draws the simulation as one still frame.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 8, 2026",
+    demo: "/demos/bryo-ai-moss-cultivation.html",
+    bestFor: ["climate and agritech startups", "AI for the physical world", "hardware with a cloud service", "landscape and green-infrastructure teams"],
+    style: ["light", "nature", "scroll-story", "canvas-art", "lime"],
+    thumbnail: "/thumbs/bryo-ai-moss-cultivation.jpg",
+    theme: "light",
+  },
+  {
+    title: "Landra AI Landing Page Generator Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A black-and-lime page for an AI tool that turns one sentence into a landing page: a WebGL hero strip of eight generated pages that bends with drag speed and opens any one full screen through a pixel-mosaic dissolve, a giant LANDRA wordmark with a prompt box, and a live demo where a typed prompt builds a themed mock site step by step with a timer, then features, counting stats, a monthly / yearly pricing toggle, an FAQ and a prompt CTA",
+    prompt: `Build a landing page for Landra, a fictional AI landing page generator (describe a product in one sentence; it writes the copy, designs the layout and publishes a responsive page in under a minute), as one HTML file. GSAP 3.12.5 from cdn.jsdelivr.net; three.js 0.169.0 imported as a module from cdn.jsdelivr.net for the hero only. Inter Tight from Google Fonts for everything, including text drawn into canvases. No image files: every picture is drawn in code.
+
+DESIGN SYSTEM
+Near-black #0a0a0a, off-white #f2f2f0, muted text at 52% white, hairlines at 14%, cards #141414, one acid-lime accent #d4ff3a. Medium weight only, very tight tracking (-0.05em) on display type, 12px uppercase labels like "(01) How it works" with the number in lime. Pills everywhere: 100px radius buttons and prompt boxes. Reveals rise 32px and fade on scroll with a short stagger.
+
+STRUCTURE
+1. Hero, one screen: a nav (Landra with a lime superscript AI, Product / Features / Pricing / FAQ links that underline from the left, Start free), a WebGL strip of eight page thumbnails across the middle, then the LANDRA wordmark at up to 300px whose letters rise in on load, and on the right a lime eyebrow, a line of copy and a prompt box with a Generate button.
+2. A floating pill top bar that drops in once the hero is scrolled past.
+3. A marquee of ten fictional customer wordmarks, each in a different type treatment.
+4. How it works: three cards (Describe ~5 sec with chat bubbles, Generate ~40 sec with shimmering skeleton bars, Publish 1 click with live status rows) and huge step numbers.
+5. Live demo: a panel with a prompt card that types the prompt, a six-step log (reading, copy, layout, visuals, responsive pass, published) whose rail fills in lime and whose steps get times, a big seconds counter and a Replay button; beside it a browser frame whose mock site starts as dark skeletons and resolves block by block into a themed page (brand, pill, serif or sans headline typed in, sub, buttons, avatars, a painted still life, three features), with a scan line sweeping down, floating "Lighthouse 98" and device chips, and a "Published to kiln.landra.site" toast. Five art directions are picked from keywords in the prompt (clay, ember, sage, volt, mono), each with its own palette, font, copy and still life (vessels, orbs or arches). Both prompt boxes on the page run the demo with what was typed.
+6. Features: six cells in a hairline grid with line icons in lime.
+7. A large statement and three stats that count up (41s, 1.2M, +32%).
+8. Pricing: a Monthly / Yearly toggle (-20%) that flips prices with a quick slide; Starter $0, Pro $24 / $19 on off-white as the featured plan, Team $79 / $63.
+9. FAQ in details elements with a plus that turns into a minus; a CTA with a lime glow and a prompt box; a footer with four columns and a giant LANDRA mark.
+
+THE HERO STRIP
+- Each card is a fictional generated site painted on a 1200×900 canvas (a monarch-butterfly charity, a spectral-imaging startup, a Kyoto omakase, a trading terminal, a crypto exchange, a traders' social feed, a jiu-jitsu bracket, a developer community) and used as a texture on a plane with rounded corners cut in the fragment shader.
+- The strip loops endlessly, drifts slowly, scrolls with drag, sideways wheel and arrow keys, curves away at the edges (z pushed by x²) and bends and splits RGB with velocity.
+- Clicking a card renders the strip to a render target, pixelates it and dissolves it block by block while the card morphs to fill the screen. The viewer is a difference-blended overlay with a counter, the prompt behind the page, a title that dissolves in blocks as you drag between pages, a "Use this prompt" link that puts the prompt in the CTA box, and a close button; Escape closes it.
+
+THINGS THAT BREAK
+- The WebGL canvas is fixed over everything with pointer-events none; hit-test the cards in script, account for the curve, and stop rendering while the hero is off screen.
+- Canvas text needs the web font loaded first: wait for document.fonts before painting the textures.
+- The demo must reset fully (kill the timeline, clear the steps, restore the skeleton tokens) before it runs again.
+
+THE FLOOR
+One h1 (the wordmark, labelled "Landra") and a main; the strip and viewer are aria-hidden; the pricing toggle reports aria-pressed; forms send nothing. Breakpoints at 1024 and 720px, no horizontal scroll at 390px. prefers-reduced-motion stops the drift, the intro and reveals, shows the stats' final numbers and jumps the demo to the finished page.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 8, 2026",
+    demo: "/demos/landra-ai-landing-page-generator.html",
+    bestFor: ["AI website and page builders", "generative design tools", "no-code and marketing SaaS", "AI product launches with a live demo"],
+    style: ["dark", "lime", "webgl", "gallery", "live-demo"],
+    thumbnail: "/thumbs/landra-ai-landing-page-generator.jpg",
+    theme: "dark",
+  },
+  {
+    title: "ButtonZilla Glass Console Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A dark hardware-style console for live 3D glass buttons: a WebGL monitor with a refracting, bevelled pill button that tilts on hover, squashes on press and sends a ripple through its surface, a solo or eight-up grid view, an amber LCD readout with signal meters, eight preset channels (Frosted, Crystal, Amber, Jelly, Bubble, Cobalt, Clay, Sea glass), and rotary knobs for shape, glass, liquid and scene, with Shuffle, Reset and Copy JSON",
+    prompt: `Build a control console for 3D glass buttons as one HTML file: a dark piece of studio hardware whose screen shows a live WebGL button and whose knobs and keys edit it. three.js 0.170.0 from cdn.jsdelivr.net through an import map, with the RoomEnvironment, EffectComposer, RenderPass, UnrealBloomPass and OutputPass addons. Inter for the UI, JetBrains Mono for readouts, Unbounded for the logo; the button label's typeface (Inter, Onest, Manrope, Unbounded, Geologica, Rubik) loads from Google Fonts on demand.
+
+DESIGN SYSTEM
+A near-black room (#070709) with faint amber and violet glows. The console is a rounded chassis (#1f1f25 to #131317 with a light noise texture) holding inset panels with tiny corner screws. Engraved small caps in grey (#aaa6ba), amber (#ffb547) for anything lit: active keys, the LCD text, knob arcs, the selected channel. Status lamps are small dots that glow (green for GL, amber flicker for SIG). Keys are chunky rounded buttons with a bottom shadow; the primary one is solid amber.
+
+STRUCTURE
+1. Top bar: the logo (the h1) with a "Glass console · BZ-8" badge, three lamps (PWR, GL, SIG), and Shuffle (R), Reset and Copy JSON keys.
+2. Monitor: a "Live CH 03 · Amber" bar with a Solo / Grid switch, then the screen. Solo shows one large button; Grid shows all eight channels in a 4×2 grid, each tile labelled, the one being edited outlined in amber. Hint line: "Hover to tilt · Press to squash · Release for the wave" and the 1-8 / G / R shortcuts.
+3. Rack beside it: an amber LCD (channel 03 / 08, the preset name, hover / click motion, a press counter, state, a status line that says READY or what just happened), three 20-segment signal meters (hover, press, wave), and a Scene module with Bloom, Shadow and Expose knobs, an Aurora / Solid backdrop switch and three colour wells.
+4. Channel bank: eight keys, each with its number, a colour dot and the preset name; an edited channel shows a mark.
+5. Modules: Label (text input, icon picker, icon side, typeface), Motion (hover presets Soft / Still / Magnetic / Springy / Elastic / Playful and click presets Soft / Firm / Deep / Squishy / Pop / Splash, plus Tilt and Press knobs), Shape (Corner, Depth, Bevel), Glass (Frost, IOR, Prism, Thick, Coat, Irid) and Liquid (Flow, Bulge, Wave).
+6. A foot line with the knob hint and a credit to the button design you are building on.
+
+THE BUTTON
+- A rounded slab built vertex by vertex (corner radius, depth, bevel, smoothness) in MeshPhysicalMaterial with transmission, IOR, thickness, dispersion, clearcoat and iridescence, lit by RoomEnvironment, over a full-screen shader backdrop (slow aurora blobs in three colours) so the glass has something to refract.
+- The label is a canvas texture on a plane just inside the front face, with an icon; text colour shifts on hover.
+- Springs (stiffness and damping per preset) drive tilt toward the cursor, lift, scale, magnet pull, press depth, squash and a release pop. A vertex shader adds a ripple from the press point and an optional liquid wobble.
+- Bloom, a soft contact shadow, a cursor light.
+
+THINGS THAT BREAK
+- Eight WebGL renderers in grid view: browsers cap live contexts near 16, so dispose every scene when the view changes, stop rendering off screen (IntersectionObserver) and drop to 20-30fps or stop when nothing moves.
+- Transmission needs a backdrop behind the button; on a flat colour the glass looks grey.
+- Each label typeface must finish loading before the canvas texture is drawn, or the first frame uses the fallback.
+- The 1-8 / G / R shortcuts must ignore keys typed into the text input and knobs.
+
+THE FLOOR
+One h1 and a main; each stage is a focusable role="button" that presses on Enter or Space; knobs are role="slider" with aria-valuenow and valuetext, drag up or down (Shift for fine), arrow keys, double-click to reset; switches are radiogroups; the LCD status is role="status". When WebGL is off, say so in the screen. prefers-reduced-motion stops the backdrop drift, float and liquid flow and CSS transitions. Breakpoints collapse the rack under the monitor and the bank to 4×2, no horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 8, 2026",
+    demo: "/demos/buttonzilla-glass-console.html",
+    bestFor: ["UI component generators", "design tool and plugin sites", "3D and WebGL showcases", "interactive product playgrounds"],
+    style: ["dark", "hardware", "webgl", "glass", "three.js"],
+    thumbnail: "/thumbs/buttonzilla-glass-console.jpg",
+    theme: "dark",
+    credits: [
+      {
+        label: "ButtonZilla by Shakuro",
+        href: "https://buttonzilla.vercel.app",
+        note: "The 3D glass buttons this console drives, credited in the page's foot line",
+      },
+    ],
+  },
+  {
     title: "Forgewave Vibe-Manufacturing Studio Page",
     category: "web",
     categoryLabel: "WEB",

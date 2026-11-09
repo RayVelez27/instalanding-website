@@ -96,6 +96,98 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "stretch-type",
+    title: "Stretch Type",
+    kind: "LOOP",
+    tagline: "MOTION in three stacked copies whose letters stretch and shrink against each other, each column on its own clock",
+    description:
+      "The word MOTION in condensed red block letters on black, stacked three times. In every column the top copy grows as the bottom one shrinks while the middle slides between them, eased in and out and back again, so the column always fills the same height. Each letter runs on its own offset and tempo, so the word ripples rather than pulses. Every letter is drawn from rectangles and bands as a function of its height and redrawn each frame, so strokes stay the same thickness however far it stretches. Drag up or down to scrub it; Space pauses.",
+    added: "Nov 8, 2026",
+    theme: "dark",
+    demo: "/motion-lab/stretch-type.html",
+    poster: "/motion-lab/stretch-type.jpg",
+    library: { name: "SVG", version: "1.1", plugins: ["no libraries", "parametric glyphs"] },
+    life: 5,
+    lifeLabel: "ONE STRETCH AND BACK",
+    drawSeconds: 5,
+    stagger: 0.4,
+    elements: 6,
+    tracks: [
+      { prop: "height · top copy", change: "72 → 210 units of 486", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "height · bottom copy", change: "210 → 72, the mirror of the top", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "y · middle copy", change: "slides 93 → 231 at a fixed 162 tall", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "time · per column", change: "own offset and tempo, 0.8× to 1.2×", start: 0, end: 1, ease: "none" },
+    ],
+    status: "STRETCH 00% · PLAYING",
+    stepLabels: ["Step back a quarter stretch", "Step forward a quarter stretch"],
+    reelAutoplay: 2400,
+    inputs: [
+      { keys: ["DRAG ↕"], does: "Scrubs time: down plays it forward, up runs it back. It holds while you drag" },
+      { keys: ["SPACE"], does: "Pauses and resumes the loop" },
+      { keys: ["← →", "↑ ↓"], does: "Pauses and steps a quarter of a stretch" },
+    ],
+    knobs: [
+      {
+        id: "duration",
+        label: "DURATION",
+        min: 0.6,
+        max: 6,
+        step: 0.1,
+        value: 2.5,
+        unit: "s",
+        note: "Seconds for one stretch, before it eases back. The original runs 2.5s.",
+      },
+      {
+        id: "short",
+        label: "SHORTEST COPY",
+        min: 40,
+        max: 140,
+        step: 2,
+        value: 72,
+        unit: "u",
+        note: "How short a copy gets, in units of the 486-unit column. Raise it and the stretch gets gentler.",
+      },
+    ],
+    toggles: [{ id: "sync", label: "SYNC COLUMNS", value: false }],
+    trick: {
+      title: "Three heights that always add up",
+      steps: [
+        "Each column is 486 units tall: three copies of the letter with 21-unit gaps. The middle copy is always 162 tall, so the top and bottom share what is left: when the top is 72 the bottom is 210, and the other way round.",
+        "One number per column, p from 0 to 1, sets both: top = 72 + 138p, bottom = 210 − 138p, and the middle sits between them. p comes from time: forward over 2.5s, back over 2.5s, through power1.inOut (2t² then 1 − (2 − 2t)²/2).",
+        "The original morphed between six pairs of hand-drawn paths with MorphSVG. Here each letter is a function draw(x, y, h): stems and bars are rectangles, the O is a rounded rectangle with a reversed inner one for the counter, M and N are stems plus diagonal bands. Redrawn every frame, the strokes never thin out as a letter stretches.",
+        "The N's diagonal keeps a constant stroke at any slope: its vertical thickness is 15.5 × √(gap² + h²) ÷ gap, capped at 42% of the height so the counters stay open on the short copy.",
+        "Every column gets its own clock: (t + offset) × tempo, with offsets of 0-2s and tempos of 0.8× to 1.2×, the original's seek() and timeScale(). That is what turns six pulses into a ripple. SYNC COLUMNS drops both.",
+      ],
+    },
+    tags: ["kinetic type", "svg", "loop", "stretch", "poster"],
+    bestFor: ["event and conference heroes", "music and festival sites", "studio and agency intros", "loading screens with a word to say"],
+    pairsWith: ["kyma-ai-automation-agency-page", "forgewave-vibe-manufacturing-studio-page", "cutcrew-ai-video-agents-page"],
+    credits: [
+      {
+        label: "volumkonferansen.no",
+        href: "https://www.volumkonferansen.no/",
+        note: "The stacked, stretching wordmark that inspired the original GSAP MorphSVG study; this version spells MOTION and draws the letters in code",
+      },
+    ],
+    prompt: `Build a kinetic-type loop as one HTML file: the word MOTION in condensed red block letters on black, stacked three times, each letter's copies stretching and shrinking against each other. No libraries; the letters are SVG paths generated in JavaScript every frame.
+
+THE STAGE
+- Page #000, ink #ff3c38, system-ui. One screen, overflow hidden, user-select none. A small tracked caps mark top-left; a short caption at the bottom ("Drag up or down to scrub · Space to pause").
+- Centred: an SVG, height min(70vh, 70svh), max-width 92vw, one path per letter copy (six letters × three copies), filled with currentColor. The stage wrapper is focusable with role="img" and a label; the SVG is aria-hidden.
+
+THE LETTERS (design units: each column 486 tall, stroke 15.565, 11 between letters)
+- Each glyph is draw(x, y, h, w) returning path data. I: a rect 16 wide. T: a 40-wide bar 15.565 tall and a centred stem. O: 38 wide, a rounded rect (r 13) plus a reversed inner rounded rect inset by the stroke, so nonzero fill leaves a counter.
+- M (60 wide): two stems plus two diagonal bands 17 across, from the top corners to a centre apex at max(2.6 × stroke, 0.5h).
+- N (50 wide): two stems plus a band from the inner top-left to the inner bottom-right whose vertical thickness is stroke × √(gap² + h²) ÷ gap, capped at 0.42h.
+- Draw every subpath clockwise so overlaps merge under nonzero.
+
+THE MOTION
+- Per column, p = power1.inOut of a triangle wave: forward over 2.5s, back over 2.5s. Heights: top = short + (tall − short)·p, middle 162, bottom = tall − (tall − short)·p, where short = 72 and tall = 486 − 42 − 162 − short. Copies stack with 21-unit gaps.
+- Each column runs on its own clock: (t + seek) × tempo, seek [1, 0, 1.5, 1, 0.5, 2], tempo [0.8, 1, 1.2, 1, 0.9, 1.1].
+- Drag vertically on the stage to scrub (time += Δy ÷ stage height × 1.6 durations, holding while dragging). Space pauses; arrow keys pause and step a quarter stretch.
+- prefers-reduced-motion: start paused on a mid pose; scrubbing and stepping still work.`,
+  },
+  {
     slug: "jelly-squeeze",
     title: "Jelly Squeeze",
     kind: "DRAG SCRUB",
