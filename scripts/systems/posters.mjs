@@ -41,7 +41,13 @@ const HEROES = {
   easel: ["hero@1200", "inks@1100", "pricing@1100", "studio@1100"],
   kairo: ["hero@1200", "bento@1100", "orbit@1100", "cta@1100"],
   tokenhaus: ["tiles", "hero@1200", "courses@1100", "numbers@1100"],
+  "cyber-bird": ["hero@1200", "bento@1100", "modes@1100", "manual@1100"],
+  mistfold: ["hero", "card", "workflow", "pricing"],
+  modelyard: ["hero@1200", "catalog@1100", "console@1100", "pricing@1100"],
 };
+// Extra settle time before a poster is captured, for systems whose components animate in.
+// Mistfold's hero stats count up over about two seconds.
+const SETTLE = { mistfold: 2600 };
 
 // Systems whose identity background is a pattern: their small text sits on a label
 const BOXED = ["kind-swarm"];
@@ -185,7 +191,7 @@ async function main() {
       await send("Runtime.evaluate", { expression: `document.getElementById("ilp")?.remove(); document.querySelector('section[data-component="${heroId.split("@")[0]}"] .sp-demo')?.scrollIntoView({ block: "center" })` });
       await sleep(900);
       const r = await send("Runtime.evaluate", { expression: `(${BUILD})(${JSON.stringify(sys)}, ${JSON.stringify(heroId)}, ${JSON.stringify(BOXED)})`, returnByValue: true });
-      await sleep(700);
+      await sleep(SETTLE[sys.slug] ?? 700);
       const shot = await send("Page.captureScreenshot", { format: "png" });
       const png = path.join(prof, `${sys.slug}-${n + 1}.png`);
       fs.mkdirSync(prof, { recursive: true });

@@ -96,6 +96,98 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "t-minus",
+    title: "T−Minus",
+    kind: "LOOP",
+    tagline: "A nine-to-zero countdown on a 5×5 grid of glass tiles, each pulse rippling out from the centre",
+    description:
+      "A countdown from nine to zero on a five-by-five grid of frosted glass tiles. Every tile shows the same digit, cropped to its own window of one giant numeral, so the grid reads as a single number. Once a second the digit zooms out to a small whole figure in every tile and back to the big shared one, and that pulse ripples outward from the centre tile ring by ring. The hue walks from cool blue through magenta to orange as the seconds fall, a timecode and ten segments count along, and zero fires a shockwave of rings and a flash. Pure CSS: registered custom properties, text-box trim and gradient-clipped text, driven by one number per tile.",
+    added: "Nov 8, 2026",
+    theme: "dark",
+    demo: "/motion-lab/t-minus.html",
+    poster: "/motion-lab/t-minus.jpg",
+    library: { name: "CSS", version: "3", plugins: ["no libraries", "@property", "text-box trim"] },
+    life: 10,
+    lifeLabel: "NINE TO ZERO",
+    drawSeconds: 10,
+    stagger: 0.06,
+    elements: 25,
+    tracks: [
+      { prop: "digit · every tile", change: "9 → 0, one a second", start: 0, end: 1, ease: "none" },
+      { prop: "scale · digit in a tile", change: "zooms out to a small whole digit and back, each second", start: 0, end: 0.1, ease: "power2.inOut", yoyo: true },
+      { prop: "translate · digit in a tile", change: "slides to the tile's own slice of one big numeral", start: 0, end: 0.1, ease: "power2.inOut", yoyo: true },
+      { prop: "delay · per ring", change: "+0.06s for each step out from the centre", start: 0, end: 0.024, ease: "none" },
+      { prop: "hue · --h", change: "205° → 385°, blue to magenta to orange, 20° a second", start: 0, end: 1, ease: "none" },
+      { prop: "shockwave · rings", change: "three rings scale 0.15 → 2.8 and fade, with a flash", start: 0.9, end: 1, ease: "power3.out" },
+    ],
+    status: "T−9 · PULSE 00% · PLAYING",
+    stepLabels: ["Step back a quarter second", "Step forward a quarter second"],
+    reelAutoplay: 2400,
+    inputs: [
+      { keys: ["POINTER"], does: "Tilts the grid toward the cursor and moves the light across the tiles; it sways gently when left alone" },
+      { keys: ["SPACE"], does: "Pauses and resumes the countdown" },
+      { keys: ["R", "CLICK"], does: "Restarts from nine" },
+      { keys: ["← →", "↑ ↓"], does: "Pauses and steps a quarter second" },
+    ],
+    knobs: [
+      {
+        id: "stagger",
+        label: "RIPPLE DELAY",
+        min: 0,
+        max: 0.2,
+        step: 0.01,
+        value: 0.06,
+        unit: "s",
+        note: "Seconds added for each ring out from the centre. At 0 the whole grid pulses as one; past 0.15 the outer tiles fall a digit behind.",
+      },
+      {
+        id: "columns",
+        label: "GRID",
+        min: 3,
+        max: 7,
+        step: 2,
+        value: 5,
+        unit: "×",
+        note: "Tiles per side. Odd only, so there is a centre tile for the ripple to start from.",
+      },
+    ],
+    toggles: [
+      { id: "burst", label: "SHOCKWAVE AT ZERO", value: true },
+      { id: "tilt", label: "POINTER TILT", value: true },
+    ],
+    trick: {
+      title: "One numeral, cut into windows",
+      steps: [
+        "Every tile is overflow: hidden and shows the same digit as a ::before, set at the full grid size (size ÷ 0.73, with text-box trimmed to the cap height so the glyph's box is the glyph).",
+        "Each tile knows its distance from the centre in tiles, dx and dy. It shifts its digit by −dx × pitch and −dy × pitch, where pitch is one tile plus a gap, so at full size every tile shows exactly its own slice of one big numeral and the gaps read as cuts.",
+        "One number per tile, --zoom from 0 to 1, drives both the shift and the scale: at 0 the shift is gone and the digit shrinks to fit inside its tile, so the grid becomes 25 small whole digits; at 1 they line up into one. --zoom is a registered @property, set each frame from a cubic in-out of the second.",
+        "The ripple is only a delay: each tile reads the clock minus 0.06s for every step it sits from the centre (Manhattan distance), so its digit flips and its pulse arrive later, ring by ring.",
+        "Colour is one registered number, --h, stepped 20° a second and transitioned over 900ms. The digit's gradient (background-clip: text) and the aurora, glow, segments and rings all read it; each tile nudges it by its position so the numeral shades across the grid.",
+      ],
+    },
+    tags: ["countdown", "typography", "css", "grid", "loop", "launch"],
+    bestFor: ["launch and release countdowns", "event and drop pages", "loading and pre-roll screens", "dark product heroes with a number to show"],
+    pairsWith: ["stage-light-launch-page", "event-horizon-orbital-page", "landra-ai-landing-page-generator-page"],
+    credits: [],
+    prompt: `Build a countdown loop as one HTML file: a 5×5 grid of frosted glass tiles counting from nine to zero, every tile cropping its own slice of one giant numeral. No libraries; Bricolage Grotesque 700 for the digit and JetBrains Mono for the HUD, from Google Fonts.
+
+THE STAGE
+- Near-black radial background; a blurred aurora of three hue-tinted radial gradients that drifts slowly; a vignette; animated film grain. Keep the oversized layers inside fixed, overflow-hidden boxes so phones do not widen the layout.
+- Centred: a square of min(60vmin, 620px) holding the grid, a blurred copy of the digit behind it that swells with the pulse, four corner brackets and three hidden shockwave rings. The grid has a faint reflection below (-webkit-box-reflect) and tilts toward the pointer (perspective 1400px), swaying gently when idle.
+- HUD in mono caps: Live / Paused with a blinking dot and Sequence 001 top-left; a T−00:09.000 timecode and the current hue top-right; ten progress segments and Space / R hints at the bottom.
+
+THE TILES
+- Each tile: rounded, a 1px inner line, a soft top gloss, backdrop blur, and a radial light that follows the pointer across the whole grid.
+- Its digit is a ::before at the full grid size (size ÷ 0.73, text-box: trim-both cap alphabetic), filled with a three-stop gradient clipped to the text. With dx, dy the tile's offset from the centre and pitch = (size + gap) ÷ 5: translate(−dx·pitch·t, −dy·pitch·t) scale(m + (1 − m)·t), where t = 0.2 + 0.8·zoom and m = 0.7 ÷ 5. At zoom 1 the tiles join into one numeral; at 0 each shows a small whole digit.
+
+THE MOTION
+- Clock in JS. Each tile reads the time minus 0.06s per step of Manhattan distance from the centre; its digit is 9 − floor(local) mod 10 and its --zoom is a cubic in-out of a triangle wave over each second (registered with @property).
+- One registered --h: 205 + 20 per second counted (blue → magenta → orange), transitioned over 900ms; tiles add (dx + dy) × 7.
+- At zero: three rings scale from 0.15 to 2.8 and fade (staggered 0.1s), a screen-blended flash, and the grid kicks to 1.045.
+- Space pauses, R or a click restarts, arrow keys pause and step a quarter second.
+- prefers-reduced-motion: start paused on a full-size digit; no tilt, drift, grain or shockwave.`,
+  },
+  {
     slug: "stretch-type",
     title: "Stretch Type",
     kind: "LOOP",

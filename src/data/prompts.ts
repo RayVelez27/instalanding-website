@@ -110,6 +110,41 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Nimbus AI Assistant Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A light, coral-accented page for an all-in-one AI assistant: a hero under a parallax sky of canvas-drawn clouds with two tilted CSS phones, a glass-pill nav that shrinks on scroll, a three-slide product carousel, a logo ticker, a dark integrations panel with tool tiles orbiting the logo on three rings, masonry testimonials, pricing with a shared annual switch, journal cards with SVG art, an FAQ accordion and a sky CTA that overlaps the footer",
+    prompt: `Build a landing page for Nimbus, a fictional all-in-one AI assistant (chat, insights and automations for teams), as one HTML file. No libraries and no image files: the phones, app screens, logos, portraits and journal art are CSS and inline SVG, and the clouds are drawn on canvas. Instrument Serif for h1, h2, prices and the mobile menu; Inter for everything else; both from Google Fonts.
+
+DESIGN SYSTEM
+Page #f6f6f6, white cards, ink #0c0c0c, grey #4d4d4d, one coral accent #ff462e used as 8% and 16% tints for tags and as #fff6f4 for "primary" cards. Soft shadow 0 16px 40px rgba(0,0,0,.05); radii 10 (buttons, hero), 22 (cards), 32 (dark panels), 999 (pills). Small coral tags with an icon above every section title. Display type is light serif with tight tracking (-.03em); body is Inter 500. The sky is a gradient from #07588A to #E1F6F4.
+
+STRUCTURE
+1. Nav: a fixed glass pill (dark translucent, blur, a 1px gradient rim) with the logo, five links under a sliding highlight that follows hover and the active section, and a white "Get started" pill with a black arrow disc that turns on hover. It narrows and darkens once you scroll. Under 1200px the links become a round menu button that opens a dark panel of big serif links, numbered, with arrow discs and a green "All systems normal" label.
+2. Hero: a rounded card filled with the sky, a white logo badge, the h1 "Stop Switching Tools — One AI Assistant That Does It All." in white serif, a line of copy, dark and light buttons, and two phones tilted ±6° and cropped by the card's bottom edge: a chat summarising customer feedback with a typing indicator, and a "Good morning, Milo." home screen with prompt chips, a coral weekly chart and an up-next card.
+3. Process: copy with prev / next buttons and dots beside a gradient panel holding a three-slide app mock (assistant chat, insights KPIs and an area chart, automations list), auto-advancing every five seconds; then "Chosen by teams that scale quickly" and a white ticker of five made-up SVG wordmarks.
+4. Integrations: a near-black panel with a dot grid, "Seamlessly connect your favorite tools." with the last words in a coral gradient italic, two buttons, three serif stats, and an orbit: a white hub with the logo, three rings (dashed middle) spinning at 46s, 70s and 100s in alternating directions with a comet on each, carrying 15 glass tool tiles that counter-rotate to stay upright and glow in their brand colour on hover; hovering the panel pauses it.
+5. Testimonials: a header with two stat cards, then a three-column masonry of quote cards (a coral-tinted card with a big serif number, a dark card, plain cards with CSS portraits).
+6. Pricing: Essential $19, Studio $49, Scale $129 (dark), each with a switch that flips every card to annual (15% off) together, feature lists with check icons, then a perks strip.
+7. Journal: one large post and three small ones whose images are CSS and animated SVG (a morphing iridescent blob, a robot head with blinking eyes, waving blue ribbons, drifting jellyfish).
+8. FAQ: seven questions in white cards that open one at a time with a grid-rows transition, beside a "Contact support" block.
+9. CTA and footer: a sky card ("Transform with AI.") that overlaps a dark footer panel with a cool glow, a serif tagline "Clarity, on demand.", a pill newsletter form, four link columns with underline-on-hover links, social discs, a status pill, and a huge gradient italic "Nimbus" wordmark fading out at the bottom.
+
+THE SKY
+Draw one soft white "puff" (a radial gradient on a small canvas). Build each cloud by stamping 20-90 rotated, scaled, semi-transparent puffs onto its own canvas. Spread clouds with best-candidate sampling, add faint stars, sort by depth, and every frame draw them scaled by depth, drifting left (wrapping) and parallaxed by the section's scroll offset with damping. Only animate while the canvas is on screen.
+
+THE FLOOR
+One h1 and a main; data-section on every region; the menu button reports aria-expanded and Escape closes it; the pricing switches are role="switch" with aria-checked; FAQ questions are keyboard buttons with aria-expanded; decorative art is hidden or labelled; the newsletter sends nothing and uses an .example placeholder. Breakpoints at 1199 and 809px, no horizontal scroll at 390px. prefers-reduced-motion turns off animation and transitions, draws the sky once, stops the carousel auto-advancing and pauses the SVG art.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 8, 2026",
+    demo: "/demos/nimbus-ai-assistant.html",
+    bestFor: ["AI assistants and copilots", "productivity SaaS", "mobile-first AI apps", "integration-heavy platforms"],
+    style: ["light", "serif-display", "sky", "glassmorphism", "phone-mockups"],
+    thumbnail: "/thumbs/nimbus-ai-assistant.jpg",
+    theme: "light",
+  },
+  {
     title: "Bryo AI Moss Cultivation Page",
     category: "web",
     categoryLabel: "WEB",
