@@ -117,7 +117,9 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
 
     if (b.panel === "tokens:palette") {
       const core = spec.groups.find((g) => g.title.startsWith("Color") && g.tokens.every((t) => isHex(t.value)));
-      const rest = groupsLike("Color").filter((g) => g !== core);
+      // A row only draws hex colours; a group of rgba hairlines or gradients would print its label over nothing
+      // (they still show in All tokens)
+      const rest = groupsLike("Color").filter((g) => g !== core && g.tokens.some((t) => isHex(t.value)));
       return (
         <Panel key={key} n={n} span={b.span} title={b.title ?? "Color palette"}>
           <div className="sb-swatches">

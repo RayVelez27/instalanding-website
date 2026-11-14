@@ -4412,6 +4412,7 @@ html.agent-dark .mlab-page-desc { color: #a0a0a0; }
 .home-kind-tag i { width: 6px; height: 6px; border-radius: 50%; background: #0a0a0a; }
 .home-kind-tag--motion i { background: var(--mo-accent); }
 .home-kind-tag--system i { background: #16a34a; }
+.home-kind-tag--ecomm i { background: var(--ec-accent); }
 
 /* Hero: a compact dark band */
 .home-hero {
@@ -4586,6 +4587,7 @@ html.agent-dark .home-aurora { display: none; }
 .home-card-kind i { width: 6px; height: 6px; border-radius: 50%; background: #0a0a0a; }
 .home-card--motion .home-card-kind i { background: var(--mo-accent); }
 .home-card--system .home-card-kind i { background: #16a34a; }
+.home-card--ecomm .home-card-kind i { background: var(--ec-accent); }
 .home-live { position: absolute; top: 8px; right: 8px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 99px; background: #0b0b0b; color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; }
 .home-live i { width: 5px; height: 5px; border-radius: 50%; background: var(--mo-accent); box-shadow: 0 0 8px var(--mo-accent); animation: home-pulse 1.6s infinite; }
 @keyframes home-pulse { 50% { opacity: 0.35; } }
@@ -4745,6 +4747,7 @@ html.agent-dark .home-toast { border: 1px solid #333; }
 .route-banner--pages { --au1: 40, 90, 255; --au2: 0, 210, 255; --au3: 130, 70, 255; }
 .route-banner--systems { --au1: 22, 199, 132; --au2: 0, 170, 160; --au3: 170, 230, 60; }
 .route-banner--motion { --au1: 255, 77, 0; --au2: 255, 40, 120; --au3: 255, 190, 40; }
+.route-banner--ecomm { --au1: 150, 60, 255; --au2: 255, 60, 170; --au3: 255, 200, 60; }
 .route-banner-title { margin: 16px 0 0; font-family: 'Inter Tight', 'Inter', system-ui, sans-serif; font-size: clamp(38px, 4.4vw, 72px); font-weight: 800; line-height: 0.9; letter-spacing: -0.035em; color: #fff; }
 .route-banner-title > span { display: inline-block; }
 .route-banner-desc { justify-self: end; max-width: 520px; margin: 0; padding-bottom: 6px; font-family: 'Inter Tight', 'Inter', system-ui, sans-serif; font-size: clamp(15px, 1.15vw, 18px); font-weight: 500; line-height: 1.5; color: rgba(255, 255, 255, 0.88); }
@@ -4788,7 +4791,7 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 }
 @media (prefers-reduced-motion: reduce) { .hc-caret { animation: none; } }
 
-/* ── HIRE: the /hire page and the one-line CTA on every template ── */
+/* ── HIRE: the one-line CTA on every template (and the bits CONTACT reuses) ── */
 .hire-line { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin: 12px 0 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #555; }
 .hire-line a { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; letter-spacing: 0.12em; color: #000; text-decoration: none; border-bottom: 1px solid #000; padding-bottom: 1px; }
 .hire-line a:hover { border-bottom-width: 2px; padding-bottom: 0; }
@@ -4797,12 +4800,6 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 .hire-line--phone { justify-content: center; margin: 16px 0 4px; font-size: 12px; }
 .hire-steps { margin: 0 0 16px; padding-left: 20px; list-style: decimal; }
 .hire-steps li { padding: 3px 0; }
-.hire-work { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.hire-work a { display: block; color: #000; text-decoration: none; }
-.hire-work-thumb { position: relative; display: block; aspect-ratio: 2 / 1; overflow: hidden; border: 1px solid #000; background: #f5f5f3; }
-.hire-work-thumb img, .hire-work-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hire-work-title { display: block; margin-top: 5px; font-size: 10.5px; line-height: 1.35; letter-spacing: 0.04em; }
-.hire-work a:hover .hire-work-title { text-decoration: underline; }
 .hire-start { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 8px; border: 1px solid #000; }
 .hire-start-thumb { position: relative; flex: 0 0 96px; aspect-ratio: 2 / 1; overflow: hidden; border: 1px solid #ddd; }
 .hire-start-thumb img, .hire-start-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -4811,41 +4808,50 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 .hire-start-text strong { font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hire-start-clear { flex: 0 0 auto; display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #000; background: #fff; cursor: pointer; }
 .hire-start-clear:hover { background: #000; color: #fff; }
-/* Tiers: three cards above the explainer + form; the picked one inverts. */
-.hire-tiers { margin: 0 0 clamp(24px, 3vw, 44px); }
-.hire-tier-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #000; }
-.hire-tier { display: flex; flex-direction: column; padding: 20px; min-width: 0; background: #fff; color: #333; font-size: 12px; line-height: 1.6; transition: background 160ms ease, color 160ms ease; }
-.hire-tier + .hire-tier { border-left: 1px solid #000; }
-.hire-tier.is-picked { background: #000; color: #ddd; }
-.hire-tier-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; }
-.hire-tier-num { color: #888; }
-.hire-tier-badge { padding: 3px 7px; background: #000; color: #fff; }
-.hire-tier.is-picked .hire-tier-badge { background: #fff; color: #000; }
-.hire-tier-name { margin: 0; font-family: 'Inter Tight', sans-serif; font-size: clamp(22px, 2.2vw, 28px); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; color: #000; }
-.hire-tier.is-picked .hire-tier-name { color: #fff; }
-.hire-tier-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 10px 0 12px; padding-bottom: 12px; border-bottom: 1px solid #ddd; }
-.hire-tier.is-picked .hire-tier-price { border-bottom-color: #333; }
-.hire-tier-price strong { font-size: 13px; letter-spacing: 0.06em; color: inherit; }
-.hire-tier-price span { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
-.hire-tier-pitch { margin: 0 0 12px; font-weight: 600; color: #000; }
-.hire-tier.is-picked .hire-tier-pitch { color: #fff; }
-.hire-tier-includes { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 7px; }
-.hire-tier-includes li { display: grid; grid-template-columns: 12px 1fr; gap: 8px; align-items: start; }
-.hire-tier-includes svg { margin-top: 4px; }
-.hire-tier-cta { margin-top: auto; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 14px; border: 1px solid #000; background: #fff; color: #000; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; transition: background 160ms ease, color 160ms ease; }
-.hire-tier-cta:hover { background: #000; color: #fff; }
-.hire-tier.is-picked .hire-tier-cta { border-color: #fff; }
-.hire-tier.is-picked .hire-tier-cta:hover { background: #fff; color: #000; }
-.hire-tier-cta:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
-.hire-tier.is-picked .hire-tier-cta:focus-visible { outline-color: #fff; }
-.hire-service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; }
-.hire-service .sponsor-pick { margin-bottom: 8px; }
-@media (max-width: 960px) {
-  .hire-tier-list { grid-template-columns: minmax(0, 1fr); }
-  .hire-tier + .hire-tier { border-left: 0; border-top: 1px solid #000; }
+
+/* ── CONTACT: hiring and hello on one page ──
+   Five cards ask what it's about (real radios, so arrow keys move between
+   them); the picked one inverts like the old hire tiers. The form under them
+   and the panel beside it change with the pick. */
+.cx-topics { margin: 0 0 clamp(22px, 3vw, 36px); padding: 0; border: 0; min-width: 0; }
+.cx-topics legend { padding: 0; margin-bottom: 12px; }
+.cx-topic-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid #000; }
+.cx-topic { position: relative; display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 16px 16px 14px; background: #fff; color: #333; font-size: 11.5px; line-height: 1.5; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
+.cx-topic + .cx-topic { border-left: 1px solid #000; }
+.cx-topic:hover { background: #f4f4f2; }
+.cx-topic.is-on { background: #000; color: #ccc; }
+.cx-topic--hello { background: #f7f7f5; }
+.cx-topic-input { position: absolute; opacity: 0; pointer-events: none; }
+.cx-topic:has(.cx-topic-input:focus-visible) { outline: 2px solid #000; outline-offset: -5px; }
+.cx-topic.is-on:has(.cx-topic-input:focus-visible) { outline-color: #fff; }
+.cx-topic-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+.cx-topic-name { font-family: 'Inter Tight', sans-serif; font-size: clamp(16px, 1.4vw, 19px); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; color: #000; }
+.cx-topic.is-on .cx-topic-name { color: #fff; }
+.cx-topic-badge { flex: none; padding: 3px 6px; background: #000; color: #fff; font-size: 8.5px; font-weight: 700; letter-spacing: 0.14em; }
+.cx-topic.is-on .cx-topic-badge { background: #fff; color: #000; }
+.cx-topic-pitch { flex: 1; }
+.cx-topic-meta { padding-top: 8px; border-top: 1px solid #ddd; font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #888; }
+.cx-topic.is-on .cx-topic-meta { border-top-color: #333; color: #aaa; }
+.cx-gets { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 8px; }
+.cx-gets li { display: grid; grid-template-columns: 12px 1fr; gap: 8px; align-items: start; }
+.cx-gets svg { margin-top: 4px; }
+@media (max-width: 1100px) {
+  .cx-topic-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cx-topic + .cx-topic { border-left: 0; }
+  .cx-topic:nth-child(even) { border-left: 1px solid #000; }
+  .cx-topic:nth-child(n + 3) { border-top: 1px solid #000; }
+  .cx-topic--hello { grid-column: 1 / -1; border-left: 0 !important; }
 }
-@media (max-width: 420px) {
-  .hire-service-grid { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 860px) {
+  .cx-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .cx-topic-grid { grid-template-columns: minmax(0, 1fr); }
+  .cx-topic:nth-child(even) { border-left: 0; }
+  .cx-topic + .cx-topic { border-top: 1px solid #000; }
+  .cx-topic { padding: 13px 14px 12px; }
+  .cx-topic-pitch { display: none; }
+  .cx-topic.is-on .cx-topic-pitch { display: block; }
 }
 
 /* ── MOTION: view toggle and the DECK (one study at a time) ── */
@@ -5321,3 +5327,16 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
   .world-legend { display: none; }
   .world-tag { font-size: 10px; max-width: 160px; }
 }
+
+
+/* ── E-COMM: store landing pages ──
+   They open in the PAGES dialog; the side panel swaps MORE ONE-SHOTS for what
+   the page is built for and how it becomes a Shopify store. */
+:root { --ec-accent: #a43cff; }
+.ecom-body { min-height: 0; overflow-y: auto; padding: 14px; }
+.ecom-body .pmodal-body-head { margin: 0 -14px; }
+.ecom-best { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; padding: 0; list-style: none; }
+.ecom-best li { padding: 5px 9px; border: 1px solid #000; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.ecom-note { margin: 0 0 16px; font-size: 12.5px; line-height: 1.6; color: #444; }
+.ecom-note b { display: block; margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: var(--ec-accent); }
+html.agent-dark .home-card--ecomm .home-card-kind i { background: #fff; }

@@ -1,14 +1,15 @@
 import { feedPrompts, type PromptEntry } from "@/data/prompts";
 import { motions, type MotionEntry } from "@/data/motion";
 import { systemCover, systems, type SystemEntry } from "@/data/systems";
+import { ecomm, type EcommEntry } from "@/data/ecomm";
 
 /**
- * The library as one list of cards: every page, motion study and design
- * system, with what a card shows, where it links, the words search matches
+ * The library as one list of cards: every page, motion study, design
+ * system and e-comm page, with what a card shows, where it links, the words search matches
  * and the HTML file COPY CODE copies. HOME's rails and the top-bar search both read
  * it. The data is static, so it is laid out once per load, newest first.
  */
-export type Kind = "page" | "motion" | "system";
+export type Kind = "page" | "motion" | "system" | "ecomm";
 export interface Item {
   kind: Kind;
   key: string;
@@ -17,7 +18,7 @@ export interface Item {
   image: string;
   to: string;
   words: string;
-  /** The single HTML file COPY CODE copies: the demo, the motion study, the system's specimen */
+  /** The single HTML file COPY CODE copies: the demo, the motion study, the system's specimen, the e-comm page */
   code: string;
   /** dark / light, and the look words, for dealing a varied order */
   theme?: string;
@@ -82,10 +83,26 @@ const systemItem = (s: SystemEntry): Item => ({
   looks: s.tags,
 });
 
+const ecommItem = (e: EcommEntry): Item => ({
+  kind: "ecomm",
+  key: `e:${e.slug}`,
+  title: e.title.replace(/ Page$/, ""),
+  sub: `${e.vertical.toLowerCase()} · ${e.tags.filter((t) => t !== "dark" && t !== "light").slice(0, 2).join(" · ").replace(/-/g, " ")}`,
+  image: e.thumbnail,
+  to: `/ecomm/${e.slug}`,
+  words: [e.title, e.description, e.vertical, "ecommerce shop store product shopify hydrogen", ...e.tags, ...e.bestFor]
+    .join(" ")
+    .toLowerCase(),
+  code: e.demo,
+  theme: e.theme,
+  looks: e.tags,
+});
+
 export const LABEL: Record<Kind, string> = {
   page: "PAGE",
   motion: "MOTION",
   system: "SYSTEM",
+  ecomm: "E-COMM",
 };
 
 /* The data is static, so it is laid out once per load. Newest first. */
@@ -95,7 +112,8 @@ export const PAGES = newest(
 export const PAGE_ITEMS = PAGES.map(pageItem);
 export const MOTION_ITEMS = newest(motions).map(motionItem);
 export const SYSTEM_ITEMS = newest(systems).map(systemItem);
-export const EVERYTHING = [...PAGE_ITEMS, ...MOTION_ITEMS, ...SYSTEM_ITEMS];
+export const ECOMM_ITEMS = newest(ecomm).map(ecommItem);
+export const EVERYTHING = [...PAGE_ITEMS, ...MOTION_ITEMS, ...SYSTEM_ITEMS, ...ECOMM_ITEMS];
 
 /**
  * A random order with variety: dark and light alternate, and no item shares

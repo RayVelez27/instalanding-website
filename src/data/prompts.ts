@@ -113,7 +113,7 @@ const entries: Omit<PromptEntry, "slug">[] = [
     title: "Nimbus AI Assistant Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A light, coral-accented page for an all-in-one AI assistant: a hero under a parallax sky of canvas-drawn clouds with two tilted CSS phones, a glass-pill nav that shrinks on scroll, a three-slide product carousel, a logo ticker, a dark integrations panel with tool tiles orbiting the logo on three rings, masonry testimonials, pricing with a shared annual switch, journal cards with SVG art, an FAQ accordion and a sky CTA that overlaps the footer",
+    description: "A light, coral-accented page for an all-in-one AI assistant, with two tilted phones under a parallax sky of canvas clouds and tool tiles orbiting the logo on three rings",
     prompt: `Build a landing page for Nimbus, a fictional all-in-one AI assistant (chat, insights and automations for teams), as one HTML file. No libraries and no image files: the phones, app screens, logos, portraits and journal art are CSS and inline SVG, and the clouds are drawn on canvas. Instrument Serif for h1, h2, prices and the mobile menu; Inter for everything else; both from Google Fonts.
 
 DESIGN SYSTEM
@@ -148,7 +148,7 @@ One h1 and a main; data-section on every region; the menu button reports aria-ex
     title: "Bryo AI Moss Cultivation Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A misty sage-and-lime page for an AI that grows moss, painted entirely in code: a floating moss island with a fern under a scroll-driven camera that dollies down into a fogged conifer valley, telling a five-beat story (headline, word-by-word vision, an account with sensor hotspots, a field card with a coverage sparkline and a feature list), then use-case cards with generated aerial art, counting stats, four growth loops, a live moss-growth simulation with AI detection boxes, pricing, an FAQ and a waitlist CTA",
+    description: "A misty sage-and-lime page for an AI that grows moss, painted in code, where a scroll-driven camera dollies from a floating moss island down into a fogged conifer valley",
     prompt: `Build a landing page for Bryo, a fictional AI that grows moss (camera-and-mister Pods watch a stone surface and decide when to mist, shade and reseed so moss carpets take hold in weeks), as one HTML file. No libraries and no image files: every picture is painted with canvas 2D at load. Inter Tight for text, JetBrains Mono for uppercase labels, both from Google Fonts.
 
 DESIGN SYSTEM
@@ -185,7 +185,7 @@ One h1 and a main; data-section on every region; decorative art hidden from scre
     title: "Landra AI Landing Page Generator Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A black-and-lime page for an AI tool that turns one sentence into a landing page: a WebGL hero strip of eight generated pages that bends with drag speed and opens any one full screen through a pixel-mosaic dissolve, a giant LANDRA wordmark with a prompt box, and a live demo where a typed prompt builds a themed mock site step by step with a timer, then features, counting stats, a monthly / yearly pricing toggle, an FAQ and a prompt CTA",
+    description: "A black-and-lime page for an AI that turns one sentence into a landing page, with a WebGL strip of generated pages that bends as you drag and a live demo that builds a mock site from your prompt",
     prompt: `Build a landing page for Landra, a fictional AI landing page generator (describe a product in one sentence; it writes the copy, designs the layout and publishes a responsive page in under a minute), as one HTML file. GSAP 3.12.5 from cdn.jsdelivr.net; three.js 0.169.0 imported as a module from cdn.jsdelivr.net for the hero only. Inter Tight from Google Fonts for everything, including text drawn into canvases. No image files: every picture is drawn in code.
 
 DESIGN SYSTEM
@@ -227,7 +227,7 @@ One h1 (the wordmark, labelled "Landra") and a main; the strip and viewer are ar
     title: "ButtonZilla Glass Console Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A dark hardware-style console for live 3D glass buttons: a WebGL monitor with a refracting, bevelled pill button that tilts on hover, squashes on press and sends a ripple through its surface, a solo or eight-up grid view, an amber LCD readout with signal meters, eight preset channels (Frosted, Crystal, Amber, Jelly, Bubble, Cobalt, Clay, Sea glass), and rotary knobs for shape, glass, liquid and scene, with Shuffle, Reset and Copy JSON",
+    description: "A dark hardware-style console for live 3D glass buttons, with a refracting pill that tilts, squashes and ripples on press, an amber LCD readout and rotary knobs for shape, glass and scene",
     prompt: `Build a control console for 3D glass buttons as one HTML file: a dark piece of studio hardware whose screen shows a live WebGL button and whose knobs and keys edit it. three.js 0.170.0 from cdn.jsdelivr.net through an import map, with the RoomEnvironment, EffectComposer, RenderPass, UnrealBloomPass and OutputPass addons. Inter for the UI, JetBrains Mono for readouts, Unbounded for the logo; the button label's typeface (Inter, Onest, Manrope, Unbounded, Geologica, Rubik) loads from Google Fonts on demand.
 
 DESIGN SYSTEM
@@ -275,7 +275,7 @@ One h1 and a main; each stage is a focusable role="button" that presses on Enter
     title: "Forgewave Vibe-Manufacturing Studio Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A red-and-ink page for a studio that turns a described vibe into a real product, drawn entirely in animated SVG: a robot arm loading a conveyor in the hero, a typed brief pressed into a speaker, four sticky service cards with faders, linkages, a layer-by-layer printer and a units counter, a projects grid, a team switcher with blinking robot portraits, pricing, a scroll-grown assembly line, a testimonial switcher and a factory-belt footer",
+    description: "A red-and-ink page for a studio that turns a described vibe into a real product, drawn entirely in animated SVG from a robot arm loading a conveyor to a factory-belt footer",
     prompt: `Build a landing page for Forgewave, a fictional "vibe-manufacturing" studio (you describe how a product should look and feel in plain words; its engineers and partner factories make it), as one HTML file. No libraries and no image files: every picture is inline SVG animated with SMIL. Plus Jakarta Sans for display and body, Inter for bold and italic runs, Oswald inside the illustrations.
 
 DESIGN SYSTEM
@@ -316,7 +316,7 @@ One h1 and a main; the Menu button reports aria-expanded, moves focus into the p
     title: "KYMA AI Automation Agency Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A brutalist black, paper and lime page for an AI automation agency, laid on a visible four-column grid: a hero with a live automation pipeline you can play, a sticky section where eight pain points fly off the screen as you scroll, an ROI calculator with sliders, an indexed services table, a six-week process ruler, a case study with drawn art, seeded halftone portraits for the team, an integrations grid, a pricing toggle and generative article covers",
+    description: "A brutalist black, paper and lime page for an AI automation agency on a visible four-column grid, with a playable automation pipeline, pain points that fly off as you scroll and an ROI calculator",
     prompt: `Build a landing page for KYMA, a fictional AI automation agency (it builds custom AI systems that take repetitive work off a team), as one HTML file. No libraries; Google Fonts TASA Orbiter (falling back to Inter Tight) for headings and body, Roboto Mono for labels. Every picture is SVG drawn by the script; no image files.
 
 DESIGN SYSTEM
@@ -357,7 +357,7 @@ One h1, a main, aria-expanded on the menu button with focus moved into the menu 
     title: "Cutcrew AI Video Agents Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A bright, playful page for five AI video-editing agents, each a candy-coloured robot mascot drawn in SVG that floats in place: a hero fan of agent cards, a sentence with the robots set inline, a dark timeline strip with hover tooltips, three ways to brief the agents (an accordion with a self-typing prompt and a TypeScript SDK card), a studio services index, a six-week gantt with a sweeping playhead, fanning project decks, an album gallery, a team card deck, auto-advancing stories, monthly/annual pricing and a spinning 3D ring of covers in the CTA",
+    description: "A bright, playful page for five AI video-editing agents, each a candy-coloured SVG robot mascot, with a self-typing brief, a six-week gantt with a sweeping playhead and a spinning 3D ring of covers",
     prompt: `Build a landing page for Cutcrew, a fictional set of five AI agents that cut, grade, generate, mix and animate video inside the editor a team already uses (plus a studio that ships with them), as one HTML file. No libraries; Switzer from Fontshare (fall back to Inter) and Geist Mono for code. Every picture is inline SVG drawn by the script; no image files.
 
 DESIGN SYSTEM
@@ -402,7 +402,7 @@ One h1, a main, aria-expanded on the menu button with Escape to close, real butt
     title: "Foldwise AI Product Designer Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A quiet grey page for an AI-native product designer, laid out as a folding book: twelve paper and dark-stock panels (a cover, contents, seven case studies, field notes, about and a business-card contact) concertina open in 3D as you scroll, shading as they turn. Every case study plate is drawn in SVG: an agent run with a live step, an approval queue, model routing on two phones, an autonomy dial, a design system sheet, a context-window selector and an undo gap. On phones the book lies flat as one tall stack.",
+    description: "A quiet grey page for an AI-native product designer, laid out as a folding book whose twelve panels of SVG case studies concertina open in 3D as you scroll",
     prompt: `Build a landing page for Foldwise, a fictional AI-native senior product designer sold as an app (it reads a brief, drafts flows, designs every state including what the AI says when it's unsure, and hands off with a checklist), as one HTML file. No libraries; Google Font Familjen Grotesk 400-700. The page is a leporello: a strip of panels that folds open in 3D as you scroll.
 
 DESIGN SYSTEM
@@ -442,7 +442,7 @@ One h1, a main, aria-expanded on the menu button, Escape closes the drawer and f
     title: "Fullday AI Money Agent Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A soft blue-and-peach page for an AI money agent that works around your calendar: a hero with a live feed of tasks it just finished and a phone with sliding payment cards, a self-typing \"can I afford it\" prompt, sticky how-it-works steps, a results chart whose dashed line draws in, a story switcher, a snap-scrolling benefits row, monthly/yearly pricing toggles and rounded sections that tuck under each other",
+    description: "A soft blue-and-peach page for an AI money agent that works around your calendar, with a live feed of finished tasks, sliding payment cards on a phone and a self-typing can I afford it prompt",
     prompt: `Build a landing page for Fullday, a fictional AI money agent for busy people (it reads your accounts, cards and calendar, then pays bills, saves toward goals, splits shared costs and books plans inside limits you set), as one HTML file. No libraries. Google Fonts: Inter Tight 300-600 for everything, Montserrat 600 only on the payment cards.
 
 DESIGN SYSTEM
@@ -486,7 +486,7 @@ One h1, a main, aria-expanded on the burger and the FAQ buttons, Escape closes t
     title: "Fortix AI Money Copilot App Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A bright, airy app page for an AI money copilot: a headline set with glossy gradient app icons, six dark glass phone screens drawn entirely in HTML and SVG (net worth, AI chat, autopilot rules, a forecast with a confidence band, a blocked-fraud alert), a turning 3D ring of stat cards, floating badges and chat bubbles, a landscape dashboard that tips up into view and a tap-through 3D feature carousel",
+    description: "A bright, airy app page for an AI money copilot, with six dark glass phone screens drawn in HTML and SVG, a turning 3D ring of stat cards and a tap-through 3D feature carousel",
     prompt: `Build a landing page for Fortix, a fictional AI money copilot app (it budgets, forecasts cash flow, saves and invests on autopilot, and blocks suspicious charges), as one HTML file. No libraries. Google Fonts: Inter 400-900, with font-feature-settings "cv03","cv04","cv09","cv11","tnum".
 
 DESIGN SYSTEM
@@ -529,7 +529,7 @@ One h1, a main, aria-expanded on the burger, Escape closes the menu, aria-hidden
     title: "Linnet AI Housekeeping Swarm Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A pine-and-brass page for a swarm of AI assistants that runs housekeeping: an illustrated housekeeper in the hero who pops in, blinks and follows the pointer, a manifesto that lights word by word before a diagonal wipe, four agents on a pinned scroll stage, flip-up plan cards, sticky stacked testimonials and an about section that unmasks from an arch, every picture drawn in SVG",
+    description: "A pine-and-brass page for a swarm of AI housekeeping assistants, with an illustrated housekeeper who blinks and follows the pointer and four agents on a pinned scroll stage, all drawn in SVG",
     prompt: `Build a landing page for Linnet, a fictional swarm of AI assistants for housekeepers, cleaning companies, hotel teams and short-let hosts (a Scheduler, a Supply, a Concierge and an Inspector agent that plan routes, reorder linen, answer guests and check room photos), as one HTML file. GSAP 3.13 with CustomEase and CustomWiggle from jsDelivr, used only for the hero character. Google Fonts: Geist 400-700, Geist Mono 400/500, Instrument Serif italic.
 
 DESIGN SYSTEM
@@ -573,7 +573,7 @@ One h1, a main, aria-expanded on the menu and FAQ buttons, aria-hidden on the dr
     title: "Ditherform AI Dither Generator Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A near-black, grid-ruled page for an AI that turns a prompt into a live 3D dither element: every picture on it is a raymarched shape morphing between a cube, sphere, torus and more, Bayer-dithered in two muted inks with a crisp outline, under fitted condensed headlines, a scroll-driven marquee, a logo wall and a cream changelog whose rows slide a plate in on hover",
+    description: "A near-black, grid-ruled page for an AI that turns a prompt into a 3D dither element, where every picture is a raymarched shape morphing between solids, Bayer-dithered in two muted inks",
     prompt: `Build a landing page for Ditherform, a fictional AI generator of 3D dither elements (describe a shape, get a live raymarched object in ordered Bayer dots; pick a palette and matrix, export a WebGL embed, a looping video or a sprite sheet), as one HTML file. Plain WebGL2, no libraries. Google Fonts: Sofia Sans Extra Condensed 600/900 for display, Martian Mono 400/700 for everything else.
 
 DESIGN SYSTEM
@@ -613,7 +613,7 @@ One h1, labelled sections, aria-labels on the logo images and aria-expanded on t
     title: "Peelo AI Sticker Printer Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A warm-black subscription page for an AI sticker printer: a condensed SAY IT. STICK IT. headline that blurs in letter by letter under an orange glow with four die-cut stickers popping around it, a gallery of sticker sheets with their prompts on hover, five how-it-works rows that stack as you scroll, the printer and its refills on tilted cards, three plans and a drag-to-scroll review slider, every picture drawn in SVG",
+    description: "A warm-black subscription page for an AI sticker printer, with a condensed headline that blurs in under an orange glow, die-cut stickers popping around it and every picture drawn in SVG",
     prompt: `Build a landing page for Peelo, a fictional AI sticker printer sold as a subscription (describe a sticker, the app draws four options, the desk printer prints and kiss-cuts it in about a minute; the printer, ink and vinyl come with the plan), as one HTML file. No libraries. Google Fonts: Bricolage Grotesque (variable, opsz 12-96, wdth 75-100, weights 400-800) for everything, Gloock for the serif lines and prices.
 
 DESIGN SYSTEM
@@ -654,7 +654,7 @@ Breakpoints at 1200px and 810px; no horizontal scroll at 390px. Stickers are but
     title: "Noctua AI Night Owl Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A stark black-on-white page for an AI that works the night shift: a quartered loader with blinking owl eyes and a counter, a giant NIGHT ——◐ OWL headline whose moon slides through its phases, the viewer's own clock and a greeting for their hour, and four illustrated feature cards (a starlit draft, an overnight task queue, glowing owl eyes, a sunrise digest) drawn in SVG",
+    description: "A stark black-on-white page for an AI that works the night shift, with a giant NIGHT OWL headline whose moon slides through its phases and a greeting for the viewer's own hour",
     prompt: `Build a landing page for Noctua, a fictional AI service for night owls (writes with you at 1AM, untangles code at 3AM, runs a task queue while you sleep and leaves a Dawn Digest at 6AM), as one HTML file. No libraries. Google Fonts: Inter 400-800 for everything, Space Grotesk 500-700 for the logo and loader digits.
 
 DESIGN SYSTEM
@@ -692,7 +692,7 @@ One h1 row for the hero and labelled sections. The loader is aria-hidden and rem
     title: "Sidera AI Astrology Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A midnight-and-gold page for an AI astrologer: a Three.js orb of gold and violet glass sits on an obsidian podium inside a turning zodiac wheel and gold astrolabe rings, wrapped in nebula smoke and bloom, while the headline and CTA are redrawn as refracting 3D glass; below, a live natal chart per sun sign, today's real moon phase and a stars-to-pricing landing page",
+    description: "A midnight-and-gold page for an AI astrologer, with a Three.js glass orb on an obsidian podium inside a turning zodiac wheel, a live natal chart per sun sign and today's real moon phase",
     prompt: `Build a landing page for Sidera, a fictional AI astrologer (reads your natal chart, live transits, lunar cycles and personal patterns together and answers with windows of good timing; reflection, not prediction; free Stargazer, $12 Plus, $24 Constellation), as one HTML file. Three.js 0.169 with its postprocessing addons, from jsdelivr through an importmap. Google Fonts: Cormorant Garamond 500-600 with italics for display, Inter 400-600 for text.
 
 DESIGN SYSTEM
@@ -738,7 +738,7 @@ One h1 and labelled sections. The 3D canvas is decorative and every control work
     title: "Linework AI Architect Assistant Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A quiet, paper-white page for an AI architect assistant where everything is drawn line by line in code: an amphitheatre in ink with a roaming blue blueprint lens, a skyline of nine procedural buildings you filter and open into a drawing-versus-render slider, a house that draws itself stage by stage as you scroll, and a harbour city footer",
+    description: "A quiet, paper-white page for an AI architect assistant where everything is drawn line by line in code, from an ink amphitheatre under a blueprint lens to a house that draws itself as you scroll",
     prompt: `Build a landing page for Linework, a fictional AI architect assistant from Copenhagen (reads the site, maps sun, wind and setbacks, sketches massing options, drafts plans, sections and 1:5 details, and keeps every sheet in step; the architect makes every decision), as one HTML file. No libraries. Google Fonts: Urbanist for body, Instrument Sans 400 for headings, IBM Plex Mono for labels.
 
 DESIGN SYSTEM
@@ -777,7 +777,7 @@ One h1, one main with labelled sections, and every drawing with role="img" and a
     title: "AI/CONF Frontier AI Conference Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A pink-and-cobalt bento page for a frontier AI conference: a huge outlined headline over slow orbit rings and a typed prompt, a sticky sidebar with a morphing glass orb agenda and a live countdown ticket, and navy scenes in liquid glass (a gooey neural net, a compute chip, an attention heatmap, test-tube benchmarks and server racks)",
+    description: "A pink-and-cobalt bento page for a frontier AI conference, with a huge outlined headline over slow orbit rings, a live countdown ticket and navy scenes in liquid glass",
     prompt: `Build a landing page for AI/CONF, a fictional two-day conference for ML engineers and AI builders (14-15 April 2027, Pier 48, San Francisco; five tracks, 120+ talks, 40+ GPU build labs; passes at $499, $1,199 and $3,900), as one HTML file. No libraries. Google Fonts: Space Grotesk 400-700 and JetBrains Mono.
 
 DESIGN SYSTEM
@@ -823,7 +823,7 @@ One h1 and a main hero, every section with an id and a heading, and real labels 
     title: "Synthra AI Workspace Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A bright lime SaaS page for an AI workspace of specialist agents: a phone running a live chat stands over a ticker of generative art tiles, then dark grainy cards with mesh gradients and glass panels carry the features, six sticky customer stories, pricing, six glowing agent orbs and a rotating 3D ring of product tiles",
+    description: "A bright lime SaaS page for an AI workspace of specialist agents, with a phone running a live chat over a ticker of generative art, six glowing agent orbs and a rotating 3D ring of product tiles",
     prompt: `Build a landing page for Synthra, a fictional AI workspace where six specialist agents (Atlas research, Quill writing, Lens analytics, Forge engineering, Relay automation, Echo voice) share context and do the work; 500+ integrations, free Starter, $29 per seat Pro, custom Enterprise, as one HTML file. No libraries. Google Fonts: Plus Jakarta Sans 400-700 and JetBrains Mono.
 
 DESIGN SYSTEM
@@ -862,7 +862,7 @@ The hero headline is the h1, with a header and labelled sections. Agent cards an
     title: "Quillo AI Tutor Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A bright, hand-made page for an AI tutor on a graph-paper grid: a giant QUILLO in a selection box with handles, sticky notes, cursor tags and owl avatars, a statement that lights word by word, draggable polaroids, four feature cards with folder tabs that stack as you scroll, and a googly-eyed blob that follows your cursor",
+    description: "A bright, hand-made page for an AI tutor on a graph-paper grid, with a giant QUILLO in a selection box, draggable polaroids and a googly-eyed blob that follows your cursor",
     prompt: `Build a landing page for Quillo, a fictional AI tutor for grades 6-12 that asks Socratic questions so students find answers themselves, gives teachers live insight into who is stuck, and keeps families in the loop (free for teachers), as one HTML file. No libraries. Google Fonts: Archivo (wide, 900) for display, Inter Tight for body, DM Mono for uppercase labels, Just Me Again Down Here for handwriting.
 
 DESIGN SYSTEM
@@ -899,7 +899,7 @@ One h1 (QUILLO), a header and a main, and every section reachable from the nav. 
     title: "Auren AI Meditation Guide Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A hushed, near-black page for an AI meditation guide: a counting intro splits open on a full-width AUREN wordmark over three living tiles (misty dawn ridges, the app mid-session, a breathing glass orb), a WebGL aurora band, sticky stacked cards of paired art, marquee rows of seventeen generative scenes and a stories carousel",
+    description: "A hushed, near-black landing page for an AI meditation guide, with a full-width AUREN wordmark, a WebGL aurora band and seventeen generative art scenes drawn in code",
     prompt: `Build a landing page for Auren, a fictional AI meditation guide (a one-minute voice check-in reads tone, pace and breath, then it composes each session's length, pacing, voice and generative sound around how you arrive; private, no ads, 14 days free), as one HTML file. No libraries. Google Fonts: DM Sans 200-700 with optical sizing, and Instrument Serif italic for accent phrases.
 
 DESIGN SYSTEM
@@ -938,7 +938,7 @@ One h1 (the wordmark, with an aria-label), a skip link and a main. Art tiles tha
     title: "Lumora AI Home Solar Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A warm, sunlit page for an AI that runs a home's solar and battery: a 3D modernist villa built from CSS boxes sits in a golden landscape and turns to evening with one switch, a manifesto lights word by word, a working energy dashboard tilts up into view, and Forecast, Store and Save slide past on a pinned horizontal track",
+    description: "A warm, sunlit page for an AI that runs a home's solar and battery, with a 3D villa built from CSS boxes that turns to evening with one switch and a working energy dashboard",
     prompt: `Build a landing page for Lumora, a fictional AI that runs a home's solar panels and battery (forecasts the roof's sunshine at 15-minute resolution, plans charging around the backup reserve and the rate plan, and runs the house on stored sun through the evening peak; $8 a month, works with existing inverters and batteries over Wi-Fi), as one HTML file. No libraries. Google Fonts: Inter, Inter Tight for headings, Newsreader for a serif second line, JetBrains Mono for small numbers.
 
 DESIGN SYSTEM
@@ -977,7 +977,7 @@ One h1, a main and a skip link, every section with an id and a heading. Decorati
     title: "Orrery AI Services Ring Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A single-screen carousel for an AI platform of nine services: nine glass lenses with refracting edges turn on a ticked ring, each opening a full-screen world painted live in canvas (a neon city in rain, an aurora over a frozen lake, a synthwave horizon, a reef, Earth from orbit, cherry blossom, a circuit canyon, a crystal cave, a Mars base) as the accent colour drifts to match",
+    description: "A single-screen carousel for an AI platform of nine services, where glass lenses on a ticked ring each open a full-screen world painted live in canvas",
     prompt: `Build a landing page for Orrery, a fictional AI platform made of nine specialist services (City Pulse forecasting, Aurora Watch monitoring, Horizon Studio generative, Deep Reef search, Orbit Vision geospatial, Bloom Coach coaching, Circuit Forge code agents, Crystal Lens documents, Frontier Lab research) sharing one account and one API, as one HTML file. No libraries. Google Fonts: Instrument Serif (with italic), Geist 300-500 and Geist Mono.
 
 DESIGN SYSTEM
@@ -1014,7 +1014,7 @@ One h1 (the service name, aria-live). The stage is a labelled carousel; lenses a
     title: "Orvane AI LiDAR Drone Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A pale survey-instrument page for an AI LiDAR drone: a point-cloud preloader splits open on a shaded 3D drone sweeping a laser line across scanned terrain, sticky scenes flag a sagging bridge, morph point clouds between industries and draw a mountain range line by line, and a working controller lets you fly the drone",
+    description: "A pale survey-instrument page for an AI LiDAR drone, with a shaded 3D drone sweeping a laser across scanned terrain, morphing point clouds and a controller that lets you fly it",
     prompt: `Build a landing page for Orvane Cortex, a fictional AI-powered LiDAR drone that flies itself, measures bridges, power lines, plants and terrain to the centimetre and flags structural risks automatically (240,000 pulses a second, five echoes per pulse, ±2 cm, 450 m range, a finished deliverable under 20 minutes after landing), as one HTML file. No libraries. Google Fonts: Inter Tight 300-500 and JetBrains Mono.
 
 DESIGN SYSTEM
@@ -1053,7 +1053,7 @@ One h1, a main, every section with an id and a heading. Canvases are aria-hidden
     title: "Kairo AI Time Assistant Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A near-black product page for an AI assistant that tracks your time: a huge glowing \"Meet Kairo.\" splits in letter by letter beside a tilting 3D phone whose live app types out the assistant's messages, bento cards draw timelines, focus rings and charts, integrations orbit a second phone, and a dark / light switch re-skins the app",
+    description: "A near-black product page for an AI time-tracking assistant, with a glowing headline that splits in letter by letter beside a tilting 3D phone whose app types its own messages",
     prompt: `Build a landing page for Kairo, a fictional AI assistant that tracks your time for you (it follows your calendar, apps and commits, logs every hour to the right client and project, protects focus time, answers questions about your hours in plain English, and drafts reports and invoices; no timers), as one HTML file. No libraries. Google Fonts: Inter, Inter Tight 500-800 for display and JetBrains Mono for labels and numbers.
 
 DESIGN SYSTEM
@@ -1092,7 +1092,7 @@ One h1, a main, every section with an id. Decorative canvases and the wordmark a
     title: "Plinth AI Merchant Agents Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A gallery-quiet page for AI agents that run online stores: the store console stands on a marble and brass plinth in 3D, a pinned stack separates into the three layers every agent stands on, blueprint frames draw round each agent at work, and onboarding runs sideways along a lit wire",
+    description: "A gallery-quiet page for AI agents that run online stores, with the store console on a 3D marble and brass plinth and onboarding running sideways along a lit wire",
     prompt: `Build a landing page for Plinth, a fictional company that deploys AI agents for independent online stores (support, catalog, inventory, pricing and retention agents, trained on the store's own policies, working inside its existing tools, with spend limits, approval rules and a signed receipt for every action), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Source Serif 4 (light, with italics) for display and Hubot Sans with its width axis for text and wide caps.
 
 DESIGN SYSTEM
@@ -1131,7 +1131,7 @@ One h1, a main, every section with an id. Scenes have role="img" and a label; de
     title: "Sumwise AI Accounting Firm Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A print-shop page for an AI accounting firm: an ink cover opens to full screen as eight duotone illustration tiles fly out and back, a sample monthly close walks itself through, halftone dots resolve into each service, a chat replays an AI answering from the books, and the tax year scrolls past on a pinned track",
+    description: "A print-shop page for an AI accounting firm, where an ink cover opens as eight duotone tiles fly out and back and a sample monthly close walks itself through",
     prompt: `Build a landing page for Sumwise, a fictional AI accounting firm for small business (bookkeeping, taxes, payroll, invoicing, bill pay and cash forecasts, done around the clock by an AI and checked by a licensed CPA), as one HTML file. GSAP 3.13 with ScrollTrigger, and Lenis 1.3, from jsdelivr. Google Sans 400-700 with a metric-matched Arial fallback.
 
 DESIGN SYSTEM
@@ -1170,7 +1170,7 @@ One h1, a main, every section with an id. Illustrations have role="img" and a la
     title: "Infra AI Thermal Agent Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A thermal-camera page for an AI agent that sees heat: a giant condensed \"INFRA\" over a swirling WebGL heat plume, its letters stretching from the centre out as you scroll, every picture painted as a live heat field with a camera HUD, and a probe that reads the temperature under your cursor",
+    description: "A thermal-camera page for an AI agent that sees heat, with a giant INFRA over a swirling WebGL heat plume and a probe that reads the temperature under your cursor",
     prompt: `Build a landing page for Infra, a fictional AI agent that watches thermal and infrared cameras, understands what the heat means and acts on it (six agents: Triage, Crowd, Machine, Building, Space, Rack; under 40 ms per frame, no faces stored, edge, cloud or on-prem), as one HTML file. GSAP 3.13 with ScrollTrigger, and Lenis 1.3.4, from jsdelivr. Google Fonts: Hubot Sans with its width axis (75% wide for condensed caps, 112-125% for tracked labels) and Kalnia for a light serif.
 
 DESIGN SYSTEM
@@ -1211,7 +1211,7 @@ One h1 (the eyebrow and the wordmark), a main, every section with an id. Thermal
     title: "Easel AI Artist Assistant Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A two-ink risograph page for an AI studio assistant for artists: four pink ink drums roll down the hero and print a panel as you scroll, blue and pink plates slide into register, every illustration is greyscale SVG turned duotone by a blend, and a live plan ticket prices as you pick",
+    description: "A two-ink risograph page for an AI assistant for artists, where four pink ink drums roll down the hero and print a panel as you scroll",
     prompt: `Build a landing page for Easel, a fictional AI studio assistant for artists ("Your hand. A hundred more.": it sorts references, blocks in values, suggests palettes and preps print files while every stroke that matters stays the artist's; suggestions always land on their own named layers, it learns your palette and never imitates other artists, private by default), as one HTML file. GSAP 3.13 with ScrollTrigger, and Lenis 1.3, from jsdelivr. Google Fonts: Gabarito 700-900 for display, Rethink Sans 400-700 for text, each with a metric-matched local fallback.
 
 DESIGN SYSTEM
@@ -1249,7 +1249,7 @@ One h1, a skip link, a main, every section with an id and aria-labelledby. Photo
     title: "Ochre AI Meditation App Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A sunset-poster page for an AI meditation app: a thin \"OCHRE\" is split ink-on-paper by a dark field that sweeps across as the sun sets, the hero phone breathes over a live WebGL ocean, a moon window opens into the night, and every landscape is painted on canvas",
+    description: "A sunset-poster page for an AI meditation app, where a dark field sweeps across the title as the sun sets and the hero phone breathes over a live WebGL ocean",
     prompt: `Build a landing page for Ochre, a fictional AI meditation app ("Meditation that listens": it hears your breath through the phone or earbuds, learns the shape of your day and builds a session that fits, from three minutes to a full night's sleep; private by design, breath analysed on device), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Reddit Sans 200-900 with italics, display set very light (100-300) and tight.
 
 DESIGN SYSTEM
@@ -1293,7 +1293,7 @@ One h1 (the wordmark, with a screen-reader tagline), a main, every section with 
     title: "tokenhaus AI Design System Academy Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A four-ink Bauhaus page for an AI design-systems academy: the hero is a grid of quarter-circle tiles that turn as the next section slides over it, \"SYSTEM\" fans out into echoes in pink, amber and white, courses grow out of circles into pills, and every swatch, specimen and tutor portrait is drawn in SVG",
+    description: "A four-ink Bauhaus page for an AI design-systems academy, with a hero grid of quarter-circle tiles that turn as you scroll and every swatch and tutor portrait drawn in SVG",
     prompt: `Build a landing page for tokenhaus, a fictional academy that teaches designers to build design systems with AI (twelve-week live cohorts of twelve people on tokens, components, AI-assisted generation, docs and design-to-code sync, with an AI pair at every step), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Gabarito 600-900 for display, Instrument Sans 400-600 for text.
 
 DESIGN SYSTEM
@@ -1337,7 +1337,7 @@ One h1 (the two hero lines), a main, every section with an id. Every coded pictu
     title: "Ostler AI Hotel Concierge Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A late-night oxblood page for an AI hotel concierge: a giant \"Ostler\" springs apart letter by letter over a guest's phone chat, six module covers slide past sideways, \"Awake\" zooms into a hotel facade at night, and every phone, dashboard and room is drawn in SVG",
+    description: "A late-night oxblood page for an AI hotel concierge, with a giant Ostler that springs apart letter by letter over a guest's phone chat and every room drawn in SVG",
     prompt: `Build a landing page for Ostler, a fictional AI concierge for independent hotels ("An AI concierge that knows your hotel like your best night porter": it answers guest messages in 41 languages on chat, SMS, email and the phone, sells the extras, and hands the tricky ones to the team; live in 212 hotels, set up in fourteen days), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Gabarito 500-900 for display, Instrument Sans 400-700 (with italics) for text.
 
 DESIGN SYSTEM
@@ -1379,7 +1379,7 @@ One h1, a main, every section with an id. Every picture is an SVG with role="img
     title: "Wayfind AI Travel Companion Page V2",
     category: "web",
     categoryLabel: "WEB",
-    description: "A sand-and-sea expedition poster of a page for an AI travel companion: \"wayfind\" is cut out of a desert photo that opens to full bleed as you scroll, mode posters stack and tilt, a nine-day route draws itself sideways, and every photo is raymarched live in WebGL",
+    description: "A sand-and-sea expedition poster for an AI travel companion, with wayfind cut out of a desert photo that opens to full bleed and every photo raymarched live in WebGL",
     prompt: `Build a landing page for Wayfind, a fictional AI travel companion (it plans a whole trip in about 90 seconds, watches every booking, rebooks disruptions while you sleep and works offline in 140 countries; four agents behind one chat: Scout finds, Fixer rebooks, Compass navigates, Ledger tracks money), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, from jsdelivr. Google Fonts: Special Gothic (wdth 75-100, 400-700) for display, Hubot Sans (wdth 75-125, 200-900) for text.
 
 DESIGN SYSTEM
@@ -1423,7 +1423,7 @@ One h1, a main, every section with an id. Every img has alt text and width and h
     title: "Tarn File Transfer Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A frosted steel-grey page for a heavy-file transfer service: the hero zooms out of a giant glass send button into its frame, a magnifying lens glides across the manifesto, a light sweeps the service tiles, and a send button you can try with your own file",
+    description: "A frosted steel-grey page for a heavy-file transfer service, where the hero zooms out of a giant glass send button and a send button you can try with your own file",
     credits: [
       { label: "8B AI Website Builder", href: "https://8b.com/", note: "Generated this page from a single prompt" },
     ],
@@ -1469,7 +1469,7 @@ One h1, a main, every section with an id. Pictures are role="img" with a label a
     title: "Somatic AI Wellness Companion Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An acid-lime page for an AI wellness companion: a breathing point-sphere orb sits behind \"SOMATIC SIGNALS\" stretched to the full width, a diamond window opens to fill the screen as you scroll, five programs slide past sideways, and every heart trace, sleep map and portrait is drawn in code",
+    description: "An acid-lime page for an AI wellness companion, with a breathing point-sphere orb behind full-width SOMATIC SIGNALS and every heart trace and sleep map drawn in code",
     prompt: `Build a landing page for Somatic, a fictional AI wellness companion ("the AI that listens to your body": it reads sleep, heart rhythm, breath and movement from the ring, watch or phone you already own and turns them into one calm plan for today), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Anybody (wdth 50-150, 100-900) at 58% width and weight 900 for display words, Bodoni Moda italic for the one emphasised word per heading, Space Grotesk 300-700 for text, Space Mono for labels.
 
 DESIGN SYSTEM
@@ -1519,7 +1519,7 @@ One h1, a main, every section with an id. Decorative SVG and canvases are aria-h
     title: "Latent AI Fashion Atelier Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A dark, iridescent page for an AI fashion atelier: a wireframe cloth ripples toward the pointer under a giant \"Latent\" that scatters as the hero tilts away, six capsules slide past sideways, a \"Zero\" knockout zooms open onto a gradient, and every picture is generative SVG",
+    description: "A dark, iridescent page for an AI fashion atelier, with a wireframe cloth that ripples toward the pointer under a giant Latent and every picture generated in SVG",
     prompt: `Build a landing page for Latent, a fictional AI fashion atelier ("Clothes drafted by a model, finished by a tailor.": generative outerwear, engineered knit and smart optics, cut to a 3D scan of your body and released every Thursday), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Unbounded 300-900 for machine-scale display words, Geist 300-800 for headings and text, Doto 500-900 (a dot-matrix face) for the emphasised phrase in each heading, Geist Mono 400-500 for labels.
 
 DESIGN SYSTEM
@@ -1564,7 +1564,7 @@ One h1, a main, every section with an id. Every generated picture is a role="img
     title: "Rowline Agronomy AI Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A dark-green landing page for a farm AI: a live NDVI scan wipes across a field rendered pixel by pixel, the scanner's lens opens into a dawn landscape with a drone flying in, five agents slide past sideways, and every field, crop map and device is drawn in code",
+    description: "A dark-green page for a farm AI, where a live NDVI scan wipes across a field rendered pixel by pixel and the lens opens into a dawn landscape with a drone flying in",
     prompt: `Build a landing page for Rowline, a fictional agronomy AI ("Every row, read by machine.": it flies, probes and models fields every day, then says where to water, feed and scout; live on 1,240 farms), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Bricolage Grotesque (opsz, wdth 75-100, 200-800) for display at wdth 94-96, Manrope 300-800 for text, Fraunces italic (SOFT 100, WONK 1) for the one emphasised word per heading, Martian Mono (wdth 80) for labels.
 
 DESIGN SYSTEM
@@ -1610,7 +1610,7 @@ One h1, a main, every section with an id. The scanner has role="img" and a label
     title: "Corvane Capital Private Equity Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A quiet-money private equity page on a ruled four-column grid: a giant serif \"Compounding\" beside a window of live ridgelines that opens to full bleed as you scroll, a champagne principles field that fans six strokes into line, and a track record that flips between gross and net",
+    description: "A quiet-money private equity page on a ruled four-column grid, with a giant serif Compounding beside a window of live ridgelines that opens to full bleed as you scroll",
     prompt: `Build a landing page for Corvane Capital, a fictional New York private equity firm that partners with founder-led software companies ($8.4B under management, 47 platforms since 2012, Fund IV of $2.8B now investing), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Instrument Serif (with italic) for display, Inter Tight 300-600 for text, JetBrains Mono 400-500 for labels.
 
 DESIGN SYSTEM
@@ -1662,7 +1662,7 @@ One h1, a main, every section with an id. The menu button has aria-expanded and 
     title: "Agentic Art Expo Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An editorial event page for an expo where AI agents exhibit: a giant wordmark that flies into the header, a satin hero with live particle trails, a programme that floods dark from a full stop, and every picture painted in code",
+    description: "An editorial event page for an expo where AI agents exhibit, with a satin hero of live particle trails and a programme that floods dark from a full stop",
     prompt: `Build a landing page for Agentic® Art Expo, a fictional five-day exhibition in Rotterdam where autonomous AI agents make, critique and sell original work live (14-18 April 2027, 212 agents, a former harbour warehouse), as one HTML file. GSAP 3.13 with ScrollTrigger and Lenis 1.3.4, all from jsdelivr. Google Fonts: Host Grotesk 400-700, Instrument Serif (italic, one or two words per heading), JetBrains Mono 400-500 for labels. No image files: every picture on the page is painted on a canvas by a small generative engine in the page.
 
 DESIGN SYSTEM
@@ -1713,7 +1713,7 @@ One h1 (the hero lede), a main, every section with an id. Accordions use buttons
     title: "GEO/LAB Planetary Geography Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A cyan-on-black instrument page for a geography lab: live contour lines drift across the hero while a reticle and HUD read elevation, slope and a terrain profile under your cursor, then eight elevation bands separate in 3D as you scroll",
+    description: "A cyan-on-black instrument page for a geography lab, where live contour lines drift under a HUD that reads elevation and slope at your cursor",
     prompt: `Build a landing page for GEO/LAB, a fictional planetary geography laboratory ("Read the planet like a contour.": it turns elevation, strata and orbital telemetry into living, instrument-grade terrain models), as one HTML file. No libraries. Google Fonts: Instrument Serif (with italic) for headlines and big numbers, Inter Tight 300-600 for text, JetBrains Mono 300-500 for every label.
 
 DESIGN SYSTEM
@@ -1754,7 +1754,7 @@ One h1, a main, aria-hidden canvases, the ticker and the boot screen, an aria-la
     title: "Tessel AI Infrastructure Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A pinned isometric journey for an AI infrastructure platform: a pixel-art engineer walks a glowing route past six code-drawn scenes, from blueprint table to rocket launch, as chapter cards and a rail follow the scroll",
+    description: "A pinned isometric journey for an AI infrastructure platform, where a pixel-art engineer walks a glowing route past six code-drawn scenes as you scroll",
     prompt: `Build a landing page for Tessel, a fictional AI infrastructure platform ("From blueprint to liftoff.": architect clusters, train at scale, evaluate and deploy globally from one spec), as one HTML file. No libraries. Google Fonts: Inter Tight 400-600 only; a system monospace for code. No images: every illustration is SVG generated by the script.
 
 DESIGN SYSTEM
@@ -1796,7 +1796,7 @@ One h1 (the hero card), a main, the world SVGs aria-hidden, a labelled rail with
     title: "Hearthly AI Home Care Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A warm, illustrated page for an AI home assistant: a floating collage of glossy home-system cards that floods open into a night scene of the house, stacking service folders, arched system plates and a word-lit testimonial",
+    description: "A warm, illustrated page for an AI home assistant, with a floating collage of glossy home-system cards that floods open into a night scene of the house",
     prompt: `Build a landing page for Hearthly, a fictional AI home assistant ("Your home, quietly looked after": it watches a home's water, heat, power, air and safety, explains problems in plain English and books vetted local pros at fixed prices), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Instrument Sans 400-700 and Instrument Serif (italic, for one word per heading and the signatures). No images: every picture is inline SVG drawn in code.
 
 DESIGN SYSTEM
@@ -1843,7 +1843,7 @@ One h1, a main, a labelled burger with aria-expanded, role="img" and aria-labels
     title: "NOTA Wearable AI Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A quiet-luxury catalogue for a titanium AI wearable: a live device you can use in the hero (hold to ask, turn the crown, flip the mic switch), close-ups that are clones of it, a seven-segment privacy ledger and a technical drawing",
+    description: "A quiet-luxury catalogue for a titanium AI wearable, with a live device in the hero you can hold to ask, turn by the crown and mute with the mic switch",
     prompt: `Build a product page for NOTA One, a fictional titanium AI wearable worn on a cord ("Remembers what you heard. Forgets when you ask it to."; it listens only while you hold a key, runs its model on the device and has a hardware mic switch), as one HTML file. No libraries. Google Fonts: Archivo with the width axis (wdth 62-125, wght 200-900) for display, Instrument Sans 400-600 for text, JetBrains Mono 400-700 for labels, and Noto Sans JP subset to the few Japanese characters used.
 
 DESIGN SYSTEM
@@ -1892,7 +1892,7 @@ One h1, a main, labelled ASK and mic switch buttons with aria-pressed, the crown
     title: "Mirai AI Companion Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A purple, mint and charcoal page for an AI companion: an illustrated character peeks over giant type between clouds, follows your cursor with her eyes, blinks, perks up when you come close and frowns when you poke her",
+    description: "A purple, mint and charcoal page for an AI companion, with an illustrated character who peeks over giant type, follows your cursor, blinks and frowns when you poke her",
     prompt: `Build a landing page for Mirai, a fictional AI companion app ("The AI companion that actually listens": it remembers what matters, checks in and keeps conversations private), as one HTML file. No libraries. Google Fonts: Sora 300-800 and JetBrains Mono 400/600. No images: the character and every illustration are inline SVG and CSS gradients.
 
 DESIGN SYSTEM
@@ -1935,7 +1935,7 @@ One h1 (visually hidden, the hero is an illustration), a main, an aria-label on 
     title: "ORVYN Autonomous Car Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An AI-native grand tourer on a near-black page: a spectrum autonomy dial steps through five levels, unlocking pods as it goes, over a radar, live telemetry and a horizon of light",
+    description: "An AI-native grand tourer on a near-black page, with a spectrum autonomy dial that steps through five levels over a radar, live telemetry and a horizon of light",
     prompt: `Build a landing page for ORVYN ONE, a fictional AI-native grand tourer that unlocks autonomy in five verified stages ("It already knows the road ahead."), as one HTML file. No libraries. Google Fonts: Geist 200-600 (everything, mostly 200-300), Geist Mono 400/500 (labels), Instrument Serif italic (one word per heading).
 
 DESIGN SYSTEM
@@ -1978,7 +1978,7 @@ One h1, a main, role="group" on the dial with labelled segments that work with E
     title: "Myriad Agent Swarm Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An agent-select screen for an AI swarm: pick one of five agents and a 640-point particle swarm reforms into its shape while the whole page recolours to match",
+    description: "An agent-select screen for an AI swarm, where picking one of five agents reforms a 640-point particle swarm into its shape and recolours the page",
     prompt: `Build a one-screen landing page for Myriad OS, a fictional platform of specialist AI agents that work as one swarm, styled like a game's character-select screen, as one HTML file. No libraries. Google Fonts: Unbounded 300/500/700/800 (display), Space Grotesk 400/500 (body), JetBrains Mono 400/500 (labels).
 
 DESIGN SYSTEM
@@ -2026,7 +2026,7 @@ One h1 (the agent name), the canvas and decorations aria-hidden, labelled rail b
     title: "Mirador Observability Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An observability platform in a framed night console: a WebGL ribbon of glowing fibers behind the hero, plates cut out of the frame with inverted corners, stacking feature cards with live trace mockups and a dark/light switch",
+    description: "An observability platform in a framed night console, with a WebGL ribbon of glowing fibers behind the hero and stacking feature cards with live trace mockups",
     prompt: `Build a landing page for Mirador, a fictional observability platform ("See every signal": traces, metrics and logs in one calm view, so the team finds the cause before customers find the bug), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3.4, all from jsdelivr. Google Fonts: Geist 300-700 (display and text), Geist Mono 400-500, Instrument Serif italic (one emphasised word per heading). No images: every chart, trace, map, portrait and icon is HTML, CSS, inline SVG or WebGL.
 
 DESIGN SYSTEM
@@ -2070,7 +2070,7 @@ One h1, one main, a labelled rail nav, listbox filters with aria-expanded and ar
     title: "Side Quest Adoption Center Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A butter-yellow adoption center for ideas you have no time for: a waving page mascot, six illustrated side quests to adopt with confetti, and a lifecycle from spark to archive",
+    description: "A butter-yellow adoption center for ideas you have no time for, with a waving mascot, six illustrated side quests to adopt with confetti and a spark-to-archive lifecycle",
     prompt: `Build a landing page for The Side Quest Adoption Center, a fictional and very unserious "shelter" where developers adopt side-project ideas they have absolutely no time for ("Your next little distraction."), as one HTML file. No libraries. Google Fonts: Gloock (display, one weight) and Schibsted Grotesk 400-800 (text). No images: the mascot, every illustration and every icon is inline SVG.
 
 DESIGN SYSTEM
@@ -2110,7 +2110,7 @@ One h1, one main, aria-pressed on the adopt buttons and the filter, a polite liv
     title: "Orrery Reasoning Engine Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An AI reasoning engine that shows its work: a hero window opens onto a canvas orrery, and every picture on the page is a live rendering drawn in code",
+    description: "An AI reasoning engine that shows its work, where the hero window opens onto a canvas orrery and every picture is a live rendering drawn in code",
     prompt: `Build a dark-and-light landing page for Orrery, a fictional AI reasoning engine ("the reasoning engine that shows its work": it reads a team's contracts, tickets, code and spreadsheets and answers with the sources behind every claim), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3, all from jsdelivr. Google Fonts: Hubot Sans with the width axis (wdth 100-125, wght 500-700) for display, Instrument Sans 400-700 for text. No images: every picture is a <canvas data-art="..."> drawn by one procedural art engine.
 
 DESIGN SYSTEM
@@ -2165,7 +2165,7 @@ One h1 (the hero words, with the brand in a visually hidden span), a main, a lab
     title: "Siliq AI Hardware Lab Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A sticker-bright bento for a small-batch AI hardware lab and school: SVG chips and GPUs, a hero board that breaks apart into a honey flood and a gallery that folds into a grid",
+    description: "A sticker-bright bento for a small-batch AI hardware lab and school, with SVG chips and GPUs and a hero board that breaks apart into a honey flood",
     prompt: `Build a landing page for Siliq, a fictional small-batch AI hardware lab and hardware school on "Foundry Row" (NPU sticks, RISC-V dev boards, tensor cards, inference chips; classes at a big workbench; a hardware leasing club), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3, all from jsdelivr. Google Fonts: Climate Crisis (display), Google Sans 400-700 (text), Playpen Sans 600-800 (handwritten notes). No images: every product, the lab and four portraits are inline SVG symbols in one sprite at the top of <body>, drawn as glossy sticker illustrations, and used with <use href>.
 
 DESIGN SYSTEM
@@ -2205,7 +2205,7 @@ One h1, a main, a labelled menu button with aria-expanded, role="img" with label
     title: "Thorn Music Controller Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A desktop music controller built in CSS 3D from layered DOM: every dial, fader, joystick and tape key works, with clicks you can hear and three finishes",
+    description: "A desktop music controller built in CSS 3D, where every dial, fader, joystick and tape key works with clicks you can hear",
     prompt: `Build a product landing page for THORN/98, a fictional desktop music controller ($649; two detented dials, two long-throw faders, a joystick and three latching tape keys around one small screen), as one HTML file with no libraries and no images. The device itself is the hero, built in CSS 3D from layered DOM, and every control on it works.
 
 TYPE AND TOKENS
@@ -2250,7 +2250,7 @@ One h1, labelled sliders and buttons with keyboard control, aria-hidden decorati
     title: "Corvel Hard-Tech Capital Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A risograph-print investment firm for fabs, satellites and fusion: halftone art drawn in code, a sunburst arch that blows apart on scroll and a two-plate misregistered print",
+    description: "A risograph-print page for a firm investing in fabs, satellites and fusion, with halftone art drawn in code and a sunburst arch that blows apart on scroll",
     prompt: `Build a landing page for Corvel, a fictional hard-tech investment firm ("Capital for things that are hard to build": venture equity, equipment debt and project finance for fabs, satellites, energy storage and fusion), as one HTML file. GSAP 3.13 with ScrollTrigger and SplitText, and Lenis 1.3, all from jsdelivr. Google Fonts: Inter Tight 400-900 (display and UI), JetBrains Mono 400-700 (labels), Newsreader (body serif, optical sizes). No images: every picture is SVG generated by script and printed through a CSS halftone screen.
 
 DESIGN SYSTEM
@@ -2296,7 +2296,7 @@ A main, one h1 (the masthead and tagline), labelled menu buttons with aria-expan
     title: "Corelane Build Cluster Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An isometric dev-tool landing page: laptops and a core server on a glowing circuit field, plus a 96-machine fleet board you can put to sleep and run a build across",
+    description: "An isometric dev-tool page with laptops and a core server on a glowing circuit field, and a 96-machine fleet board you can put to sleep and run a build across",
     prompt: `Build a dark landing page for Corelane, a fictional product that pools the idle CPU cores in a team's laptops with one on-site "core" server into a private build cluster, as one HTML file with no libraries and no images. Every machine, server and circuit is inline isometric SVG.
 
 FONTS (Google Fonts)
@@ -2342,7 +2342,7 @@ A skip link, one h1, a main, aria-hidden decoration, labelled grid and form, vis
     title: "Halden Clinical Equipment Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A clinical equipment service in ink and paper: a dot-matrix wordmark that splits apart, a pinned 12-check inspection board, a rate card and a scroll-driven pre-owned shelf",
+    description: "A clinical equipment service in ink and paper, with a dot-matrix wordmark that splits apart, a pinned 12-check inspection board and a scroll-driven pre-owned shelf",
     credits: [
       { label: "8B · Reflow template", href: "https://8b.com/templates/reflow/", note: "The MIT repair-shop template this page adapts, its layout system and its scroll scenes" },
     ],
@@ -2387,7 +2387,7 @@ A skip link, one h1, a main, real tables with captions, labelled form fields, ar
     title: "Calibre Grading Bench Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A glass grading bench on a planet horizon: it reads an AI answer claim by claim, highlights each one in its verdict colour and swings a needle to the score",
+    description: "A glass grading bench on a planet horizon that reads an AI answer claim by claim, highlights each in its verdict colour and swings a needle to the score",
     parents: [
       { slug: "highlighter-markup-page", gave: "The claim-by-claim answer, the serif and the verdict highlighters" },
       { slug: "machine-front-panel-page", gave: "The lamps, the gauge and its needle, the amber and the display type" },
@@ -2447,7 +2447,7 @@ One h1, a main, labelled icon buttons, aria-hidden decoration, a live region on 
     title: "Facetry Security Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A black-and-chrome security platform page: an extruded metal logo on a rough stone pedestal in a CSS 3D scene, spring-morphing between three shapes, glass panels floating around it, a live spring tuner, and a footer with live region clocks",
+    description: "A black-and-chrome security platform page, with an extruded metal logo spring-morphing between three shapes on a stone pedestal in a CSS 3D scene",
     prompt: `Build a single-file HTML landing page for "Facetry", a fictional access-control and security platform ("Security, cut to shape."). The look is black glass and brushed chrome: near-black surfaces, metal gradient type and buttons, and one hero object, an extruded metal logo standing on a rough stone block in a real CSS 3D scene. The brand mark morphs between three shapes (diamonds, shield, triangle) on a spring, everywhere it appears. Fictional product, labelled as such in the footer. No libraries, no images, no web fonts: system UI and system mono, inline SVG, CSS 3D and one inline script.
 
 THE SYSTEM
@@ -2496,7 +2496,7 @@ THE FLOOR
     title: "Cyber Bird Arcade Game Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A pixel-art arcade game launch page with the game playable right in the hero: a one-button flyer threading an armored cyber-pickup through stainless rocket stacks, night, dawn and day skies drawn by code, difficulty presets and a local mission log",
+    description: "A pixel-art arcade game launch page with the game playable in the hero, where a one-button flyer threads an armored cyber-pickup through stainless rocket stacks",
     prompt: `Build a single-file HTML landing page for "Cyber Bird", a one-button pixel arcade game concept, with the game itself playable inside the hero. The player flies an angular armored cyber-pickup on hover-jets through gaps between stacks of stainless-steel rockets over a starbase. Every graphic, on the page and in the game, is drawn by code at runtime: no image files. Credit the original open-source game it is built on (Tesla Bird by Pavel Troshkin) in the footer, and say it is an unaffiliated fan concept.
 
 STACK
@@ -2563,7 +2563,7 @@ THE FLOOR
     title: "Kestrel AI Finance Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A bright fintech page for an AI finance platform: a 3D-tilting cash-runway dashboard with a self-drawing forecast chart and a live agent feed, orbiting integration chips, glossy diamond icon tiles, product rows with dark live panels, hover-flip agent cards and a demo booking widget",
+    description: "A bright fintech page for an AI finance platform, with a 3D-tilting cash-runway dashboard, a self-drawing forecast chart and a live agent feed",
     prompt: `Build a single-file HTML landing page for "Kestrel", a fictional AI platform for finance teams that puts agents to work on forecasting, the month-end close and fraud review. The page should feel bright, precise and expensive: a pale mint-white ground lit by teal, sky and amber light, chunky rounded display type, a floating 3D dashboard in the hero and glossy diamond-shaped icon tiles everywhere. Fictional company, customers and numbers, labelled as such in the footer. No images and no libraries: everything is inline SVG, CSS and one canvas, driven by one inline script.
 
 STACK
@@ -2612,7 +2612,7 @@ THE FLOOR
     title: "Starfork Game Studio Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A premium indie game studio page set in a cosmic toy world: eight sprite-rigged characters with real animation poses standing on a glowing planet, a character select with pose and frame-rate controls, a playable 30-second endless runner with coins and fireworks, live game cards, and a careers quiz",
+    description: "A premium indie game studio page in a cosmic toy world, with eight sprite-rigged characters on a glowing planet and a playable 30-second endless runner",
     prompt: `Build a single-file HTML landing page for "Starfork Studio", a fictional nine-person indie game studio, and its upcoming game "Desk Dash!", a cosmic endless runner across the messiest desk in the galaxy. The page should feel like the game's own menus: a deep indigo night full of floating toy shapes, a cast of cute object characters that are properly animated like sprite sheets, white glossy pill buttons, and something you can actually play. Fictional studio, games, team, players and roles, labelled as such in the footer. No images and no canvas: every character, prop, cube, ring and the planet are inline SVG or CSS, driven by one inline script.
 
 STACK
@@ -2668,7 +2668,7 @@ THE FLOOR
     title: "Social Work Agent Swarm Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A loud neo-brutalist page for a swarm of AI agents that help social workers: huge stencil type over op-art ring patterns, animoji characters whose eyes follow the cursor, a filterable crew of eight agent cards, an approval queue, guardrails and pricing",
+    description: "A loud neo-brutalist page for a swarm of AI agents that help social workers, with huge stencil type over op-art rings and animoji characters whose eyes follow the cursor",
     prompt: `Build a single-file HTML landing page for "Kind Swarm", a fictional swarm of small AI agents for social work: they draft intake notes, find benefits, watch housing waitlists, keep court dates, translate and chase follow-ups, and a person approves everything. The look is loud and warm: flame-orange and lime blocks covered in concentric op-art ring patterns, huge stencil type, hard offset shadows, cream cards, and every agent is an animoji character, a glossy rounded diamond with big cartoon eyes. Fictional product, agents, prices and numbers, labelled as such in the footer. No images and no canvas: the characters are inline SVG with CSS and a few lines of JS.
 
 STACK
@@ -2714,7 +2714,7 @@ THE FLOOR
     title: "Game Dev Agent Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An AI agent for game studios whose hero is a playable three.js diorama: a toy biplane with a corgi pilot flying a low-poly cherry-blossom road under bloom and tilt-shift, a full-page loader, a crew picker that repaints the plane live, in-engine card stills and generated sound",
+    description: "An AI agent for game studios whose hero is a playable three.js diorama of a corgi-piloted toy biplane flying a low-poly cherry-blossom road",
     prompt: `Build a single-file HTML landing page for "Sortie", a fictional AI agent for game developers by the fictional "Sortie Labs". Sortie works inside the studio's engine and repo: it writes gameplay code, blocks out levels, playtests the build overnight and files the bugs it finds. The page proves the claim with its hero: not a screenshot but a small live game scene in three.js that the visitor can fly without leaving the page. Fictional product, studios, quotes, awards and numbers, labelled as such in the footer.
 
 STACK
@@ -2789,7 +2789,7 @@ THE FLOOR
     title: "Peptide Skincare Store Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A warm, cream-toned peptide skincare store whose hero is a spinning sphere of code-drawn product tiles behind a glass search bar that types its own queries, with springy lab-style product renders, a draggable Dose lab vial, bubble-popping add-to-bag and a day-to-night routine",
+    description: "A warm, cream-toned peptide skincare store whose hero is a spinning sphere of code-drawn product tiles behind a glass search bar that types its own queries",
     prompt: `Build a single-file HTML landing page for "Cosmos", a fictional peptide skincare brand that lists every peptide at its exact dose. The look is a quiet premium beauty store: warm cream ground, near-black ink, Wix Madefor type set tight, IBM Plex Mono for every number, glass pills, soft studio shadows and one amber accent. Every image on the page is an SVG drawn from code; there are no photos. Fictional brand, products, prices and journal issues; the peptide INCI names are real ingredients but doses and claims are illustrative.
 
 STACK
@@ -2849,7 +2849,7 @@ THINGS THAT BREAK
     title: "AI Work Assistant Chat Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A soft pastel AI-assistant launch page whose hero is a working chat: it types its own first question, streams answers with thread cards, drafts and calendar slots, and is ringed by agent badges that spin, tick and fail on their own",
+    description: "A soft pastel AI-assistant launch page whose hero is a working chat that types its own first question and streams answers with drafts and calendar slots",
     prompt: `Build a single-file HTML landing page for "Tidewell", a fictional AI assistant for work that reads your inbox, calendar and docs, then summarizes, drafts and schedules. The look is quiet, light and pastel: a near-black ink on white, Geist type set tight, soft blue and violet gradients, a faint page-wide grid that lights up around the cursor, two blurred glows behind a centred hero, and a real, scripted chat as the centrepiece. Full dark theme included. Fictional brand, investor, customers, inbox senders and testimonials, labelled as such in the footer.
 
 STACK
@@ -2924,7 +2924,7 @@ THE FLOOR
     title: "Maasai-Inspired Event Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A cultural events studio page on Maasai-inspired dusk: a Rive hero rebuilt in SVG where four warriors leap into the adumu, a scroll-driven frieze of leaping silhouettes, generated beadwork and gala art, and textures cut from the warriors' own shapes",
+    description: "A cultural events studio page on a Maasai-inspired dusk, with a hero where four warriors leap into the adumu and a scroll-driven frieze of leaping silhouettes",
     prompt: `Build a single-file HTML landing page for "Sundune Events", a fictional studio that hosts festivals, retreats, ceremonies and galas co-hosted with Maasai communities in Narok, Kajiado and Laikipia. The hero recreates a Rive animation (a Maasai-inspired event hero banner) without any Rive runtime, and every texture and illustration on the page is drawn in code: no image files. Warm dusk palette, an editorial serif, and copy that presents community hosts as partners, not performers. Fictional studio, clients, dates and numbers, labelled as such, with a credit line for the Rive design it recreates.
 
 STACK
@@ -2992,7 +2992,7 @@ THE FLOOR
     title: "Sakura Corgi Game Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A cozy game launch page whose hero is the game: a toon-shaded three.js corgi dancing down a low-poly cherry-blossom road under bloom and tilt-shift, an opening crane shot past a great weeping cherry, a playable lap, in-engine card stills, a 3D coat turntable and generated sound",
+    description: "A cozy game launch page whose hero is the game, a toon-shaded three.js corgi dancing down a low-poly cherry-blossom road with a playable lap",
     prompt: `Build a single-file HTML landing page for "Corgi Road", a fictional cozy third-person walking game by the fictional studio "Petalfold Games": you are a corgi, dancing down one very long cherry-blossom road towards an eighty-metre corgi standing at the far end. The hero is not a screenshot but a small live slice of the game in three.js, and the visitor can take the controls without leaving the page. Fictional game, studio, press quotes, numbers and release date, labelled as such in the footer.
 
 STACK
@@ -3072,7 +3072,7 @@ THE FLOOR
     title: "Blackletter Biology Workbench",
     category: "web",
     categoryLabel: "WEB",
-    description: "A computational biology platform set like an illuminated manuscript: blackletter headings lit by a WebGL shader, spinning conic frame borders, and hand-drawn lab sketches in the margins",
+    description: "A computational biology platform set like an illuminated manuscript, with blackletter headings lit by a WebGL shader and hand-drawn lab sketches in the margins",
     prompt: `Build a single-file HTML landing page for "Mistfold", a fictional computational biology workbench (protein structure prediction, genomic alignment, molecular docking, single-cell analysis). The look is an illuminated manuscript on warm paper: blackletter headings, a serif body, framed panels with ornaments, and pale hand-drawn lab sketches drifting in the side margins. Google Fonts: UnifrakturMaguntia (headings and logo), Fanwood Text (body, 17px, line-height 1.55), Cinzel (numbers and small caps labels), JetBrains Mono (code). Rough.js 4.6.6 from jsDelivr for the sketches; everything else is hand-written CSS, inline SVG and one WebGL shader. Fictional brand, numbers and testimonial, labelled as such.
 
 THE SYSTEM
@@ -3182,7 +3182,7 @@ One h1, a main, data-section on every region, aria-pressed on the toggles and sw
     title: "Hazard Terminal Security Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Antivirus as an amber hazard terminal: a spinning seal HUD, a live scan where three cores vote, and a searchable grid of 72 spirits, each guarding a threat",
+    description: "Antivirus as an amber hazard terminal, with a spinning seal HUD, a live scan where three cores vote and a searchable grid of 72 spirits guarding threats",
     prompt: `Build a single-file HTML landing page for "Lemegeton", a fictional antivirus whose 72 protection modules are the 72 spirits of the Ars Goetia (public-domain names). The look is a sci-fi hazard terminal: amber glow on black, hazard stripes, hex cells and kanji labels. System font stacks only (a condensed sans for UI, a Mincho serif for headings and kanji, a monospace for readouts); no libraries, no images. Fictional brand, pricing and copy.
 
 THE SYSTEM
@@ -3220,7 +3220,7 @@ One h1, a main, data-section on every region, real buttons with aria-pressed, a 
     title: "Purple Rain in the Rain",
     category: "gospel",
     categoryLabel: "GOSPEL",
-    description: "Prince at the Super Bowl XLI halftime show, Miami, February 2007: a downpour, a purple stage, and Purple Rain to close it out",
+    description: "Prince closing the Super Bowl XLI halftime show in Miami in February 2007, with Purple Rain in a downpour on a purple stage",
     prompt: "Prince, Super Bowl XLI halftime show (Miami, 2007). Watch: https://www.youtube.com/watch?v=-WYYlRArn3g",
     preview: "hero",
     variant: "large",
@@ -3235,7 +3235,7 @@ One h1, a main, data-section on every region, real buttons with aria-pressed, a 
     title: "Retro Messenger Agent Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An AI agent pitched as your old instant-messenger buddy: a working chat window that plans and runs tasks, nudges that shake the screen, and a buddy-list footer",
+    description: "An AI agent pitched as your old instant-messenger buddy, with a working chat window that plans and runs tasks and nudges that shake the screen",
     prompt: `Build a single-file HTML landing page for "Hollr", a fictional AI chat assistant that lives in a nostalgic mid-2000s instant-messenger window and has an Agent mode that plans and runs tasks. Oswald (display), Neuton (descriptive copy) and Verdana/Tahoma (UI, like the old clients) from Google Fonts; no libraries, no images. Fictional brand, pricing and copy.
 
 THE PALETTE
@@ -3338,7 +3338,7 @@ One h1, a main, data-section on every region, aria-hidden on the canvases, the v
     title: "Faceted Iceberg Platform Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "An AI agent platform drawn in low-poly crystal: a shape-mosaic hero, an iceberg whose waterline drops as the platform takes on the stack, and a faceted sunrise footer",
+    description: "An AI agent platform drawn in low-poly crystal, with a shape-mosaic hero and an iceberg whose waterline drops as the platform takes on the stack",
     prompt: `Build a single-file HTML landing page for "Halcyra", a fictional AI agent platform ("Intelligence, orchestrated at scale"). Outfit from Google Fonts is the only font (500 for headlines, 200 for the light words set against them). No libraries, no images: every illustration is inline SVG built from one shared sprite. Fictional customers, figures and testimonial.
 
 THE PALETTE
@@ -3382,7 +3382,7 @@ One h1, a main, data-section on every region, aria-hidden on every decorative SV
     title: "Card Scanner Finance Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Autonomous finance agents: tilted cards in an orbit ring, a scroll-pinned scanner that turns cards into code, and a live control bento",
+    description: "Autonomous finance agents with tilted cards in an orbit ring and a scroll-pinned scanner that turns cards into code",
     prompt: `Build a single-file HTML landing page for "NOVA", fictional autonomous finance agents that read every transaction, tokenize every card and reconcile and close the books in real time, with a person in the loop. Inter Tight (display), Inter (copy) and JetBrains Mono (UI) from Google Fonts; GSAP 3.12.5 with ScrollTrigger and three.js r128 from cdnjs; everything else inline, no images. Fictional vendors and figures.
 
 THE PALETTE
@@ -3440,7 +3440,7 @@ One h1, a main, data-section on every region, aria-hidden on every decorative ca
     title: "Paper Sun Agent Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "AI agents for the night shift: a paper-cut sunset panel you can slap stickers on, a dusk-to-daybreak arc, and a run log that stops to ask",
+    description: "AI agents for the night shift, with a paper-cut sunset panel you can slap stickers on and a run log that stops to ask",
     prompt: `Build a single-file HTML landing page for "Daybreak", a fictional product that runs AI agents overnight on the work a team keeps pushing to tomorrow, and has it waiting, checked and reviewable in the morning. Bricolage Grotesque (display, optical sizing on), Figtree (body) and JetBrains Mono (labels) from Google Fonts, everything else inline, no libraries. Every illustration is inline SVG and CSS. Write all colour in oklch.
 
 THE PALETTE
@@ -3523,7 +3523,7 @@ One h1 and one main (the app window's centre column is a div), data-section on e
     title: "Manga Panel Dev Tool Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A deploy CLI pitched as a black-and-white manga issue: a sliced retro sun over a city skyline, a typing terminal, three villains defeated and a reader-mail FAQ",
+    description: "A deploy CLI pitched as a black-and-white manga issue, with a sliced retro sun over a city skyline and a typing terminal",
     prompt: `Build a single-file HTML landing page for "OVERCLOCK", a fictional one-command deploy tool, styled as an issue of a black-and-white manga. Bangers, Anton, Barlow Condensed and JetBrains Mono from Google Fonts, everything else inline. No images and no libraries: every illustration is inline SVG animated with SMIL, and the screentone is CSS. Strictly two inks, #111 and an off-white paper #f8f8f5. Use example domains only, especially in the curl | sh install line.
 
 THE PAGE
@@ -3570,7 +3570,7 @@ One h1 and a main, data-section on every region, aria-hidden on every scene, the
     title: "Ghost Agent Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Invisible AI agents pitched as ghosts: pixel ghosts float up a curved hero, and three SVG ghosts clear a 100-task board live",
+    description: "Invisible AI agents pitched as ghosts, where pixel ghosts float up a curved hero and three SVG ghosts clear a 100-task board live",
     prompt: `Build a single-file HTML landing page for "Haunt", a fictional company whose AI agents work like ghosts: invisible, in the tools a team already uses, noticed only when the work is done. Archivo from Google Fonts (the variable width axis), everything else inline. No images and no libraries: the logo, the favicon and both kinds of ghost are inline SVG or pure CSS. Fictional brand, invented customers and figures, example.com-style contact details.
 
 THE TYPE AND THE PALETTE
@@ -3617,7 +3617,7 @@ A skip link, one h1, a main, labels on every field, aria-hidden on all the decor
     title: "Sunset Scroll Story Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A fusion company told as one long sunset: scroll and the sun goes down over a layered SVG landscape, night falls, then a live canvas tokamak takes over",
+    description: "A fusion company told as one long sunset, where the sun goes down over a layered SVG landscape as you scroll and a live canvas tokamak takes over at night",
     prompt: `Build a single-file HTML landing page for "Solstice", a fictional compact-fusion company, where the first 6000px of scroll is a story: the sun sets over a layered landscape, night falls, stars come out, and only then does the page arrive. Space Grotesk, Inter and JetBrains Mono from Google Fonts; GSAP 3.12.5 and ScrollTrigger from cdnjs; everything else inline. No images - the landscape is one inline SVG, the reactor is canvas, the icons are inline SVG. Say in the footer that the company is fictional, and credit the parallax landscape to its original artist if you build on one.
 
 THE STAGE
@@ -3711,7 +3711,7 @@ A starfield placed once from a seeded generator - nothing here needs to move to 
     hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     sectionOnly: true,
-    description: "A moulded player deck for synthesised speech: a lit waveform, a dotted gain knob, stereo tick meters and a transcript that reads along",
+    description: "A moulded player deck for synthesised speech, with a lit waveform, a dotted gain knob, stereo meters and a transcript that reads along",
     prompt: `Build a single-file HTML dashboard for "Timbre", a fictional speech-synthesis console. Inter and JetBrains Mono from Google Fonts, everything else inline. No images - the deck, the knob, the meters and the waveform are all CSS. Not a landing page: no hero, no pitch. Topbar, body, status bar, and nothing that scrolls, so page height equals viewport height exactly.
 
 THE DECK
@@ -3750,7 +3750,7 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     title: "Highlighter Markup Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A marked-up document: every highlight is a real highlighter, rough-edged by an SVG displacement filter, with a colour per verdict",
+    description: "A marked-up document where every highlight is a real highlighter, rough-edged by an SVG displacement filter, with a colour per verdict",
     prompt: `Build a single-file HTML landing page for "Footnote", a fictional grounding checker that marks up model output against the sources it was given. Source Serif 4 and JetBrains Mono from Google Fonts, everything else inline. No images - the paper grain and the highlighter texture are inline SVG data URIs. Say in a legal line that the product and every figure are invented, and label the figures on the page as invented too.
 
 THE HIGHLIGHTER
@@ -3800,7 +3800,7 @@ Every layer but the nearest moves, and a layer that has drifted up shows its own
     title: "Recessed Aperture Hero Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Soft UI in a violet palette: an aperture sunk into the page, tokens drifting across it, and a working run dial below",
+    description: "Soft UI in a violet palette, with an aperture sunk into the page, tokens drifting across it and a working run dial below",
     prompt: `Build a single-file HTML landing page for "Mnemo", a fictional context layer for agents, where the hero is an aperture cut into the page. Barlow and Barlow Condensed from Google Fonts, everything else inline. No images at all - every disc, pill and badge is CSS. Say in a legal line that the product and every figure are invented, and label the figures on the page as invented too, not only in the footer.
 
 THE MATERIAL: SOFT UI, DONE PROPERLY
@@ -3854,7 +3854,7 @@ Under prefers-reduced-motion the aperture is already open, the pills are parked 
     title: "Stage Light Launch Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "A product announcement lit like a stage: conic spotlights, rising dust, a hairline grid and a light sweep running through the wordmark",
+    description: "A product announcement lit like a stage, with conic spotlights, rising dust and a light sweep running through the wordmark",
     prompt: `Build a single-file HTML launch page for "Umbra", a fictional inference runtime, staged like a product reveal under theatre lights. Archivo and JetBrains Mono from Google Fonts, everything else inline. No images and no libraries - every beam, mountain and particle is CSS or canvas. Say in a legal line that the product and every claim are invented.
 
 THE STAGE
@@ -3939,7 +3939,7 @@ Keep the background to the frame and the light. A drifting particle field and a 
     title: "Machine Front Panel Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "The landing page is the front panel: it boots itself on load, runs a needle self-test, then hands the switches to you",
+    description: "A landing page that is the front panel, booting itself on load and running a needle self-test before it hands the switches to you",
     prompt: `Build a single-file HTML landing page for "Kiln", a fictional on-premise inference appliance, where the page IS the machine's front panel. Archivo and JetBrains Mono from Google Fonts, everything else inline. No images - every screw, blade, gauge and LED is CSS or inline SVG. Say in a legal line that the product and every reading are invented.
 
 THE FOLD
@@ -3979,7 +3979,7 @@ Run the frame loop only while the panel is on screen and stop it once the machin
     hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     sectionOnly: true,
-    description: "A VHS case-file shell wrapped around a light inspector: one viewport, tabbed layers, hotspot anatomy, a scrubable trace and a live capture log",
+    description: "A VHS case-file shell around a light inspector, with tabbed layers, hotspot anatomy, a scrubable trace and a live capture log",
     prompt: `Build a single-file HTML dashboard for "Maverick", a fictional capture console that records a language model run and lets you take it apart afterwards. Not a landing page: there is no hero, no pitch and no marketing section. The whole document is the app. Archivo and JetBrains Mono from Google Fonts, everything else inline. No images at all - every panel, glyph and chart is CSS or inline SVG. Say in a legal line that the product, the model, the capture and every number are invented.
 
 THE APP IS THE DOCUMENT
@@ -4036,7 +4036,7 @@ This is a screen from inside a product, not a page selling one. Whoever is looki
     hidden: true, // PRODUCT-PARKED
     categoryLabel: "PRODUCT",
     sectionOnly: true,
-    description: "A live instrument cluster filling one viewport: hold to accelerate, switch drive modes, and watch the route beside it",
+    description: "A live instrument cluster filling one viewport, where you hold to accelerate, switch drive modes and watch the route beside it",
     prompt: `Build a single-file HTML dashboard for "Meridian", a fictional instrument layer that sits between an autonomy stack and the person in the seat. Not a landing page: no hero, no pitch, no marketing sections. The whole document is the cluster.
 
 THE APP IS THE DOCUMENT
@@ -4747,7 +4747,7 @@ One thing to re-check after a palette swap: any button shaded with a flat black 
     title: "SmartCare Clinical AI Landing Page",
     category: "web",
     categoryLabel: "WEB",
-    description: "Iridescence shader hero + CSS power switch: one light source for buttons, cards and charts",
+    description: "An iridescent shader hero and a CSS power switch, with one light source shared by the buttons, cards and charts",
     prompt: `Build a single-file HTML landing page for "SmartCare Solutions", a clinical AI platform, whose entire design system is one CSS control: a round power switch that lights up when it is on. Inter Tight from Google Fonts, GSAP 3.12 + ScrollTrigger from a CDN, everything else inline — every illustration, avatar and icon is inline SVG, and no asset is hotlinked.
 
 BUILD THE SWITCH FIRST; EVERYTHING ELSE IS IT, RESIZED
@@ -5149,7 +5149,7 @@ FALLBACKS AND DETAIL
     title: "Programmatic Video — Captions On A CRT",
     category: "motion",
     categoryLabel: "MOTION",
-    description: "A video with no video file: every frame is a pure function of t, sliced type burning on a phosphor tube",
+    description: "A video with no video file, where every frame is a pure function of time and sliced type burns on a phosphor tube",
     prompt: `Build a video composition that has no video file — a program you render by asking it for frames. Three.js (r166) through an import map, WebGL shaders, no build step. The piece: speech, drawn as contour sections, burning on a CRT in a dark room.
 
 THE ONE RULE

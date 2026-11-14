@@ -44,6 +44,9 @@ const HEROES = {
   "cyber-bird": ["hero@1200", "bento@1100", "modes@1100", "manual@1100"],
   mistfold: ["hero", "card", "workflow", "pricing"],
   modelyard: ["hero@1200", "catalog@1100", "console@1100", "pricing@1100"],
+  kyma: ["hero@1200", "roi@1100", "services@1100", "pricing@1100"],
+  cutcrew: ["hero@1200", "timeline@1100", "projects@1100", "team@1100"],
+  fortix: ["hero@1200", "stats@1100", "details@1100", "carousel@1100"],
 };
 // Extra settle time before a poster is captured, for systems whose components animate in.
 // Mistfold's hero stats count up over about two seconds.

@@ -1,11 +1,11 @@
 /**
- * The dark banner at the top of PAGES, SYSTEMS and MOTION: the section's name
+ * The dark banner at the top of PAGES, SYSTEMS, MOTION and E-COMM: the section's name
  * on the left (its last word outlined, like HOME's headline) and what it is
  * on the right, over the same aurora as HOME in the section's own colours.
  * Agent Mode hides the aurora, so the banner turns plain black like HOME's.
  */
 interface Props {
-  tone: "pages" | "systems" | "motion";
+  tone: "pages" | "systems" | "motion" | "ecomm";
   /** Optional eyebrow over the title (PAGES, SYSTEMS and MOTION run without one) */
   kicker?: string;
   title: string;

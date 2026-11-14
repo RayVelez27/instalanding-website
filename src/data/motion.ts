@@ -96,6 +96,113 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "pixel-swell",
+    title: "Pixel Swell",
+    kind: "SCROLL WAVE",
+    tagline: "Four pixelated wave bands roll under a red sun as you scroll, and the sky deepens from honeydew to navy",
+    description:
+      "A red sun sits on a honeydew sky inside a red frame, half sunk behind four bands of striped, stair-stepped waves. Scroll and the bands roll: the back two drift one way, the front two twice as fast the other, each bar rising and falling on its own sine wave. The sun scrolls up and away as the sky deepens through frosted blue to oxford navy. No canvas and no library: one registered angle driven by the page's scroll, sin() per bar, heights rounded down to 8px rungs and a mask that cuts every bar into stripes.",
+    added: "Nov 13, 2026",
+    theme: "light",
+    demo: "/motion-lab/pixel-swell.html",
+    poster: "/motion-lab/pixel-swell.jpg",
+    library: { name: "CSS", version: "3", plugins: ["no libraries", "scroll timelines", "@property", "sibling-index()", "random()"] },
+    life: 6,
+    lifeLabel: "ONE SCROLL, 600VH (1s = 100VH)",
+    drawSeconds: 12,
+    elements: 240,
+    status: "SUNRISE · SCROLL TO SWELL",
+    stepLabels: ["Glide up a depth", "Glide down a depth"],
+    reelAutoplay: 3600,
+    tracks: [
+      { prop: "--a · scroll angle", change: "0° → 360° over the whole scroll, × 2 turns", start: 0, end: 1, ease: "none" },
+      { prop: "height · band 1 (back)", change: "46vh ± 4vh, rolls forward one wave a turn", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "height · band 2", change: "38vh ± 5vh, rolls backward", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "height · band 3", change: "30vh ± 6vh, forward at twice the speed", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "height · band 4 (front)", change: "22vh ± 6vh, backward at twice the speed", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "sun · gradient's first stop", change: "the 30vh red disc scrolls up out of frame", start: 0, end: 0.2, ease: "none" },
+      { prop: "sky · body gradient", change: "honeydew → frosted blue → oxford navy", start: 0.05, end: 1, ease: "none" },
+    ],
+    inputs: [
+      { keys: ["SCROLL"], does: "The only clock: the scroll position is the waves' angle, both ways" },
+      { keys: ["◀", "▶"], does: "Glide to the previous or next depth: sunrise, open water, swell, deep navy" },
+      { keys: ["IDLE"], does: "Nothing moves until you scroll, except the cue bobbing in the sun" },
+    ],
+    knobs: [
+      {
+        id: "turns",
+        label: "TURNS",
+        min: 1,
+        max: 6,
+        step: 0.5,
+        value: 2,
+        note: "How many full rolls the waves make over the whole scroll. One is a slow tide, six is a chop.",
+      },
+      {
+        id: "swing",
+        label: "SWING",
+        min: 0,
+        max: 3,
+        step: 0.1,
+        value: 1,
+        unit: "×",
+        note: "Multiplies every band's rise and fall. At 0 the sea goes flat; past 2 the crests stack into peaks.",
+      },
+      {
+        id: "rung",
+        label: "PIXEL STEP",
+        min: 4,
+        max: 20,
+        step: 2,
+        value: 8,
+        unit: "px",
+        note: "Heights round down to this, and the stripe mask repeats at it: small reads smooth, large reads 8-bit.",
+      },
+    ],
+    toggles: [
+      { id: "grain", label: "FILM GRAIN", value: true },
+      { id: "cue", label: "SCROLL CUE", value: true },
+    ],
+    trick: {
+      title: "One angle, two hundred and forty sine waves",
+      steps: [
+        "A registered custom property, --a (@property, syntax <angle>, inherits), is the only thing that animates: a keyframe takes it 0° → 360° and animation-timeline: scroll(root) binds that keyframe to the page's scroll. Because it is registered it interpolates as an angle; unregistered, it would jump from start to end.",
+        "Each band is a fixed flex row of 60 bars, and each bar computes its own height: base + sin(--a × turns × speed + index × step + jitter) × swing × amp. The index (sibling-index()) offsets the phase along the row, so the row reads as a travelling wave rather than bars bobbing together.",
+        "Speed is +1, −1, +2 and −2 from back to front, so neighbouring bands roll against each other and the front ones twice as fast: that difference in speed is what reads as depth.",
+        "round(down, height, 8px) snaps every height to 8px rungs, and a repeating-linear-gradient mask (6px on, 2px off) cuts each bar into stripes. Together they turn a smooth sine into pixel art without a canvas.",
+        "random() gives each bar a slightly different amplitude (0.5–0.9) and phase (±5°), so the crests aren't machine-perfect. The sun is just the first stop of the body's radial gradient, so scrolling carries it away with no animation at all.",
+        "Where sibling-index(), random() or scroll timelines aren't supported yet, a few lines of script fill in: an index and a seeded jitter on each bar, and the scroll position written straight into --a.",
+      ],
+    },
+    tags: ["scroll-driven", "CSS only", "pixel art", "sin()", "@property"],
+    bestFor: ["surf, travel and ocean brands", "climate and water products", "story and portfolio intros", "launch pages that reward the scroll"],
+    pairsWith: ["sunset-scroll-story-page", "ochre-ai-meditation-app-page", "paper-sun-agent-page"],
+    credits: [],
+    prompt: `Build a scroll-driven pixel-art seascape as one HTML file, in CSS: four bands of striped, stair-stepped waves roll under a red sun as the page scrolls, and the sky deepens to navy. No canvas and no libraries; a few lines of script only to create the bars and to fill in where new CSS isn't supported.
+
+THE STAGE
+- Palette as custom properties: --punch-red #e63946, --honeydew #f1faee, --frosted-blue #a8dadc, --pacific-blue #77abbd, --cerulean #457b9d, --baltic-blue #31587a, --oxford-navy #1d3557.
+- html background punch red, and html::after a fixed, click-through 16px punch-red border on top of everything (z-index 100): the frame.
+- body 600vh tall with no margin. Its background is the whole sky and the sun: radial-gradient(circle 500vh at 50% 50vh, punch red 0 30vh, honeydew 30.7vh, frosted blue 100vh, oxford navy 400vh). The sun is the first stop, so it scrolls away with the page.
+- body::after is film grain: fixed, z-index 16, mix-blend-mode overlay at 0.35, four radial-gradient dot grids (white 0.9 and 0.7, black 0.8 and 0.6, about 0.5–0.6px dots) at 3, 5, 7 and 11px so the pattern never visibly repeats, each offset with random(0px, size).
+- Four .wave rows, each position fixed to the bottom, 70vh tall, display flex, align-items flex-end, holding 60 <i> bars (flex: 1).
+
+THE CHOREOGRAPHY
+- @property --a { syntax "<angle>"; inherits: true; initial-value 0deg }, plus --amp (<number>, 1) and --off (<angle>, 0deg), not inherited.
+- .wave runs @keyframes roll { to { --a: 360deg } } with animation: roll linear both and animation-timeline: scroll(root). Multiply by --turns (2) in the formula, so the knob doesn't need new keyframes.
+- Per band, back to front: base 46/38/30/22vh, swing 4/5/6/6vh, speed 1/−1/2/−2, step 14/18/22/26deg, and a two-colour vertical gradient stepping through frosted blue → pacific → cerulean → baltic → oxford navy.
+- Each bar: --amp: random(0.5, 0.9); --off: random(-5deg, 5deg); height: round(down, calc(base + sin(calc(--a × turns × speed + sibling-index() × step + --off)) × swing × amp), 8px); background linear-gradient(c1, c2); mask-image repeating-linear-gradient(0deg, #000 0 6px, transparent 0 8px).
+
+THINGS THAT BREAK
+- Register --a with @property, or the keyframe can't interpolate it and the waves jump.
+- Use --a's inherited value in the bars, so animate it on the .wave and let it inherit; --amp and --off must not inherit, or every bar gets its parent's single random value.
+- sibling-index() and random() are new: give each bar an inline --i (1..60) and seeded --amp / --off from script, and switch to the native functions inside @supports. Without scroll timelines (Firefox), write scrollY / max × 360deg into --a on scroll.
+- Set history.scrollRestoration = "manual" and start at the top, or a restored mid-scroll lands with the sun gone.
+
+THE FLOOR
+- Nothing moves unless the reader scrolls; the only idle motion is a small SCROLL cue bobbing inside the sun, which prefers-reduced-motion stops. Everything decorative is aria-hidden and click-through. No horizontal scroll at 390px.`,
+  },
+  {
     slug: "t-minus",
     title: "T−Minus",
     kind: "LOOP",

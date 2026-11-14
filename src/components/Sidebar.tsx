@@ -23,6 +23,8 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[
   { to: "/pages", label: "PAGES" },
   { to: "/systems", label: "SYSTEMS" },
   { to: "/motion", label: "MOTION" },
+  // E-COMM is hidden, not removed: /ecomm and /ecomm/:slug still resolve. Restore this line to bring it back.
+  // { to: "/ecomm", label: "E-COMM", isNew: true },
   // WORLD is hidden, not removed: /world still resolves. Restore this line to bring it back.
   // { to: "/world", label: "WORLD" },
   // PRODUCT and STACK are out of the menu, not removed: /product and /stack
@@ -33,9 +35,7 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[
   // CONTRIBUTE is hidden, not removed: /contribute still resolves and is in
   // the sitemap. Restore this line to bring it back.
   // { to: "/contribute", label: "CONTRIBUTE" },
-  // HIRE is paid custom work; CONTACT is the general form (same one the
-  // About dialog uses).
-  { to: "/hire", label: "HIRE" },
+  // HIRE lives inside CONTACT now (/hire redirects there); CONTACT stays last.
   { to: "/sponsor", label: "SPONSOR" },
   { to: "/contact", label: "CONTACT" },
   // AGENTS is hidden, not removed: /agents still resolves and is in the
@@ -114,6 +114,7 @@ const Sidebar = () => {
       );
     if (to === "/systems") return location.pathname === to || location.pathname.startsWith("/systems/");
     if (to === "/motion") return location.pathname === to || location.pathname.startsWith("/motion/");
+    if (to === "/ecomm") return location.pathname === to || location.pathname.startsWith("/ecomm/");
     return location.pathname === to;
   };
 
@@ -135,7 +136,7 @@ const Sidebar = () => {
                 <Link
                   to={link.to}
                   className={isActive(link.to) ? "sidebar-nav-active" : undefined}
-                  onClick={link.to === "/hire" ? () => track("hire_click", { from: "nav" }) : undefined}
+                  onClick={link.to === "/contact" ? () => track("contact_click", { from: "nav" }) : undefined}
                 >
                   {link.label}
                   {link.soon && <span className="sidebar-nav-soon">SOON</span>}
@@ -210,7 +211,7 @@ const Sidebar = () => {
                 <Link
                   to={link.to}
                   onClick={() => {
-                    if (link.to === "/hire") track("hire_click", { from: "menu" });
+                    if (link.to === "/contact") track("contact_click", { from: "menu" });
                     handleNavClick();
                   }}
                   className={isActive(link.to) ? "sidebar-nav-active" : undefined}

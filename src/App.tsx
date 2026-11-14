@@ -15,12 +15,12 @@ import Agents from "./pages/Agents";
 import Contact from "./pages/Contact";
 import Contribute from "./pages/Contribute";
 import Sponsor from "./pages/Sponsor";
-import Hire from "./pages/Hire";
 import BuilderPage from "./pages/BuilderPage";
 import { builders } from "@/data/builders";
 import ComingSoon from "./pages/ComingSoon";
 import Systems from "./pages/Systems";
 import Motion from "./pages/Motion";
+import Ecomm from "./pages/Ecomm";
 import World from "./pages/World";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
@@ -29,6 +29,14 @@ import SiteFooter from "@/components/SiteFooter";
 import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
+
+/** /hire is part of /contact now; carry the query so ?template and ?tier still preselect */
+const HireRedirect = () => {
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  if (!params.has("tier") && !params.has("template")) params.set("tier", "teardown");
+  return <Navigate to={`/contact?${params}`} replace />;
+};
 
 /**
  * Route-aware modal. A tile link carries `backgroundLocation`, so the grid
@@ -65,6 +73,9 @@ const AppRoutes = () => {
         {/* Motion studies, and each study's lab at its own URL */}
         <Route path="/motion" element={<Motion />} />
         <Route path="/motion/:slug" element={<Motion />} />
+        {/* E-COMM storefront kits, and each kit's dialog at its own URL */}
+        <Route path="/ecomm" element={<Ecomm />} />
+        <Route path="/ecomm/:slug" element={<Ecomm />} />
         {/* The library as a walkable factory floor (three.js loads only here) */}
         <Route path="/world" element={<World />} />
         <Route
@@ -75,7 +86,8 @@ const AppRoutes = () => {
         <Route path="/contribute" element={<Contribute />} />
         {/* SPONSOR in the navbar. */}
         <Route path="/sponsor" element={<Sponsor />} />
-        <Route path="/hire" element={<Hire />} />
+        {/* HIRE moved into CONTACT; old links keep their ?template / ?tier */}
+        <Route path="/hire" element={<HireRedirect />} />
         <Route path="/contact" element={<Contact />} />
         {/* Out of the menu, not deleted: the builder pages are search landing
             pages and keep their URLs and their sitemap entries. */}

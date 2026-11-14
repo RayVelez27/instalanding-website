@@ -4,7 +4,7 @@ import { Check, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import { AgentPanel } from "@/components/AgentMode";
-import { MOTION_ITEMS, PAGES, SYSTEM_ITEMS, variedOrder, moreCovers, type Item } from "@/lib/libraryItems";
+import { ECOMM_ITEMS, MOTION_ITEMS, PAGES, SYSTEM_ITEMS, variedOrder, moreCovers, type Item } from "@/lib/libraryItems";
 import { shuffle } from "@/data/prompts";
 import HtmlTypewriter from "@/components/HtmlTypewriter";
 import HomePagesGrid from "@/components/HomePagesGrid";
@@ -15,8 +15,8 @@ import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 
 /**
- * HOME: the front door to all three layers. A sticky bar with search across
- * pages, motion and systems; a compact dark hero; a rail per layer (plus a
+ * HOME: the front door to every layer. A sticky bar with search across
+ * pages, motion, systems and storefront kits; a compact dark hero; a rail per layer (plus a
  * mixed "featured" rail), newest first; a band that shows the one-shot prompt
  * every file ships with; and the wordmark. Cards copy their prompt on hover
  * and link into their section: pages open their dialog over home (a page on
@@ -232,6 +232,17 @@ const Home = () => {
           all="/systems"
           items={RANDOM_SYSTEMS}
           more={{ noun: "design systems", pool: SYSTEM_ITEMS }}
+          onCopied={say}
+        />
+        {/* No closing "more" card yet: with one page there are no other covers to show */}
+        <Rail
+          id="ecomm"
+          title="E-COMM PAGES"
+          count={ECOMM_ITEMS.length}
+          sub="Landing pages for stores and products, ready for Shopify."
+          inline
+          all="/ecomm"
+          items={ECOMM_ITEMS}
           onCopied={say}
         />
 

@@ -12,7 +12,6 @@ const LINKS: { label: string; to?: string; href?: string }[] = [
   { label: "Pages", to: "/pages" },
   { label: "Systems", to: "/systems" },
   { label: "About", to: "/about" },
-  { label: "Hire", to: "/hire" },
   { label: "Sponsor", to: "/sponsor" },
   { label: "Contact", to: "/contact" },
   { label: "GitHub", href: `https://github.com/${GITHUB_REPO}` },
@@ -31,7 +30,7 @@ const SiteFooter = () => (
         {LINKS.map((l) => (
           <li key={l.label}>
             {l.to ? (
-              <Link to={l.to} onClick={l.to === "/hire" ? () => track("hire_click", { from: "footer" }) : undefined}>{l.label}</Link>
+              <Link to={l.to} onClick={l.to === "/contact" ? () => track("contact_click", { from: "footer" }) : undefined}>{l.label}</Link>
             ) : (
               <a href={l.href} target={l.href?.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
                 {l.label}

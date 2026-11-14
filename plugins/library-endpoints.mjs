@@ -394,10 +394,10 @@ const buildSitemap = (library, builders, base, seoPages = [], layers = { systems
     ...layers.systems.map((s) => ({ loc: `${base}systems/${s.slug}`, priority: "0.7" })),
     { loc: `${base}motion`, priority: "0.8" },
     ...layers.motions.map((m) => ({ loc: `${base}motion/${m.slug}`, priority: "0.7" })),
+    { loc: `${base}ecomm`, priority: "0.8" },
     { loc: `${base}contribute`, priority: "0.5" },
-    { loc: `${base}hire`, priority: "0.6" },
     { loc: `${base}sponsor`, priority: "0.4" },
-    { loc: `${base}contact`, priority: "0.3" },
+    { loc: `${base}contact`, priority: "0.6" },
     ...builders.map((b) => ({ loc: `${base}${b.path.replace(/^\//, "")}`, priority: "0.9" })),
     ...seoSitemapUrls(seoPages, base),
     // product has a section route of its own; the rest sit under /category/
@@ -433,7 +433,7 @@ const isFresh = (added, now = Date.now(), days = 7) => {
 const buildIndexNow = (library, layers, base) => ({
   generated: new Date().toISOString(),
   urls: [
-    ...["", "pages", "systems", "motion", "llms.txt"].map((p) => abs(base, `/${p}`)),
+    ...["", "pages", "systems", "motion", "ecomm", "llms.txt"].map((p) => abs(base, `/${p}`)),
     ...library.prompts.filter((p) => isFresh(p.added)).map((p) => abs(base, `/prompt/${p.slug}`)),
     ...layers.motions.filter((m) => isFresh(m.added)).map((m) => abs(base, `/motion/${m.slug}`)),
   ],
