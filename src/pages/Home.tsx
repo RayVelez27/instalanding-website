@@ -4,7 +4,7 @@ import { Check, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import { AgentPanel } from "@/components/AgentMode";
-import { ECOMM_ITEMS, MOTION_ITEMS, PAGES, SYSTEM_ITEMS, variedOrder, moreCovers, type Item } from "@/lib/libraryItems";
+import { MOTION_ITEMS, PAGES, SYSTEM_ITEMS, variedOrder, moreCovers, type Item } from "@/lib/libraryItems";
 import { shuffle } from "@/data/prompts";
 import HtmlTypewriter from "@/components/HtmlTypewriter";
 import HomePagesGrid from "@/components/HomePagesGrid";
@@ -213,17 +213,6 @@ const Home = () => {
 
         <HomePagesGrid onCopied={say} />
         <Rail
-          id="motion"
-          title="MOTION STUDIES"
-          count={MOTION_ITEMS.length}
-          sub="One movement per study, running live, taken apart in the lab."
-          inline
-          all="/motion"
-          items={RANDOM_MOTION}
-          more={{ noun: "motion studies", pool: MOTION_ITEMS }}
-          onCopied={say}
-        />
-        <Rail
           id="systems"
           title="DESIGN SYSTEMS"
           count={SYSTEM_ITEMS.length}
@@ -234,15 +223,15 @@ const Home = () => {
           more={{ noun: "design systems", pool: SYSTEM_ITEMS }}
           onCopied={say}
         />
-        {/* No closing "more" card yet: with one page there are no other covers to show */}
         <Rail
-          id="ecomm"
-          title="E-COMM PAGES"
-          count={ECOMM_ITEMS.length}
-          sub="Landing pages for stores and products, ready for Shopify."
+          id="motion"
+          title="MOTION STUDIES"
+          count={MOTION_ITEMS.length}
+          sub="One movement per study, running live, taken apart in the lab."
           inline
-          all="/ecomm"
-          items={ECOMM_ITEMS}
+          all="/motion"
+          items={RANDOM_MOTION}
+          more={{ noun: "motion studies", pool: MOTION_ITEMS }}
           onCopied={say}
         />
 
