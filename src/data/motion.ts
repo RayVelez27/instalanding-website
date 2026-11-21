@@ -96,6 +96,90 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "two-mercenaries",
+    title: "Two Mercenaries",
+    kind: "CHARACTER SELECT",
+    tagline: "A dark and a light mercenary split the screen: hover a side to light it, click to pick it, click again to push in close",
+    description:
+      "A character-select screen split down the middle: a black-armoured mercenary on a dark field, a white-coated one on a light field. Hover a side and it brightens while the other dims; click and the pick swells across the frame; click again and the camera pushes in to a close-up, and once more backs out. Both soldiers breathe the whole time on their own skeletal idle loops, so nothing ever freezes. A Rive file decoded and replayed by a small runtime written for this scene: bones, skinned image meshes drawn in WebGL, and a state machine that blends between five poses in 100 to 250 ms.",
+    added: "Nov 21, 2026",
+    theme: "dark",
+    demo: "/motion-lab/two-mercenaries.html",
+    poster: "/motion-lab/two-mercenaries.jpg",
+    library: { name: "Canvas 2D + WebGL", version: "decoded .riv", plugins: ["no runtime", "state machine", "skinned meshes"] },
+    life: 1.5,
+    lifeLabel: "HOVER, PICK, ZOOM IN, BACK OUT",
+    drawSeconds: 6,
+    elements: 2,
+    status: "PICK A SIDE",
+    stepLabels: ["Previous beat of the pick", "Next beat of the pick"],
+    reelAutoplay: 1500,
+    tracks: [
+      { prop: "Hover dark · input", change: "false → true; the dark side lifts, the light side dims", start: 0, end: 0.067, ease: "power2.inOut" },
+      { prop: "State · 0 → 1 Dark", change: "the picked side scales to 1.1 and widens over the other", start: 0.2, end: 0.367, ease: "power2.inOut" },
+      { prop: "State · 1 → 3 Dark ZOOM", change: "the frame pushes in to the soldier's close-up", start: 0.5, end: 0.667, ease: "power2.inOut" },
+      { prop: "State · 3 → 1 → 0", change: "backs out to the pick, then to both sides", start: 0.8, end: 1, ease: "power2.inOut" },
+      { prop: "bones · idle breathing", change: "2s and 5s skeletal loops, one per soldier, under every state", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+    ],
+    inputs: [
+      { keys: ["HOVER"], does: "Lights the side under the pointer and dims the other" },
+      { keys: ["CLICK"], does: "Picks that mercenary; click again to zoom in, again to back out" },
+      { keys: ["AUTOPLAY"], does: "Runs the pick: hover, select, zoom, back out, then the other side" },
+    ],
+    knobs: [
+      {
+        id: "blend",
+        label: "BLEND",
+        min: 20,
+        max: 400,
+        step: 10,
+        value: 100,
+        unit: "%",
+        note: "Scales every state-machine transition, authored at 100 to 250 ms. Low snaps between poses; high glides.",
+      },
+    ],
+    toggles: [{ id: "idle", label: "IDLE BREATHING", value: true }],
+    trick: {
+      title: "Five poses and a blend, over two breathing skeletons",
+      steps: [
+        "The .riv was decoded into plain data: one 1080 × 1080 artboard holding two nested 1920 × 1080 artboards, one per soldier, plus five WebP images, the keyed animations and the state machine.",
+        "The screen's states are single-frame poses (idle, Dark, Light, Dark ZOOM, Light ZOOM), chosen by one number input, State. What reads as motion is the transition: the machine mixes from the current pose to the next over 100 to 250 ms on a cubic ease. Two booleans, Hover dark and Hover light, drive a second layer for the brighten-and-dim.",
+        "Each soldier is a skinned mesh: 37 bones, with vertices weighted to up to four of them, drawn as textured triangles in WebGL and composited onto the 2D canvas. Their idle timelines loop a 2s and a 5s work area at different speeds, so the two never breathe in step.",
+        "Pointer listeners on the artboard hit-test each half through the inverse world matrix and set the inputs, the same way the Rive editor's listeners would; the runtime only reads inputs and advances time.",
+      ],
+    },
+    tags: ["character select", "hover", "rive", "skeletal", "webgl", "state machine"],
+    bestFor: ["game and esports launch pages", "pick-a-plan or pick-a-path choices", "dark product heroes with two options", "versus and comparison sections"],
+    pairsWith: ["myriad-agent-swarm-page", "starfork-game-studio-landing-page", "cyber-bird-arcade-game-page", "latent-ai-fashion-atelier-page"],
+    credits: [],
+    prompt: `Build a two-character select screen as one HTML file: a dark and a light mercenary split the frame, hover lights a side, click picks it, click again zooms in. Black page, one full-viewport canvas, every image inlined as base64.
+
+THE SCENE (a 1080 × 1080 artboard, contained and centred)
+- Two halves: left, a black-armoured soldier on a near-black field; right, a white-coated soldier on a soft white field with a floor shadow. Each soldier is its own nested 1920 × 1080 artboard, cropped into its half.
+- Each soldier is a skinned image mesh: a WebP texture on a triangle mesh whose vertices are weighted to up to four bones of a small skeleton. Draw the meshes in WebGL to an offscreen canvas and composite them into the 2D scene.
+- Under each soldier, a small circle-and-line marker; a faint gradient seam between the halves.
+
+THE STATES
+- One number input, State: 0 idle (both even), 1 Dark (left scales to 1.1 and widens over the right), 2 Light (the mirror), 3 Dark ZOOM, 4 Light ZOOM (a close-up of that soldier filling the frame).
+- Two booleans, Hover dark and Hover light, on a second layer: the hovered side lifts in brightness and the other dims.
+- Every state is a single pose; transitions mix from the current pose to the next over 100 to 250 ms on a cubic ease. Clicks walk 0 → pick → zoom → pick → 0.
+
+THE IDLE
+- Each soldier loops its own breathing timeline under every state: the bones' rotations and lengths ease back and forth, one over 2s and the other over 5s at 0.8 speed, so they never move in step.
+
+THE RUNTIME
+- Each frame: advance the state machine by dt (capped at 0.1s), sample keyed values into the tree, recompose world matrices parent to child, solve bones, skin the meshes, repaint back to front.
+- Hit-test the pointer in artboard space through each half's inverse world matrix; enter and leave set the hover booleans, a click advances State.
+
+THINGS THAT BREAK
+- Sample cubic eases by solving t from x, not by using progress as t, or the blends feel linear.
+- Premultiply alpha in WebGL, or the soldiers get dark fringes on the light side.
+- Cap DPR and size the WebGL canvas once per resize, not per frame.
+
+THE FLOOR
+The canvas has role="img" and an aria-label describing the choice; touch-action none so a tap picks instead of scrolling. Works at 390px wide.`,
+  },
+  {
     slug: "pixel-swell",
     title: "Pixel Swell",
     kind: "SCROLL WAVE",
