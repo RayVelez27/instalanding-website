@@ -23,6 +23,7 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[
   { to: "/pages", label: "PAGES" },
   { to: "/systems", label: "SYSTEMS" },
   { to: "/motion", label: "MOTION" },
+  { to: "/movies", label: "MOVIES", isNew: true },
   // E-COMM is hidden, not removed: /ecomm and /ecomm/:slug still resolve. Restore this line to bring it back.
   // { to: "/ecomm", label: "E-COMM", isNew: true },
   // WORLD is hidden, not removed: /world still resolves. Restore this line to bring it back.
@@ -114,6 +115,7 @@ const Sidebar = () => {
       );
     if (to === "/systems") return location.pathname === to || location.pathname.startsWith("/systems/");
     if (to === "/motion") return location.pathname === to || location.pathname.startsWith("/motion/");
+    if (to === "/movies") return location.pathname === to || location.pathname.startsWith("/movies/");
     if (to === "/ecomm") return location.pathname === to || location.pathname.startsWith("/ecomm/");
     return location.pathname === to;
   };

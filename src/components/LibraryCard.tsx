@@ -18,7 +18,7 @@ import { track } from "@/lib/track";
 const FRAME_MS = 900;
 
 export interface LibraryCardProps {
-  kind: "page" | "motion" | "system" | "ecomm";
+  kind: "page" | "motion" | "system" | "ecomm" | "movie";
   title: string;
   sub: string;
   to: string;

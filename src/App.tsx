@@ -21,6 +21,7 @@ import ComingSoon from "./pages/ComingSoon";
 import Systems from "./pages/Systems";
 import Motion from "./pages/Motion";
 import Ecomm from "./pages/Ecomm";
+import Movies from "./pages/Movies";
 import World from "./pages/World";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
@@ -76,6 +77,9 @@ const AppRoutes = () => {
         {/* E-COMM storefront kits, and each kit's dialog at its own URL */}
         <Route path="/ecomm" element={<Ecomm />} />
         <Route path="/ecomm/:slug" element={<Ecomm />} />
+        {/* MOVIES: real-time films, and each film's dialog at its own URL */}
+        <Route path="/movies" element={<Movies />} />
+        <Route path="/movies/:slug" element={<Movies />} />
         {/* The library as a walkable factory floor (three.js loads only here) */}
         <Route path="/world" element={<World />} />
         <Route
