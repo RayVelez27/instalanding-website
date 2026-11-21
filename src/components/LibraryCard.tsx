@@ -88,7 +88,7 @@ const LibraryCard = ({ kind, title, sub, to, state, image, art, frames, copy, co
     // The slug is the last segment of the card's link (/prompt/x, /systems/x, /motion/x)
     const slug = to.split("/").pop() ?? "";
     if (kind === "page") track("copy_code", { template: slug, from: "card", copied: agent ? "agent_task" : copyLabel === "COPY PROMPT" ? "prompt" : "code" });
-    else track(kind === "system" ? "copy_system" : kind === "ecomm" ? "copy_ecomm" : "copy_motion", { [kind]: slug, from: "card" });
+    else track(kind === "system" ? "copy_system" : kind === "ecomm" ? "copy_ecomm" : kind === "movie" ? "copy_movie" : "copy_motion", { [kind]: slug, from: "card" });
     setCopied(true);
     window.clearTimeout(copyTimer.current);
     copyTimer.current = window.setTimeout(() => setCopied(false), 1600);
