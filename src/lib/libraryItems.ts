@@ -2,14 +2,17 @@ import { feedPrompts, type PromptEntry } from "@/data/prompts";
 import { motions, type MotionEntry } from "@/data/motion";
 import { systemCover, systems, type SystemEntry } from "@/data/systems";
 import { ecomm, type EcommEntry } from "@/data/ecomm";
+import { videos, type VideoEntry } from "@/data/videos";
+import { products, type ProductEntry } from "@/data/products";
 
 /**
  * The library as one list of cards: every page, motion study, design
- * system and e-comm page, with what a card shows, where it links, the words search matches
- * and the HTML file COPY CODE copies. HOME's rails and the top-bar search both read
- * it. The data is static, so it is laid out once per load, newest first.
+ * system, video, product and e-comm page, with what a card shows, where it
+ * links, the words search matches and the HTML file COPY CODE copies. HOME's
+ * grids and the top-bar search both read it. The data is static, so it is laid
+ * out once per load, newest first.
  */
-export type Kind = "page" | "motion" | "system" | "ecomm";
+export type Kind = "page" | "motion" | "system" | "ecomm" | "video" | "product";
 export interface Item {
   kind: Kind;
   key: string;
@@ -98,11 +101,39 @@ const ecommItem = (e: EcommEntry): Item => ({
   looks: e.tags,
 });
 
+const videoItem = (v: VideoEntry): Item => ({
+  kind: "video",
+  key: `v:${v.slug}`,
+  title: v.title,
+  sub: `${v.runtime} · ${v.tech.toLowerCase()}`,
+  image: v.thumbnail,
+  to: `/videos/${v.slug}`,
+  words: [v.title, v.description, v.tech, "video film reel", ...v.tags].join(" ").toLowerCase(),
+  code: v.demo,
+  theme: "dark",
+  looks: v.tags,
+});
+
+const productItem = (p: ProductEntry): Item => ({
+  kind: "product",
+  key: `d:${p.slug}`,
+  title: p.title,
+  sub: `${p.kind.toLowerCase()} · ${p.tags.filter((t) => t !== p.kind.toLowerCase()).slice(0, 2).join(" · ")}`,
+  image: p.thumbnail,
+  to: `/products/${p.slug}`,
+  words: [p.title, p.description, p.kind, p.tech, "product device app interactive", ...p.tags].join(" ").toLowerCase(),
+  code: p.demo,
+  theme: "light",
+  looks: p.tags,
+});
+
 export const LABEL: Record<Kind, string> = {
   page: "PAGE",
   motion: "MOTION",
   system: "SYSTEM",
   ecomm: "E-COMM",
+  video: "VIDEO",
+  product: "PRODUCT",
 };
 
 /* The data is static, so it is laid out once per load. Newest first. */
@@ -113,7 +144,9 @@ export const PAGE_ITEMS = PAGES.map(pageItem);
 export const MOTION_ITEMS = newest(motions).map(motionItem);
 export const SYSTEM_ITEMS = newest(systems).map(systemItem);
 export const ECOMM_ITEMS = newest(ecomm).map(ecommItem);
-export const EVERYTHING = [...PAGE_ITEMS, ...MOTION_ITEMS, ...SYSTEM_ITEMS, ...ECOMM_ITEMS];
+export const VIDEO_ITEMS = newest(videos).map(videoItem);
+export const PRODUCT_ITEMS = newest(products).map(productItem);
+export const EVERYTHING = [...PAGE_ITEMS, ...MOTION_ITEMS, ...SYSTEM_ITEMS, ...VIDEO_ITEMS, ...PRODUCT_ITEMS, ...ECOMM_ITEMS];
 
 /**
  * A random order with variety: dark and light alternate, and no item shares

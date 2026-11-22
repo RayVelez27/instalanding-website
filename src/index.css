@@ -5244,7 +5244,16 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 /* HOME's pages grid: 8 pages + the CTA fill 3 rows of 3. At two columns the
    8th page steps aside so the CTA closes an even 4 rows instead of sitting alone. */
 .home-pages-grid { padding-top: 2px; }
-@media (min-width: 641px) and (max-width: 1100px) { .home-pages-grid > .home-card:nth-child(8) { display: none; } }
+@media (min-width: 641px) and (max-width: 1100px) { .home-pages-grid:not(.is-whole) > .home-card:nth-child(8) { display: none; } }
+/* Every HOME grid ends with a VIEW MORE button into its section */
+.home-viewmore { display: flex; justify-content: center; padding: 22px 0 6px; }
+.home-viewmore-btn { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 24px; border: 1px solid #000; background: #000; color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-decoration: none; transition: background 0.25s, color 0.25s, gap 0.3s var(--home-ease); }
+.home-viewmore-btn:hover { background: #fff; color: #000; gap: 14px; }
+.home-viewmore-btn:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+html.agent-dark .home-viewmore-btn { border-color: #fff; background: #fff; color: #000; }
+html.agent-dark .home-viewmore-btn:hover { background: #000; color: #fff; }
+.home-kind-tag--video i { background: #f0b35a; }
+.home-kind-tag--product i { background: #d97757; }
 
 /* ── WORLD: the library as an isometric factory floor ── */
 @font-face { font-family: "Silk"; src: url("/world/silkscreen.woff2") format("woff2"); font-weight: 400; font-display: swap; }

@@ -1,32 +1,26 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, ChevronLeft, ChevronRight, Copy } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import { AgentPanel } from "@/components/AgentMode";
-import { MOTION_ITEMS, PAGES, SYSTEM_ITEMS, variedOrder, moreCovers, type Item } from "@/lib/libraryItems";
-import { shuffle } from "@/data/prompts";
+import { MOTION_ITEMS, PAGES, PAGE_ITEMS, PRODUCT_ITEMS, SYSTEM_ITEMS, VIDEO_ITEMS } from "@/lib/libraryItems";
 import HtmlTypewriter from "@/components/HtmlTypewriter";
-import HomePagesGrid from "@/components/HomePagesGrid";
+import HomeGrid from "@/components/HomeGrid";
 import HeroReel from "@/components/HeroReel";
-import { Card, MoreCard } from "@/components/HomeCards";
 import { copyText } from "@/lib/copyText";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 
 /**
- * HOME: the front door to every layer. A sticky bar with search across
- * pages, motion, systems and storefront kits; a compact dark hero; a rail per layer (plus a
- * mixed "featured" rail), newest first; a band that shows the one-shot prompt
- * every file ships with; and the wordmark. Cards copy their prompt on hover
- * and link into their section: pages open their dialog over home (a page on
+ * HOME: the front door to every layer. A sticky bar with search across the
+ * library; a compact dark hero; a grid per layer (landing pages, design
+ * systems, motion, videos, products), each dealt at random with a card and a
+ * VIEW MORE button into its section; a band that shows the one-shot prompt
+ * every file ships with; and the wordmark. Cards copy their file on hover and
+ * link into their section: pages open their dialog over home (a page on
  * phones), motion studies their lab, systems their board.
  */
-
-
-/* A fresh order on every load, like the feeds; kept for the visit */
-const RANDOM_MOTION = shuffle(MOTION_ITEMS);
-const RANDOM_SYSTEMS = variedOrder(SYSTEM_ITEMS, "dark");
 
 /** The demo file the band's code window copies */
 const BAND_PAGE =
@@ -43,109 +37,6 @@ const useToast = () => {
     t.current = window.setTimeout(() => setMsg(""), 1800);
   };
   return { msg, say };
-};
-
-/* ── a section: head (title, count, description, tools) and a rail ── */
-const Rail = ({
-  id,
-  title,
-  count,
-  sub,
-  inline,
-  all,
-  items,
-  extra,
-  more,
-  backArrow = true,
-  onCopied,
-}: {
-  id: string;
-  title: string;
-  count?: number;
-  sub: string;
-  inline?: boolean;
-  all?: string;
-  items: Item[];
-  extra?: ReactNode;
-  /** Ends the rail with a card that links to the whole collection */
-  more?: { noun: string; pool: Item[] };
-  backArrow?: boolean;
-  onCopied: (m: string) => void;
-}) => {
-  const track = useRef<HTMLDivElement>(null);
-  const [edges, setEdges] = useState({ start: true, end: false });
-  const measure = () => {
-    const el = track.current;
-    if (el)
-      setEdges({
-        start: el.scrollLeft < 4,
-        end: el.scrollLeft + el.clientWidth > el.scrollWidth - 4,
-      });
-  };
-  useEffect(() => {
-    measure();
-    track.current?.scrollTo({ left: 0 });
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [items]);
-  const go = (dir: number) =>
-    track.current?.scrollBy({
-      left: dir * track.current.clientWidth * 0.85,
-      behavior: "smooth",
-    });
-
-  return (
-    <section className="home-sec home-reveal" aria-labelledby={`sec-${id}`}>
-      <div className="home-sec-head">
-        <div className={`home-sec-title${inline ? " is-inline" : ""}`}>
-          <h2 id={`sec-${id}`}>
-            {title}
-            {count !== undefined && <sup>{count}</sup>}
-          </h2>
-          <p>{sub}</p>
-        </div>
-        <div className="home-sec-tools">
-          {extra}
-          {all && (
-            <Link to={all} className="home-seeall">
-              SEE ALL
-            </Link>
-          )}
-          {backArrow && (
-            <button
-              className="home-arrow"
-              onClick={() => go(-1)}
-              disabled={edges.start}
-              aria-label={`Scroll ${title.toLowerCase()} back`}
-            >
-              <ChevronLeft size={13} />
-            </button>
-          )}
-          <button
-            className="home-arrow"
-            onClick={() => go(1)}
-            disabled={edges.end}
-            aria-label={`Scroll ${title.toLowerCase()} forward`}
-          >
-            <ChevronRight size={13} />
-          </button>
-        </div>
-      </div>
-      <div className="home-track" ref={track} onScroll={measure}>
-        {items.map((it) => (
-          <Card key={it.key} item={it} onCopied={onCopied} />
-        ))}
-        {more && all && (
-          <MoreCard
-            to={all}
-            count={count ?? more.pool.length}
-            noun={more.noun}
-            images={moreCovers(more.pool, items)}
-          />
-        )}
-      </div>
-    </section>
-  );
 };
 
 /* ── the page ── */
@@ -211,27 +102,49 @@ const Home = () => {
         </section>
         <AgentPanel />
 
-        <HomePagesGrid onCopied={say} />
-        <Rail
-          id="systems"
-          title="DESIGN SYSTEMS"
-          count={SYSTEM_ITEMS.length}
-          sub="Tokens and working components, extracted from real HTML."
-          inline
-          all="/systems"
-          items={RANDOM_SYSTEMS}
-          more={{ noun: "design systems", pool: SYSTEM_ITEMS }}
+        <HomeGrid
+          id="pages"
+          title="LANDING PAGES"
+          sub="Production-ready landing pages. One file, no dependencies."
+          all="/pages"
+          pool={PAGE_ITEMS}
+          noun="landing pages"
           onCopied={say}
         />
-        <Rail
+        <HomeGrid
+          id="systems"
+          title="DESIGN SYSTEMS"
+          sub="Tokens and working components, extracted from real HTML."
+          all="/systems"
+          pool={SYSTEM_ITEMS}
+          noun="design systems"
+          onCopied={say}
+        />
+        <HomeGrid
           id="motion"
           title="MOTION STUDIES"
-          count={MOTION_ITEMS.length}
           sub="One movement per study, running live, taken apart in the lab."
-          inline
           all="/motion"
-          items={RANDOM_MOTION}
-          more={{ noun: "motion studies", pool: MOTION_ITEMS }}
+          pool={MOTION_ITEMS}
+          noun="motion studies"
+          onCopied={say}
+        />
+        <HomeGrid
+          id="videos"
+          title="VIDEOS"
+          sub="Short videos rendered live in your browser, sound and all. No video files."
+          all="/videos"
+          pool={VIDEO_ITEMS}
+          noun="videos"
+          onCopied={say}
+        />
+        <HomeGrid
+          id="products"
+          title="PRODUCTS"
+          sub="Product concepts you can actually operate. Every control works."
+          all="/products"
+          pool={PRODUCT_ITEMS}
+          noun="products"
           onCopied={say}
         />
 
