@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation, type Location } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams, type Location } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Home from "./pages/Home";
@@ -21,7 +21,7 @@ import ComingSoon from "./pages/ComingSoon";
 import Systems from "./pages/Systems";
 import Motion from "./pages/Motion";
 import Ecomm from "./pages/Ecomm";
-import Movies from "./pages/Movies";
+import Videos from "./pages/Videos";
 import World from "./pages/World";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
@@ -37,6 +37,12 @@ const HireRedirect = () => {
   const params = new URLSearchParams(search);
   if (!params.has("tier") && !params.has("template")) params.set("tier", "teardown");
   return <Navigate to={`/contact?${params}`} replace />;
+};
+
+/** /movies/:slug from before the rename to VIDEOS */
+const MoviesRedirect = () => {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`/videos/${slug ?? ""}`} replace />;
 };
 
 /**
@@ -77,9 +83,12 @@ const AppRoutes = () => {
         {/* E-COMM storefront kits, and each kit's dialog at its own URL */}
         <Route path="/ecomm" element={<Ecomm />} />
         <Route path="/ecomm/:slug" element={<Ecomm />} />
-        {/* MOVIES: real-time films, and each film's dialog at its own URL */}
-        <Route path="/movies" element={<Movies />} />
-        <Route path="/movies/:slug" element={<Movies />} />
+        {/* VIDEOS: real-time videos, and each video's dialog at its own URL */}
+        <Route path="/videos" element={<Videos />} />
+        <Route path="/videos/:slug" element={<Videos />} />
+        {/* MOVIES was renamed VIDEOS; old links land on the new URLs (public/_redirects 301s them on Netlify) */}
+        <Route path="/movies" element={<Navigate to="/videos" replace />} />
+        <Route path="/movies/:slug" element={<MoviesRedirect />} />
         {/* The library as a walkable factory floor (three.js loads only here) */}
         <Route path="/world" element={<World />} />
         <Route

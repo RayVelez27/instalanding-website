@@ -5341,17 +5341,17 @@ html.agent-dark .route-banner { border-bottom: 1px solid #1a1a1a; }
 .ecom-note b { display: block; margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: var(--ec-accent); }
 html.agent-dark .home-card--ecomm .home-card-kind i { background: #fff; }
 
-/* ── MOVIES: real-time films ──
+/* ── VIDEOS: real-time films ──
    The dialog swaps the PAGES stage for a black 16:9 screen, centred in its
    column; the film's own title card carries the Play button. */
-.route-banner--movies { --au1: 240, 150, 50; --au2: 220, 70, 30; --au3: 90, 50, 200; }
-.home-card--movie .home-card-kind i { background: #f0b35a; }
-.movie-stage { position: relative; min-height: 0; overflow: hidden; background: #000; border: 1px solid #000; }
+.route-banner--videos { --au1: 240, 150, 50; --au2: 220, 70, 30; --au3: 90, 50, 200; }
+.home-card--video .home-card-kind i { background: #f0b35a; }
+.video-stage { position: relative; min-height: 0; overflow: hidden; background: #000; border: 1px solid #000; }
 /* The film letterboxes itself, so the frame just fills the stage */
-.movie-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
-.movie-poster { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; background: #000; cursor: pointer; }
-.movie-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: opacity 0.2s; }
-.movie-poster:hover img { opacity: 1; }
-.movie-poster-play { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 999px; background: #f0b35a; color: #241606; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45); }
-.movie-poster:focus-visible { outline: 3px solid #f0b35a; outline-offset: -3px; }
-.movie-note b { color: #c77a1a; }
+.video-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+.video-poster { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; background: #000; cursor: pointer; }
+.video-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: opacity 0.2s; }
+.video-poster:hover img { opacity: 1; }
+.video-poster-play { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 999px; background: #f0b35a; color: #241606; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45); }
+.video-poster:focus-visible { outline: 3px solid #f0b35a; outline-offset: -3px; }
+.video-note b { color: #c77a1a; }

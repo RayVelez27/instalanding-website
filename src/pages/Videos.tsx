@@ -8,7 +8,7 @@ import RouteBanner from "@/components/RouteBanner";
 import LibraryCard from "@/components/LibraryCard";
 import DemoCode from "@/components/DemoCode";
 import { AgentPanel } from "@/components/AgentMode";
-import { movies, getMovieBySlug, type MovieEntry } from "@/data/movies";
+import { videos, getVideoBySlug, type VideoEntry } from "@/data/videos";
 import type { PromptEntry } from "@/data/prompts";
 import { loadDemoSource } from "@/lib/demoSource";
 import { useCopyCode } from "@/lib/useCopyCode";
@@ -17,20 +17,20 @@ import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
 
 /**
- * /movies and /movies/:slug. A movie is a short film that renders live in
+ * /videos and /videos/:slug. A video is a short video that renders live in
  * the browser from one HTML file. The dialog plays it in a 16:9 screen (the
- * film's own title card has the Play button, since browsers only start sound
+ * video's own title card has the Play button, since browsers only start sound
  * after a click), or shows its source on CODE, like PAGES. COPY CODE copies
  * the whole file; DOWNLOAD saves it, for apps that choke on a multi-megabyte
  * paste.
  */
 
-/** The copy hook takes a PromptEntry; a film fills the parts it reads */
-const asPage = (m: MovieEntry): PromptEntry => ({
+/** The copy hook takes a PromptEntry; a video fills the parts it reads */
+const asPage = (m: VideoEntry): PromptEntry => ({
   slug: m.slug,
   title: m.title,
   category: "web",
-  categoryLabel: "MOVIES",
+  categoryLabel: "VIDEOS",
   description: m.description,
   prompt: "",
   preview: "hero",
@@ -46,7 +46,7 @@ const asPage = (m: MovieEntry): PromptEntry => ({
 /* Inlined models, textures and audio are megabytes of base64, and bundled
    libraries (three.js) are minified onto lines 100KB+ long. Neither can be
    read, and the highlighter takes minutes on a line that long, so CODE shows
-   each as a one-line placeholder; the markup, CSS and the film's own script
+   each as a one-line placeholder; the markup, CSS and the video's own script
    stay as they are. COPY CODE and DOWNLOAD are untouched. */
 const BLOB = /[A-Za-z0-9+/]{400,}={0,2}/g;
 const LONG_LINE = 2000;
@@ -66,23 +66,23 @@ const readable = (code: string) =>
     .map(collapseLine)
     .join("\n");
 
-const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () => void; onGo: (slug: string) => void }) => {
+const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () => void; onGo: (slug: string) => void }) => {
   const page = useMemo(() => asPage(entry), [entry]);
-  const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(page, "movie_modal");
+  const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(page, "video_modal");
   const [mode, setMode] = useState<"preview" | "code">("preview");
   const shown = useMemo(() => (code && mode === "code" ? readable(code) : null), [code, mode]);
-  /* The film loads only when asked for: it's megabytes and heavy to start */
+  /* The video loads only when asked for: it's megabytes and heavy to start */
   const [watching, setWatching] = useState(false);
   useEffect(() => {
     setMode("preview");
     setWatching(false);
   }, [entry.slug]);
-  const index = movies.findIndex((m) => m.slug === entry.slug);
-  const prev = index > 0 ? movies[index - 1] : null;
-  const next = index < movies.length - 1 ? movies[index + 1] : null;
-  const others = movies.filter((m) => m.slug !== entry.slug);
+  const index = videos.findIndex((m) => m.slug === entry.slug);
+  const prev = index > 0 ? videos[index - 1] : null;
+  const next = index < videos.length - 1 ? videos[index + 1] : null;
+  const others = videos.filter((m) => m.slug !== entry.slug);
 
-  /* Arrow keys walk the films without closing, like PAGES */
+  /* Arrow keys walk the videos without closing, like PAGES */
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLElement && event.target.closest("input, textarea")) return;
@@ -101,7 +101,7 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
           <header className="pmodal-head">
             <div className="pmodal-headings">
               <p className="pmodal-kicker">
-                MOVIES · {entry.runtime} · ADDED {entry.added.toUpperCase()}
+                VIDEOS · {entry.runtime} · ADDED {entry.added.toUpperCase()}
               </p>
               <Dialog.Title className="pmodal-title">{entry.title}</Dialog.Title>
               <Dialog.Description className="pmodal-desc">{entry.description}</Dialog.Description>
@@ -112,7 +112,7 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
           </header>
 
           <div className="pmodal-main">
-            <section className="pmodal-stage-col" aria-label="Film">
+            <section className="pmodal-stage-col" aria-label="Video">
               <div className="pmodal-toolbar">
                 <div className="pmodal-views" role="group" aria-label="Show">
                   <button className="pmodal-view" aria-pressed={mode === "preview"} onClick={() => setMode("preview")} title="Watch">
@@ -145,9 +145,9 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
                   )}
                 </div>
               ) : (
-                <div className="movie-stage">
+                <div className="video-stage">
                   {watching ? (
-                    /* Sandboxed without allow-same-origin: the film gets an opaque
+                    /* Sandboxed without allow-same-origin: the video gets an opaque
                        origin, so Chrome runs it in its own process and its loading
                        (building the scene, composing the score) can't freeze the dialog */
                     <iframe
@@ -159,9 +159,9 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
                       allowFullScreen
                     />
                   ) : (
-                    <button className="movie-poster" onClick={() => setWatching(true)} aria-label={`Load ${entry.title}`}>
+                    <button className="video-poster" onClick={() => setWatching(true)} aria-label={`Load ${entry.title}`}>
                       <img src={entry.thumbnail} alt="" />
-                      <span className="movie-poster-play">
+                      <span className="video-poster-play">
                         <Play size={16} fill="currentColor" aria-hidden="true" /> WATCH · {entry.runtime}
                       </span>
                     </button>
@@ -170,7 +170,7 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
               )}
             </section>
 
-            <section className="pmodal-side" aria-label="Film details">
+            <section className="pmodal-side" aria-label="Video details">
               <div className="pmodal-actions">
                 <button className="pmodal-btn pmodal-btn--solid" onClick={copy} aria-live="polite" title={`${copyLabel} (the whole file)`}>
                   {copied === "done" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
@@ -182,7 +182,7 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
                   target="_blank"
                   rel="noreferrer"
                   title="Watch full screen in a new tab"
-                  onClick={() => track("open_movie", { movie: entry.slug, from: "modal" })}
+                  onClick={() => track("open_video", { video: entry.slug, from: "modal" })}
                 >
                   <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
                 </a>
@@ -191,7 +191,7 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
                   href={entry.demo}
                   download={`${entry.slug}.html`}
                   title="Download the single HTML file"
-                  onClick={() => track("download_movie", { movie: entry.slug, from: "modal" })}
+                  onClick={() => track("download_video", { video: entry.slug, from: "modal" })}
                 >
                   <Download size={12} aria-hidden="true" />
                   <span className="pmodal-label">DOWNLOAD</span>
@@ -200,7 +200,7 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
 
               <div className="pmodal-body">
                 <div className="pmodal-body-head">
-                  <span>THE FILM</span>
+                  <span>THE VIDEO</span>
                 </div>
                 <div className="ecom-body">
                   <ul className="ecom-best">
@@ -208,13 +208,13 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
                       <li key={t}>{t.replace(/-/g, " ")}</li>
                     ))}
                   </ul>
-                  <p className="ecom-note movie-note">
+                  <p className="ecom-note video-note">
                     <b>{entry.tech.toUpperCase()}</b>
                     One HTML file, nothing to install. It renders every frame live in your browser, so it plays
                     opened straight from disk.
                   </p>
                   {entry.credits.length > 0 && (
-                    <p className="ecom-note movie-note">
+                    <p className="ecom-note video-note">
                       <b>CREDITS</b>
                       {entry.credits.join(" · ")}
                     </p>
@@ -222,9 +222,9 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
                   {others.length > 0 && (
                     <>
                       <div className="pmodal-body-head">
-                        <span>MORE MOVIES</span>
+                        <span>MORE VIDEOS</span>
                         <span>
-                          {others.length} OF {movies.length}
+                          {others.length} OF {videos.length}
                         </span>
                       </div>
                       <ul className="pmodal-more">
@@ -275,35 +275,35 @@ const MovieModal = ({ entry, onClose, onGo }: { entry: MovieEntry; onClose: () =
   );
 };
 
-const MovieTile = ({ entry }: { entry: MovieEntry }) => (
+const VideoTile = ({ entry }: { entry: VideoEntry }) => (
   <LibraryCard
-    kind="movie"
+    kind="video"
     title={entry.title}
     sub={`${entry.runtime} · ${entry.tech.toLowerCase()}`}
-    to={`/movies/${entry.slug}`}
+    to={`/videos/${entry.slug}`}
     image={entry.thumbnail}
     video
     copy={() => loadDemoSource(entry.demo)}
   />
 );
 
-const Movies = () => {
+const Videos = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const open = getMovieBySlug(slug);
+  const open = getVideoBySlug(slug);
   useAgentDark();
 
   useSeo({
-    title: open ? open.title : "Movies",
+    title: open ? open.title : "Videos",
     description: open
       ? `${open.description}. One HTML file that renders live in your browser.`
-      : "Short films rendered live in your browser. One HTML file each, with the models, light and sound inside.",
-    canonical: open ? `/movies/${open.slug}` : "/movies",
+      : "Short videos rendered live in your browser. One HTML file each, with the models, light and sound inside.",
+    canonical: open ? `/videos/${open.slug}` : "/videos",
     image: open?.thumbnail,
     imageSize: open ? [1200, 600] : undefined,
   });
 
-  if (slug && !open) return <Navigate to="/movies" replace />;
+  if (slug && !open) return <Navigate to="/videos" replace />;
 
   return (
     <div className="app-layout">
@@ -311,33 +311,33 @@ const Movies = () => {
       <main>
         <SiteTopBar />
         <RouteBanner
-          tone="movies"
-          title="MOVIES"
-          description="Short films rendered live in your browser. One HTML file each, with the models, light and sound inside."
+          tone="videos"
+          title="VIDEOS"
+          description="Short videos rendered live in your browser. One HTML file each, with the models, light and sound inside."
         />
         <AgentPanel />
 
         <div className="media-grid layer-grid">
           <div className="card-grid">
-            {movies.map((m) => (
-              <MovieTile key={m.slug} entry={m} />
+            {videos.map((m) => (
+              <VideoTile key={m.slug} entry={m} />
             ))}
           </div>
           <p className="sys-list-foot">
             <span>Every frame is drawn live. No video files.</span>
-            <span>More films are in production.</span>
+            <span>More videos are in production.</span>
           </p>
         </div>
       </main>
       {open && (
-        <MovieModal
+        <VideoModal
           entry={open}
-          onClose={() => navigate("/movies")}
-          onGo={(s) => navigate(`/movies/${s}`, { replace: true })}
+          onClose={() => navigate("/videos")}
+          onGo={(s) => navigate(`/videos/${s}`, { replace: true })}
         />
       )}
     </div>
   );
 };
 
-export default Movies;
+export default Videos;
