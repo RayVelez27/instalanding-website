@@ -9,7 +9,7 @@ import LibraryCard from "@/components/LibraryCard";
 import DemoCode from "@/components/DemoCode";
 import { AgentPanel } from "@/components/AgentMode";
 import { videos, getVideoBySlug, type VideoEntry } from "@/data/videos";
-import type { PromptEntry } from "@/data/prompts";
+import { asPage, fileSize as size, readableSource as readable } from "@/lib/bigDemo";
 import { loadDemoSource } from "@/lib/demoSource";
 import { useCopyCode } from "@/lib/useCopyCode";
 import { useAgentDark } from "@/hooks/useAgentDark";
@@ -17,57 +17,15 @@ import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
 
 /**
- * /videos and /videos/:slug. A video is a short video that renders live in
- * the browser from one HTML file. The dialog plays it in a 16:9 screen (the
- * video's own title card has the Play button, since browsers only start sound
- * after a click), or shows its source on CODE, like PAGES. COPY CODE copies
- * the whole file; DOWNLOAD saves it, for apps that choke on a multi-megabyte
- * paste.
+ * /videos and /videos/:slug. A video renders live in the browser from one
+ * HTML file. The dialog plays it in a 16:9 screen (the video's own title card
+ * has the Play button, since browsers only start sound after a click), or
+ * shows its source on CODE, like PAGES. COPY CODE copies the whole file;
+ * DOWNLOAD saves it, for apps that choke on a multi-megabyte paste.
  */
 
-/** The copy hook takes a PromptEntry; a video fills the parts it reads */
-const asPage = (m: VideoEntry): PromptEntry => ({
-  slug: m.slug,
-  title: m.title,
-  category: "web",
-  categoryLabel: "VIDEOS",
-  description: m.description,
-  prompt: "",
-  preview: "hero",
-  variant: "large",
-  added: m.added,
-  demo: m.demo,
-  thumbnail: m.thumbnail,
-  theme: "dark",
-  bestFor: [],
-  style: m.tags,
-});
-
-/* Inlined models, textures and audio are megabytes of base64, and bundled
-   libraries (three.js) are minified onto lines 100KB+ long. Neither can be
-   read, and the highlighter takes minutes on a line that long, so CODE shows
-   each as a one-line placeholder; the markup, CSS and the video's own script
-   stay as they are. COPY CODE and DOWNLOAD are untouched. */
-const BLOB = /[A-Za-z0-9+/]{400,}={0,2}/g;
-const LONG_LINE = 2000;
-const size = (bytes: number) =>
-  bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
-const collapseLine = (line: string) => {
-  if (line.length <= LONG_LINE) return line;
-  // Keep a script tag that opens or closes on the line, so the highlighter still sees the structure
-  const open = /^\s*<script[^>]*>/i.exec(line)?.[0] ?? "";
-  const close = /<\/script>\s*$/i.exec(line)?.[0] ?? "";
-  return `${open}/* [minified code · ${size(line.length)} on one line · in COPY CODE] */${close}`;
-};
-const readable = (code: string) =>
-  code
-    .replace(BLOB, (run) => `[base64 data · ${size((run.length * 3) / 4)} · in COPY CODE]`)
-    .split("\n")
-    .map(collapseLine)
-    .join("\n");
-
 const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () => void; onGo: (slug: string) => void }) => {
-  const page = useMemo(() => asPage(entry), [entry]);
+  const page = useMemo(() => asPage(entry, "VIDEOS"), [entry]);
   const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(page, "video_modal");
   const [mode, setMode] = useState<"preview" | "code">("preview");
   const shown = useMemo(() => (code && mode === "code" ? readable(code) : null), [code, mode]);

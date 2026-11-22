@@ -28,6 +28,19 @@ export interface VideoEntry {
 
 export const videos: VideoEntry[] = [
   {
+    slug: "brand-identity",
+    title: "Brand Identity",
+    description:
+      "A 15-second wordless brand reel: lime cards for type, palette, a cube, a face and a grid pop, flip and shatter under a moving camera, then gather into one identity board with its pieces in orbit",
+    added: "Nov 21, 2026",
+    runtime: "0:15",
+    tech: "Decoded Rive · Canvas 2D · soundtrack",
+    tags: ["brand", "camera moves", "motion blur", "sound"],
+    credits: [],
+    demo: "/video-demos/brand-identity.html",
+    thumbnail: "/video-demos/brand-identity.jpg",
+  },
+  {
     slug: "geometry-madness",
     title: "Geometry Madness",
     description:

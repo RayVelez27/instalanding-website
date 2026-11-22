@@ -22,6 +22,7 @@ import Systems from "./pages/Systems";
 import Motion from "./pages/Motion";
 import Ecomm from "./pages/Ecomm";
 import Videos from "./pages/Videos";
+import Products from "./pages/Products";
 import World from "./pages/World";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
@@ -89,6 +90,9 @@ const AppRoutes = () => {
         {/* MOVIES was renamed VIDEOS; old links land on the new URLs (public/_redirects 301s them on Netlify) */}
         <Route path="/movies" element={<Navigate to="/videos" replace />} />
         <Route path="/movies/:slug" element={<MoviesRedirect />} />
+        {/* PRODUCTS: operable product concepts (not the parked /product category) */}
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:slug" element={<Products />} />
         {/* The library as a walkable factory floor (three.js loads only here) */}
         <Route path="/world" element={<World />} />
         <Route
