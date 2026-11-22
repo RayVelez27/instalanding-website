@@ -47,10 +47,13 @@ const HEROES = {
   kyma: ["hero@1200", "roi@1100", "services@1100", "pricing@1100"],
   cutcrew: ["hero@1200", "timeline@1100", "projects@1100", "team@1100"],
   fortix: ["hero@1200", "stats@1100", "details@1100", "carousel@1100"],
+  oishi: ["hero@1200", "flavors@1100", "cabinet", "band@1100"],
+  mnemo: ["hero@1200", "console@1100", "finale@1100", "pricing@1100"],
+  sundune: ["hero@1200", "frieze@1100", "experiences@1100", "enquire@1100"],
 };
 // Extra settle time before a poster is captured, for systems whose components animate in.
-// Mistfold's hero stats count up over about two seconds.
-const SETTLE = { mistfold: 2600 };
+// Mistfold's hero stats count up over about two seconds; Mnemo's hero lines rise in over about 2.5s.
+const SETTLE = { mistfold: 2600, mnemo: 2600 };
 
 // Systems whose identity background is a pattern: their small text sits on a label
 const BOXED = ["kind-swarm"];
