@@ -96,6 +96,91 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "the-emperor",
+    title: "The Emperor",
+    kind: "LIVING PAINTING",
+    tagline: "A golden emperor raises a glowing sword over a burning battlefield; the painting breathes, the wind moves through it, and a click ignites the blade",
+    description:
+      "A painted battle scene brought to life: a winged emperor in golden armour on a rock above an army, warships in a storm sky behind. Cloth, hair, banners and cape ripple on a travelling wave of wind; embers rise from the battlefield in three depths, ash falls, god rays turn slowly behind the emperor and sheet lightning flickers through the clouds every 9 to 17 seconds. Move the pointer and the layers part in parallax; click and the sword flares, throwing sparks from its tip while embers swirl up and lightning answers. The painting is a Rive file replayed by a small runtime written for it, with the living layer drawn procedurally in the scene's own depth order; optional sound is synthesised live: wind, a low drone, crackle and thunder.",
+    added: "Nov 21, 2026",
+    theme: "dark",
+    demo: "/motion-lab/the-emperor.html",
+    poster: "/motion-lab/the-emperor.jpg",
+    library: { name: "Canvas 2D + WebGL", version: "decoded .riv", plugins: ["no runtime", "skinned meshes", "procedural particles", "Web Audio"] },
+    life: 3,
+    lifeLabel: "ONE IGNITION",
+    drawSeconds: 6,
+    elements: 300,
+    status: "WIND 1.0× · NEXT STRIKE 9S",
+    stepLabels: ["Call a lightning strike", "Ignite the sword"],
+    reelAutoplay: 4200,
+    tracks: [
+      { prop: "flare · the sword", change: "jumps to 1.1, then burns down at 0.9 a second", start: 0, end: 0.4, ease: "power3.out" },
+      { prop: "sparks · from the tip", change: "70 burst outward, drag and gravity pull them down over 0.5–1.4s", start: 0, end: 0.47, ease: "power2.in" },
+      { prop: "gust · the wind", change: "1 → 0 over about 2s; cloth and embers run up to 2.6× faster", start: 0, end: 0.73, ease: "power1.out" },
+      { prop: "flash · sheet lightning", change: "a sharp peak, a second strike at 0.22s, then a 0.35 glow", start: 0, end: 0.47, ease: "power3.out" },
+      { prop: "camera · parallax", change: "eases toward the pointer, or drifts on two slow sines", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+    ],
+    inputs: [
+      { keys: ["POINTER"], does: "Moves the parallax: the layers part toward where you look, and the camera leans in" },
+      { keys: ["CLICK"], does: "Ignites the sword: sparks from the tip, a gust, embers swirling up and a lightning strike" },
+      { keys: ["SOUND"], does: "The speaker button turns on synthesised wind, drone, crackle and thunder" },
+      { keys: ["IDLE"], does: "Left alone, the parallax drifts and lightning strikes every 9 to 17 seconds" },
+    ],
+    knobs: [
+      {
+        id: "wind",
+        label: "WIND",
+        min: 0,
+        max: 3,
+        step: 0.1,
+        value: 1,
+        unit: "×",
+        note: "Multiplies the wind through cloth, hair and banners, and the drift of embers and ash. At 0 the painting holds its breath.",
+      },
+    ],
+    toggles: [{ id: "lightning", label: "LIGHTNING", value: true }],
+    trick: {
+      title: "A painting with a procedural layer threaded through its depth",
+      steps: [
+        "The .riv was converted into plain data and is replayed by a small runtime written for this file: the transform tree, bones and IK, skinned image meshes (packed into an atlas and drawn in one WebGL pass per batch), clipping and the state machine.",
+        "The living layer isn't painted on top. The runtime calls hooks at chosen points in the draw order, so god rays and lightning draw behind the backdrop's sky, fog sits over the far army, far embers pass behind the emperor and the mid embers, dust and sparks sit in front of him.",
+        "Wind is a travelling wave: every bone that only drives cloth, hair or a banner gets a small rotation of sin(t × 1.6 + phase − depth × 0.75), deeper down the chain later, so motion runs from the shoulder to the hem. One noise-shaped wind curve drives the bones, the embers, the ash and the sound's filter.",
+        "Parallax reuses the file's own rig: a Para target drives the layers through a distance constraint. The pointer, mapped into the target's parent space, pulls it; when idle it drifts on two slow sines. The camera leans 8% the other way for depth.",
+        "A click sets flare to 1.1 and gust to 1, both decaying each frame; the sword's glow shapes, the god rays and the dust all read flare, and the wind reads gust. The sparks start at the blade tip, found by averaging the world points of the sword's glow shapes.",
+      ],
+    },
+    tags: ["living painting", "parallax", "particles", "rive", "skeletal", "sound"],
+    bestFor: ["game and fantasy launch pages", "book, comic and lore sites", "epic hero sections with one big image", "trailers and pre-order pages"],
+    pairsWith: ["starfork-game-studio-landing-page", "cyber-bird-arcade-game-page", "latent-ai-fashion-atelier-page"],
+    credits: [],
+    prompt: `Turn a layered battle painting into a living scene as one HTML file: a winged emperor in golden armour on a rock above an army, a storm sky with warships behind. Every image is inlined; the scene is drawn with Canvas 2D, skinned meshes in WebGL. No libraries.
+
+THE PAINTING
+- Cut the painting into layers (sky, warships, far army, machines, rock, the emperor's body parts, sword, cape, banners, hair) and rig the soft parts (cape, hair, banners, straps) as skinned meshes on bone chains.
+- Contain the 1255 × 912 view in the window; cap DPR at 2. Fade in from black over 2.2s while the camera eases from 1.14 to 1.045 zoom over 5s, then breathes ±0.8%.
+
+THE LIVING LAYER (drawn at points in the painting's own draw order, not on top)
+- Behind the sky's foreground: god rays from behind the emperor, a wedge texture turning at 0.012 rad/s screen-blended at 0.11 ± 0.04, and a second copy counter-rotating.
+- Sheet lightning: every 9-17s a flash at a random spot in the clouds, a sharp peak at 0.04s, often a second at 0.22s, and a 0.35 glow decaying at 2.2/s; a faint blue spill over the whole frame.
+- Fog: two noise textures drifting in opposite directions across the far army, screen-blended.
+- Embers in three depths (130 far behind the emperor, 80 mid in front, 12 near as large bokeh), rising with turbulence and wind; 45 ash flakes falling in the sky; 70 dust motes inside the emperor's back-light.
+- The sword: a blue aura along the blade, nine energy sparks crawling from hilt to tip, a pulsing star at the tip.
+- Grade: a warm soft-light pool around the emperor, a cool vignette, 6% film grain.
+
+THE MOTION
+- Wind: one curve, (0.65 + 0.55 × noise(t × 0.17) + 0.25 × sin(0.9t)) × (1 + 1.6 × gust). Each cloth bone rotates by amp × (0.45 + 0.35 × depth) × (0.7 sin(1.6t + φ − 0.75d) + 0.3 sin(2.9t + 1.3φ − 1.1d)) × wind.
+- Lights breathe: the back-light on a slow sine, firelights on noise.
+- Parallax: a target eases toward the pointer (or two slow sines when idle) with k = 1 − e^(−2.6 dt); the layers follow it through a distance constraint, the camera leans 8% the other way, the near embers 35% with it.
+- Click: flare = 1.1 (decays 0.9/s), gust = 1 (decays 0.45/s), 70 sparks from the blade tip (70% blue), 26 hot embers from the click point, and a lightning strike.
+
+SOUND (off until the speaker button is pressed)
+- Web Audio only: looping pink-ish noise through a bandpass that follows the wind, a low sawtooth drone at 55/55.4/82.5 Hz under a 180 Hz lowpass, random highpass crackle, thunder as a falling lowpass noise burst, and a rising bandpass whoosh with three sine bells on ignite.
+
+THE FLOOR
+- prefers-reduced-motion: 35% of the particles, gentler wind, no camera drift or intro zoom. The canvas is described in an aria-label; the hint "Move to look · Click to ignite" fades in and out once.`,
+  },
+  {
     slug: "two-mercenaries",
     title: "Two Mercenaries",
     kind: "CHARACTER SELECT",
