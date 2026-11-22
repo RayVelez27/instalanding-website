@@ -33,6 +33,27 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "driving-ui",
+    title: "Futuristic Driving UI",
+    description:
+      "A glowing in-car dashboard concept: press LAUNCH and a speedometer, a live map and nine mode tiles power up, hold the accelerator to climb toward 240 km/h, and pick Eco, Sport or Autonomous to recolor the whole cockpit",
+    added: "Nov 22, 2026",
+    kind: "Automotive HMI",
+    tech: "Decoded Rive · Canvas 2D",
+    tags: ["automotive", "hud", "neon", "interactive"],
+    controls: [
+      { control: "LAUNCH", does: "Starts the car: the speedometer, the map and the mode tiles animate in" },
+      { control: "ACCELERATOR", does: "Press and hold: the gear drops from N into D and the speed climbs toward 240 km/h; let go and it eases back down" },
+      { control: "ECO", does: "Turns the cockpit green and swaps the map" },
+      { control: "SPORT", does: "Turns the cockpit orange and swaps the map" },
+      { control: "AUTONOMOUS", does: "Turns the cockpit violet and swaps the map" },
+      { control: "STATUS TILES", does: "Battery, sensor, power, weather, terrain and ambient show the car's state; the sensor sweeps and the weather tile glows" },
+    ],
+    credits: [],
+    demo: "/product-demos/driving-ui.html",
+    thumbnail: "/product-demos/driving-ui.jpg",
+  },
+  {
     slug: "aureon-dashboard",
     title: "Aureon Wealth Dashboard",
     description:
