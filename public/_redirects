@@ -26,6 +26,11 @@
 /free-html-landing-page-template     /free-html-landing-page-templates/  301
 /ai-landing-page-template            /ai-landing-page-templates/      301
 
+# PostHog, proxied through our own domain so ad blockers don't drop it
+# (src/lib/posthog.ts sets api_host to /ingest). Assets first, then the API.
+/ingest/static/*  https://us-assets.i.posthog.com/static/:splat  200
+/ingest/*         https://us.i.posthog.com/:splat                200
+
 # MOVIES was renamed VIDEOS, which moved the tab, its dialogs and the files.
 # Keep the old URLs working for anything already pointing at them.
 /movies          /videos               301
