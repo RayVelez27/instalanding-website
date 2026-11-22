@@ -33,6 +33,28 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "aureon-dashboard",
+    title: "Aureon Wealth Dashboard",
+    description:
+      "A dark private-wealth dashboard: net worth and cash-flow cards with sparklines, a balance chart you can scrub, settlement rings, savings goals and an allocation card, with date ranges that re-count every figure, a CSV export and a light theme",
+    added: "Nov 22, 2026",
+    kind: "Web app",
+    tech: "HTML, CSS & SVG · no libraries",
+    tags: ["dashboard", "fintech", "dark", "interactive"],
+    controls: [
+      { control: "DATE RANGE", does: "Jan–May 2025, last 12 months or 2024: every figure counts to the new value and the charts redraw" },
+      { control: "FILTER", does: "Show income, outflow or both in the cash-flow chart, and toggle the month markers" },
+      { control: "EXPORT", does: "Downloads the selected range as a CSV" },
+      { control: "BALANCE CHART", does: "Move the pointer along it to read savings, checking and brokerage at any point" },
+      { control: "THEME", does: "Switches between the dark and light themes" },
+      { control: "SIDEBAR", does: "Expands to show labels; on phones it becomes a drawer" },
+      { control: "SEARCH · BELL · AVATAR", does: "Open the search field, the notifications and the profile menu" },
+    ],
+    credits: ["Aureon is a fictional bank; the accounts, figures and people are invented."],
+    demo: "/product-demos/aureon-dashboard.html",
+    thumbnail: "/product-demos/aureon-dashboard.jpg",
+  },
+  {
     slug: "agent-terminal",
     title: "Agent Terminal",
     description:
