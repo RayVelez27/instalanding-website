@@ -33,6 +33,26 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "character-creator",
+    title: "Character Creator",
+    description:
+      "A playful avatar builder: a glossy little character on the left and a tabbed panel on the right, where every pick, from body colour and shape to eyes and props, animates onto the character as you tap it",
+    added: "Nov 22, 2026",
+    kind: "App UI",
+    tech: "Decoded Rive · Canvas 2D",
+    tags: ["avatar", "playful", "onboarding", "interactive"],
+    controls: [
+      { control: "BODY · EYES · PROPS", does: "The tab bar switches the panel; the active tab slides into a dark pill" },
+      { control: "COLOUR", does: "Green, blue or yellow; the shape buttons and the flower prop follow the colour" },
+      { control: "SHAPE", does: "Square, pentagon, circle, bow tie, flower or two pills" },
+      { control: "EYES", does: "Default, happy, closed or wink" },
+      { control: "PROPS", does: "None, glasses, phone, moustache, flower or sneakers" },
+    ],
+    credits: [],
+    demo: "/product-demos/character-creator.html",
+    thumbnail: "/product-demos/character-creator.jpg",
+  },
+  {
     slug: "driving-ui",
     title: "Futuristic Driving UI",
     description:
