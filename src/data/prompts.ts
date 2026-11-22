@@ -110,6 +110,43 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Oishi Taiyaki Ice Cream Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A cream-and-red page for taiyaki ice cream sold from a vending machine, with the machine's real touchscreen playable in the hero, a six-flavor picker whose art and accent recolor live, and a guess-the-flavor mini game",
+    prompt: `Build a landing page for Oishi, a fictional taiyaki ice cream sold from a red vending machine, as one HTML file. The interactive art is a Rive scene; play it either with the Rive web runtime (@rive-app/canvas from a CDN) or with a small player of your own, and keep the scene, images and fonts inlined as base64 so the page opens from disk. Josefin Sans for display, Noto Sans JP for body and every Japanese word.
+
+DESIGN SYSTEM
+Cream page #F7F1D7, ink #09090A, red #F73939, yolk #FFD643, tans #DCD4B1 and #EAE2C2, and one --flavor custom property that follows the chosen flavor (red beans #F73939, blueberry #6E52FF, green tea #468746, bubblegum #FF6DDF, chocolate #74492E, peach #FFB03B). Hard-shadow retro: 2.5-3px ink borders, offset ink shadows with no blur (4px 4px 0 on buttons, 10px 10px 0 on the cabinet), radii 14 (buttons), 16 (cards), 999 (fact pills). Display type bold and tight (-.025em). The signature motif is the logo's red tategaki bar: Japanese set vertically (writing-mode: vertical-rl, text-orientation: upright) in cream on red, tracked .35em.
+
+STRUCTURE
+1. Nav: the wordmark "Oishi" with おいしい in red beside it, and three anchor links (Flavors, How it works, Guezzilla) that get a 2px underline on hover.
+2. Hero: three columns. A full-height red tategaki bar reading たい焼きアイス; the h1 "Taiyaki ice cream, sold by a machine.", one line of copy, three outlined fact pills (6 fillings · 6.00 a pack · Up to 10 packs per order), a red "Try the machine" and a cream "See the flavors" button, and the hint "That screen is the real machine. Tap a pack to start."; then the vending machine: a red cabinet with a cap reading "Vending machine 自動販売機", a black bezel around a 9:16 canvas running the playable MAIN artboard, a black pickup slot labelled 取出口, a yolk coin slot and two black feet.
+3. Flavors: "Six fillings, one crunchy waffle" and a line on the three layers; a row of six pack buttons, each its own canvas of the packaging artboard set to its flavor (bounce on hover, spin while selected, aria-pressed); beside it a card with the flavor's description artboard and its name, Japanese name and three rows: Shell · Crunchy waffle, Inside · Delicious ice cream, Center · the filling's syrup; and the fish mascot recolored to match. Choosing a flavor updates every artboard's flavor input and --flavor together.
+4. How it works: "Three taps from hungry to holding one." Three numbered steps (Pick a flavor, Choose how many, Tap Get!) with their Japanese labels.
+5. Game: "Beat Guezzilla for an extra snack": the Guezzilla mascot on a slowly turning starburst, a paragraph on the timed guess, and a button back to the machine.
+6. Footer: a red tategaki bar (おいしい), a giant "Oishi" wordmark with its one-line description, the anchor links in a column, and a legal line saying Oishi is a fictional brand.
+
+THE MACHINE
+Mount each artboard into its own canvas fit-to-contain, re-fit with a ResizeObserver, and map pointer events through the same contain transform so the scene's own listeners (flavor packs, plus and minus, Get and Cancel, the bonus game) work. Run one requestAnimationFrame loop that advances only the canvases on screen (IntersectionObserver). Show a "Loading the machine…" overlay until the scene, images and fonts are decoded, then fade it out; if loading fails, say so in it.
+
+THINGS THAT BREAK
+- The flavor order must match the scene's numbering (1 red beans … 6 peach) or the art and the label disagree.
+- A canvas with no CSS size draws at 1x1: give every canvas a real size or aspect-ratio.
+- Load the fonts before drawing text in the scene, or the first frames render in a fallback face.
+
+THE FLOOR
+One h1 and a main; data-section on every region; the machine canvas is focusable with an aria-label, the decorative canvases are aria-hidden, and the Japanese text carries lang="ja". prefers-reduced-motion stops smooth scrolling and lets ambient art move only briefly after you interact. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 22, 2026",
+    demo: "/demos/oishi-taiyaki-ice-cream.html",
+    bestFor: ["food and dessert brands", "vending and kiosk products", "Japanese and Asian food concepts", "playful consumer launches"],
+    style: ["light", "retro", "hard-shadows", "japanese-type", "rive", "interactive"],
+    thumbnail: "/thumbs/oishi-taiyaki-ice-cream.jpg",
+    theme: "light",
+  },
+  {
     title: "Nimbus AI Assistant Page",
     category: "web",
     categoryLabel: "WEB",
