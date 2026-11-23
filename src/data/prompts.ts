@@ -110,6 +110,52 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Seam AI Tennis Coach Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A near-black page for an AI tennis coach told from the ball's point of view: a 1300vh scroll-driven three.js film dives through the felt, the seam and the strings, rides a serve over the net with a live speed-and-spin readout and calls it in, then hands over to tennis-lime product sections",
+    prompt: `Build a landing page for Seam, a fictional AI tennis coach that watches every shot through your phone's camera, as one HTML file. The opening is a scroll-driven three.js film told from the tennis ball's point of view; everything after it is plain HTML and CSS. Bundle three.js into the file (or load it from a CDN). Instrument Serif for display, Inter Tight for text, JetBrains Mono for labels and readouts, from Google Fonts.
+
+DESIGN SYSTEM
+Near-black page #0a0b09 with two lifts (#0f110e, #151813), warm off-white text #efe9dc with muted (58%) and faint (32%) versions, hairlines at 10% and 18%, and one accent: tennis-ball lime #d4ec3a with a soft lime glow; red #ef5a45 only for "live" dots and errors. Frosted glass panels (14,16,12 at 50%) with backdrop blur. Display type is Instrument Serif set huge with an italic lime second line; labels are small JetBrains Mono capitals with wide tracking. One easing, cubic-bezier(.2,.7,.1,1). Pill buttons; the primary is lime on black text with a black arrow disc.
+
+THE STORY (the first 1300vh)
+A section 1300vh tall with a sticky full-screen canvas. Its scroll progress, 0 to 1, drives one timeline whose beats live as custom properties in :root (--t-fuzz-fade .085, --t-racket .06, --t-toss .26, --t-swing .305, --t-contact .3315, --t-flight .36, --t-landing .74, --t-poster .86); CSS and the scene read the same values.
+1. Felt: you're 0.3 mm tall, standing in the fuzz of a tennis ball (lime fibre strands, shallow depth of field), with the hero headline "See every shot from the ball's eye." and a scroll hint.
+2. The seam: the camera pulls back across the white rubber seam like a canyon. Caption: Seam tracks it 240 times a second to read your spin.
+3. The strings: the ball resting on a racket on grass; caption about the contact point 2 cm above the sweet spot.
+4. The serve: a stadium court with a crowd, the toss and swing.
+5. Flight: ride the ball over the net. A glass "Seam Vision · LIVE" readout counts speed (km/h), spin (rpm) and height (m); a tag shows clearance ("31 cm over the tape").
+6. Impact: the ball lands on the line and a glass line-call card says "In" (the mark overlaps the line by 2 mm).
+7. Poster: an aerial view of the stadium and a giant italic "Seam" with a lime "Get early access" and "Watch again".
+A left-edge chapter HUD (Felt, Seam, Strings, Serve, Flight, Impact, Poster) lights the current beat and jumps to anchors placed at fractions of the story. A preloader covers the page until the scene is ready.
+
+THE PAGE AFTER THE STORY
+- A scrolling marquee, then a manifesto ("Every shot you've ever hit had exactly one witness...") with "No sensors · No wearables · Just your phone and the court".
+- Showcase: "The ball, read." beside a draggable 3D ball whose spin you set by dragging, with four spec rows (240 fps tracking, spin ± 40 rpm, contact ± 8 mm, feedback < 1 s).
+- How it works: "Clip it. Play. Get better." in three steps with small live UI cards (court found, speed and spin, an IN call).
+- Features: a shot map, a voice-coach transcript, a sweet-spot map, split-step timing, patterns and more, each a glass card with its own mini UI.
+- Stats strip: 240 FPS · 11 measurements · 0.6 sec · 0 sensors. The app: a session recap phone with a Seam Score.
+- Pricing: Rally $0, Pro $24/month (recommended), Academy $149 per court per month.
+- FAQ (native details), an early-access CTA ("Serve better.") whose form swaps to a thank-you, and a footer with link columns and a legal line saying Seam is fictional.
+
+THINGS THAT BREAK
+- Keep the story's height and its --t-* fractions in step: change one and the beats land in the wrong place.
+- Render on demand from the scroll progress, cap the device pixel ratio, and pause the renderer when the story is off screen, or phones heat up.
+- The HUD's anchors are positioned by fraction (--at), so chapter jumps survive resizing.
+
+THE FLOOR
+One h1 and a main; data-section on every region; the canvas is decorative and the story's text lives in real captions; buttons and links are keyboard reachable with visible focus. prefers-reduced-motion skips the film's motion and shows the key frames as stills. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 23, 2026",
+    demo: "/demos/seam-ai-tennis-coach.html",
+    bestFor: ["sports tech and fitness apps", "AI products with a computer-vision story", "consumer hardware and app launches", "scroll-story product reveals"],
+    style: ["dark", "webgl", "scroll-driven", "serif-display", "lime-accent", "cinematic"],
+    thumbnail: "/thumbs/seam-ai-tennis-coach.jpg",
+    theme: "dark",
+  },
+  {
     title: "Oishi Taiyaki Ice Cream Page",
     category: "web",
     categoryLabel: "WEB",
