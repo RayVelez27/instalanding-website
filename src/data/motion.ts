@@ -96,6 +96,94 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "surprise-keys",
+    title: "Surprise Keys",
+    kind: "PRESSABLE VOXELS",
+    tagline: "A lowercase a built from 229 blue isometric keys that breathe in and out; hover a key and it pops up, press it and it sinks flush",
+    description:
+      "A big lowercase a assembled from 229 little isometric keys, each a blue cap on a deep-indigo base. Left alone, every cap sinks into its base and rises again in one slow breath, so the whole letter pulses. Hover a key and it springs up higher than the rest in 70 ms; press and it slams flush in 50 ms, then eases back when you let go. Sweep the pointer across and a trail of keys pops up and settles behind it. Each key is its own copy of a tiny three-state machine (idle, hover, click) with hand-tuned cubic blends, decoded from a Rive file and replayed by a small Canvas 2D runtime; the side walls are skinned to two bones, so the extrusion stretches as the cap moves.",
+    added: "Nov 23, 2026",
+    theme: "light",
+    demo: "/motion-lab/surprise-keys.html",
+    poster: "/motion-lab/surprise-keys.jpg",
+    library: { name: "Canvas 2D", version: "decoded .riv", plugins: ["no runtime", "state machine", "skinned paths"] },
+    life: 1.4,
+    lifeLabel: "ONE BREATH, ONE PRESS",
+    drawSeconds: 5,
+    elements: 229,
+    status: "229 KEYS · BREATHING IN UNISON",
+    stepLabels: ["Press wave, right to left", "Press wave, left to right"],
+    reelAutoplay: 2600,
+    tracks: [
+      { prop: "face · idle breath", change: "the cap sinks from 61,61 into its base at 128,125 and rises back, ping-pong over 41 frames", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+      { prop: "hover · idle → hover", change: "70 ms: the cap springs out to 49,49, above its resting height", start: 0, end: 0.05, ease: "power3.out" },
+      { prop: "press · hover → click", change: "50 ms: the cap slams flush into its base", start: 0.1, end: 0.136, ease: "power3.out" },
+      { prop: "release · click → hover", change: "250 ms: the cap eases back up to the hover pose", start: 0.2, end: 0.38, ease: "power2.inOut" },
+      { prop: "leave · hover → idle", change: "300 ms: a slow start, then the cap drops back into the breath", start: 0.45, end: 0.66, ease: "power4.inOut" },
+      { prop: "walls · skinned extrusion", change: "the back corners hold on one bone while the front edge rides the cap, so the walls stretch", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+    ],
+    inputs: [
+      { keys: ["HOVER"], does: "Pops the key under the pointer up above the rest" },
+      { keys: ["PRESS"], does: "Pushes that key flush into its base; it eases back up when you let go" },
+      { keys: ["SWEEP"], does: "Move across the letter and a trail of keys pops up and settles back behind you" },
+      { keys: ["IDLE"], does: "Left alone, every key breathes in and out together" },
+    ],
+    knobs: [
+      {
+        id: "spread",
+        label: "SPREAD",
+        min: 0,
+        max: 1,
+        step: 0.05,
+        value: 0,
+        note: "Offsets each key's breath by its place on the diagonal. At 0 the letter pulses in unison, as authored; at 1 a full wave rolls across it.",
+      },
+    ],
+    toggles: [{ id: "breathe", label: "BREATHING", value: true }],
+    trick: {
+      title: "229 copies of one tiny state machine",
+      steps: [
+        "The .riv holds a 600 × 589 main artboard with 229 nested instances of one 200 × 200 \"buttozn\" artboard, each placed with its own x, y and scale. It was decoded into plain data: the instance list, the button's shapes, two bones, six cubic eases and the state machine.",
+        "One button is four shapes: a hit area, the face (a square nudged into isometric perspective), and an extrusion whose five vertices are skinned to two bones. Moving the face node drags the face bone; the extrusion's back vertices stay on the fixed bone, so the side walls stretch and shrink as the cap moves.",
+        "All motion is the face node's x and y. Hover and click are single-frame poses; idle is a 41-frame ping-pong between the raised and the sunken pose. What you see is the blend: each transition mixes from wherever the face is to the next pose over 50 to 300 ms on its own cubic ease.",
+        "Every instance runs its own copy of the machine, and the pointer is hit-tested per key through the inverse of its world matrix with a winding-number test, the way Rive's listeners do. Keys are painted in reverse file order, so the front rows overlap the ones behind.",
+        "Here the idle breath reads one shared clock instead of restarting per key, so the letter stays in step after a hover; SPREAD shifts that clock along the diagonal to turn the pulse into a wave.",
+      ],
+    },
+    tags: ["isometric", "hover", "press", "rive", "state machine", "playful"],
+    bestFor: ["playful brand marks and logo heroes", "keyboard, gadget and hardware launches", "interactive empty states and 404s", "waitlist pages that reward fiddling"],
+    pairsWith: ["squircle-keycap-product-page", "machine-front-panel-page", "notched-panel-catalog-page", "led-metro-tech-storefront"],
+    credits: [],
+    prompt: `Build a pressable isometric letter as one HTML file: a lowercase "a" made of 229 blue keys that breathe in and out, pop up when hovered and sink flush when pressed. White page, one full-viewport canvas, Canvas 2D, no libraries.
+
+THE LETTER (a 600 × 589 artboard, contained and centred, clipped to its bounds)
+- 229 instances of one 200 × 200 button, each scaled to 0.26, laid on a slightly skewed grid in the shape of a round lowercase a: a thick ring with a stem down its right side.
+- Paint them in reverse order so the front rows overlap the rows behind.
+
+ONE BUTTON
+- The face: a square with its right edge raised 8 units, filled #317ae7, stroked #4c3cc5 at 5px with round joins.
+- The extrusion: a five-point polygon filled and stroked #1b0d83, drawn under the face. Its back vertices are weighted to a fixed bone; its front vertices to a bone that follows the face. Skin it each frame so the walls stretch as the face moves.
+- A hit area: the face's square at rest, invisible.
+
+THE MOTION (only the face node's x and y move)
+- Idle: ping-pong between raised (61, 61) and sunken (128, 125) over 41 frames at 60 fps, on cubic-bezier(0.34, 0.01, 0.35, 0.97).
+- Hover: a single pose at (49, 49), above rest. Click: a single pose at (128, 125), flush with the base.
+- Transitions mix from the current value to the target pose: idle → hover 70 ms (0, 0.79, 0.23, 0.97); hover → idle 300 ms (0.79, -0.01, 0.2, 0.99); hover → click 50 ms (0, 0.81, 0.23, 1.01); click → hover and click → idle 250 ms (0.73, 0, 0.3, 1).
+- Every key runs its own copy of this three-state machine. Inputs: hover on pointer enter and leave, click on pointer down and up.
+
+THE INPUT
+- Map the pointer into artboard space, then into each key's space through the inverse of its world matrix, and hit-test the rest-pose square with a winding-number test. Points outside the artboard count as outside every key.
+- Capture the pointer on down so a press released off the key still lets go.
+
+THINGS THAT BREAK
+- Sample cubic eases by solving t from x (Newton, then bisection), not by using progress as t, or the springs feel linear.
+- An interrupted transition must start from the value it reached, not from the old pose, or keys jump when you sweep fast.
+- Cap dt at 0.1s so a background tab doesn't fire every transition at once.
+
+THE FLOOR
+The canvas has role="img" and an aria-label describing the letter; touch-action none so a tap presses instead of scrolling. Works at 390px wide.`,
+  },
+  {
     slug: "the-emperor",
     title: "The Emperor",
     kind: "LIVING PAINTING",
