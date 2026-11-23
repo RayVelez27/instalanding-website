@@ -33,6 +33,29 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "kiln-dashboard",
+    title: "Kiln Fleet Console",
+    description:
+      "A machined-hardware console for a rack of on-premise AI servers: live throughput, latency, power and heat across four units, a thermal gauge, a load heatmap, a rack you can pull units from and a network-boundary view, all driven by rocker switches and a key",
+    added: "Nov 23, 2026",
+    kind: "Web app",
+    tech: "HTML, CSS & SVG · no libraries",
+    tags: ["dashboard", "hardware", "ai infra", "interactive"],
+    controls: [
+      { control: "PANELS · 1–5", does: "Overview, Units, Thermals, Rack & boundary and Events; the number keys switch them too" },
+      { control: "ALL POWER · TURBO", does: "Rocker switches for the whole fleet: turbo multiplies throughput and heat, and the gauge swings toward red" },
+      { control: "UNIT ROCKERS", does: "Each unit panel has its own power and turbo switches" },
+      { control: "LIVE KEY", does: "Turn the key to freeze the charts in place, turn it back to resume" },
+      { control: "5M · 15M · 1H", does: "Sets how much history the charts show" },
+      { control: "FOCUS A UNIT", does: "Pick a unit (in the list or the rack) to focus every chart on it; Escape clears it" },
+      { control: "LOG FILTERS", does: "All events, warnings only, or the focused unit" },
+      { control: "CHARTS", does: "Hover any chart for the exact readings at that moment" },
+    ],
+    credits: ["A companion to the Machine Front Panel page and the Kiln design system (instalanding.ai/systems/kiln): the same machined look and amber. Kiln is fictional; every reading is simulated in the browser."],
+    demo: "/product-demos/kiln-dashboard.html",
+    thumbnail: "/product-demos/kiln-dashboard.jpg",
+  },
+  {
     slug: "character-creator",
     title: "Character Creator",
     description:
