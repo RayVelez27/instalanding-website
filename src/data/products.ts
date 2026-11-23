@@ -33,6 +33,27 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "vector-one-dashboard",
+    title: "Vector One Vehicle Dashboard",
+    description:
+      "A black-and-lime in-car overview screen: a live instrument cluster with blinkers, gear select, speedometer, power bar and a radar sweep, wrapped in cards for speed, battery, range, energy, tyres, climate and alerts that all follow the car as you drive it",
+    added: "Nov 23, 2026",
+    kind: "Automotive HMI",
+    tech: "Decoded Rive cluster · Canvas 2D · no libraries",
+    tags: ["automotive", "dashboard", "dark", "interactive"],
+    controls: [
+      { control: "GEARS · P R N D", does: "Click a gear on the cluster or below it (or press P, R, N, D): the yellow block slides over and the letter grows" },
+      { control: "BLINKERS", does: "Click a chevron or ◀ BLINK / BLINK ▶ (Q and E, or the arrow keys); both at once reads as hazards" },
+      { control: "SPEED", does: "The slider (or ↑ / ↓) sets a target; the speedometer eases to it over 1.5s and the speed card follows" },
+      { control: "PWR", does: "Fills the power bar; the energy draw, sparkline, battery and range react" },
+      { control: "CLIMATE", does: "+ and − set the cabin temperature; A/C, SEAT and DEFROST toggle" },
+      { control: "SIDEBAR", does: "Picks a section; it becomes an icon rail on tablets and a drawer on phones" },
+    ],
+    credits: ["Vector One is a fictional car and OS; every reading is simulated in the browser."],
+    demo: "/product-demos/vector-one-dashboard.html",
+    thumbnail: "/product-demos/vector-one-dashboard.jpg",
+  },
+  {
     slug: "kiln-dashboard",
     title: "Kiln Fleet Console",
     description:
