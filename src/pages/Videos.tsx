@@ -117,11 +117,26 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
                       allowFullScreen
                     />
                   ) : (
-                    <button className="video-poster" onClick={() => setWatching(true)} aria-label={`Load ${entry.title}`}>
-                      <img src={entry.thumbnail} alt="" />
-                      <span className="video-poster-play">
-                        <Play size={16} fill="currentColor" aria-hidden="true" /> WATCH · {entry.runtime}
+                    <button className="vplay" onClick={() => setWatching(true)} aria-label={`Watch ${entry.title}, ${entry.runtime}`}>
+                      <img className="vplay-still" src={entry.thumbnail} alt="" />
+                      <span className="vplay-shade" aria-hidden="true" />
+                      <span className="vplay-orb" aria-hidden="true">
+                        <span className="vplay-halo" />
+                        <span className="vplay-ring" />
+                        <span className="vplay-core">
+                          <Play size={30} fill="currentColor" strokeWidth={0} />
+                        </span>
                       </span>
+                      <span className="vplay-meta" aria-hidden="true">
+                        <span className="vplay-kicker">NOW SHOWING · INSTALANDING VIDEOS</span>
+                        <span className="vplay-title">{entry.title}</span>
+                        <span className="vplay-chips">
+                          <span>{entry.runtime}</span>
+                          <span>REAL-TIME</span>
+                          <span>SOUND ON</span>
+                        </span>
+                      </span>
+                      <span className="vplay-cta" aria-hidden="true">PRESS TO WATCH</span>
                     </button>
                   )}
                 </div>
