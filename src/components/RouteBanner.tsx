@@ -5,7 +5,7 @@
  * Agent Mode hides the aurora, so the banner turns plain black like HOME's.
  */
 interface Props {
-  tone: "pages" | "systems" | "motion" | "ecomm" | "videos" | "products";
+  tone: "pages" | "systems" | "motion" | "ecomm" | "videos" | "products" | "icons";
   /** Optional eyebrow over the title (PAGES, SYSTEMS and MOTION run without one) */
   kicker?: string;
   title: string;

@@ -40,6 +40,7 @@ const MOTION_FILE = "src/data/motion.ts";
 // The showcase layers: items with one HTML file each but no prompt
 const VIDEOS_FILE = "src/data/videos.ts";
 const PRODUCTS_FILE = "src/data/products.ts";
+const ICONS_FILE = "src/data/icons.ts";
 const ECOMM_FILE = "src/data/ecomm.ts";
 // Only type imports, which esbuild drops, so loadData can read it like the data files
 const SYSTEM_AGENT_FILE = "src/lib/systemAgent.ts";
@@ -153,8 +154,9 @@ const loadLayers = (root) => {
   const { motions = [] } = load(MOTION_FILE);
   const { videos = [] } = load(VIDEOS_FILE);
   const { products = [] } = load(PRODUCTS_FILE);
+  const { iconSets: icons = [] } = load(ICONS_FILE);
   const { ecomm = [] } = load(ECOMM_FILE);
-  return { systems, motions, videos, products, ecomm };
+  return { systems, motions, videos, products, icons, ecomm };
 };
 
 /**
@@ -164,6 +166,7 @@ const loadLayers = (root) => {
  */
 const SHOWCASE = [
   { key: "videos", route: "videos", label: "Videos", noun: "video", blurb: "Short videos rendered live in the browser by one HTML file each, sound and all. No video files." },
+  { key: "icons", route: "icons", label: "Icons", noun: "icon set", blurb: "Animated icon sets: every icon is its own HTML file to copy, plus one file with the whole set." },
   { key: "products", route: "products", label: "Products", noun: "product", blurb: "Interactive product concepts, a device or an app you can operate, each one HTML file where every control works." },
   { key: "ecomm", route: "ecomm", label: "E-comm store pages", noun: "store page", blurb: "Single-file store landing pages for direct-to-consumer brands, every product and scene drawn in code." },
 ];
@@ -175,7 +178,7 @@ const buildShowcase = (layers, base) =>
       title: e.title,
       description: e.description,
       added: e.added,
-      facts: [e.runtime && `${e.runtime} long`, e.kind, e.vertical, e.tech].filter(Boolean).join(" · "),
+      facts: [e.runtime && `${e.runtime} long`, e.icons && `${e.icons.length} icons`, e.kind, e.vertical, e.tech].filter(Boolean).join(" · "),
       bestFor: e.bestFor ?? [],
       pageUrl: abs(base, `/${sec.route}/${e.slug}`),
       demoUrl: abs(base, e.demo),
@@ -479,7 +482,7 @@ const isFresh = (added, now = Date.now(), days = 7) => {
 const buildIndexNow = (library, layers, base) => ({
   generated: new Date().toISOString(),
   urls: [
-    ...["", "pages", "systems", "motion", "videos", "products", "ecomm", "llms.txt"].map((p) => abs(base, `/${p}`)),
+    ...["", "pages", "systems", "motion", "videos", "icons", "products", "ecomm", "llms.txt"].map((p) => abs(base, `/${p}`)),
     ...buildShowcase(layers, base).flatMap((sec) => sec.items.filter((i) => isFresh(i.added)).map((i) => i.pageUrl)),
     ...library.prompts.filter((p) => isFresh(p.added)).map((p) => abs(base, `/prompt/${p.slug}`)),
     ...layers.motions.filter((m) => isFresh(m.added)).map((m) => abs(base, `/motion/${m.slug}`)),

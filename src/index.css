@@ -5461,6 +5461,7 @@ html.agent-dark .home-card--ecomm .home-card-kind i { background: #fff; }
    The dialog runs the product live in a frame that fills the stage; the side
    panel lists its controls. */
 .route-banner--products { --au1: 217, 119, 87; --au2: 212, 162, 127; --au3: 120, 140, 110; }
+.route-banner--icons { --au1: 150, 90, 240; --au2: 60, 200, 230; --au3: 240, 90, 170; }
 .home-card--product .home-card-kind i { background: #d97757; }
 .product-stage { position: relative; min-height: 0; overflow: hidden; background: #e9e6df; border: 1px solid #000; }
 .product-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #e9e6df; }
@@ -5761,3 +5762,33 @@ html.isheet-open .app-layout > main {
   html.isheet-open .app-layout > main { transform: none; }
   .isheet-hint i { animation: none; }
 }
+
+
+/* ICONS (pages/Icons.tsx): the set live, and a grid of live tiles that copy one icon each */
+.icon-set-stage { position: relative; aspect-ratio: 1 / 1; max-height: 70vh; margin: 0 auto; overflow: hidden; background: #241a52; }
+.icon-set-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.icon-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.icon-tile {
+  position: relative; display: block; aspect-ratio: 1 / 1; padding: 0; overflow: hidden; cursor: copy;
+  border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;
+  background: radial-gradient(120% 120% at 20% 0%, #5b3f9c 0%, #2a1d5e 55%, #170f3a 100%);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.icon-tile iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.icon-tile:hover { border-color: rgba(255, 255, 255, 0.28); box-shadow: 0 10px 26px -12px rgba(40, 20, 120, 0.8); }
+.icon-tile:active { transform: scale(0.97); }
+.icon-tile:focus-visible { outline: 2px solid #c8f031; outline-offset: 2px; }
+.icon-tile-name {
+  position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 5px 6px; border-radius: 999px; background: rgba(10, 6, 30, 0.55); color: #fff;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  font: 600 9.5px/1.1 'IBM Plex Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; overflow: hidden;
+  opacity: 0; transform: translateY(4px); transition: opacity 160ms ease, transform 160ms ease;
+}
+.icon-tile:hover .icon-tile-name, .icon-tile:focus-visible .icon-tile-name, .icon-tile.is-copied .icon-tile-name { opacity: 1; transform: none; }
+.icon-tile.is-copied { border-color: #c8f031; }
+.icon-tile.is-copied .icon-tile-name { background: #c8f031; color: #111; }
+.isheet .icon-grid { gap: 10px; }
+.isheet .icon-tile-name { opacity: 1; transform: none; }
+@media (hover: none) { .icon-tile-name { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .icon-tile, .icon-tile-name { transition: none; } }

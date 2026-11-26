@@ -33,6 +33,32 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "lintel-terminal",
+    title: "Lintel L1 Agent Terminal",
+    description:
+      "A periwinkle desk terminal for a coding agent, drawn in isometric SVG: approve or reject its edit to a rover's motor firmware on the tilted screen, hold the talk key to ask for a revision, then run it to build and flash and watch the serial log, with keys that sink and click and a knob that scrolls the screen",
+    added: "Nov 26, 2026",
+    kind: "Hardware concept",
+    tech: "Isometric SVG · Web Audio · no libraries",
+    tags: ["agent terminal", "isometric", "svg", "keyboard", "sound", "coding agent"],
+    controls: [
+      { control: "APPROVE · A", does: "Applies the agent's edit to src/motor.c; after a good flash it commits the change" },
+      { control: "REJECT · X", does: "Discards the edit, and the screen asks you to tell the agent what to change" },
+      { control: "TALK · HOLD SPACE", does: "After a reject or a commit, hold to speak: a live waveform and your words on screen; release and the agent sends back a revised edit or starts a new task" },
+      { control: "RUN · R", does: "Once applied, builds and flashes the board with a progress bar, then shows the serial boot log" },
+      { control: "KNOB · ↑ ↓", does: "Drag it round, scroll the wheel over it or use the arrow keys to scroll the screen, one detent click per line" },
+      { control: "KEYS", does: "Sink with the original key-press curves and click with the original sound; Tab reaches each one and Enter or Space presses it" },
+      { control: "STATUS LED", does: "Blinks while building, pulses while listening and stays lit when the board is flashed" },
+    ],
+    credits: [
+      "Lintel is a fictional brand.",
+      "The key click is the sound from the source .riv, and the key travel follows its animation curves.",
+      "Space Grotesk and JetBrains Mono from Google Fonts, under the SIL Open Font License.",
+    ],
+    demo: "/product-demos/lintel-terminal.html",
+    thumbnail: "/product-demos/lintel-terminal.jpg",
+  },
+  {
     slug: "obsidian-watch",
     title: "Obsidian Series I Smartwatch",
     description:

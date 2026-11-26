@@ -4,6 +4,7 @@ import { systemCover, systems, type SystemEntry } from "@/data/systems";
 import { ecomm, type EcommEntry } from "@/data/ecomm";
 import { videos, type VideoEntry } from "@/data/videos";
 import { products, type ProductEntry } from "@/data/products";
+import { iconSets, type IconSetEntry } from "@/data/icons";
 
 /**
  * The library as one list of cards: every page, motion study, design
@@ -12,7 +13,7 @@ import { products, type ProductEntry } from "@/data/products";
  * grids and the top-bar search both read it. The data is static, so it is laid
  * out once per load, newest first.
  */
-export type Kind = "page" | "motion" | "system" | "ecomm" | "video" | "product";
+export type Kind = "page" | "motion" | "system" | "ecomm" | "video" | "product" | "icons";
 export interface Item {
   kind: Kind;
   key: string;
@@ -127,6 +128,19 @@ const productItem = (p: ProductEntry): Item => ({
   looks: p.tags,
 });
 
+const iconItem = (s: IconSetEntry): Item => ({
+  kind: "icons",
+  key: `i:${s.slug}`,
+  title: s.title,
+  sub: `${s.icons.length} icons · ${s.kind.toLowerCase()}`,
+  image: s.thumbnail,
+  to: `/icons/${s.slug}`,
+  words: [s.title, s.description, s.kind, s.tech, "icon icons icon set svg glyph", ...s.tags, ...s.icons.map((i) => i.name)].join(" ").toLowerCase(),
+  code: s.demo,
+  theme: "dark",
+  looks: s.tags,
+});
+
 export const LABEL: Record<Kind, string> = {
   page: "PAGE",
   motion: "MOTION",
@@ -134,6 +148,7 @@ export const LABEL: Record<Kind, string> = {
   ecomm: "E-COMM",
   video: "VIDEO",
   product: "PRODUCT",
+  icons: "ICONS",
 };
 
 /* The data is static, so it is laid out once per load. Newest first. */
@@ -146,7 +161,8 @@ export const SYSTEM_ITEMS = newest(systems).map(systemItem);
 export const ECOMM_ITEMS = newest(ecomm).map(ecommItem);
 export const VIDEO_ITEMS = newest(videos).map(videoItem);
 export const PRODUCT_ITEMS = newest(products).map(productItem);
-export const EVERYTHING = [...PAGE_ITEMS, ...MOTION_ITEMS, ...SYSTEM_ITEMS, ...VIDEO_ITEMS, ...PRODUCT_ITEMS, ...ECOMM_ITEMS];
+export const ICON_ITEMS = newest(iconSets).map(iconItem);
+export const EVERYTHING = [...PAGE_ITEMS, ...MOTION_ITEMS, ...SYSTEM_ITEMS, ...VIDEO_ITEMS, ...ICON_ITEMS, ...PRODUCT_ITEMS, ...ECOMM_ITEMS];
 
 /**
  * A random order with variety: dark and light alternate, and no item shares

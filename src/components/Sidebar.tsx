@@ -24,6 +24,7 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[
   { to: "/systems", label: "SYSTEMS" },
   { to: "/motion", label: "MOTION" },
   { to: "/videos", label: "VIDEOS", isNew: true },
+  { to: "/icons", label: "ICONS", isNew: true },
   { to: "/products", label: "PRODUCTS", isNew: true },
   // E-COMM is hidden, not removed: /ecomm and /ecomm/:slug still resolve. Restore this line to bring it back.
   // { to: "/ecomm", label: "E-COMM", isNew: true },
@@ -118,6 +119,7 @@ const Sidebar = () => {
     if (to === "/motion") return location.pathname === to || location.pathname.startsWith("/motion/");
     if (to === "/products") return location.pathname === to || location.pathname.startsWith("/products/");
     if (to === "/videos") return location.pathname === to || location.pathname.startsWith("/videos/");
+    if (to === "/icons") return location.pathname === to || location.pathname.startsWith("/icons/");
     if (to === "/ecomm") return location.pathname === to || location.pathname.startsWith("/ecomm/");
     return location.pathname === to;
   };

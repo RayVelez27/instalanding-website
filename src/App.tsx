@@ -23,6 +23,7 @@ import Motion from "./pages/Motion";
 import Ecomm from "./pages/Ecomm";
 import Videos from "./pages/Videos";
 import Products from "./pages/Products";
+import Icons from "./pages/Icons";
 import World from "./pages/World";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
@@ -90,6 +91,9 @@ const AppRoutes = () => {
         {/* MOVIES was renamed VIDEOS; old links land on the new URLs (public/_redirects 301s them on Netlify) */}
         <Route path="/movies" element={<Navigate to="/videos" replace />} />
         <Route path="/movies/:slug" element={<MoviesRedirect />} />
+        {/* ICONS: animated icon sets, each icon its own file */}
+        <Route path="/icons" element={<Icons />} />
+        <Route path="/icons/:slug" element={<Icons />} />
         {/* PRODUCTS: operable product concepts (not the parked /product category) */}
         <Route path="/products" element={<Products />} />
         <Route path="/products/:slug" element={<Products />} />

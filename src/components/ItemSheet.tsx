@@ -21,7 +21,7 @@ import { copyText } from "@/lib/copyText";
  * Opens, actions, depth and dismissals are sent as item_sheet_* events.
  */
 
-export type SheetKind = "page" | "product" | "video" | "motion" | "system";
+export type SheetKind = "page" | "product" | "video" | "motion" | "system" | "icons";
 
 export interface SheetAction {
   id: string;
