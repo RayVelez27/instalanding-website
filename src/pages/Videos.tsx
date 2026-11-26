@@ -15,6 +15,9 @@ import { useCopyCode } from "@/lib/useCopyCode";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
+import { useIsCompact } from "@/hooks/useIsCompact";
+import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
+import { isRecent, shortDate } from "@/lib/sheetDates";
 
 /**
  * /videos and /videos/:slug. A video renders live in the browser from one
@@ -248,6 +251,98 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
   );
 };
 
+/** Phones and tablets: the video in the item sheet. Play starts it in place; then it can go full screen */
+const VideoSheet = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () => void; onGo: (slug: string) => void }) => {
+  const page = useMemo(() => asPage(entry, "VIDEOS"), [entry]);
+  const { copy, copied, code, source } = useCopyCode(page, "video_sheet");
+  const [watching, setWatching] = useState(false);
+  const [sub, setSub] = useState<null | "about" | "code">(null);
+  useEffect(() => {
+    setWatching(false);
+    setSub(null);
+  }, [entry.slug]);
+  const index = videos.findIndex((m) => m.slug === entry.slug);
+  const prev = index > 0 ? videos[index - 1] : null;
+  const next = index < videos.length - 1 ? videos[index + 1] : null;
+  const shown = useMemo(() => (code && sub === "code" ? readable(code) : null), [code, sub]);
+  const file = entry.demo.split("/").pop() ?? "index.html";
+  const play = () => {
+    setWatching(true);
+    track("open_video", { video: entry.slug, from: "sheet" });
+  };
+
+  const subs = {
+    about: {
+      title: "How it's made",
+      body: (
+        <>
+          <p className="isheet-p"><b>{entry.tech}.</b> One HTML file, nothing to install. It renders every frame live in your browser, so it plays opened straight from disk.</p>
+          {entry.credits.length > 0 && <p className="isheet-p"><b>Credits.</b> {entry.credits.join(" · ")}</p>}
+          <ul className="isheet-tags">{entry.tags.map((t) => <li key={t}>{t.replace(/-/g, " ")}</li>)}</ul>
+        </>
+      ),
+    },
+    code: {
+      title: file,
+      body: (
+        <div className="isheet-code">
+          {shown ? <DemoCode code={shown} file={file} /> : <p className="pcode-status">{source.status === "error" ? "Couldn't load the source." : "Loading source…"}</p>}
+        </div>
+      ),
+    },
+  };
+
+  return (
+    <ItemSheet
+      kind="video"
+      slug={entry.slug}
+      theme="dark"
+      title={entry.title}
+      summary={`${entry.description}.`}
+      pills={[...(isRecent(entry.added) ? [{ label: "New", accent: true }] : []), { label: "Video" }, { label: entry.runtime }, { label: shortDate(entry.added) }]}
+      media={
+        watching ? (
+          <iframe key={entry.slug} src={entry.demo} title={entry.title} sandbox="allow-scripts allow-downloads allow-pointer-lock" allow="autoplay; fullscreen" />
+        ) : (
+          <button type="button" className="isheet-fill isheet-poster" onClick={play} aria-label={`Play ${entry.title}, ${entry.runtime}`}>
+            <img src={entry.thumbnail} alt="" />
+            <span className="isheet-play" aria-hidden="true"><Play size={26} fill="currentColor" strokeWidth={0} /></span>
+          </button>
+        )
+      }
+      mediaRatio="16 / 9"
+      mediaHint={watching ? "Press play in the frame · sound on" : `${entry.runtime} · sound on`}
+      canFullScreen={watching}
+      stats={[
+        { value: entry.runtime, label: "Runtime" },
+        { value: "Live", label: "Rendered" },
+        { value: "1", label: "HTML file" },
+      ]}
+      primary={watching ? { id: "full_screen", label: "Watch full screen", fullScreen: true } : { id: "play", label: "Play", icon: <Play size={15} fill="currentColor" strokeWidth={0} aria-hidden="true" />, onClick: play }}
+      secondary={{ id: "copy_code", label: copied === "done" ? "Copied" : "Copy", done: copied === "done", icon: <Copy size={15} aria-hidden="true" />, onClick: copy }}
+      more={[
+        { id: "code", label: "View code", onClick: () => setSub("code") },
+        { id: "new_tab", label: "Open in a new tab", href: entry.demo },
+        { id: "download", label: "Download the file", href: entry.demo, download: `${entry.slug}.html`, onClick: () => track("download_video", { video: entry.slug, from: "sheet" }) },
+      ]}
+      prev={prev && { title: prev.title, thumb: prev.thumbnail, go: () => onGo(prev.slug) }}
+      next={next && { title: next.title, thumb: next.thumbnail, go: () => onGo(next.slug) }}
+      sub={sub ? subs[sub] : null}
+      onSubClose={() => setSub(null)}
+      onClose={onClose}
+    >
+      <div className="isheet-rows">
+        <SheetRow label="How it's made" value={entry.tags.length ? `${entry.tags.length} tags` : undefined} onClick={() => setSub("about")} />
+        <SheetRow label="View the code" value={file} onClick={() => setSub("code")} />
+      </div>
+      <SheetCarousel
+        title="More videos"
+        items={videos.filter((o) => o.slug !== entry.slug).map((o) => ({ key: o.slug, title: o.title, sub: o.runtime, thumb: o.thumbnail, onClick: () => onGo(o.slug) }))}
+      />
+    </ItemSheet>
+  );
+};
+
 const VideoTile = ({ entry }: { entry: VideoEntry }) => (
   <LibraryCard
     kind="video"
@@ -264,6 +359,7 @@ const Videos = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const open = getVideoBySlug(slug);
+  const compact = useIsCompact();
   useAgentDark();
 
   useSeo({
@@ -302,7 +398,10 @@ const Videos = () => {
           </p>
         </div>
       </main>
-      {open && (
+      {open && compact && (
+        <VideoSheet entry={open} onClose={() => navigate("/videos")} onGo={(s) => navigate(`/videos/${s}`, { replace: true })} />
+      )}
+      {open && !compact && (
         <VideoModal
           entry={open}
           onClose={() => navigate("/videos")}

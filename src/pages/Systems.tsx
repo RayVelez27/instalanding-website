@@ -123,7 +123,15 @@ const Systems = () => {
           </p>
         </div>
       </main>
-      {open && <SystemModal system={open} onClose={() => navigate("/systems")} />}
+      {open && (
+        <SystemModal
+          system={open}
+          onClose={() => navigate("/systems")}
+          prev={order()[order().indexOf(open) - 1] ?? null}
+          next={order()[order().indexOf(open) + 1] ?? null}
+          onGo={(s) => navigate(`/systems/${s}`, { replace: true })}
+        />
+      )}
     </div>
   );
 };

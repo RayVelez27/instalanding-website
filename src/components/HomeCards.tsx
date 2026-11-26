@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import LibraryCard from "@/components/LibraryCard";
-import { useIsPhone } from "@/hooks/useIsPhone";
 import type { Item } from "@/lib/libraryItems";
 
 /* The HOME cards: one item from any layer, and the card that ends a section */
@@ -9,9 +8,8 @@ import type { Item } from "@/lib/libraryItems";
 /* ── a card: the shared library card, fed from an item ── */
 export const Card = ({ item, onCopied }: { item: Item; onCopied: (m: string) => void }) => {
   const location = useLocation();
-  const phone = useIsPhone();
   // Pages open as the dialog over home on desktop, like the feed does
-  const state = item.kind === "page" && !phone ? { backgroundLocation: location } : undefined;
+  const state = item.kind === "page" ? { backgroundLocation: location } : undefined;
   return (
     <LibraryCard
       kind={item.kind}

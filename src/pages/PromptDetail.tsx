@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Copy, Download, ExternalLink, MessageSquare } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import PromptThumb from "@/components/PromptThumb";
@@ -15,7 +15,9 @@ import { getSystemForTemplate } from "@/data/systems";
 import { motionsForPage } from "@/data/motion";
 import { useSeo } from "@/hooks/useSeo";
 import { useIsPhone } from "@/hooks/useIsPhone";
-import PromptDetailPhone from "@/components/PromptDetailPhone";
+import PageSheet from "@/components/PageSheet";
+import Index from "@/pages/Index";
+import { useIsCompact } from "@/hooks/useIsCompact";
 import { track } from "@/lib/track";
 import { codePrompt, codePromptIntro } from "@/lib/codePrompt";
 import { SITE_URL } from "@/lib/agentMode";
@@ -34,6 +36,8 @@ const PromptDetail = () => {
   const [promptCopied, setPromptCopied] = useState(false);
   const [feedback, setFeedback] = useState(false);
   const phone = useIsPhone();
+  const compact = useIsCompact();
+  const navigate = useNavigate();
   const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(entry, phone ? "phone" : "page");
 
   // Called before the not-found redirect below: hooks cannot be conditional.
@@ -78,29 +82,13 @@ const PromptDetail = () => {
     setTimeout(() => setPromptCopied(false), 2000);
   };
 
-  // Phones get their own page: a preview to try, one action bar, the rest folded away
-  if (phone) {
+  // A shared link on a phone or tablet: the pages feed, with this page's sheet over it
+  if (compact) {
     return (
-      <div className="app-layout">
-        <Sidebar />
-        <main>
-          <PromptDetailPhone
-            entry={entry}
-            prev={prev}
-            next={next}
-            related={related}
-            system={system}
-            motions={motions}
-            file={file}
-            code={code}
-            promptCopied={promptCopied}
-            onCopyPrompt={handleCopyPrompt}
-            onCopyCode={copy}
-            codeCopied={copied}
-            codeFailed={source.status === "error"}
-          />
-        </main>
-      </div>
+      <>
+        <Index />
+        <PageSheet entry={entry} onClose={() => navigate("/pages")} onGo={(s) => navigate(`/prompt/${s}`, { replace: true })} />
+      </>
     );
   }
 

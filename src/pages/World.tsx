@@ -5,7 +5,6 @@ import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import { visiblePrompts, type PromptEntry } from "@/data/prompts";
 import { mobileThumbFor } from "@/data/mobileThumbs";
-import { useIsPhone } from "@/hooks/useIsPhone";
 import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
 import type { WorldHandle, WorldItem } from "@/components/world/engine";
@@ -54,7 +53,6 @@ const World = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const phone = useIsPhone();
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const tags = useRef<HTMLDivElement>(null);
@@ -86,7 +84,7 @@ const World = () => {
     }
     setSeen(visited.current.size);
     track("open_template", { template: item.slug, from: "world" });
-    navigate(`/prompt/${item.slug}`, { state: phone ? undefined : { backgroundLocation: location } });
+    navigate(`/prompt/${item.slug}`, { state: { backgroundLocation: location } });
   };
 
   useEffect(() => {
@@ -209,7 +207,7 @@ const World = () => {
             <ul>
               {entries.map((p) => (
                 <li key={p.slug}>
-                  <Link to={`/prompt/${p.slug}`} state={phone ? undefined : { backgroundLocation: location }}>
+                  <Link to={`/prompt/${p.slug}`} state={{ backgroundLocation: location }}>
                     {p.title}
                   </Link>
                 </li>

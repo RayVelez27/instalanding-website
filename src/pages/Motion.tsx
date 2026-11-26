@@ -17,9 +17,12 @@ import { getMotionBySlug, motions, type MotionEntry } from "@/data/motion";
 import { shuffle } from "@/data/prompts";
 import { copyText } from "@/lib/copyText";
 import { useAgentDark } from "@/hooks/useAgentDark";
-import { useIsPhone } from "@/hooks/useIsPhone";
 import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
+import { useIsCompact } from "@/hooks/useIsCompact";
+import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
+import { isRecent, shortDate } from "@/lib/sheetDates";
+import { getPromptBySlug } from "@/data/prompts";
 
 /**
  * /motion and /motion/:slug. Motion is shown running, not as a screenshot:
@@ -101,9 +104,8 @@ const ReelCard = ({ motion, deck = false }: { motion: MotionEntry; deck?: boolea
   const [live, setLive] = useState(false);
   const { flash, copy } = useCopy();
   const href = `/motion/${motion.slug}`;
-  // Desktop opens the lab as a dialog over the list; a phone opens it as a page
-  const phone = useIsPhone();
-  const state = phone ? undefined : { fromList: true };
+  // Opens over the list: the lab dialog on desktop, the item sheet on phones and tablets
+  const state = { fromList: true };
 
   // The stage only runs while it is on screen
   useEffect(() => {
@@ -340,9 +342,8 @@ const MotionDeck = ({ list }: { list: MotionEntry[] }) => {
 
 /** The GRID tile: the poster, and on hover the same actions as a page tile */
 const MotionTile = ({ motion }: { motion: MotionEntry }) => {
-  const phone = useIsPhone();
   const href = `/motion/${motion.slug}`;
-  const state = phone ? undefined : { fromList: true };
+  const state = { fromList: true };
   return (
     <LibraryCard
       kind="motion"
@@ -393,6 +394,99 @@ const MotionModal = ({ motion, onClose }: { motion: MotionEntry; onClose: () => 
   </Dialog.Root>
 );
 
+/** Phones and tablets: the study live first; the lab (choreography, eases, knobs) one tap deeper */
+const MotionSheet = ({ motion, list, onClose, onGo }: { motion: MotionEntry; list: MotionEntry[]; onClose: () => void; onGo: (slug: string) => void }) => {
+  const nav = useNavigate();
+  const { flash, copy } = useCopy();
+  const [sub, setSub] = useState<null | "lab" | "inputs" | "trick" | "prompt">(null);
+  useEffect(() => setSub(null), [motion.slug]);
+  const i = list.findIndex((m) => m.slug === motion.slug);
+  const prev = i > 0 ? list[i - 1] : null;
+  const next = i >= 0 && i < list.length - 1 ? list[i + 1] : null;
+  const pairs = motion.pairsWith.map((s) => getPromptBySlug(s)).filter((p): p is NonNullable<typeof p> => !!p);
+  const copyCode = () => copy("code", demoCode(motion)).then(() => track("copy_motion", { motion: motion.slug, from: "sheet" }));
+
+  const subs = {
+    lab: { title: "The lab", body: <div className="isheet-lab"><MotionLab motion={motion} variant="modal" /></div> },
+    inputs: {
+      title: "Inputs",
+      body: (
+        <dl className="isheet-dl">
+          {motion.inputs.map((inp) => (
+            <div key={inp.keys.join()}>
+              <dt>{inp.keys.join(" · ")}</dt>
+              <dd>{inp.does}</dd>
+            </div>
+          ))}
+        </dl>
+      ),
+    },
+    trick: {
+      title: motion.trick.title,
+      body: (
+        <ol className="isheet-steps">
+          {motion.trick.steps.map((st, k) => <li key={k}>{st}</li>)}
+        </ol>
+      ),
+    },
+    prompt: {
+      title: "One-shot prompt",
+      body: (
+        <>
+          <pre className="isheet-pre">{motion.prompt}</pre>
+          <button type="button" className="isheet-btn isheet-btn--primary isheet-btn--block" onClick={() => copy("prompt", motion.prompt)}>
+            {flash === "prompt" ? "Copied" : "Copy prompt"}
+          </button>
+        </>
+      ),
+    },
+  };
+
+  return (
+    <ItemSheet
+      kind="motion"
+      slug={motion.slug}
+      theme={motion.theme === "light" ? "light" : "dark"}
+      title={motion.title}
+      summary={motion.tagline.endsWith(".") ? motion.tagline : `${motion.tagline}.`}
+      pills={[...(isRecent(motion.added) ? [{ label: "New", accent: true }] : []), { label: "Motion" }, { label: motion.kind }, { label: shortDate(motion.added) }]}
+      // The lab runs its own stage; the sheet's stops while it's open so only one plays
+      media={sub === "lab" ? <img src={motion.poster} alt="" /> : <iframe key={motion.slug} src={`${motion.demo}?autoplay=${motion.reelAutoplay}`} title={`${motion.title}, live`} />}
+      mediaRatio="2 / 1"
+      mediaHint="Live · try it"
+      canFullScreen
+      stats={[
+        { value: String(motion.tracks.length), label: "Tracks" },
+        { value: `${motion.life}s`, label: motion.lifeLabel ?? "One cycle" },
+        { value: String(motion.inputs.length), label: "Inputs" },
+      ]}
+      primary={{ id: "lab", label: "Open the lab", onClick: () => setSub("lab") }}
+      secondary={{ id: "copy_code", label: flash === "code" ? "Copied" : "Copy", done: flash === "code", icon: <Copy size={15} aria-hidden="true" />, onClick: copyCode }}
+      more={[
+        { id: "copy_prompt", label: flash === "prompt" ? "Prompt copied" : "Copy prompt", done: flash === "prompt", onClick: () => copy("prompt", motion.prompt) },
+        { id: "new_tab", label: "Open in a new tab", href: motion.demo, onClick: () => track("open_motion_demo", { motion: motion.slug }) },
+        { id: "download", label: "Download the file", href: motion.demo, download: `${motion.slug}.html` },
+      ]}
+      prev={prev && { title: prev.title, thumb: prev.poster, go: () => onGo(prev.slug) }}
+      next={next && { title: next.title, thumb: next.poster, go: () => onGo(next.slug) }}
+      sub={sub ? subs[sub] : null}
+      onSubClose={() => setSub(null)}
+      onClose={onClose}
+    >
+      <div className="isheet-rows">
+        <SheetRow label="Choreography & eases" value={`${motion.tracks.length} tracks`} onClick={() => setSub("lab")} />
+        <SheetRow label="Inputs" value={String(motion.inputs.length)} onClick={() => setSub("inputs")} />
+        <SheetRow label="How it works" onClick={() => setSub("trick")} />
+        <SheetRow label="One-shot prompt" value={`~${Math.round(motion.prompt.length / 4)} tokens`} onClick={() => setSub("prompt")} />
+      </div>
+      <SheetCarousel
+        title="Pairs with"
+        items={pairs.map((p) => ({ key: p.slug, title: p.title, sub: p.theme, thumb: p.thumbnail, onClick: () => nav(`/prompt/${p.slug}`) }))}
+      />
+    </ItemSheet>
+  );
+};
+
 const MotionPage = ({ motion }: { motion: MotionEntry }) => (
   <div className="app-layout">
     <Sidebar />
@@ -415,7 +509,7 @@ const Motion = () => {
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const phone = useIsPhone();
+  const compact = useIsCompact();
   const open = getMotionBySlug(slug);
   const fromList = Boolean((location.state as { fromList?: boolean } | null)?.fromList);
   useAgentDark();
@@ -435,8 +529,9 @@ const Motion = () => {
   });
 
   if (slug && !open) return <Navigate to="/motion" replace />;
-  // A shared link, a refresh or a phone: the lab is the page
-  if (open && (!fromList || phone)) return <MotionPage motion={open} />;
+  // A shared link or a refresh on desktop: the lab is the page. Phones and
+  // tablets always get the list with the study's sheet over it.
+  if (open && !fromList && !compact) return <MotionPage motion={open} />;
 
   return (
     <div className="app-layout">
@@ -481,7 +576,10 @@ const Motion = () => {
           </p>
         </div>
       </main>
-      {open && <MotionModal motion={open} onClose={() => navigate("/motion")} />}
+      {open && compact && (
+        <MotionSheet motion={open} list={order()} onClose={() => navigate("/motion")} onGo={(s) => navigate(`/motion/${s}`, { replace: true, state: { fromList: true } })} />
+      )}
+      {open && !compact && <MotionModal motion={open} onClose={() => navigate("/motion")} />}
     </div>
   );
 };

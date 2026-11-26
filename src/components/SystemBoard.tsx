@@ -23,6 +23,8 @@ interface Props {
   overrides: Record<string, string>;
   flash: string;
   onCopy: (key: string, text: string) => void;
+  /** Show only the panels this accepts (the phone sheet's tabs); numbering stays the board's */
+  only?: (panel: string) => boolean;
 }
 
 const TYPE_ROWS = 8;
@@ -65,7 +67,7 @@ function EaseCurve({ value }: { value: string }) {
   );
 }
 
-const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Props) => {
+const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy, only }: Props) => {
   const p = system.prefix;
   const byId = useMemo(() => new Map(spec.components.map((c) => [c.id, c])), [spec]);
   const group = (title: string) => spec.groups.find((g) => g.title === title);
@@ -95,6 +97,7 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy }: Prop
   const panels = system.board.map((b, i) => {
     const n = i + 1;
     const key = `${b.panel}-${i}`;
+    if (only && !only(b.panel)) return null;
 
     if (b.panel === "identity") {
       return (

@@ -5524,3 +5524,240 @@ a.home-badge:hover, a.home-badge:focus-visible { border-color: #fff; background:
   .hook-tile:hover img { transform: none; }
 }
 html.agent-dark .home-hooks { border-bottom: 1px solid #222; }
+
+/* ===================================================================
+   Item sheet (components/ItemSheet.tsx): how every item opens on a phone
+   or tablet. A bottom sheet over the list, which recedes behind it; the
+   work first, a calm title block, one frosted dock.
+   =================================================================== */
+:root { --isheet-ease: cubic-bezier(0.32, 0.72, 0, 1); }
+
+/* The page behind shrinks toward the reader while a sheet is up */
+html.isheet-open body { background: #000; }
+.app-layout > main { transition: transform 420ms var(--isheet-ease); }
+html.isheet-open .app-layout > main {
+  transform: scale(calc(0.94 + 0.06 * var(--isheet-pull, 0)));
+  transform-origin: 50% var(--isheet-origin, 50vh);
+  border-radius: 18px;
+}
+
+.isheet-scrim { position: fixed; inset: 0; z-index: 400; background: rgba(0, 0, 0, calc(0.46 - 0.3 * var(--isheet-pull, 0))); animation: agents-fade 320ms var(--isheet-ease); }
+.isheet-scrim.is-closing { opacity: 0; transition: opacity 280ms var(--isheet-ease); }
+
+.isheet {
+  --sh-bg: #111113; --sh-ink: #f4f2ee; --sh-ink-2: rgba(244, 242, 238, 0.66); --sh-ink-3: rgba(244, 242, 238, 0.42);
+  --sh-line: rgba(255, 255, 255, 0.09); --sh-fill: rgba(255, 255, 255, 0.06); --sh-btn: #f4f2ee; --sh-btn-ink: #111;
+  --sh-accent: #c8f031; --sh-accent-ink: #111;
+  position: fixed; z-index: 401; left: 0; right: 0; bottom: 0; top: max(calc(env(safe-area-inset-top) + 14px), 4.5svh);
+  display: flex; flex-direction: column;
+  width: 100%; max-width: 760px; margin: 0 auto;
+  border-radius: 22px 22px 0 0; overflow: hidden;
+  background: var(--sh-bg); color: var(--sh-ink);
+  box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.45);
+  font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  outline: none;
+  /* backwards fill only: once open the sheet carries no transform, so the
+     full-screen media (position: fixed) is sized to the viewport, not to it */
+  animation: isheet-up 460ms var(--isheet-ease) backwards;
+}
+.isheet--light {
+  --sh-bg: #fbfaf8; --sh-ink: #141414; --sh-ink-2: rgba(20, 20, 20, 0.64); --sh-ink-3: rgba(20, 20, 20, 0.42);
+  --sh-line: rgba(0, 0, 0, 0.08); --sh-fill: rgba(0, 0, 0, 0.045); --sh-btn: #141414; --sh-btn-ink: #fff;
+}
+.isheet.is-closing { transform: translateY(100%); transition: transform 280ms var(--isheet-ease); }
+@keyframes isheet-up { from { transform: translateY(100%); } }
+
+.isheet-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-bottom: 18px; }
+.isheet-grab { position: sticky; top: 0; z-index: 3; display: flex; justify-content: center; height: 22px; margin-bottom: -22px; touch-action: none; cursor: grab; }
+.isheet-handle { width: 38px; height: 5px; margin-top: 8px; border-radius: 3px; background: rgba(255, 255, 255, 0.34); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); }
+.isheet--light .isheet-handle { background: rgba(0, 0, 0, 0.2); box-shadow: none; }
+
+/* Media: the work, inset and rounded, live */
+.isheet-media { position: relative; margin: 10px 10px 0; border-radius: 16px; overflow: hidden; background: #000; isolation: isolate; }
+.isheet-media > iframe, .isheet-media > img, .isheet-media > .isheet-fill { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: cover; object-position: top; }
+.isheet-media.is-full { position: fixed; inset: 0; z-index: 20; margin: 0; border-radius: 0; background: #000; animation: agents-fade 220ms ease-out; }
+.isheet-x, .isheet-full {
+  position: absolute; z-index: 4; display: grid; place-items: center; width: 34px; height: 34px; padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 50%; background: rgba(0, 0, 0, 0.46); color: #fff; cursor: pointer;
+  backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+.isheet-x { top: 10px; right: 10px; }
+.is-full > .isheet-x { top: calc(env(safe-area-inset-top) + 12px); right: 12px; width: 42px; height: 42px; }
+.isheet-full { right: 10px; bottom: 10px; }
+.isheet-x--flat { top: 16px; right: 16px; border-color: var(--sh-line); background: var(--sh-fill); color: var(--sh-ink); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.isheet-hint {
+  position: absolute; z-index: 3; left: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px;
+  border-radius: 999px; background: rgba(0, 0, 0, 0.5); color: #fff; pointer-events: none;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  font: 600 9.5px/1 'IBM Plex Mono', monospace; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.isheet-hint i { width: 6px; height: 6px; border-radius: 50%; background: var(--sh-accent); box-shadow: 0 0 8px var(--sh-accent); animation: isheet-blink 1.8s ease-in-out infinite; }
+@keyframes isheet-blink { 50% { opacity: 0.35; } }
+
+.isheet-poster { padding: 0; border: 0; background: #000; cursor: pointer; }
+.isheet-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.isheet-play { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: 68px; height: 68px; margin: -34px 0 0 -34px; padding-left: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.92); color: #111; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45), 0 0 0 8px rgba(255, 255, 255, 0.16); }
+.isheet-poster:active .isheet-play { transform: scale(0.94); }
+
+.isheet-media { max-height: min(64svh, 720px); }
+.isheet-media.is-full { max-height: none; }
+.isheet-scaled { overflow: hidden; background: #fff; }
+.isheet-scaled iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; }
+.isheet-static { display: grid; place-items: stretch; }
+.isheet-views { position: absolute; z-index: 4; left: 10px; top: 10px; display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.16); }
+.isheet-views button { display: grid; place-items: center; width: 34px; height: 28px; padding: 0; border: 0; border-radius: 999px; background: none; color: rgba(255, 255, 255, 0.7); cursor: pointer; }
+.isheet-views button[aria-pressed="true"] { background: #fff; color: #111; }
+.is-full > .isheet-views { top: calc(env(safe-area-inset-top) + 14px); left: 12px; }
+.isheet-btn--block { display: flex; width: 100%; margin-top: 18px; }
+.isheet .hire-line--sheet { margin: 18px 0 0; text-align: left; }
+.isheet .hire-line--sheet, .isheet .hire-line--sheet a { color: var(--sh-ink-2); }
+.isheet .hire-line--sheet a { color: var(--sh-ink); }
+.isheet .lineage { margin-top: 16px; }
+
+/* Title block: pills, the title in the site's display face, a two-line summary */
+.isheet-head { position: relative; padding: 18px 18px 4px; touch-action: pan-y; }
+.isheet-head--bare { padding-top: 34px; padding-right: 64px; }
+.isheet-head.is-in-next { animation: isheet-in-next 380ms var(--isheet-ease); }
+.isheet-head.is-in-prev { animation: isheet-in-prev 380ms var(--isheet-ease); }
+@keyframes isheet-in-next { from { transform: translateX(40px); opacity: 0; } }
+@keyframes isheet-in-prev { from { transform: translateX(-40px); opacity: 0; } }
+.isheet-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+.isheet-pills li { padding: 5px 9px 4px; border: 1px solid var(--sh-line); border-radius: 999px; font: 500 10px/1 'IBM Plex Mono', monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sh-ink-2); }
+.isheet-pills li.is-accent { border-color: var(--sh-accent); background: var(--sh-accent); color: var(--sh-accent-ink); font-weight: 600; }
+.isheet-title, .isheet-sub-head h2 { font-family: 'Inter Tight', 'Inter', system-ui, sans-serif; text-transform: none; }
+.isheet-title { margin: 0 0 10px; font-size: clamp(28px, 7.6vw, 40px); font-weight: 800; line-height: 0.98; letter-spacing: -0.035em; text-wrap: balance; }
+.isheet-sum { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0; font-size: 15px; font-weight: 500; line-height: 1.5; color: var(--sh-ink-2); }
+.isheet-sum.is-open { display: block; }
+.isheet-more-text { margin-top: 4px; padding: 6px 0; border: 0; background: none; color: var(--sh-ink); font: 600 13px/1 'Inter Tight', sans-serif; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.isheet-stats { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; margin: 16px 0 6px; }
+.isheet-stats div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 6px; padding: 12px 12px 11px; border-radius: 14px; background: var(--sh-fill); }
+.isheet-stats dd { margin: 0; font-size: 24px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.isheet-stats dt { font: 500 9.5px/1.2 'IBM Plex Mono', monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sh-ink-3); }
+
+.isheet-sticky { position: sticky; top: 0; z-index: 2; margin-top: 10px; padding: 10px 14px; background: color-mix(in srgb, var(--sh-bg) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--sh-line); }
+.isheet-body { padding: 8px 18px 0; }
+
+/* Rows that open a sub-sheet */
+.isheet-rows { margin: 10px 0 0; border-top: 1px solid var(--sh-line); }
+.isheet-row { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; min-height: 54px; padding: 0 2px; border: 0; border-bottom: 1px solid var(--sh-line); background: none; color: var(--sh-ink); font: 600 15px/1.2 'Inter Tight', sans-serif; text-align: left; cursor: pointer; }
+.isheet-row-end { display: inline-flex; align-items: center; gap: 6px; flex: none; font: 500 12px/1 'IBM Plex Mono', monospace; color: var(--sh-ink-3); }
+.isheet-row:active { background: var(--sh-fill); }
+
+/* A snap row of other items */
+.isheet-carousel { margin: 26px -18px 0; }
+.isheet-carousel h3, .isheet-section-title { margin: 0 18px 12px; font: 500 10.5px/1 'IBM Plex Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sh-ink-3); }
+.isheet-section-title { margin: 22px 0 10px; }
+.isheet-carousel ul { display: flex; gap: 10px; margin: 0; padding: 0 18px 4px; list-style: none; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 18px; scrollbar-width: none; }
+.isheet-carousel ul::-webkit-scrollbar { display: none; }
+.isheet-carousel li { flex: none; width: min(62%, 260px); scroll-snap-align: start; }
+.isheet-carousel button { display: block; width: 100%; padding: 0; border: 0; background: none; color: var(--sh-ink); text-align: left; cursor: pointer; }
+.isheet-card-img { display: block; aspect-ratio: 16 / 10; margin-bottom: 9px; border-radius: 12px; overflow: hidden; background: var(--sh-fill); }
+.isheet-card-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.isheet-carousel b { display: block; font-size: 14px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+.isheet-carousel small { display: block; margin-top: 3px; font: 500 10px/1.3 'IBM Plex Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sh-ink-3); }
+
+/* Up next, and the previous one */
+.isheet-neighbours { padding: 26px 18px 0; }
+.isheet-next { display: flex; width: 100%; align-items: center; gap: 14px; padding: 10px 14px 10px 10px; border: 1px solid var(--sh-line); border-radius: 16px; background: var(--sh-fill); color: var(--sh-ink); text-align: left; cursor: pointer; }
+.isheet-next img { flex: none; width: 76px; aspect-ratio: 16 / 10; border-radius: 9px; object-fit: cover; object-position: top; }
+.isheet-next span { flex: 1; min-width: 0; }
+.isheet-next small { display: block; font: 500 9.5px/1 'IBM Plex Mono', monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sh-ink-3); }
+.isheet-next b { display: block; margin-top: 5px; overflow: hidden; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; text-overflow: ellipsis; white-space: nowrap; }
+.isheet-prev { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; margin-top: 10px; padding: 8px 0; border: 0; background: none; overflow: hidden; color: var(--sh-ink-2); font: 500 13px/1.2 'Inter Tight', sans-serif; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
+.isheet-swipe-hint { margin: 6px 0 0; font: 500 10px/1 'IBM Plex Mono', monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sh-ink-3); }
+
+/* The dock: one primary verb, Copy, ••• */
+.isheet-dock {
+  flex: none; display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--sh-line);
+  background: color-mix(in srgb, var(--sh-bg) 86%, transparent);
+  backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+.isheet-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 0; height: 50px; padding: 0 16px;
+  border: 1px solid var(--sh-line); border-radius: 14px; background: var(--sh-fill); color: var(--sh-ink);
+  font: 700 15px/1 'Inter Tight', sans-serif; letter-spacing: -0.005em; white-space: nowrap; text-decoration: none; cursor: pointer;
+  transition: transform 120ms ease, background 160ms ease;
+}
+.isheet-btn:active { transform: scale(0.97); }
+.isheet-btn--primary { flex: 1; border-color: transparent; background: var(--sh-btn); color: var(--sh-btn-ink); }
+.isheet-btn--icon { flex: none; width: 50px; padding: 0; }
+.isheet-btn span { overflow: hidden; text-overflow: ellipsis; }
+.isheet-btn:focus-visible, .isheet-row:focus-visible, .isheet-x:focus-visible, .isheet-next:focus-visible { outline: 2px solid var(--sh-accent); outline-offset: 2px; }
+
+/* ••• opens a native-style action sheet inside the sheet */
+.isheet-menu-wrap { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 10px calc(10px + env(safe-area-inset-bottom)); }
+.isheet-menu-scrim { position: absolute; inset: 0; border: 0; background: rgba(0, 0, 0, 0.42); animation: agents-fade 200ms ease-out; cursor: pointer; }
+.isheet-menu { position: relative; animation: isheet-up 320ms var(--isheet-ease); }
+.isheet-menu ul { margin: 0 0 8px; padding: 0; list-style: none; border-radius: 16px; overflow: hidden; background: color-mix(in srgb, var(--sh-bg) 90%, #888); }
+.isheet-menu li + li { border-top: 1px solid var(--sh-line); }
+.isheet-menu-item { display: flex; width: 100%; align-items: center; justify-content: center; gap: 8px; min-height: 56px; border: 0; background: none; color: var(--sh-ink); font: 600 16px/1.2 'Inter Tight', sans-serif; text-decoration: none; cursor: pointer; }
+.isheet-menu-item:active { background: var(--sh-fill); }
+.isheet-menu-cancel { width: 100%; min-height: 56px; border: 0; border-radius: 16px; background: var(--sh-bg); color: var(--sh-ink); font: 800 16px/1 'Inter Tight', sans-serif; cursor: pointer; }
+
+/* A sub-sheet slides over from the right: controls, code, the lab */
+.isheet-sub { position: absolute; inset: 0; z-index: 8; display: flex; flex-direction: column; background: var(--sh-bg); animation: isheet-sub-in 380ms var(--isheet-ease); }
+@keyframes isheet-sub-in { from { transform: translateX(100%); } }
+.isheet-sub-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 12px 12px 10px; border-bottom: 1px solid var(--sh-line); }
+.isheet-sub-head button { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--sh-fill); color: var(--sh-ink); cursor: pointer; }
+.isheet-sub-head h2 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.isheet-sub-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 14px 18px calc(24px + env(safe-area-inset-bottom)); }
+
+/* Content inside sheets and sub-sheets */
+.isheet-dl { margin: 0; }
+.isheet-dl div { padding: 14px 0; border-bottom: 1px solid var(--sh-line); }
+.isheet-dl dt { margin-bottom: 5px; font: 600 11px/1.3 'IBM Plex Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+.isheet-dl dd { margin: 0; font-size: 15px; line-height: 1.5; color: var(--sh-ink-2); }
+.isheet-p { margin: 14px 0 0; font-size: 15px; line-height: 1.55; color: var(--sh-ink-2); }
+.isheet-p b { color: var(--sh-ink); font-weight: 700; }
+.isheet-pre { margin: 0; white-space: pre-wrap; font: 400 12.5px/1.6 'IBM Plex Mono', monospace; color: var(--sh-ink-2); }
+.isheet-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; padding: 0; list-style: none; }
+.isheet-tags li { padding: 6px 10px; border-radius: 999px; background: var(--sh-fill); font: 500 11px/1 'IBM Plex Mono', monospace; color: var(--sh-ink-2); }
+.isheet-code { margin: -14px -18px 0; }
+.isheet-code .pcode-status { padding: 18px; }
+.isheet-link { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding: 14px 16px; border-radius: 14px; background: var(--sh-fill); color: var(--sh-ink); font: 600 14px/1.3 'Inter Tight', sans-serif; text-decoration: none; }
+.isheet-link small { display: block; margin-bottom: 3px; font: 500 9.5px/1 'IBM Plex Mono', monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sh-ink-3); }
+
+/* Segmented tabs (design systems) */
+.isheet-tabs { display: flex; gap: 3px; padding: 3px; border-radius: 12px; background: var(--sh-fill); }
+.isheet-tabs button { flex: 1; min-width: 0; height: 36px; padding: 0 6px; border: 0; border-radius: 9px; background: none; color: var(--sh-ink-2); font: 600 13px/1 'Inter Tight', sans-serif; white-space: nowrap; cursor: pointer; }
+.isheet-tabs button[aria-selected="true"] { background: var(--sh-bg); color: var(--sh-ink); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14); }
+.isheet--dark .isheet-tabs button[aria-selected="true"] { background: rgba(255, 255, 255, 0.14); }
+
+/* Inside: the system board, the motion lab, steps, customize */
+.isheet-board { margin: 6px -8px 0; }
+.isheet-board .sysboard { padding: 0; }
+.isheet-board .smodal-status { padding: 30px 8px; color: var(--sh-ink-2); }
+.isheet-lab { margin: -14px -18px 0; }
+.isheet-steps { margin: 0; padding-left: 22px; }
+.isheet-steps li { margin: 0 0 14px; padding-left: 4px; font-size: 15px; line-height: 1.55; color: var(--sh-ink-2); }
+.isheet-steps li::marker { color: var(--sh-ink); font-weight: 800; }
+.isheet-customize .smodal-controls { margin-top: 14px; }
+.isheet-customize .smodal-play-actions { gap: 8px; margin-top: 18px; }
+.isheet-customize .smodal-mini { height: 44px; padding: 0 14px; border: 1px solid var(--sh-line); border-radius: 12px; background: var(--sh-fill); color: var(--sh-ink); }
+.isheet-customize .smodal-mini--solid { flex: 1; border-color: transparent; background: var(--sh-btn); color: var(--sh-btn-ink); }
+.isheet-customize .smodal-mini:disabled { opacity: 0.45; }
+
+/* Tablet: a wider sheet, bigger type, more air */
+@media (min-width: 721px) {
+  .isheet { top: max(5svh, 28px); border-radius: 26px 26px 0 0; }
+  .isheet-media { margin: 14px 14px 0; border-radius: 18px; }
+  .isheet-head { padding: 24px 26px 6px; }
+  .isheet-head--bare { padding-top: 40px; padding-right: 72px; }
+  .isheet-body, .isheet-neighbours { padding-left: 26px; padding-right: 26px; }
+  .isheet-carousel { margin-left: -26px; margin-right: -26px; }
+  .isheet-carousel h3 { margin-left: 26px; }
+  .isheet-carousel ul { padding: 0 26px 4px; }
+  .isheet-carousel li { width: 240px; }
+  .isheet-title { font-size: 44px; }
+  .isheet-sum { font-size: 16px; }
+  .isheet-dock { padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isheet, .isheet-scrim, .isheet-menu, .isheet-sub, .isheet-head.is-in-next, .isheet-head.is-in-prev { animation: none; }
+  .isheet.is-closing { transition: none; }
+  .app-layout > main { transition: none; }
+  html.isheet-open .app-layout > main { transform: none; }
+  .isheet-hint i { animation: none; }
+}

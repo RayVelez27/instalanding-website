@@ -6,7 +6,6 @@ import PromptThumb from "@/components/PromptThumb";
 import { copyText, copyTextLater } from "@/lib/copyText";
 import { loadDemoSource } from "@/lib/demoSource";
 import { agentHandoff, useAgentMode } from "@/lib/agentMode";
-import { useIsPhone } from "@/hooks/useIsPhone";
 import FilterRow from "@/components/FilterRow";
 import PageCrate from "@/components/PageCrate";
 import LibraryCard from "@/components/LibraryCard";
@@ -26,8 +25,7 @@ const pageSub = (p: PromptEntry) =>
 
 const PageCard = ({ entry, agent }: { entry: PromptEntry; agent: boolean }) => {
   const location = useLocation();
-  const phone = useIsPhone();
-  const asModal = phone ? undefined : { backgroundLocation: location };
+  const asModal = { backgroundLocation: location };
   /* COPY CODE puts the demo's whole HTML file on the clipboard, like the detail
      view's. An entry with no single-file demo (code in its own repo) copies its
      prompt; Agent Mode copies a task for the user's agent; a video has none. */

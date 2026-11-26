@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { LABEL, type Item } from "@/lib/libraryItems";
-import { useIsPhone } from "@/hooks/useIsPhone";
 
 /* ── search across all three layers, ⌘K / Ctrl+K ── */
 const LibrarySearch = ({ items, autoFocus, onDone }: { items: Item[]; autoFocus?: boolean; onDone?: () => void }) => {
@@ -12,7 +11,6 @@ const LibrarySearch = ({ items, autoFocus, onDone }: { items: Item[]; autoFocus?
   const input = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const phone = useIsPhone();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -55,7 +53,7 @@ const LibrarySearch = ({ items, autoFocus, onDone }: { items: Item[]; autoFocus?
     onDone?.();
     navigate(it.to, {
       state:
-        it.kind === "page" && !phone
+        it.kind === "page"
           ? { backgroundLocation: location }
           : undefined,
     });

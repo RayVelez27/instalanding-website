@@ -15,6 +15,9 @@ import { useCopyCode } from "@/lib/useCopyCode";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
+import { useIsCompact } from "@/hooks/useIsCompact";
+import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
+import { isRecent, shortDate } from "@/lib/sheetDates";
 
 /**
  * /products and /products/:slug. A product is a device or app concept you can
@@ -218,6 +221,103 @@ const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
   );
 };
 
+/** Phones and tablets: the product in the item sheet, live from the first frame */
+const ProductSheet = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: () => void; onGo: (slug: string) => void }) => {
+  const page = useMemo(() => asPage(entry, "PRODUCTS"), [entry]);
+  const { copy, copied, code, source } = useCopyCode(page, "product_sheet");
+  const [sub, setSub] = useState<null | "controls" | "about" | "code">(null);
+  useEffect(() => setSub(null), [entry.slug]);
+  const index = products.findIndex((p) => p.slug === entry.slug);
+  const prev = index > 0 ? products[index - 1] : null;
+  const next = index < products.length - 1 ? products[index + 1] : null;
+  const shown = useMemo(() => (code && sub === "code" ? readableSource(code) : null), [code, sub]);
+  const file = entry.demo.split("/").pop() ?? "index.html";
+
+  const subs = {
+    controls: {
+      title: "Controls",
+      body: (
+        <dl className="isheet-dl">
+          {entry.controls.map((c) => (
+            <div key={c.control}>
+              <dt>{c.control}</dt>
+              <dd>{c.does}</dd>
+            </div>
+          ))}
+        </dl>
+      ),
+    },
+    about: {
+      title: "How it's built",
+      body: (
+        <>
+          <p className="isheet-p"><b>{entry.tech}.</b> One HTML file, nothing to install. Every control is drawn and wired in the file, so it runs opened straight from disk.</p>
+          {entry.credits.length > 0 && <p className="isheet-p"><b>Credits.</b> {entry.credits.join(" · ")}</p>}
+          <ul className="isheet-tags">{entry.tags.map((t) => <li key={t}>{t}</li>)}</ul>
+        </>
+      ),
+    },
+    code: {
+      title: file,
+      body: (
+        <div className="isheet-code">
+          {shown ? <DemoCode code={shown} file={file} /> : <p className="pcode-status">{source.status === "error" ? "Couldn't load the source." : "Loading source…"}</p>}
+        </div>
+      ),
+    },
+  };
+
+  return (
+    <ItemSheet
+      kind="product"
+      slug={entry.slug}
+      theme="dark"
+      title={entry.title}
+      summary={`${entry.description}.`}
+      pills={[...(isRecent(entry.added) ? [{ label: "New", accent: true }] : []), { label: "Product" }, { label: entry.kind }, { label: shortDate(entry.added) }]}
+      media={
+        <iframe
+          key={entry.slug}
+          src={entry.demo}
+          title={`${entry.title}, live`}
+          sandbox="allow-scripts allow-downloads allow-pointer-lock"
+          allow="autoplay; fullscreen"
+        />
+      }
+      mediaRatio="16 / 11"
+      mediaHint="Live · tap to use"
+      canFullScreen
+      stats={[
+        { value: String(entry.controls.length), label: "Controls" },
+        { value: "1", label: "HTML file" },
+        { value: String(entry.credits.length || "—"), label: entry.credits.length === 1 ? "Credit" : "Credits" },
+      ]}
+      primary={{ id: "full_screen", label: "Use it full screen", fullScreen: true, onClick: () => track("open_product", { product: entry.slug, from: "sheet" }) }}
+      secondary={{ id: "copy_code", label: copied === "done" ? "Copied" : "Copy", done: copied === "done", icon: <Copy size={15} aria-hidden="true" />, onClick: copy }}
+      more={[
+        { id: "code", label: "View code", onClick: () => setSub("code") },
+        { id: "new_tab", label: "Open in a new tab", href: entry.demo },
+        { id: "download", label: "Download the file", href: entry.demo, download: `${entry.slug}.html`, onClick: () => track("download_product", { product: entry.slug, from: "sheet" }) },
+      ]}
+      prev={prev && { title: prev.title, thumb: prev.thumbnail, go: () => onGo(prev.slug) }}
+      next={next && { title: next.title, thumb: next.thumbnail, go: () => onGo(next.slug) }}
+      sub={sub ? subs[sub] : null}
+      onSubClose={() => setSub(null)}
+      onClose={onClose}
+    >
+      <div className="isheet-rows">
+        <SheetRow label="Controls" value={String(entry.controls.length)} onClick={() => setSub("controls")} />
+        <SheetRow label="How it's built" value={entry.credits.length ? "Credits" : undefined} onClick={() => setSub("about")} />
+        <SheetRow label="View the code" value={file} onClick={() => setSub("code")} />
+      </div>
+      <SheetCarousel
+        title="More products"
+        items={products.filter((o) => o.slug !== entry.slug).map((o) => ({ key: o.slug, title: o.title, sub: o.kind, thumb: o.thumbnail, onClick: () => onGo(o.slug) }))}
+      />
+    </ItemSheet>
+  );
+};
+
 const ProductTile = ({ entry }: { entry: ProductEntry }) => (
   <LibraryCard
     kind="product"
@@ -233,6 +333,7 @@ const Products = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const open = getProductBySlug(slug);
+  const compact = useIsCompact();
   useAgentDark();
 
   useSeo({
@@ -271,7 +372,14 @@ const Products = () => {
           </p>
         </div>
       </main>
-      {open && (
+      {open && compact && (
+        <ProductSheet
+          entry={open}
+          onClose={() => navigate("/products")}
+          onGo={(s) => navigate(`/products/${s}`, { replace: true })}
+        />
+      )}
+      {open && !compact && (
         <ProductModal
           entry={open}
           onClose={() => navigate("/products")}

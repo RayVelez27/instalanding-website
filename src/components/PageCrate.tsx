@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowUpRight, Check, ChevronLeft, ChevronRight, Copy, ExternalLink } from "lucide-react";
 import type { PromptEntry } from "@/data/prompts";
 import PromptThumb from "@/components/PromptThumb";
-import { useIsPhone } from "@/hooks/useIsPhone";
 import { track } from "@/lib/track";
 
 /**
@@ -56,7 +55,6 @@ const PageCrate = ({ items, label, onCopy, copiedSlug }: Props) => {
   const swipe = useRef({ id: -1, x: 0, y: 0, done: false, swiped: false });
   const navigate = useNavigate();
   const location = useLocation();
-  const phone = useIsPhone();
   const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const go = (to: number) => setC(Math.max(0, Math.min(n - 1, to)));
@@ -64,7 +62,7 @@ const PageCrate = ({ items, label, onCopy, copiedSlug }: Props) => {
   goRef.current = go;
 
   const open = (entry: PromptEntry) => {
-    const to = () => navigate(`/prompt/${entry.slug}`, { state: phone ? undefined : { backgroundLocation: location } });
+    const to = () => navigate(`/prompt/${entry.slug}`, { state: { backgroundLocation: location } });
     if (reduced) return to();
     setPulling(entry.slug);
     window.setTimeout(() => {

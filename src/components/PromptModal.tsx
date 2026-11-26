@@ -12,6 +12,8 @@ import { getPromptBySlug, shuffle, visiblePrompts, type PromptEntry } from "@/da
 import { getSystemForTemplate } from "@/data/systems";
 import { motionsForPage } from "@/data/motion";
 import { track } from "@/lib/track";
+import { useIsCompact } from "@/hooks/useIsCompact";
+import PageSheet from "@/components/PageSheet";
 
 /**
  * The detail view as a dialog over the grid.
@@ -63,6 +65,8 @@ const PromptModal = () => {
 
   useEffect(() => setPanel("more"), [slug]);
 
+  const compact = useIsCompact();
+
   /* The same copy action and preview stage as the standalone page. */
   const { copy, copied, label: copyLabel, text: copyCaption, source } = useCopyCode(entry, "modal");
 
@@ -78,6 +82,8 @@ const PromptModal = () => {
   });
 
   if (!entry) return null;
+  // Phones and tablets: the item sheet over the grid
+  if (compact) return <PageSheet entry={entry} onClose={close} onGo={go} />;
 
 
   return (
