@@ -46,4 +46,14 @@
 /m/*  /not-in-library.txt  404
 /s/*  /not-in-library.txt  404
 
+# Section indexes get their own crawler-readable copy of the shell, listing every
+# item (plugins/route-pages.mjs). /systems is also a folder of specimen files, so
+# each index is rewritten to its file explicitly rather than left to the fallback.
+/pages     /pages.html     200
+/systems   /systems.html   200
+/motion    /motion.html    200
+/videos    /videos.html    200
+/products  /products.html  200
+/ecomm     /ecomm.html     200
+
 /*  /index.html  200

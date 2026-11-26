@@ -68,7 +68,7 @@ const LabActions = ({ motion }: { motion: MotionEntry }) => {
 };
 
 const kicker = (m: MotionEntry) =>
-  `MOTION · ${m.kind} · ${m.library.name} ${m.library.version} · ${m.elements} ELEMENTS`;
+  `MOTION · ${m.kind} · ${m.library.name} ${m.library.version} · ${m.elements} ELEMENT${m.elements === 1 ? "" : "S"}`;
 
 /** The reel card's choreography in miniature: every track, one playhead (pure CSS) */
 const MiniChoreo = ({ motion }: { motion: MotionEntry }) => (

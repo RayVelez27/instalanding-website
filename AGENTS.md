@@ -453,10 +453,9 @@ demo, and the search and fit-check text (description, bestFor, style) still come
 - Unknown `/p/*`, `/m/*` and `/s/*` paths return `public/not-in-library.txt` with a 404, never
   the app shell. Paths ending in `)` or `):` (URLs scraped out of markdown) are 301'd to the
   clean path by `netlify/edge-functions/agent-paths.mjs`.
-- MCP calls are counted as DataFast goals (`mcp_connect`, `mcp_<tool>` with the slug, query and
-  client) when two Netlify environment variables are set: `DATAFAST_API_KEY` (the website's
-  `df_` API key) and `DATAFAST_MCP_VISITOR_ID` (a fixed DataFast visitor that has a pageview;
-  goals need one, and an MCP client never loads a page). Without them `/mcp` works and counts
-  nothing.
+- Analytics is PostHog only (project 369222). MCP calls are sent as PostHog events (`mcp_connect`,
+  `mcp_<tool>` with the slug, query and client) and AI crawler requests as `ai_crawler_visit`
+  (bot, vendor, kind, path), both server-side with the public project token, so no environment
+  variables are needed.
 - IndexNow: the key is in `deploy-succeeded.mjs` and served as `public/<key>.txt`. Keep the two
   in step if the key is ever rotated.

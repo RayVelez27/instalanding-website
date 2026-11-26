@@ -28,50 +28,49 @@ const libraryFor = (origin) => {
 };
 
 /**
- * One DataFast goal per MCP call, so agent use shows up beside the site's own goals.
- *
- * DataFast only records goals for a visitor that already has a pageview, and an
- * MCP client never loads a page. So every call is filed under one fixed visitor
- * (DATAFAST_MCP_VISITOR_ID: the datafast_visitor_id cookie of a browser that has
- * opened the site once), and the goal carries the tool, the slug and the client.
- * Needs DATAFAST_API_KEY (the website's df_ key) as well; without both it does
- * nothing. Goals: mcp_connect (initialize) and mcp_<tool> for every tool call.
+ * One PostHog event per MCP call, so agent use shows up beside the site's own
+ * events: mcp_connect (initialize) and mcp_<tool> for every tool call, with the
+ * slug, query and client. An MCP client never loads a page, so each client is
+ * its own distinct_id ("mcp:<client name>") with no person profile. Sent with
+ * the public project token (the same one every browser gets), so no setup.
  */
-const GOALS_URL = "https://datafa.st/api/v1/goals";
+const BATCH = "https://us.i.posthog.com/batch/";
+const TOKEN = "phc_vEFiebD4L2aJFU4cJdGwkD2tMZzUxTNhxR9Vpm6yrR8N";
 const clip = (value) => (value == null || value === "" ? undefined : String(value).slice(0, 255));
 
-const goalsFor = (body, userAgent) => {
+const eventsFor = (body, userAgent) => {
   const messages = Array.isArray(body) ? body : [body];
   return messages.flatMap((m) => {
     if (m?.method === "initialize") {
       const client = m.params?.clientInfo;
-      return [{ name: "mcp_connect", metadata: { client: clip(client ? `${client.name} ${client.version ?? ""}`.trim() : userAgent) } }];
+      return [{ name: "mcp_connect", client: client?.name, props: { client: clip(client ? `${client.name} ${client.version ?? ""}`.trim() : userAgent) } }];
     }
     if (m?.method !== "tools/call" || typeof m.params?.name !== "string") return [];
     const args = m.params.arguments ?? {};
     return [{
       name: `mcp_${m.params.name}`.toLowerCase().replace(/[^a-z0-9_:-]/g, "_").slice(0, 64),
-      metadata: { slug: clip(args.slug), query: clip(args.query), category: clip(args.category ?? args.theme), client: clip(userAgent) },
+      props: { tool: clip(m.params.name), slug: clip(args.slug), query: clip(args.query), category: clip(args.category ?? args.theme), client: clip(userAgent) },
     }];
   });
 };
 
-const trackGoals = async (goals) => {
-  const key = process.env.DATAFAST_API_KEY;
-  const visitor = process.env.DATAFAST_MCP_VISITOR_ID;
-  if (!key || !visitor || !goals.length) return;
-  await Promise.all(goals.map(({ name, metadata }) =>
-    fetch(GOALS_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        datafast_visitor_id: visitor,
-        name,
-        metadata: Object.fromEntries(Object.entries(metadata).filter(([, v]) => v !== undefined)),
-      }),
-      signal: AbortSignal.timeout(4000),
-    }).catch(() => {})
-  ));
+const trackEvents = async (events, userAgent) => {
+  if (!events.length) return;
+  const who = (clip(events.find((e) => e.client)?.client ?? userAgent) ?? "unknown").toLowerCase();
+  await fetch(BATCH, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      api_key: TOKEN,
+      batch: events.map(({ name, props }) => ({
+        event: name,
+        distinct_id: `mcp:${who}`,
+        timestamp: new Date().toISOString(),
+        properties: { ...Object.fromEntries(Object.entries(props).filter(([, v]) => v !== undefined)), $process_person_profile: false, $lib: "netlify-mcp" },
+      })),
+    }),
+    signal: AbortSignal.timeout(4000),
+  }).catch(() => {});
 };
 
 const withCors = (response) => {
@@ -101,10 +100,11 @@ export default async (request, context) => {
     return new Response(ABOUT, { headers: { ...CORS, "Content-Type": "text/plain; charset=utf-8" } });
   }
 
-  // Read a copy of the call for the goal; the transport still gets the original body.
+  // Read a copy of the call for the event; the transport still gets the original body.
   if (request.method === "POST") {
-    const goals = await request.clone().json().then((body) => goalsFor(body, request.headers.get("user-agent")), () => []);
-    const sent = trackGoals(goals);
+    const ua = request.headers.get("user-agent");
+    const events = await request.clone().json().then((body) => eventsFor(body, ua), () => []);
+    const sent = trackEvents(events, ua);
     if (context?.waitUntil) context.waitUntil(sent);
   }
 

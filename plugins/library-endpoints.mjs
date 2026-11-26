@@ -13,7 +13,9 @@
  *   /SKILL.md            the agent skill (source: mcp/SKILL.md, also shipped with the CLI)
  *   /indexnow.json       URLs new or changed in the last week, for the IndexNow ping on deploy
  *   /prompt/<slug>.html  per-route shells with a <noscript> summary (see route-pages.mjs), plus
- *                        /systems/<slug>.html and /motion/<slug>.html
+ *                        /systems/<slug>.html, /motion/<slug>.html, /videos/<slug>.html,
+ *                        /products/<slug>.html, /ecomm/<slug>.html and one per section
+ *                        index (/pages.html, /systems.html … /ecomm.html)
  *   /sitemap.xml         every crawlable route: the library, the builder pages, the rest
  *   /<slug>/index.html   static search landing pages (src/data/seoPages.ts, see seo-pages.mjs)
  *
@@ -35,6 +37,10 @@ const SEO_FILE = "src/data/seoPages.ts";
 const SKILL_FILE = "mcp/SKILL.md";
 const SYSTEMS_FILE = "src/data/systems.ts";
 const MOTION_FILE = "src/data/motion.ts";
+// The showcase layers: items with one HTML file each but no prompt
+const VIDEOS_FILE = "src/data/videos.ts";
+const PRODUCTS_FILE = "src/data/products.ts";
+const ECOMM_FILE = "src/data/ecomm.ts";
 // Only type imports, which esbuild drops, so loadData can read it like the data files
 const SYSTEM_AGENT_FILE = "src/lib/systemAgent.ts";
 // Import-free, shared with the site's COPY PROMPT
@@ -142,10 +148,40 @@ const readDemo = (root, demo) => {
  * motion studies pair with it. Built once per render from the data files.
  */
 const loadLayers = (root) => {
-  const { systems = [] } = existsSync(path.resolve(root, SYSTEMS_FILE)) ? loadData(root, SYSTEMS_FILE) : {};
-  const { motions = [] } = existsSync(path.resolve(root, MOTION_FILE)) ? loadData(root, MOTION_FILE) : {};
-  return { systems, motions };
+  const load = (rel) => (existsSync(path.resolve(root, rel)) ? loadData(root, rel) : {});
+  const { systems = [] } = load(SYSTEMS_FILE);
+  const { motions = [] } = load(MOTION_FILE);
+  const { videos = [] } = load(VIDEOS_FILE);
+  const { products = [] } = load(PRODUCTS_FILE);
+  const { ecomm = [] } = load(ECOMM_FILE);
+  return { systems, motions, videos, products, ecomm };
 };
+
+/**
+ * Videos, products and e-comm store pages as crawlers and agents see them:
+ * one HTML file each, no prompt. Every item gets a page URL, its file and a
+ * one-line description, in llms.txt, the sitemap and its own route shell.
+ */
+const SHOWCASE = [
+  { key: "videos", route: "videos", label: "Videos", noun: "video", blurb: "Short videos rendered live in the browser by one HTML file each, sound and all. No video files." },
+  { key: "products", route: "products", label: "Products", noun: "product", blurb: "Interactive product concepts, a device or an app you can operate, each one HTML file where every control works." },
+  { key: "ecomm", route: "ecomm", label: "E-comm store pages", noun: "store page", blurb: "Single-file store landing pages for direct-to-consumer brands, every product and scene drawn in code." },
+];
+const buildShowcase = (layers, base) =>
+  SHOWCASE.map((sec) => ({
+    ...sec,
+    items: (layers[sec.key] ?? []).map((e) => ({
+      slug: e.slug,
+      title: e.title,
+      description: e.description,
+      added: e.added,
+      facts: [e.runtime && `${e.runtime} long`, e.kind, e.vertical, e.tech].filter(Boolean).join(" · "),
+      bestFor: e.bestFor ?? [],
+      pageUrl: abs(base, `/${sec.route}/${e.slug}`),
+      demoUrl: abs(base, e.demo),
+      imageUrl: abs(base, e.thumbnail),
+    })),
+  }));
 
 const pageLinks = (slug, layers, base) => {
   const system = layers.systems.find((s) => s.templates.includes(slug));
@@ -235,6 +271,7 @@ const buildSystems = (layers, library, base, root) => {
     });
     return {
       slug: s.slug,
+      added: s.added,
       name: s.name,
       version: s.version,
       tagline: s.tagline,
@@ -384,6 +421,12 @@ const buildLlmsTxt = (manifest, { prompts }) => {
  */
 const buildSitemap = (library, builders, base, seoPages = [], layers = { systems: [], motions: [] }) => {
   const today = new Date().toISOString().slice(0, 10);
+  // An item's lastmod is the day it was added ("Nov 23, 2026"); everything else changes with each deploy.
+  const day = (added) => {
+    const t = Date.parse(added ?? "");
+    return Number.isFinite(t) ? new Date(t - new Date(t).getTimezoneOffset() * 6e4).toISOString().slice(0, 10) : undefined;
+  };
+  const showcase = buildShowcase(layers, base);
   const urls = [
     { loc: base, priority: "1.0" },
     { loc: `${base}pages`, priority: "0.9" },
@@ -391,10 +434,13 @@ const buildSitemap = (library, builders, base, seoPages = [], layers = { systems
     { loc: `${base}builders`, priority: "0.9" },
     { loc: `${base}about`, priority: "0.4" },
     { loc: `${base}systems`, priority: "0.8" },
-    ...layers.systems.map((s) => ({ loc: `${base}systems/${s.slug}`, priority: "0.7" })),
+    ...layers.systems.map((s) => ({ loc: `${base}systems/${s.slug}`, priority: "0.7", lastmod: day(s.added) })),
     { loc: `${base}motion`, priority: "0.8" },
-    ...layers.motions.map((m) => ({ loc: `${base}motion/${m.slug}`, priority: "0.7" })),
-    { loc: `${base}ecomm`, priority: "0.8" },
+    ...layers.motions.map((m) => ({ loc: `${base}motion/${m.slug}`, priority: "0.7", lastmod: day(m.added) })),
+    ...showcase.flatMap((sec) => [
+      { loc: `${base}${sec.route}`, priority: "0.8" },
+      ...sec.items.map((i) => ({ loc: i.pageUrl, priority: "0.8", lastmod: day(i.added) })),
+    ]),
     { loc: `${base}contribute`, priority: "0.5" },
     { loc: `${base}sponsor`, priority: "0.4" },
     { loc: `${base}contact`, priority: "0.6" },
@@ -409,14 +455,14 @@ const buildSitemap = (library, builders, base, seoPages = [], layers = { systems
     // has a route but nothing worth crawling.
     ...library.prompts
       .filter((p) => !p.hidden && (p.demo || p.repoUrl))
-      .map((p) => ({ loc: `${base}prompt/${p.slug}`, priority: "0.8" })),
+      .map((p) => ({ loc: `${base}prompt/${p.slug}`, priority: "0.8", lastmod: day(p.added) })),
   ];
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ...urls.map(
       (u) =>
-        `  <url><loc>${u.loc}</loc><lastmod>${today}</lastmod><priority>${u.priority}</priority></url>`
+        `  <url><loc>${u.loc}</loc><lastmod>${u.lastmod ?? today}</lastmod><priority>${u.priority}</priority></url>`
     ),
     "</urlset>",
     "",
@@ -433,7 +479,8 @@ const isFresh = (added, now = Date.now(), days = 7) => {
 const buildIndexNow = (library, layers, base) => ({
   generated: new Date().toISOString(),
   urls: [
-    ...["", "pages", "systems", "motion", "ecomm", "llms.txt"].map((p) => abs(base, `/${p}`)),
+    ...["", "pages", "systems", "motion", "videos", "products", "ecomm", "llms.txt"].map((p) => abs(base, `/${p}`)),
+    ...buildShowcase(layers, base).flatMap((sec) => sec.items.filter((i) => isFresh(i.added)).map((i) => i.pageUrl)),
     ...library.prompts.filter((p) => isFresh(p.added)).map((p) => abs(base, `/prompt/${p.slug}`)),
     ...layers.motions.filter((m) => isFresh(m.added)).map((m) => abs(base, `/motion/${m.slug}`)),
   ],
@@ -474,6 +521,14 @@ const renderFiles = (codeless, builders, base, siteName, root) => {
     "",
     ...motion.json.motion.map((m) => `- [${m.title}](${m.promptUrl}): ${m.tagline} (${m.library.name} ${m.library.version}, ~${m.approxPromptTokens} tokens)`),
     "",
+    ...buildShowcase(layers, base).flatMap((sec) => [
+      `## ${sec.label}`,
+      "",
+      `${sec.blurb} Each line links the ${sec.noun}'s page, then its whole HTML file.`,
+      "",
+      ...sec.items.map((i) => `- [${i.title}](${i.pageUrl}): ${i.description}${i.facts ? ` (${i.facts})` : ""}. HTML: ${i.demoUrl}`),
+      "",
+    ]),
   ];
   const llms = buildLlmsTxt(manifest, library).replace("## Notes", () => [...layerLines, ...seoLlmsLines(seoPages, base, live), "## Notes"].join("\n"));
   const files = {
@@ -509,7 +564,8 @@ const renderRoutes = (codeless, base, root) => {
   const layers = loadLayers(root);
   const systems = buildSystems(layers, library, base, root).json.systems;
   const motion = buildMotion(layers, library, base).json.motion;
-  return { routes: buildRoutes({ prompts: library.prompts, systems, motion, base }), systems };
+  const showcase = buildShowcase(layers, base);
+  return { routes: buildRoutes({ prompts: library.prompts, systems, motion, showcase, base }), systems };
 };
 
 const contentType = (file) =>

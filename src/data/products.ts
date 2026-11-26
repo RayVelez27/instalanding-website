@@ -33,6 +33,50 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "obsidian-watch",
+    title: "Obsidian Series I Smartwatch",
+    description:
+      "A titanium smartwatch on a studio-lit black set, with a face you can actually work: press the crown buttons to move between the real time, a live heart rate and step count, daylight and the weather, each change playing the watch's own transition, with a click you can hear and a crystal glare that follows your pointer",
+    added: "Nov 25, 2026",
+    kind: "Hardware concept",
+    tech: "Decoded Rive · Canvas 2D · no libraries",
+    tags: ["wearable", "hardware", "dark", "interactive"],
+    controls: [
+      { control: "CROWN BUTTONS", does: "Press the upper button to go forward a screen and the lower one to go back; each press clicks and buzzes on phones" },
+      { control: "← · →", does: "The arrow keys (or A and D) do the same as the crown buttons" },
+      { control: "TIME · HEART · DAYLIGHT · WEATHER", does: "The tabs under the watch jump straight to a screen, stepping through the transitions in between" },
+      { control: "TIME", does: "Your real local time, day and date, with AM and PM" },
+      { control: "HEART", does: "A heart rate that drifts between 62 and 86 BPM and a step count that keeps climbing" },
+      { control: "SOUND", does: "Turns the two-tick button click on or off" },
+      { control: "POINTER", does: "Move it around the watch and the glare on the crystal swings toward it" },
+    ],
+    credits: ["Obsidian is a fictional brand; the heart rate, steps and weather are simulated in the browser. The Goldman font is under the SIL Open Font License."],
+    demo: "/product-demos/obsidian-watch.html",
+    thumbnail: "/product-demos/obsidian-watch.jpg",
+  },
+  {
+    slug: "medura-anatomy",
+    title: "Medura Anatomy Explorer",
+    description:
+      "A soft, clinical-white anatomy app for the digestive system: a translucent body you can light up point by point and peel back in layers, a row of organ cards that open wide on hover, and a five-step timeline that follows a meal from swallowing to the end, with a dark mode and a focus view",
+    added: "Nov 25, 2026",
+    kind: "Health app",
+    tech: "Decoded Rive · Canvas 2D · no libraries",
+    tags: ["health", "anatomy", "education", "interactive"],
+    controls: [
+      { control: "OVERVIEW · ORGANS · TIMELINE", does: "The pill tabs switch the three views; the blue indicator slides to the one you pick" },
+      { control: "BODY POINTS", does: "Hover a point on the digestive tract to light it, click to select it" },
+      { control: "LAYER SWITCHES", does: "The three switches on the right show or hide the digestive path, the organs and the skeleton" },
+      { control: "ZOOM · FOCUS", does: "+ and − zoom the body; the corner button hides the header for a full-screen view" },
+      { control: "ORGAN CARDS", does: "Hover a card (gallbladder, large intestine, stomach, liver, pancreas) and it opens wide to show the organ" },
+      { control: "TIMELINE", does: "Drag the slider or pick a dot to step through swallowing, the esophagus, the stomach, absorption and forming stool" },
+      { control: "MOON · LOGO", does: "The moon switches dark mode; the logo opens the About dialog" },
+    ],
+    credits: ["Medura is the brand name the source prototype shipped with, kept as is. The anatomy is illustrative, not medical advice."],
+    demo: "/product-demos/medura-anatomy.html",
+    thumbnail: "/product-demos/medura-anatomy.jpg",
+  },
+  {
     slug: "vector-one-dashboard",
     title: "Vector One Vehicle Dashboard",
     description:

@@ -1,5 +1,5 @@
 /**
- * PostHog product analytics (project 369222, US cloud), alongside DataFast.
+ * PostHog product analytics (project 369222, US cloud): the site's only analytics.
  *
  * - Production only: the dev server and preview builds never load it, so local
  *   testing stays out of the data.
@@ -13,8 +13,9 @@
  *   masks every input by default.
  * - The project token is public by design: it ships to every browser.
  *
- * The site's own events go through track() in src/lib/track.ts, which sends each
- * one here as well as to DataFast.
+ * The site's own events go through track() in src/lib/track.ts. AI crawlers and
+ * MCP calls never run this script; netlify/edge-functions/ai-crawl.mjs and
+ * netlify/functions/mcp.mjs send those to the same project server-side.
  */
 type PostHog = {
   init: (token: string, config: Record<string, unknown>) => void;

@@ -208,7 +208,7 @@ function keep(css) {
       const inner = keep(body);
       return inner ? `${prelude} {\n${inner}\n}` : "";
     }
-    if (prelude.startsWith("@keyframes")) return prelude.includes("accent-in") ? "" : rule;
+    if (prelude.startsWith("@keyframes")) return rule;
     const parts = splitSelectors(prelude).filter((s) => !DROP.test(s));
     return parts.length ? `${parts.join(",\n")} {${body}}` : "";
   }).filter(Boolean).join("\n");
@@ -246,7 +246,7 @@ for (const [, sel] of base.matchAll(/([^{};]+)\{/g)) {
 ["active", "open", "on", "booted", "orbit", "orbit2", "sat", "filtering", "offscreen", "led-stage", "led-board", "led-lit"].forEach((c) => CLASSES.add(c));
 CLASSES.delete("md-business");
 CLASSES.add("is-business"); // never emitted, kept harmless
-const KEYFRAMES = ["led-chase", "led-hues", "led-breathe", "led-blink", "btn-dots-arrow"];
+const KEYFRAMES = ["led-chase", "led-hues", "led-breathe", "led-blink", "btn-dots-arrow", "accent-in"];
 const { tokenize, prefixCss, prefixMarkup } = normalizer({ prefix: "md", hex: HEX, swaps: SWAPS, classes: [...CLASSES], keyframes: KEYFRAMES });
 
 // Anything still without the root after prefixing (bare h1, a, nav, em…) goes under :where(.md)

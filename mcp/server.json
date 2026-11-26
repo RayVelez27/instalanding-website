@@ -1,0 +1,30 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.RayVelez27/instalanding",
+  "title": "InstaLanding.ai",
+  "description": "One-shot HTML for agents: landing pages, design systems and motion studies as single files.",
+  "websiteUrl": "https://instalanding.ai/agents",
+  "version": "0.2.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "instalanding",
+      "version": "0.2.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://instalanding.ai/mcp"
+    }
+  ]
+}

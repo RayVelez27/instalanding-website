@@ -81,6 +81,10 @@ export function normalizer({ prefix, hex = {}, swaps = [], classes = [], keyfram
       s = s.replace(new RegExp(`@keyframes ${k}(\\s*)\\{`, "g"), `@keyframes ${prefix}-${k}$1{`);
       s = s.replace(new RegExp(`(animation(?:-name)?:\\s*)${k}(?![\\w-])`, "g"), `$1${prefix}-${k}`);
       s = s.replace(new RegExp(`(,\\s*)${k}(\\s+[\\d.]+m?s)`, "g"), `$1${prefix}-${k}$2`);
+      // later names in an animation list: once durations are tokenised (var(--x-dur)) the
+      // literal-duration rule above misses them and the animation silently never runs
+      s = s.replace(/(animation(?:-name)?\s*:)([^;}]*)/g, (m, head, list) =>
+        head + list.replace(new RegExp(`(,\\s*)${k}(?![\\w-])`, "g"), `$1${prefix}-${k}`));
     }
     return s;
   };

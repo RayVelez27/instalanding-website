@@ -53,12 +53,17 @@ const HEROES = {
   linework: ["hero@1200", "lines@1100", "skyline@1100", "compare@1100"],
   drift: ["hero@1200", "dashboards@1100", "stats@1100", "bridge@1100"],
   murmur: ["hero@1200", "products@1100", "cta@1100", "models@1100"],
+  pasteup: ["hero@1200", "collage@760", "type@1100", "prints@1100"],
+  nimbus: ["hero@1200", "orbit@1100", "process@1100", "pricing@1100"],
+  ostler: ["hero@1200", "covers@1100", "pricing@1100", "contact@1100"],
 };
 // Extra settle time before a poster is captured, for systems whose components animate in.
 // Mistfold's hero stats count up over about two seconds; Mnemo's hero lines rise in over about 2.5s.
 // Linework's drawings draw themselves stroke by stroke (the hero in about 3.3s, its lens frame at 2.9s);
-// Drift's wind trails need about 1.5s to build; Murmur's spheres fly in over about 2.5s.
-const SETTLE = { mistfold: 2600, mnemo: 2600, linework: 4500, drift: 2600, murmur: 3200 };
+// Drift's wind trails need about 1.5s to build; Murmur's spheres fly in over about 2.5s;
+// Paste-Up's prints fly in and its stamp drops in last, at about 2.9s.
+// Ostler's cloned hero letters spring into their stance again over about 1.9s.
+const SETTLE = { mistfold: 2600, mnemo: 2600, linework: 4500, drift: 2600, murmur: 3200, pasteup: 4200, ostler: 2400 };
 
 // Systems whose identity background is a pattern: their small text sits on a label
 const BOXED = ["kind-swarm"];

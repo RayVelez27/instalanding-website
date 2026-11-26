@@ -5,6 +5,10 @@
  *   dist/prompt/<slug>.html    Netlify serves it for /prompt/<slug> ahead of the SPA fallback
  *   dist/systems/<slug>.html
  *   dist/motion/<slug>.html
+ *   dist/videos/<slug>.html, dist/products/<slug>.html, dist/ecomm/<slug>.html
+ *   dist/pages.html … dist/ecomm.html   the section indexes, listing every item
+ *                              (public/_redirects rewrites /systems etc. to them, since
+ *                              /systems is also a folder of specimen files)
  *
  * Each copy is the built index.html with that route's title, description and
  * canonical, and a <noscript> summary that names the page's prompt and code. The app
@@ -47,9 +51,52 @@ const routeHtml = (shell, route) => {
 };
 
 /** Every route that gets its own shell, with the lines its summary carries. */
-export const buildRoutes = ({ prompts, systems, motion, base }) => {
+export const buildRoutes = ({ prompts, systems, motion, showcase = [], base }) => {
   const skill = `How to use the library without a shell: ${link(base, "/SKILL.md")}. Index of everything: ${link(base, "/llms.txt")}.`;
+  const pages = prompts.filter((p) => !p.hidden && p.demo);
+  /** A section's index page: what the section is, then every item with its line, newest first. */
+  const section = (file, route, title, description, items) => ({
+    file,
+    url: new URL(route, base).href,
+    title,
+    description,
+    lines: [
+      `<h1>${esc(title)}</h1>`,
+      `<p>${esc(description)}</p>`,
+      `<ul>`,
+      ...items.map((i) => `<li>${link(base, i.url, i.title)}: ${esc(i.line)}</li>`),
+      `</ul>`,
+      `<p>${skill}</p>`,
+    ],
+  });
+  const newest = (list) => [...list].sort((a, b) => (Date.parse(b.added ?? "") || 0) - (Date.parse(a.added ?? "") || 0));
   return [
+    section("pages.html", "/pages", "Landing pages: single-file HTML templates", `${pages.length} production-ready landing pages, each one HTML file with no dependencies, plus the one-shot prompt that rebuilds it. Free, MIT.`,
+      newest(pages).map((p) => ({ url: `/prompt/${p.slug}`, title: p.title, line: p.description }))),
+    section("systems.html", "/systems", "Design systems extracted from real HTML pages", `${systems.length} design systems: tokens as CSS custom properties and every component working in one specimen file, with an instruction an agent can apply to an existing project.`,
+      newest(systems).map((s) => ({ url: s.pageUrl, title: `${s.name} design system`, line: s.tagline }))),
+    section("motion.html", "/motion", "Motion studies: one movement each, as code", `${motion.length} motion studies, each one movement running live in one HTML file, with its choreography as data and a one-shot prompt.`,
+      newest(motion).map((m) => ({ url: m.pageUrl, title: m.title, line: m.tagline }))),
+    ...showcase.map((sec) =>
+      section(`${sec.route}.html`, `/${sec.route}`, `${sec.label}: single-file HTML`, `${sec.items.length} ${sec.label.toLowerCase()}. ${sec.blurb}`,
+        newest(sec.items).map((i) => ({ url: i.pageUrl, title: i.title, line: i.description })))
+    ),
+    ...showcase.flatMap((sec) =>
+      sec.items.map((i) => ({
+        file: `${sec.route}/${i.slug}.html`,
+        url: i.pageUrl,
+        title: i.title,
+        description: i.description,
+        lines: [
+          `<h1>${esc(i.title)}</h1>`,
+          `<p>${esc(i.description.replace(/\.?$/, "."))}</p>`,
+          i.facts ? `<p>${esc(i.facts)}.</p>` : "",
+          i.bestFor.length ? `<p>Best for: ${esc(i.bestFor.join(", "))}.</p>` : "",
+          `<p>The whole ${esc(sec.noun)} is one HTML file with every asset inlined, free under MIT: ${link(base, i.demoUrl)}. Open it in a browser or hand it to an agent to adapt.</p>`,
+          `<p>More ${esc(sec.label.toLowerCase())}: ${link(base, `/${sec.route}`)}. ${skill}</p>`,
+        ],
+      }))
+    ),
     ...prompts.map((p) => ({
       file: `prompt/${p.slug}.html`,
       url: new URL(`/prompt/${p.slug}`, base).href,

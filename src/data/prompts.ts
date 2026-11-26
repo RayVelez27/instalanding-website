@@ -110,6 +110,47 @@ export const categories: { slug: PromptCategory; label: string }[] = [
 
 const entries: Omit<PromptEntry, "slug">[] = [
   {
+    title: "Paste-Up Travel Journal Page",
+    category: "web",
+    categoryLabel: "WEB",
+    description: "A cobalt scrapbook page for a travel journal app that pastes itself: three taped photo prints and a postage stamp that fly onto loose paper sheets and drift with the pointer, ransom-note titles cut letter by letter from six typefaces, and a tilted tape marquee",
+    prompt: `Build a landing page for Paste-Up, a fictional travel-journal app that turns a day's photos into a scrapbook page, as one HTML file. No libraries and one short script. The photos are inlined as base64 JPEGs and the paper grain is a base64 texture, so the page opens from disk. Fonts from Google: Anton, Alfa Slab One, Abril Fatface, Archivo Black, Playfair Display italic 900, and Courier Prime 700 for every line of body text.
+
+DESIGN SYSTEM
+A cobalt ground #1b3fd0 under a scanned paper-grain texture, paper white #f6f5f1, ink #16130f, yellow #ffd21e for buttons and highlights, and a pink #f5a3c7 for scraps and the ticket. Body copy is Courier Prime bold, like a typed label. Everything sits slightly off true: buttons, tags and cards carry a small rotation, and strips of translucent masking tape hold things down.
+
+CUT LETTERS
+The signature: titles set as a ransom note. Each letter is its own span on its own scrap of paper (yellow, white, black or pink) in a different one of the display faces, with its own tilt and a 1-3px vertical offset, set inline so the title always reads the same. Use it for the wordmark, "EVERY DAY", the day titles (DAY 1, DAY 2, MATERA) and the closing line.
+
+STRUCTURE
+1. Nav: the cut-letter wordmark, three Courier links (How it works, The details, Pricing) and a tilted yellow "+ GET THE APP".
+2. Hero, two columns. Left: a "VOL. 01" tag with "The travel journal that pastes itself", the h1 in two lines (cut-letter "EVERY DAY", then "gets a page." in Playfair italic with "page." in yellow over a hand-drawn underline), a paragraph, a tilted yellow "START TODAY'S PAGE →" and a dashed-underline "See how it works", and three icon facts (Times from your camera · Six photos a page · Cut-letter titles). Right: a collage on parallax layers. Two loose paper sheets (white, tilted -6deg, and pink, tilted 5.5deg) settle in first; then three white-bordered photo prints fly in from off screen with a spin and land in turn, each held by a strip of masking tape that sticks down after it (a wide Matera skyline at first light, a loaf of Pane di Matera, a painted Cucù whistle); last, a perforated postage stamp of the cathedral steps drops onto the corner with a wavy postmark across it. A black tape marquee runs across the bottom at a slight angle: DROP THE DAY ✂ STICK IT DOWN ✂ STAMP THE TIME ✂ CUT THE TITLE ✂ KEEP THE PAGE.
+3. How it works: "THREE STEPS, ONE PAGE", three numbered cards (Drop the day, Watch them stick, Keep the page).
+4. The details: four cards, each with a small live example (a time chip, a cut-letter DAY 3, a "6 PHOTOS · PAGE FULL" counter, a half-peeled photo).
+5. Trip: "YOUR TRIP, KEPT." with three photos taped in the order of the day.
+6. Pricing: "PICK YOUR PAPER": Free (six photos a page, cut-letter titles, times and names) and Traveller, $4 per trip (unlimited pages, a print-ready trip book).
+7. Closing CTA: a cut-letter "TODAY DESERVES A PAGE." and the start button. Footer: wordmark, links, and a line saying Paste-Up is fictional.
+
+MOTION
+All CSS. The sheets slide up, the prints fly in from off the page with a spin and land with a layered drop shadow (keyframes using the individual translate, rotate and scale properties, driven by per-print --dx, --dy and --spin), tape sticks down after each print, the stamp drops in last, and the marquee scrolls forever. One script: on a fine pointer, the hero's .layer elements move by their data-depth with the pointer, batched in requestAnimationFrame, and ease back on pointerleave.
+
+THINGS THAT BREAK
+- Animate the individual translate/rotate/scale properties, not transform, or the entrance fights the inline tilts.
+- The hero art is laid out at desktop size and scaled down with zoom at breakpoints; check it at 390px for horizontal scroll.
+- Cut letters need fixed scrap sizes, or a late-loading font reflows every title.
+
+THE FLOOR
+One h1 and a main; data-section on every region; the decorative photos and scraps are aria-hidden while their text stays real; links and buttons have visible focus. prefers-reduced-motion cuts every animation to a single frame and turns off the parallax. No horizontal scroll at 390px.`,
+    preview: "hero",
+    variant: "large",
+    added: "Nov 25, 2026",
+    demo: "/demos/paste-up-travel-journal.html",
+    bestFor: ["travel and photo apps", "journaling and memory-keeping products", "consumer mobile app launches", "playful creative tools"],
+    style: ["scrapbook", "collage", "ransom-note-type", "cobalt", "editorial", "css-only-motion"],
+    thumbnail: "/thumbs/paste-up-travel-journal.jpg",
+    theme: "dark",
+  },
+  {
     title: "Seam AI Tennis Coach Page",
     category: "web",
     categoryLabel: "WEB",

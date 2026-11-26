@@ -4,19 +4,21 @@ import { Check, Copy } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import { AgentPanel } from "@/components/AgentMode";
-import { MOTION_ITEMS, PAGES, PAGE_ITEMS, PRODUCT_ITEMS, SYSTEM_ITEMS, VIDEO_ITEMS } from "@/lib/libraryItems";
+import { MOTION_ITEMS, PAGES, PAGE_ITEMS, SYSTEM_ITEMS } from "@/lib/libraryItems";
 import HtmlTypewriter from "@/components/HtmlTypewriter";
 import HomeGrid from "@/components/HomeGrid";
 import HeroReel from "@/components/HeroReel";
+import HomeHooks from "@/components/HomeHooks";
 import { copyText } from "@/lib/copyText";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 
 /**
  * HOME: the front door to every layer. A sticky bar with search across the
- * library; a compact dark hero; a grid per layer (landing pages, design
- * systems, motion, videos, products), each dealt at random with a card and a
- * VIEW MORE button into its section; a band that shows the one-shot prompt
+ * library; a compact dark hero; the hooks strip (every video and product,
+ * the most-opened items at launch); a grid per layer (landing pages, design
+ * systems, motion), each dealt at random with a card and a VIEW MORE button
+ * into its section; a band that shows the one-shot prompt
  * every file ships with; and the wordmark. Cards copy their file on hover and
  * link into their section: pages open their dialog over home (a page on
  * phones), motion studies their lab, systems their board.
@@ -85,7 +87,7 @@ const Home = () => {
             <i />
           </div>
           <div className="home-hero-copy">
-            <p className="home-badge">Copy. Remix. Ship It.</p>
+            <Link to="/pages" className="home-badge">Copy. Remix. Ship It.</Link>
             <h1 id="home-title" className="home-title">
               <span className="home-ln">
                 <span>PREMIUM HTML</span>
@@ -101,6 +103,7 @@ const Home = () => {
           <HeroReel />
         </section>
         <AgentPanel />
+        <HomeHooks />
 
         <HomeGrid
           id="pages"
@@ -127,24 +130,6 @@ const Home = () => {
           all="/motion"
           pool={MOTION_ITEMS}
           noun="motion studies"
-          onCopied={say}
-        />
-        <HomeGrid
-          id="videos"
-          title="VIDEOS"
-          sub="Short videos rendered live in your browser, sound and all. No video files."
-          all="/videos"
-          pool={VIDEO_ITEMS}
-          noun="videos"
-          onCopied={say}
-        />
-        <HomeGrid
-          id="products"
-          title="PRODUCTS"
-          sub="Product concepts you can actually operate. Every control works."
-          all="/products"
-          pool={PRODUCT_ITEMS}
-          noun="products"
           onCopied={say}
         />
 

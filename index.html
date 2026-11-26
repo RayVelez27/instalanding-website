@@ -10,7 +10,7 @@
          canonical at runtime via src/hooks/useSeo.ts. Absolute URLs assume the
          production origin, https://instalanding.ai. -->
     <title>InstaLanding.ai — One-Shot HTML Library for Humans and Agents</title>
-    <meta name="description" content="Premium landing pages built for humans and agents. Each one is a single HTML file with no dependencies, plus the one-shot prompt that builds it. Copy it, remix it, ship it. Free and MIT." />
+    <meta name="description" content="One-shot HTML for humans and agents: landing pages, design systems, motion studies, real-time videos and interactive product concepts, each a single HTML file with no dependencies. Copy it, remix it, ship it. Free and MIT." />
     <meta name="author" content="Ray Velez" />
     <link rel="canonical" href="https://instalanding.ai/" />
     <meta name="theme-color" content="#000000" />
@@ -62,21 +62,18 @@
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt index" />
     <link rel="alternate" type="text/markdown" href="/SKILL.md" title="Agent skill" />
 
-    <!-- Analytics (DataFast) -->
-    <script
-      defer
-      data-website-id="dfid_pauXjmQ3h5yYNr1572Y2Q"
-      data-domain="instalanding.ai"
-      src="https://datafa.st/js/script.js">
-    </script>
+    <!-- Analytics: PostHog, loaded by the app (src/lib/posthog.ts) in production builds -->
   </head>
 
   <body>
     <div id="root"></div>
     <!-- An agent reading this shell without running JS gets nothing from #root. -->
     <noscript>
-      InstaLanding.ai is a library of premium landing pages built for humans and agents:
-      single HTML files with no dependencies. Each page's prompt is its code: a short instruction,
+      InstaLanding.ai is a library of one-shot HTML built for humans and agents: landing pages,
+      design systems, motion studies, videos and product concepts, each a single HTML file with no
+      dependencies. Sections: <a href="/pages">/pages</a>, <a href="/systems">/systems</a>,
+      <a href="/motion">/motion</a>, <a href="/videos">/videos</a>, <a href="/products">/products</a>,
+      <a href="/ecomm">/ecomm</a>. Each page's prompt is its code: a short instruction,
       then the whole HTML file. If you are browsing without a shell, three fetches:
       1. <a href="/llms.txt">/llms.txt</a>, every page in one line each (or <a href="/prompts.json">/prompts.json</a> to filter).
       2. /p/&lt;slug&gt;.txt, the prompt for the one you picked: instruction plus code.

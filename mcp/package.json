@@ -4,6 +4,8 @@
   "description": "Landing pages and UI components for coding agents: search, inspect and pull one-shot briefs and single-file reference builds from INSTALANDING.AI. CLI + MCP server + agent skill.",
   "type": "module",
   "license": "MIT",
+  "homepage": "https://instalanding.ai/agents",
+  "mcpName": "io.github.RayVelez27/instalanding",
   "bin": {
     "instalanding": "src/cli.js",
     "instalanding-mcp": "src/index.js"
@@ -29,7 +31,12 @@
     "agent-skill",
     "claude-code",
     "codex",
-    "opencode"
+    "opencode",
+    "html",
+    "single-file",
+    "design-system",
+    "landing-page-templates",
+    "llm"
   ],
   "scripts": {
     "start": "node src/index.js",

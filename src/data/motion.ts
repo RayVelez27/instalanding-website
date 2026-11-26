@@ -96,6 +96,99 @@ export interface MotionEntry {
 
 export const motions: MotionEntry[] = [
   {
+    slug: "redline-gauge",
+    title: "Redline Gauge",
+    kind: "TAP-TO-REV GAUGE",
+    tagline: "A neon speedometer wrapped in violet smoke; tap the dial in rhythm and the needle revs through three levels to the redline, then the smoke bursts",
+    description:
+      "A glowing pink-and-cyan speedometer sits in a dark glass card, wrapped in slowly turning violet smoke. Hover and the rim lights up. Tap the dial and the needle kicks from idle to level 1; tap again while it settles and it climbs to 2, then to 3, the redline. Tap too slowly and each level falls back before the next one lands; reach the redline and the smoke blows out in a burst before the needle drops back to idle. The pink sweep inside the dial follows the needle, and the needle never sits quite still: a small wiggle loops under every pose. It is a decoded Rive file (a cover artboard, a speedometer artboard and three copies of a smoke artboard) replayed by a small Canvas 2D runtime, with WebGL for the one meshed image.",
+    added: "Nov 25, 2026",
+    theme: "dark",
+    demo: "/motion-lab/redline-gauge.html",
+    poster: "/motion-lab/redline-gauge.jpg",
+    library: { name: "Canvas 2D", version: "decoded .riv", plugins: ["no runtime", "state machine", "nested artboards"] },
+    life: 4,
+    lifeLabel: "ONE REV TO THE REDLINE",
+    drawSeconds: 6,
+    elements: 1,
+    status: "IDLE · TAP THE DIAL TO REV",
+    stepLabels: ["One blip of the throttle", "Rev to the redline"],
+    reelAutoplay: 5200,
+    tracks: [
+      { prop: "needle · idle → level 1", change: "500 ms: the needle swings from -150° to -55° on a fast-out cubic", start: 0, end: 0.125, ease: "power3.out" },
+      { prop: "needle · level 1 → 2", change: "500 ms: on the next tap it climbs to 0°, straight up", start: 0.0625, end: 0.1875, ease: "power3.out" },
+      { prop: "needle · level 2 → 3", change: "500 ms: the third tap pins it at +50°, the redline", start: 0.125, end: 0.25, ease: "power3.out" },
+      { prop: "sweep · radial gradient", change: "the pink fill's gradient end point moves with each level, so the glow follows the needle", start: 0, end: 0.25, ease: "power3.out" },
+      { prop: "click · rim flash", change: "every tap flashes a white ring over the dial, played at 10x speed", start: 0, end: 0.03, ease: "none" },
+      { prop: "smoke · burst", change: "500 ms after the redline, two smoke artboards fade in and roll out at quarter speed", start: 0.375, end: 1, ease: "power1.out" },
+      { prop: "needle · fall back", change: "2 s: from the redline back to idle while the smoke clears", start: 0.5, end: 1, ease: "power2.inOut" },
+      { prop: "needle · wiggle", change: "a small rotation ping-pong on the needle's parent node, looping under every pose", start: 0, end: 1, ease: "power1.inOut", yoyo: true },
+    ],
+    inputs: [
+      { keys: ["HOVER"], does: "Lights the rim of the dial; it fades back when you leave" },
+      { keys: ["TAP"], does: "Revs the needle one level, with a flash on the rim" },
+      { keys: ["TAP · TAP · TAP"], does: "In rhythm, about four taps a second, the needle climbs 1, 2, 3 to the redline and the smoke bursts" },
+      { keys: ["WAIT"], does: "Each level falls back if the next tap is late, so a slow rhythm never reaches the redline" },
+    ],
+    knobs: [
+      {
+        id: "gap",
+        label: "TAP GAP",
+        min: 60,
+        max: 800,
+        step: 10,
+        value: 250,
+        unit: "ms",
+        note: "The gap between the lab's taps when it revs. Too quick and taps land while the needle is still blending, so it takes more of them; too slow and each level falls back before the next tap.",
+      },
+    ],
+    toggles: [{ id: "smoke", label: "SMOKE", value: true }],
+    trick: {
+      title: "A rev counter built from four invisible rings",
+      steps: [
+        "The .riv nests a 1575 × 1836 speedometer artboard inside a 1855 × 1044 cover, and three copies of a 1681 × 2245 smoke artboard inside the speedometer. It was decoded into plain data and is replayed by a small runtime with its own state machine, cubic eases and hit-testing; no Rive code ships.",
+        "The levels are four single-frame poses, level 0 to 3. Each sets the needle's rotation, the end point of the sweep's radial gradient, and the scale of four full-dial hit rings: only the ring for the next level is at scale 1, the rest are at 0.",
+        "So a tap always lands on exactly one live ring, and that ring's listener sets level to the next number. The state machine moves to that pose only from the one before it, over a 500 ms cubic blend.",
+        "Every level also has an exit: if the next tap doesn't come, the state falls back to idle. That is what makes it a rhythm: too slow and you lose the level, too fast and the tap lands mid-blend and is ignored.",
+        "At level 3 the state hands off to smoke-go, which fades in two smoke artboards and plays them at quarter speed, then blends back to idle over two seconds. The third smoke copy loops all the time, slowly rotated by a 200-second spin on its parent node.",
+      ],
+    },
+    tags: ["gauge", "neon", "smoke", "tap", "rive", "state machine"],
+    bestFor: ["performance and speed claims (latency, throughput, benchmarks)", "automotive and EV launches", "upgrade, boost and turbo CTAs", "gamified onboarding that rewards a rhythm"],
+    pairsWith: ["orvyn-autonomous-car-page", "neon-glass-app-landing-page", "tarn-file-transfer-page", "holographic-ticket-landing-page"],
+    credits: [],
+    prompt: `Build a tap-to-rev neon speedometer as one HTML file: a glowing gauge in a dark glass card, wrapped in violet smoke, whose needle climbs three levels to the redline when you tap in rhythm. Near-black page (#060a12), one full-viewport canvas, Canvas 2D, no libraries.
+
+THE STAGE
+- A 1855 × 1044 artboard, contained and centred. On tall screens (width / height under 1.25) fit the card itself instead, so the gauge fills a phone's width.
+- A dark navy glass card with rounded corners and a soft drop shadow, the gauge centred in it.
+
+THE GAUGE (drawn in code)
+- An outer bezel ring with a cool blue rim light along its top edge, a thin tick scale around the inside, and a dark inner face.
+- A sweep of fine radial pink lines (#ff2fd0 to #ff7bf0) filling the upper arc, lit by a radial gradient whose end point you move to follow the needle.
+- A thin glowing pink needle from a small ringed hub, and a short cyan arc near the bottom.
+- Three layers of soft violet smoke around the gauge: one always drifting and slowly turning (a full turn in about 200 seconds), two that only appear for the burst.
+
+THE STATE MACHINE (inputs: hover bool, click trigger, level number 0-3)
+- Levels are single poses. Needle rotation: level 0 -150°, level 1 -55°, level 2 0°, level 3 +50°. Each level also moves the sweep gradient's end point.
+- Transitions: 0 → 1 when level = 1, 1 → 2 when level = 2, 2 → 3 when level = 3, each a 500 ms blend on cubic-bezier(0, 0, 0.13, 1). If the next level doesn't arrive, each state falls back to idle.
+- At level 3: hold 500 ms, then play the smoke burst (the two extra smoke layers fade in and roll out over about 4 s) while the needle blends back to idle over 2 s.
+- A loop under everything: the needle wiggles a few degrees, ping-pong, about once a second.
+- Hover: the rim brightens over 100 ms and fades back on leave. Every tap flashes a white ring over the dial for about 100 ms.
+
+THE INPUT
+- Four full-dial hit rings, one per level, stacked. Each level pose sets only the next level's ring to scale 1 and the rest to 0, so a tap always hits exactly one ring, and its listener sets level to the next number and fires click.
+- A tap that arrives during a 500 ms blend is ignored, so the right rhythm is about four taps a second.
+
+THINGS THAT BREAK
+- Hit-test through the inverse of the view transform, the same one you draw with, or taps miss on phones.
+- Sample cubic eases by solving t from x, not by using progress as t.
+- Cap dt at 0.1 s so a background tab doesn't fire every transition at once.
+
+THE FLOOR
+The canvas has role="img" and an aria-label describing the gauge; touch-action none so taps don't scroll. Works at 390px wide.`,
+  },
+  {
     slug: "surprise-keys",
     title: "Surprise Keys",
     kind: "PRESSABLE VOXELS",
