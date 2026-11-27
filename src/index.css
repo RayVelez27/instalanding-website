@@ -2707,7 +2707,17 @@ html {
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
-.pmodal-desc { margin: 5px 0 0; font-size: 12.5px; color: #666; max-width: 90ch; }
+.pmodal-desc { margin: 0; min-width: 0; font-size: 12.5px; color: #666; }
+/* One line by default; More expands it to the full description */
+.pmodal-desc-row { display: flex; align-items: baseline; gap: 10px; max-width: 90ch; margin-top: 5px; }
+.pmodal-desc-row .pmodal-desc { flex: 0 1 auto; }
+.pmodal-desc-text { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.pmodal-desc-row.is-open .pmodal-desc-text { white-space: normal; }
+.pmodal-desc-more { flex: none; padding: 0; border: 0; background: none; color: #111; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 1.4; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.pmodal-desc-more:hover { color: #000; text-decoration-thickness: 2px; }
+.pmodal-desc-more:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
+html.agent-dark .pmodal-desc-more { color: #e8e6e3; }
+html.agent-dark .pmodal-desc-more:focus-visible { outline-color: #e8e6e3; }
 .pmodal-close {
   margin-left: auto;
   flex-shrink: 0;
@@ -3089,7 +3099,7 @@ html {
 @media (max-width: 1100px), (pointer: coarse) and (max-width: 1400px) {
   .pmodal-dialog { width: calc(100vw - 16px); height: calc(100vh - 16px); padding: 16px 14px 10px; }
   .pmodal-title { font-size: 17px; }
-  .pmodal-desc { display: none; }
+  .pmodal-desc, .pmodal-desc-row { display: none; }
   .pmodal-pager-btn { max-width: 46%; }
   /* Icon-only toolbar and actions. The label stays in the accessibility tree
      (visually hidden, not display:none), so each button keeps its name. */
@@ -4136,7 +4146,7 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #e8e6e3; }
   .sb-ease-track i, .sb-chip, .sb-dot { transition: none; }
 }
 /* The board needs the height; the description keeps to two lines */
-.smodal .pmodal-desc { max-width: 120ch; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.smodal .pmodal-desc-row { max-width: 120ch; }
 
 /* Phones: a page, not a box. The dialog fills the screen and scrolls as one,
    so the header and actions scroll away and the board gets the whole height
@@ -4170,7 +4180,7 @@ html.agent-dark .signup-row button:focus-visible { outline-color: #e8e6e3; }
   .smodal .pmodal-kicker { margin-bottom: 3px; font-size: 8.5px; letter-spacing: 0.12em; line-height: 1.5; }
   .smodal .pmodal-theme { margin-left: 6px; padding: 0 6px 0 4px; }
   .smodal .pmodal-title { font-size: 18px; }
-  .smodal .pmodal-desc { display: none; }
+  .smodal .pmodal-desc, .smodal .pmodal-desc-row { display: none; }
   .smodal .pmodal-close { flex: none; width: 40px; height: 40px; }
   /* Labelled buttons in one swipeable row; icons alone said nothing */
   .smodal-actions {
@@ -6064,6 +6074,26 @@ html.agent-dark .home-card--ecomm .home-card-kind i { background: #e8e6e3; }
 .home-card--product .home-card-kind i { background: #d97757; }
 .product-stage { position: relative; min-height: 0; overflow: hidden; background: #e9e6df; border: 1px solid #000; }
 .product-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #e9e6df; }
+/* PRODUCTS dialog: the product takes the full width (laid out at 1440px and scaled to fit, see ProductFrame);
+   the controls, credits and more products slide over it from the right on demand */
+.pmodal-main--wide { grid-template-columns: minmax(0, 1fr); position: relative; }
+.pmodal-main--wide .pmodal-toolbar .pmodal-actions { margin-left: auto; }
+.product-details-btn[aria-expanded="true"] { background: #000; color: #fff; }
+.product-drawer {
+  position: absolute; z-index: 3; top: 58px; right: 0; bottom: 14px; width: min(400px, 44%);
+  display: flex; flex-direction: column; padding: 0; background: #fff; border: 1px solid #000;
+  box-shadow: -28px 0 60px -30px rgba(0, 0, 0, 0.45);
+  transform: translateX(calc(100% + 32px)); opacity: 0; visibility: hidden;
+  transition: transform 0.36s cubic-bezier(0.2, 0.7, 0.1, 1), opacity 0.2s, visibility 0s linear 0.36s;
+}
+.product-drawer.is-open { transform: none; opacity: 1; visibility: visible; transition-delay: 0s; }
+.product-drawer .pmodal-body { flex: 1; min-height: 0; overflow: auto; border: 0; }
+.product-drawer-close { position: absolute; z-index: 2; top: 6px; right: 8px; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid #000; background: #fff; color: #000; cursor: pointer; }
+.product-drawer-close:hover { background: #000; color: #fff; }
+html.agent-dark .product-drawer { background: #1a1b1f; border-color: #e8e6e3; box-shadow: -28px 0 60px -30px rgba(0, 0, 0, 0.8); }
+html.agent-dark .product-drawer-close { background: #1a1b1f; border-color: #e8e6e3; color: #e8e6e3; }
+html.agent-dark .product-drawer-close:hover, html.agent-dark .product-details-btn[aria-expanded="true"] { background: #e8e6e3; color: #141518; }
+@media (prefers-reduced-motion: reduce) { .product-drawer { transition: none; } }
 .product-controls { display: grid; gap: 0; margin: 0 0 16px; border-top: 1px solid #000; }
 .product-controls > div { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
 .product-controls dt { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; }
@@ -6586,6 +6616,21 @@ html.agent-dark .theme-toggle:focus-visible { outline-color: #e8e6e3; }
   .desk--sent { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; color: var(--sh-ink); }
   .desk--sent svg { color: var(--sh-accent); }
   .desk--sent b, .desk--sent small { display: block; }
+  /* Open with your agent (components/OpenWith.tsx); the email form sits inside it, so it drops its own box */
+  .openwith { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--sh-line); border-radius: 16px; background: var(--sh-fill); }
+  .openwith > b { font: 700 15px/1.25 'Inter Tight', 'Inter', system-ui, sans-serif; color: var(--sh-ink); }
+  .openwith > small { font: 500 12.5px/1.45 'Inter Tight', 'Inter', system-ui, sans-serif; color: var(--sh-ink-2); }
+  .openwith-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 12px 6px; margin-top: 12px; }
+  .openwith-agent { display: flex; flex-direction: column; align-items: center; gap: 7px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--sh-ink); text-decoration: none; font: 600 12px/1.1 'Inter Tight', 'Inter', system-ui, sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .openwith-mark { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; color: #fff; font: 800 18px/1 'Inter Tight', 'Inter', system-ui, sans-serif; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); transition: transform 0.15s; }
+  .openwith-agent:active .openwith-mark { transform: scale(0.94); }
+  .openwith-agent:focus-visible { outline: none; }
+  .openwith-agent:focus-visible .openwith-mark { box-shadow: 0 0 0 2px var(--sh-accent); }
+  .openwith-agent.is-desk { color: var(--sh-ink-2); }
+  .openwith-agent.is-desk .openwith-mark { opacity: 0.6; }
+  .openwith-note { margin: 10px 0 0; padding: 9px 11px; border-radius: 10px; background: var(--sh-bg); font: 600 13px/1.4 'Inter Tight', 'Inter', system-ui, sans-serif; color: var(--sh-ink); }
+  .openwith-foot { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--sh-line); }
+  .openwith-foot button { min-height: 36px; padding: 0; border: 0; background: none; color: var(--sh-ink); font: 600 13px/1.2 'Inter Tight', 'Inter', system-ui, sans-serif; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 }
 
 /* System sheet: component previews are one copy target each (SystemBoard tapToCopy) */

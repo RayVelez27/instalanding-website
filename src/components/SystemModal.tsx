@@ -12,6 +12,7 @@ import { track } from "@/lib/track";
 import { useIsCompact } from "@/hooks/useIsCompact";
 import ItemSheet from "@/components/ItemSheet";
 import { isRecent, shortDate } from "@/lib/sheetDates";
+import ModalDesc from "@/components/ModalDesc";
 
 /** The phone sheet's tabs: which board panels each one shows */
 const TABS = [
@@ -235,9 +236,7 @@ const SystemModal = ({ system, onClose, prev, next, onGo }: Props) => {
                 </span>
               </p>
               <Dialog.Title className="pmodal-title">{system.name}</Dialog.Title>
-              <Dialog.Description className="pmodal-desc" id="smodal-desc">
-                {system.description}
-              </Dialog.Description>
+              <ModalDesc text={system.description} id="smodal-desc" />
             </div>
             <Dialog.Close className="pmodal-close" aria-label="Close">
               <X size={18} />

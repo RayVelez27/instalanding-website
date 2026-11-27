@@ -14,6 +14,7 @@ import { motionsForPage } from "@/data/motion";
 import { track } from "@/lib/track";
 import { useIsCompact } from "@/hooks/useIsCompact";
 import PageSheet from "@/components/PageSheet";
+import ModalDesc from "@/components/ModalDesc";
 
 /**
  * The detail view as a dialog over the grid.
@@ -103,9 +104,7 @@ const PromptModal = () => {
                 )}
               </p>
               <Dialog.Title className="pmodal-title">{entry.title}</Dialog.Title>
-              <Dialog.Description className="pmodal-desc" id="pmodal-desc">
-                {entry.description}
-              </Dialog.Description>
+              <ModalDesc text={entry.description} id="pmodal-desc" />
             </div>
             <Dialog.Close className="pmodal-close" aria-label="Close">
               <X size={18} />

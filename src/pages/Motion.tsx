@@ -24,6 +24,7 @@ import { briefChars, loadBrief, useBrief } from "@/lib/briefs";
 import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
 import { isRecent, shortDate } from "@/lib/sheetDates";
 import { getPromptBySlug } from "@/data/prompts";
+import ModalDesc from "@/components/ModalDesc";
 
 /**
  * /motion and /motion/:slug. Motion is shown running, not as a screenshot:
@@ -372,9 +373,7 @@ const MotionModal = ({ motion, onClose }: { motion: MotionEntry; onClose: () => 
           <div className="pmodal-headings">
             <p className="pmodal-kicker">{kicker(motion)}</p>
             <Dialog.Title className="pmodal-title">{motion.title}</Dialog.Title>
-            <Dialog.Description className="pmodal-desc" id="mmodal-desc">
-              {motion.description}
-            </Dialog.Description>
+            <ModalDesc text={motion.description} id="mmodal-desc" />
           </div>
           <Dialog.Close className="pmodal-close" aria-label="Close">
             <X size={18} />

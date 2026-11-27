@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowLeft, ArrowRight, Check, Code2, Copy, Download, ExternalLink, Eye, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Code2, Copy, Download, ExternalLink, Eye, PanelRight, X } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import RouteBanner from "@/components/RouteBanner";
@@ -18,6 +18,7 @@ import { track } from "@/lib/track";
 import { useIsCompact } from "@/hooks/useIsCompact";
 import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
 import { isRecent, shortDate } from "@/lib/sheetDates";
+import ModalDesc from "@/components/ModalDesc";
 
 /**
  * /products and /products/:slug. A product is a device or app concept you can
@@ -27,12 +28,47 @@ import { isRecent, shortDate } from "@/lib/sheetDates";
  * never freeze the site. CODE, COPY CODE and DOWNLOAD work as in VIDEOS.
  */
 
+/** The product laid out on a desktop-sized canvas (at least 1440 x 900, stretched to the
+    stage's shape so it still fills the full width) and scaled to fit, so the dialog always
+    shows its desktop layout. Products switch layouts on height as well as width. */
+const DESK_W = 1440, DESK_H = 900;
+const ProductFrame = ({ src, title }: { src: string; title: string }) => {
+  const box = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const measure = () => setSize({ w: el.clientWidth, h: el.clientHeight });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const k = size.w && size.h ? Math.min(1, size.w / DESK_W, size.h / DESK_H) : 1;
+  return (
+    <div className="product-stage" ref={box}>
+      {size.w > 0 && (
+        <iframe
+          src={src}
+          title={title}
+          sandbox="allow-scripts allow-downloads allow-pointer-lock"
+          allow="autoplay; fullscreen"
+          allowFullScreen
+          style={k < 1 ? { width: size.w / k, height: size.h / k, transform: `scale(${k})`, transformOrigin: "0 0" } : undefined}
+        />
+      )}
+    </div>
+  );
+};
+
 const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: () => void; onGo: (slug: string) => void }) => {
   const page = useMemo(() => asPage(entry, "PRODUCTS"), [entry]);
   const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(page, "product_modal");
   const [mode, setMode] = useState<"preview" | "code">("preview");
   const shown = useMemo(() => (code && mode === "code" ? readableSource(code) : null), [code, mode]);
   useEffect(() => setMode("preview"), [entry.slug]);
+  // The details (controls, credits, more products) slide over the stage on demand, so the product gets the full width
+  const [details, setDetails] = useState(false);
   const index = products.findIndex((p) => p.slug === entry.slug);
   const prev = index > 0 ? products[index - 1] : null;
   const next = index < products.length - 1 ? products[index + 1] : null;
@@ -61,14 +97,14 @@ const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
                 PRODUCTS · {entry.kind.toUpperCase()} · ADDED {entry.added.toUpperCase()}
               </p>
               <Dialog.Title className="pmodal-title">{entry.title}</Dialog.Title>
-              <Dialog.Description className="pmodal-desc">{entry.description}</Dialog.Description>
+              <ModalDesc text={entry.description} />
             </div>
             <Dialog.Close className="pmodal-close" aria-label="Close">
               <X size={18} />
             </Dialog.Close>
           </header>
 
-          <div className="pmodal-main">
+          <div className="pmodal-main pmodal-main--wide">
             <section className="pmodal-stage-col" aria-label="Product">
               <div className="pmodal-toolbar">
                 <div className="pmodal-views" role="group" aria-label="Show">
@@ -83,11 +119,47 @@ const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
                 </div>
                 <span className="pmodal-note">
                   {mode === "preview"
-                    ? "LIVE · CLICK, DRAG AND TURN THE CONTROLS"
+                    ? "LIVE · USE EVERY CONTROL"
                     : code
                       ? `FULL FILE ${fileSize(code.length)} · BASE64 ASSETS SHOWN AS PLACEHOLDERS`
                       : "LOADING SOURCE"}
                 </span>
+                <div className="pmodal-actions">
+                  <button className="pmodal-btn pmodal-btn--solid" onClick={copy} aria-live="polite" title={`${copyLabel} (the whole file)`}>
+                    {copied === "done" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
+                    <span className="pmodal-label">{copyCaption}</span>
+                  </button>
+                  <a
+                    className="pmodal-btn"
+                    href={entry.demo}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Open full screen in a new tab"
+                    onClick={() => track("open_product", { product: entry.slug, from: "modal" })}
+                  >
+                    <span className="pmodal-label">LIVE DEMO</span> <ExternalLink size={12} aria-hidden="true" />
+                  </a>
+                  <a
+                    className="pmodal-btn"
+                    href={entry.demo}
+                    download={`${entry.slug}.html`}
+                    title="Download the single HTML file"
+                    onClick={() => track("download_product", { product: entry.slug, from: "modal" })}
+                  >
+                    <Download size={12} aria-hidden="true" />
+                    <span className="pmodal-label">DOWNLOAD</span>
+                  </a>
+                </div>
+                <button
+                  type="button"
+                  className="pmodal-btn product-details-btn"
+                  aria-expanded={details}
+                  aria-controls="product-details"
+                  onClick={() => setDetails((d) => !d)}
+                >
+                  <PanelRight size={13} aria-hidden="true" />
+                  <span className="pmodal-label">{details ? "HIDE DETAILS" : `DETAILS · ${entry.controls.length} CONTROLS`}</span>
+                </button>
               </div>
               {mode === "code" ? (
                 <div className="pmodal-stage pmodal-stage--code">
@@ -100,47 +172,14 @@ const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
                   )}
                 </div>
               ) : (
-                <div className="product-stage">
-                  <iframe
-                    key={entry.slug}
-                    src={entry.demo}
-                    title={`${entry.title}, live`}
-                    sandbox="allow-scripts allow-downloads allow-pointer-lock"
-                    allow="autoplay; fullscreen"
-                    allowFullScreen
-                  />
-                </div>
+                <ProductFrame key={entry.slug} src={entry.demo} title={`${entry.title}, live`} />
               )}
             </section>
 
-            <section className="pmodal-side" aria-label="Product details">
-              <div className="pmodal-actions">
-                <button className="pmodal-btn pmodal-btn--solid" onClick={copy} aria-live="polite" title={`${copyLabel} (the whole file)`}>
-                  {copied === "done" ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
-                  <span className="pmodal-label">{copyCaption}</span>
-                </button>
-                <a
-                  className="pmodal-btn"
-                  href={entry.demo}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="Open full screen in a new tab"
-                  onClick={() => track("open_product", { product: entry.slug, from: "modal" })}
-                >
-                  <span className="pmodal-label">LIVE DEMO</span> <ExternalLink size={12} aria-hidden="true" />
-                </a>
-                <a
-                  className="pmodal-btn"
-                  href={entry.demo}
-                  download={`${entry.slug}.html`}
-                  title="Download the single HTML file"
-                  onClick={() => track("download_product", { product: entry.slug, from: "modal" })}
-                >
-                  <Download size={12} aria-hidden="true" />
-                  <span className="pmodal-label">DOWNLOAD</span>
-                </a>
-              </div>
-
+            <section id="product-details" className={`pmodal-side product-drawer${details ? " is-open" : ""}`} aria-label="Product details" {...(details ? {} : { inert: "" })}>
+              <button type="button" className="product-drawer-close" onClick={() => setDetails(false)} aria-label="Hide details">
+                <X size={15} aria-hidden="true" />
+              </button>
               <div className="pmodal-body">
                 <div className="pmodal-body-head">
                   <span>THE CONTROLS</span>

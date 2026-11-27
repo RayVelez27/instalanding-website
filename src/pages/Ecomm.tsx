@@ -16,6 +16,7 @@ import { useCopyCode } from "@/lib/useCopyCode";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
+import ModalDesc from "@/components/ModalDesc";
 
 /**
  * /ecomm and /ecomm/:slug. E-COMM entries are landing pages, like PAGES, and
@@ -103,7 +104,7 @@ const EcommModal = ({ entry, onClose, onGo }: { entry: EcommEntry; onClose: () =
                 </span>
               </p>
               <Dialog.Title className="pmodal-title">{entry.title}</Dialog.Title>
-              <Dialog.Description className="pmodal-desc">{entry.description}</Dialog.Description>
+              <ModalDesc text={entry.description} />
             </div>
             <Dialog.Close className="pmodal-close" aria-label="Close">
               <X size={18} />

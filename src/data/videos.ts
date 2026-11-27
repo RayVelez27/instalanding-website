@@ -31,9 +31,9 @@ export interface VideoEntry {
 export const videos: VideoEntry[] = [
   {
     slug: "mobius-knot",
-    title: "Mobius Knot",
+    title: "Mobius Knot V2",
     description:
-      "A 13-second loop on black: a twisting Möbius ribbon tied into a knot turns slowly in a raymarched shader, its layered bands catching soft shadows and an iridescent sweep of blue, gold and violet",
+      "A 13-second piece on black: a twisting Möbius ribbon tied into a knot turns full-frame in a raymarched shader, catching soft shadows and an iridescent sweep of blue, gold and violet, then pulls back and shrinks until it becomes the O in MOTION",
     added: "Nov 27, 2026",
     runtime: "0:13",
     tech: "WebGL2 · one fragment shader · GSAP timeline",

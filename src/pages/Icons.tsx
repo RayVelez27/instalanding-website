@@ -16,6 +16,7 @@ import { useIsCompact } from "@/hooks/useIsCompact";
 import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
+import ModalDesc from "@/components/ModalDesc";
 
 /**
  * /icons and /icons/:slug. An icon set is one file with every icon, plus one
@@ -112,7 +113,7 @@ const IconSetModal = ({ set, onClose }: { set: IconSetEntry; onClose: () => void
                 ICONS · {set.kind.toUpperCase()} · {set.icons.length} ICONS · ADDED {set.added.toUpperCase()}
               </p>
               <Dialog.Title className="pmodal-title">{set.title}</Dialog.Title>
-              <Dialog.Description className="pmodal-desc">{set.description}</Dialog.Description>
+              <ModalDesc text={set.description} />
             </div>
             <Dialog.Close className="pmodal-close" aria-label="Close">
               <X size={18} />

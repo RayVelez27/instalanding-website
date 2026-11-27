@@ -4,7 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowRight, Check, ChevronLeft, ChevronRight, Maximize2, MoreHorizontal, X } from "lucide-react";
 import { track } from "@/lib/track";
 import { copyText } from "@/lib/copyText";
-import SendToDesk from "@/components/SendToDesk";
+import OpenWith from "@/components/OpenWith";
 
 /**
  * The item sheet: how every library item (page, product, video, motion study,
@@ -355,9 +355,9 @@ const ItemSheet = (p: Props) => {
               )}
             </div>
 
-            {/* Phones: save it for the computer (CSS shows it at phone width only) */}
+            {/* Phones and tablets: open it in an agent, or email it for the computer (CSS shows it in the sheet only) */}
             <div className="isheet-desk">
-              <SendToDesk kind={kind} slug={slug} />
+              <OpenWith kind={kind} slug={slug} title={p.title} />
             </div>
 
             {p.sticky && <div className="isheet-sticky">{p.sticky}</div>}

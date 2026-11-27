@@ -18,6 +18,7 @@ import { track } from "@/lib/track";
 import { useIsCompact } from "@/hooks/useIsCompact";
 import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
 import { isRecent, shortDate } from "@/lib/sheetDates";
+import ModalDesc from "@/components/ModalDesc";
 
 /**
  * /videos and /videos/:slug. A video renders live in the browser from one
@@ -65,7 +66,7 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
                 VIDEOS · {entry.runtime} · ADDED {entry.added.toUpperCase()}
               </p>
               <Dialog.Title className="pmodal-title">{entry.title}</Dialog.Title>
-              <Dialog.Description className="pmodal-desc">{entry.description}</Dialog.Description>
+              <ModalDesc text={entry.description} />
             </div>
             <Dialog.Close className="pmodal-close" aria-label="Close">
               <X size={18} />

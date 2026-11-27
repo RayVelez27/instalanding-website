@@ -33,6 +33,27 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "nineal-console",
+    title: "Nineal Support Agent Console",
+    description:
+      "A soft, slate-blue console for running an AI support agent in production: a fine-tune run on a dial of twelve epochs you can pause or stop, live requests, latency, tokens and error rate, an output-tokens chart, a GPU fleet, deployments with their share of traffic and a streaming request log, all switchable between production and staging",
+    added: "Nov 27, 2026",
+    kind: "Web app UI",
+    tech: "HTML + CSS + SVG · no libraries",
+    tags: ["dashboard", "llm ops", "fine-tuning", "data viz", "dark", "interactive"],
+    controls: [
+      { control: "PRODUCTION · STAGING", does: "Swaps the whole console between environments: traffic, latency and error rate, the deployments and their traffic shares, the GPU region and the request log" },
+      { control: "15 MIN · 1 HOUR · 24 HOURS", does: "Re-draws the output-tokens and latency charts for that range" },
+      { control: "PAUSE · PLAY", does: "Pauses or resumes the fine-tune run; the dial, step count, finish time and loss curve follow" },
+      { control: "STOP", does: "Stops the run and resets it to epoch 1, clearing the loss curve; play starts it again" },
+      { control: "HOVER A CHART", does: "Shows a crosshair and the exact value at that moment" },
+      { control: "LIVE READOUTS", does: "Requests, tokens, spend, GPU load and the request log keep streaming in real time" },
+    ],
+    credits: ["Nineal is a fictional product.", "Unbounded by NaN, under the SIL Open Font License."],
+    demo: "/product-demos/nineal-console.html",
+    thumbnail: "/product-demos/nineal-console.jpg",
+  },
+  {
     slug: "dx-coder-console",
     title: "DX-Coder Decoder Console",
     description:
