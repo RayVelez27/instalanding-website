@@ -101,7 +101,7 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
                     <DemoCode code={shown} file={entry.demo.split("/").pop() ?? "index.html"} />
                   ) : (
                     <p className="pcode-status">
-                      {source.status === "error" ? "Couldn't load the source. Try NEW TAB instead." : "Loading source…"}
+                      {source.status === "error" ? "Couldn't load the source. Try LIVE DEMO instead." : "Loading source…"}
                     </p>
                   )}
                 </div>
@@ -160,7 +160,7 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
                   title="Watch full screen in a new tab"
                   onClick={() => track("open_video", { video: entry.slug, from: "modal" })}
                 >
-                  <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
+                  <span className="pmodal-label">LIVE DEMO</span> <ExternalLink size={12} aria-hidden="true" />
                 </a>
                 <a
                   className="pmodal-btn"

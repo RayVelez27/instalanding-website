@@ -108,7 +108,7 @@ const PromptStage = ({ entry, source }: { entry: PromptEntry; source: DemoSource
             <DemoCode code={code} file={entry.demo.split("/").pop() ?? "index.html"} />
           ) : (
             <p className="pcode-status">
-              {source.status === "error" ? "Couldn't load the source. Try NEW TAB instead." : "Loading source…"}
+              {source.status === "error" ? "Couldn't load the source. Try LIVE DEMO instead." : "Loading source…"}
             </p>
           )
         ) : entry.demo ? (

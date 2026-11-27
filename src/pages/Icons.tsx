@@ -134,7 +134,7 @@ const IconSetModal = ({ set, onClose }: { set: IconSetEntry; onClose: () => void
                   <span className="pmodal-label">{flash === "all" ? "COPIED" : `COPY ALL ${set.icons.length}`}</span>
                 </button>
                 <a className="pmodal-btn" href={set.demo} target="_blank" rel="noreferrer" title="Open the set in a new tab">
-                  <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
+                  <span className="pmodal-label">LIVE DEMO</span> <ExternalLink size={12} aria-hidden="true" />
                 </a>
                 <a className="pmodal-btn" href={set.demo} download={`${set.slug}.html`} title="Download the file with all the icons">
                   <Download size={12} aria-hidden="true" />

@@ -30,6 +30,48 @@ export interface VideoEntry {
 
 export const videos: VideoEntry[] = [
   {
+    slug: "mobius-knot",
+    title: "Mobius Knot",
+    description:
+      "A 13-second loop on black: a twisting Möbius ribbon tied into a knot turns slowly in a raymarched shader, its layered bands catching soft shadows and an iridescent sweep of blue, gold and violet",
+    added: "Nov 27, 2026",
+    runtime: "0:13",
+    tech: "WebGL2 · one fragment shader · GSAP timeline",
+    tags: ["shader", "raymarching", "loop", "dark"],
+    credits: [],
+    demo: "/video-demos/mobius-knot.html",
+    thumbnail: "/video-demos/mobius-knot.jpg",
+    silent: true,
+  },
+  {
+    slug: "iso-city-day-night",
+    title: "Iso City Day & Night",
+    description:
+      "An 11-second day-to-night cycle on an isometric apartment tower built in CSS 3D: a sun-and-moon toggle flips, the sun sets as a crescent moon and stars rise, hundreds of windows warm from blue to magenta, and a frosted weather card swaps Sunny 98° for Clear 73° before it all turns back to day",
+    added: "Nov 27, 2026",
+    runtime: "0:11",
+    tech: "CSS 3D · GSAP timeline",
+    tags: ["isometric", "css 3d", "day and night", "weather"],
+    credits: [],
+    demo: "/video-demos/iso-city-day-night.html",
+    thumbnail: "/video-demos/iso-city-day-night.jpg",
+    silent: true,
+  },
+  {
+    slug: "clay-cube-terrain",
+    title: "Clay Cube Terrain",
+    description:
+      "A 15-second drift over an endless field of rounded clay blocks rising and falling, raymarched in a single shader with fog, soft shadows and shallow depth of field, crossfading every three seconds through ember, porcelain, bioluminescent night, steel and molten-magma looks",
+    added: "Nov 27, 2026",
+    runtime: "0:15",
+    tech: "WebGL2 · raymarched terrain · GSAP timeline",
+    tags: ["shader", "terrain", "generative", "background"],
+    credits: [],
+    demo: "/video-demos/clay-cube-terrain.html",
+    thumbnail: "/video-demos/clay-cube-terrain.jpg",
+    silent: true,
+  },
+  {
     slug: "voxel-pelican-assembly",
     title: "Voxel Pelican Assembly",
     description:

@@ -120,7 +120,7 @@ const EcommModal = ({ entry, onClose, onGo }: { entry: EcommEntry; onClose: () =
                   <span className="pmodal-label">{copyCaption}</span>
                 </button>
                 <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab" onClick={() => track("open_ecomm", { page: entry.slug, from: "modal" })}>
-                  <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
+                  <span className="pmodal-label">LIVE DEMO</span> <ExternalLink size={12} aria-hidden="true" />
                 </a>
                 <button
                   className="pmodal-btn"

@@ -135,7 +135,7 @@ const PromptModal = () => {
                 )}
                 {entry.demo && (
                   <a className="pmodal-btn" href={entry.demo} target="_blank" rel="noreferrer" title="Open in a new tab" onClick={() => track("open_demo", { template: entry.slug, from: "modal" })}>
-                    <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
+                    <span className="pmodal-label">LIVE DEMO</span> <ExternalLink size={12} aria-hidden="true" />
                   </a>
                 )}
                 {!entry.demo && entry.repoUrl && (

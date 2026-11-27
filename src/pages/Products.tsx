@@ -95,7 +95,7 @@ const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
                     <DemoCode code={shown} file={entry.demo.split("/").pop() ?? "index.html"} />
                   ) : (
                     <p className="pcode-status">
-                      {source.status === "error" ? "Couldn't load the source. Try NEW TAB instead." : "Loading source…"}
+                      {source.status === "error" ? "Couldn't load the source. Try LIVE DEMO instead." : "Loading source…"}
                     </p>
                   )}
                 </div>
@@ -127,7 +127,7 @@ const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
                   title="Open full screen in a new tab"
                   onClick={() => track("open_product", { product: entry.slug, from: "modal" })}
                 >
-                  <span className="pmodal-label">NEW TAB</span> <ExternalLink size={12} aria-hidden="true" />
+                  <span className="pmodal-label">LIVE DEMO</span> <ExternalLink size={12} aria-hidden="true" />
                 </a>
                 <a
                   className="pmodal-btn"
@@ -292,7 +292,7 @@ const ProductSheet = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
         { value: "1", label: "HTML file" },
         { value: String(entry.credits.length || "—"), label: entry.credits.length === 1 ? "Credit" : "Credits" },
       ]}
-      primary={{ id: "full_screen", label: "Use it full screen", fullScreen: true, onClick: () => track("open_product", { product: entry.slug, from: "sheet" }) }}
+      primary={{ id: "open_demo", label: "Live Demo", icon: <ExternalLink size={15} aria-hidden="true" />, href: entry.demo, onClick: () => track("open_product", { product: entry.slug, from: "sheet" }) }}
       secondary={{ id: "copy_code", label: copied === "done" ? "Copied" : "Copy", done: copied === "done", icon: <Copy size={15} aria-hidden="true" />, onClick: copy }}
       more={[
         { id: "code", label: "View code", onClick: () => setSub("code") },
