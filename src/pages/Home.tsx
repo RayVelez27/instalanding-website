@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, Copy } from "lucide-react";
+import { ArrowRight, Check, Copy, Search } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import SiteTopBar from "@/components/SiteTopBar";
 import { AgentPanel } from "@/components/AgentMode";
-import { MOTION_ITEMS, PAGES, PAGE_ITEMS, SYSTEM_ITEMS } from "@/lib/libraryItems";
+import { ICON_ITEMS, MOTION_ITEMS, PAGES, PAGE_ITEMS, PRODUCT_ITEMS, SYSTEM_ITEMS, VIDEO_ITEMS } from "@/lib/libraryItems";
+import { Card } from "@/components/HomeCards";
+import { openPhoneSearch } from "@/lib/phoneNav";
 import HtmlTypewriter from "@/components/HtmlTypewriter";
 import HomeGrid from "@/components/HomeGrid";
 import HeroReel from "@/components/HeroReel";
@@ -56,7 +58,7 @@ const Home = () => {
   // Sections fade up as they arrive (on desktop; phones show the whole page at once)
   useEffect(() => {
     const els = document.querySelectorAll(".home-reveal");
-    if (window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 720px)").matches) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 1100px), (pointer: coarse) and (max-width: 1400px)").matches) {
       els.forEach((el) => el.classList.add("is-in"));
       return;
     }
@@ -99,8 +101,30 @@ const Home = () => {
                 <span className="home-title-outline">AND AGENTS</span>
               </span>
             </h1>
+            {/* Phones: one line, one button into the library, search, and the sections (the mobile plan, item 5) */}
+            <div className="home-phone-intro">
+              <p className="home-phone-sub">{PAGE_ITEMS.length} landing pages, {SYSTEM_ITEMS.length} design systems and live motion, one HTML file each. Copy it, remix it, ship it.</p>
+              <div className="home-phone-ctas">
+                <Link to="/pages" className="home-phone-cta">Browse the library <ArrowRight size={16} aria-hidden="true" /></Link>
+                <button type="button" className="home-phone-cta home-phone-cta--ghost" onClick={openPhoneSearch}><Search size={16} aria-hidden="true" /> Search</button>
+              </div>
+              <nav className="home-phone-chips" aria-label="Sections">
+                {[["/pages", "Pages"], ["/systems", "Systems"], ["/motion", "Motion"], ["/videos", "Videos"], ["/icons", "Icons"], ["/products", "Products"]].map(([to, label]) => (
+                  <Link key={to} to={to}>{label}</Link>
+                ))}
+              </nav>
+            </div>
           </div>
           <HeroReel />
+        </section>
+        {/* Phones: the newest thing in every section, before the strip */}
+        <section className="home-newest" aria-labelledby="home-newest-title">
+          <h2 id="home-newest-title">New in the library</h2>
+          <div className="home-newest-grid">
+            {[PRODUCT_ITEMS[0], ICON_ITEMS[0], PAGE_ITEMS[0], SYSTEM_ITEMS[0], MOTION_ITEMS[0], VIDEO_ITEMS[0]].filter(Boolean).map((it) => (
+              <Card key={it.key} item={it} onCopied={say} />
+            ))}
+          </div>
         </section>
         <AgentPanel />
         <HomeHooks />
@@ -130,6 +154,15 @@ const Home = () => {
           all="/motion"
           pool={MOTION_ITEMS}
           noun="motion studies"
+          onCopied={say}
+        />
+        <HomeGrid
+          id="icons"
+          title="ICONS"
+          sub="Animated icon sets. Every icon its own file, or copy the whole set."
+          all="/icons"
+          pool={ICON_ITEMS}
+          noun="icon sets"
           onCopied={say}
         />
 

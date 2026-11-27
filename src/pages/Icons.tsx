@@ -42,6 +42,12 @@ const IconTile = ({ icon, set, copied, onCopy }: { icon: IconEntry; set: IconSet
   const frame = useRef<HTMLIFrameElement>(null);
   const send = (type: string, e?: React.PointerEvent) => {
     const doc = frame.current?.contentDocument;
+    // CSS icons: a synthetic event can't set :hover, so the file also answers to .is-hover
+    const css = doc?.querySelector(".icon");
+    if (css && !doc?.querySelector("canvas")) {
+      css.classList.toggle("is-hover", type !== "pointerleave");
+      return;
+    }
     const canvas = doc?.querySelector("canvas");
     if (!canvas || !frame.current) return;
     const r = frame.current.getBoundingClientRect();
@@ -144,7 +150,7 @@ const IconSetModal = ({ set, onClose }: { set: IconSetEntry; onClose: () => void
                   <IconGrid set={set} flash={flash} onCopy={copyIcon} />
                   <p className="ecom-note">
                     <b>EACH ICON IS ITS OWN FILE</b>
-                    One HTML file per icon, with a transparent canvas: size the canvas to place it. {set.interaction}
+                    One HTML file per icon, {set.single} {set.interaction}
                   </p>
                   <p className="ecom-note">
                     <b>{set.tech.toUpperCase()}</b>
@@ -193,7 +199,7 @@ const IconSetSheet = ({ set, onClose, onGo }: { set: IconSetEntry; onClose: () =
       <h3 className="isheet-section-title">Tap an icon to copy it</h3>
       <IconGrid set={set} flash={flash} onCopy={copyIcon} />
       <p className="isheet-p">
-        <b>Each icon is its own file</b> with a transparent canvas; size the canvas to place it. {set.interaction}
+        <b>Each icon is its own file</b> {set.single} {set.interaction}
       </p>
     </ItemSheet>
   );

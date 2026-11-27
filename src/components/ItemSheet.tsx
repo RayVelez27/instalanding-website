@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowRight, Check, ChevronLeft, ChevronRight, Maximize2, MoreHorizontal, X } from "lucide-react";
 import { track } from "@/lib/track";
 import { copyText } from "@/lib/copyText";
+import SendToDesk from "@/components/SendToDesk";
 
 /**
  * The item sheet: how every library item (page, product, video, motion study,
@@ -58,6 +59,8 @@ interface Props {
   mediaHint?: string;
   /** Offer the full-screen button on the media */
   canFullScreen?: boolean;
+  /** Controls for the top bar's left end, opposite the close button (a page's phone/desktop toggle) */
+  barStart?: ReactNode;
   stats?: { value: string; label: string }[];
   /** Pinned to the top of the scroll once reached (tabs) */
   sticky?: ReactNode;
@@ -290,8 +293,13 @@ const ItemSheet = (p: Props) => {
           }}
         >
           <div className="isheet-scroll" ref={scroller}>
+            {/* The top bar: drag handle, and the close button on the plain sheet so it reads over any preview */}
             <div className="isheet-grab" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
               <span className="isheet-handle" aria-hidden="true" />
+              {p.barStart && !full && <div className="isheet-bar-start" onPointerDown={(e) => e.stopPropagation()}>{p.barStart}</div>}
+              <button type="button" className="isheet-x isheet-x--bar" onPointerDown={(e) => e.stopPropagation()} onClick={() => close("close")} aria-label="Close">
+                <X size={18} aria-hidden="true" />
+              </button>
             </div>
 
             {p.media && (
@@ -301,9 +309,11 @@ const ItemSheet = (p: Props) => {
                 onPointerDown={() => depth("media")}
               >
                 {p.media}
-                <button type="button" className="isheet-x" onClick={() => (full ? setFull(false) : close("close"))} aria-label={full ? "Exit full screen" : "Close"}>
-                  <X size={17} aria-hidden="true" />
-                </button>
+                {full && (
+                  <button type="button" className="isheet-x" onClick={() => setFull(false)} aria-label="Exit full screen">
+                    <X size={17} aria-hidden="true" />
+                  </button>
+                )}
                 {p.mediaHint && !full && (
                   <span className="isheet-hint" aria-hidden="true">
                     <i /> {p.mediaHint}
@@ -326,11 +336,6 @@ const ItemSheet = (p: Props) => {
               onPointerCancel={onUp}
               onAnimationEnd={() => setSwipe("")}
             >
-              {!p.media && (
-                <button type="button" className="isheet-x isheet-x--flat" onClick={() => close("close")} aria-label="Close">
-                  <X size={17} aria-hidden="true" />
-                </button>
-              )}
               <ul className="isheet-pills" aria-label="About">
                 {p.pills.map((pl) => (
                   <li key={pl.label} className={pl.accent ? "is-accent" : undefined}>{pl.label}</li>
@@ -348,6 +353,11 @@ const ItemSheet = (p: Props) => {
                   ))}
                 </dl>
               )}
+            </div>
+
+            {/* Phones: save it for the computer (CSS shows it at phone width only) */}
+            <div className="isheet-desk">
+              <SendToDesk kind={kind} slug={slug} />
             </div>
 
             {p.sticky && <div className="isheet-sticky">{p.sticky}</div>}

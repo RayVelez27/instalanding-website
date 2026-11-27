@@ -33,6 +33,49 @@ export interface ProductEntry {
 
 export const products: ProductEntry[] = [
   {
+    slug: "dx-coder-console",
+    title: "DX-Coder Decoder Console",
+    description:
+      "A teal-on-black ops console for a prompt-decoding service, with five live sections: rolling-digit KPIs and a token-throughput chart, a decoder fleet with a scrolling bitstream and hex frame inspector, three regional streams and a request heatmap, model routing with its latency histogram, and a filterable decode log",
+    added: "Nov 27, 2026",
+    kind: "Web app UI",
+    tech: "HTML + CSS + SVG · no libraries",
+    tags: ["dashboard", "ops console", "data viz", "monospace", "dark", "interactive"],
+    controls: [
+      { control: "SECTIONS · 1–5", does: "The side rail switches between Overview, Decoders, Streams, Models and Logs; the number keys jump straight to one, and the arrow keys walk the rail" },
+      { control: "1H · 24H · 7D · 30D", does: "Re-draws the token-throughput chart and its average for that range; hover the chart for a crosshair and the exact value" },
+      { control: "TABLE", does: "Swaps in a data table under the throughput chart" },
+      { control: "LOAD PROFILE GAUGE", does: "Click a dot (or use ← →) to set the profile from Eco to Max; the needle swings and the token budget updates" },
+      { control: "DECODER FLEET", does: "Click a decoder to attach the bitstream view to its channel; click a bitstream column to lock the scanner on it, and click it again to release" },
+      { control: "BATCH SIZE − +", does: "Steps the batch size with rolling digits" },
+      { control: "MODEL ROUTING", does: "Click V0 or CX to route traffic; the latency histogram and the comparison table follow the selected model" },
+      { control: "ALL · INF · WRN · ERR", does: "Filters the live decode log by level" },
+    ],
+    credits: ["DX-Coder is a fictional product.", "Chivo Mono by Omnibus-Type, under the SIL Open Font License."],
+    demo: "/product-demos/dx-coder-console.html",
+    thumbnail: "/product-demos/dx-coder-console.jpg",
+  },
+  {
+    slug: "bastion-tiers",
+    title: "Bastion Threat Protection Tiers",
+    description:
+      "A tier picker for a cybersecurity service, set on a dark glass card: an arc gauge with three lit segments where a needle swings to Proactive, Adaptive or Essential, the shield icon glows, the copy below rewrites itself and the whole scene re-lights in that tier's blue, orange or violet",
+    added: "Nov 26, 2026",
+    kind: "Web app UI",
+    tech: "Decoded Rive · Canvas 2D · no libraries",
+    tags: ["cybersecurity", "pricing", "tiers", "gauge", "dark", "interactive"],
+    controls: [
+      { control: "PROACTIVE · ADAPTIVE · ESSENTIAL", does: "The tabs under the card pick a tier: the needle swings to its segment, the headline and copy change and the accent colour follows" },
+      { control: "HOVER A TAB", does: "Lights that tier's segment on the arc before you commit" },
+      { control: "ARC SEGMENTS", does: "Hover a segment on the gauge itself to light it, and click it to select that tier" },
+      { control: "← · →", does: "The arrow keys step through the tiers, wrapping round at either end" },
+      { control: "TIER READOUT", does: "The corners of the card show the tier number and its code (SEC·PRO, SEC·ADP, SEC·ESS)" },
+    ],
+    credits: ["Bastion is a fictional brand.", "Geist and Geist Mono by Vercel, under the SIL Open Font License."],
+    demo: "/product-demos/bastion-tiers.html",
+    thumbnail: "/product-demos/bastion-tiers.jpg",
+  },
+  {
     slug: "lintel-terminal",
     title: "Lintel L1 Agent Terminal",
     description:

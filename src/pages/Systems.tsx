@@ -42,8 +42,11 @@ const SystemTile = ({ system }: { system: SystemEntry }) => {
       to={href}
       image={systemCover(system)}
       frames={system.files.posters}
+      // The full instruction is the build's /s/<slug>.txt (the bundle ships conventions empty)
       copy={async () =>
-        systemAgentInstruction(system, { siteUrl: SITE_URL, tokensCss: spec?.tokensCss, templates, components: system.components })
+        system.conventions.length
+          ? systemAgentInstruction(system, { siteUrl: SITE_URL, tokensCss: spec?.tokensCss, templates, components: system.components })
+          : fetch(`/s/${system.slug}.txt`).then((r) => r.text())
       }
       copyLabel="COPY FOR AGENT"
       agent

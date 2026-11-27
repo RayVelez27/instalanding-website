@@ -112,7 +112,7 @@ export const agentHandoff = (entry: PromptEntry) => {
       `Build "${entry.title}" from INSTALANDING.AI in this project.`,
       entry.repoUrl ? `Code: ${entry.repoUrl}` : null,
       "",
-      entry.prompt,
+      entry.prompt || `Brief (the written spec): ${SITE_URL}/p/${entry.slug}.txt`,
     ]
       .filter((line) => line !== null)
       .join("\n");

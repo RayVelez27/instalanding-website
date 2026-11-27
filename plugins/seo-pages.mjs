@@ -40,7 +40,7 @@ const pageUrl = (base, page) => `${base}${page.slug}/`;
 
 const CSS = `
 :root{--bg:#fff;--fg:#121212;--muted:#5f5f5f;--line:#e4e4e4;--soft:#f6f6f6;--accent:#121212;--on-accent:#fff;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#0a0a0a;--fg:#f2f2f2;--muted:#a3a3a3;--line:#262626;--soft:#141414;--accent:#f2f2f2;--on-accent:#0a0a0a;color-scheme:dark}}
+:root.dark{--bg:#141518;--fg:#e8e6e3;--muted:#a9a7a3;--line:#2e2f34;--soft:#1b1c20;--accent:#e8e6e3;--on-accent:#141518;color-scheme:dark}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
 a{color:inherit}
@@ -174,6 +174,7 @@ const renderPage = (page, ctx) => {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{if(localStorage.getItem("instalanding.theme")==="dark")document.documentElement.classList.add("dark")}catch(e){}</script>
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${url}">

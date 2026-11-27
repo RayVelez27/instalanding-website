@@ -20,6 +20,7 @@ import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
 import { useIsCompact } from "@/hooks/useIsCompact";
+import { briefChars, loadBrief, useBrief } from "@/lib/briefs";
 import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
 import { isRecent, shortDate } from "@/lib/sheetDates";
 import { getPromptBySlug } from "@/data/prompts";
@@ -399,6 +400,7 @@ const MotionSheet = ({ motion, list, onClose, onGo }: { motion: MotionEntry; lis
   const nav = useNavigate();
   const { flash, copy } = useCopy();
   const [sub, setSub] = useState<null | "lab" | "inputs" | "trick" | "prompt">(null);
+  const brief = useBrief("motion", motion.slug, motion.prompt, sub === "prompt");
   useEffect(() => setSub(null), [motion.slug]);
   const i = list.findIndex((m) => m.slug === motion.slug);
   const prev = i > 0 ? list[i - 1] : null;
@@ -433,8 +435,8 @@ const MotionSheet = ({ motion, list, onClose, onGo }: { motion: MotionEntry; lis
       title: "One-shot prompt",
       body: (
         <>
-          <pre className="isheet-pre">{motion.prompt}</pre>
-          <button type="button" className="isheet-btn isheet-btn--primary isheet-btn--block" onClick={() => copy("prompt", motion.prompt)}>
+          <pre className="isheet-pre">{brief ?? "Loading the prompt…"}</pre>
+          <button type="button" className="isheet-btn isheet-btn--primary isheet-btn--block" onClick={() => copy("prompt", () => loadBrief("motion", motion.slug, motion.prompt))}>
             {flash === "prompt" ? "Copied" : "Copy prompt"}
           </button>
         </>
@@ -463,7 +465,7 @@ const MotionSheet = ({ motion, list, onClose, onGo }: { motion: MotionEntry; lis
       primary={{ id: "lab", label: "Open the lab", onClick: () => setSub("lab") }}
       secondary={{ id: "copy_code", label: flash === "code" ? "Copied" : "Copy", done: flash === "code", icon: <Copy size={15} aria-hidden="true" />, onClick: copyCode }}
       more={[
-        { id: "copy_prompt", label: flash === "prompt" ? "Prompt copied" : "Copy prompt", done: flash === "prompt", onClick: () => copy("prompt", motion.prompt) },
+        { id: "copy_prompt", label: flash === "prompt" ? "Prompt copied" : "Copy prompt", done: flash === "prompt", onClick: () => copy("prompt", () => loadBrief("motion", motion.slug, motion.prompt)) },
         { id: "new_tab", label: "Open in a new tab", href: motion.demo, onClick: () => track("open_motion_demo", { motion: motion.slug }) },
         { id: "download", label: "Download the file", href: motion.demo, download: `${motion.slug}.html` },
       ]}
@@ -477,7 +479,7 @@ const MotionSheet = ({ motion, list, onClose, onGo }: { motion: MotionEntry; lis
         <SheetRow label="Choreography & eases" value={`${motion.tracks.length} tracks`} onClick={() => setSub("lab")} />
         <SheetRow label="Inputs" value={String(motion.inputs.length)} onClick={() => setSub("inputs")} />
         <SheetRow label="How it works" onClick={() => setSub("trick")} />
-        <SheetRow label="One-shot prompt" value={`~${Math.round(motion.prompt.length / 4)} tokens`} onClick={() => setSub("prompt")} />
+        <SheetRow label="One-shot prompt" value={`~${Math.round(briefChars(motion) / 4)} tokens`} onClick={() => setSub("prompt")} />
       </div>
       <SheetCarousel
         title="Pairs with"

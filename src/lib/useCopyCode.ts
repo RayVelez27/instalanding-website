@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { loadDemoSource, useDemoSource } from "@/lib/demoSource";
 import { copyText } from "@/lib/copyText";
 import { track } from "@/lib/track";
+import { loadBrief, useBrief } from "@/lib/briefs";
 import type { PromptEntry } from "@/data/prompts";
 
 /**
@@ -23,6 +24,8 @@ export function useCopyCode(entry: PromptEntry | undefined, from: string) {
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
   const timer = useRef<number>();
   const source = useDemoSource(entry?.demo, Boolean(entry?.demo));
+  // No single-file demo: the copy is the written brief, loaded up front so the click can write it at once
+  const brief = useBrief("page", entry?.slug, entry?.prompt, Boolean(entry && !entry.demo));
 
   useEffect(() => setCopied("idle"), [entry?.slug]);
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -32,7 +35,7 @@ export function useCopyCode(entry: PromptEntry | undefined, from: string) {
   const copy = async () => {
     if (!entry) return;
     try {
-      if (!entry.demo) await copyText(entry.prompt);
+      if (!entry.demo) await copyText(brief ?? (await loadBrief("page", entry.slug, entry.prompt)));
       else await copyText(code ?? (await loadDemoSource(entry.demo)));
       setCopied("done");
       track("copy_code", { template: entry.slug, from, copied: entry.demo ? "code" : "prompt" });

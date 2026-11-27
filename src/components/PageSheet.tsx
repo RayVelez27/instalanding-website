@@ -17,13 +17,12 @@ import { mobileThumbFor } from "@/data/mobileThumbs";
 import { getRelatedPrompts, visiblePrompts, type PromptEntry } from "@/data/prompts";
 import { getSystemForTemplate } from "@/data/systems";
 import { motionsForPage } from "@/data/motion";
-import { isPhone } from "@/hooks/useIsPhone";
 import { track } from "@/lib/track";
+import { briefChars, loadBrief, useBrief } from "@/lib/briefs";
 
 /**
- * A landing page in the item sheet (phones and tablets). The preview shows the
- * page as it renders on the device you'd ship to: the phone capture on a
- * phone, the desktop one on a tablet, with a toggle between them. A tap loads
+ * A landing page in the item sheet (phones and tablets). The preview opens on
+ * the desktop capture everywhere, with a toggle to the phone one. A tap loads
  * it live, laid out at that width and scaled to fit, so the phone view on a
  * tablet is the real 390px layout, not a stretched one.
  */
@@ -57,7 +56,8 @@ const ScaledFrame = ({ src, title, width }: { src: string; title: string; width:
 const PageSheet = ({ entry, onClose, onGo }: { entry: PromptEntry; onClose: () => void; onGo: (slug: string) => void }) => {
   const navigate = useNavigate();
   const { copy, copied, code, source } = useCopyCode(entry, "sheet");
-  const [view, setView] = useState<"phone" | "desktop">(() => (isPhone() ? "phone" : "desktop"));
+  // Desktop view by default: a page squeezed to phone width inside the sheet reads oddly; phone view is one tap away
+  const [view, setView] = useState<"phone" | "desktop">("desktop");
   const [live, setLive] = useState(false);
   const [sub, setSub] = useState<null | "prompt" | "code" | "credits" | "feedback">(null);
   const [promptCopied, setPromptCopied] = useState(false);
@@ -77,11 +77,12 @@ const PageSheet = ({ entry, onClose, onGo }: { entry: PromptEntry; onClose: () =
   const phoneThumb = entry.thumbnail ? mobileThumbFor(entry.thumbnail) : undefined;
   // A page without a phone capture has nothing honest to show in phone view until it's live
   const poster = view === "phone" ? phoneThumb ?? entry.thumbnail : entry.thumbnail;
-  const promptText = entry.demo && code ? codePrompt(entry, code, SITE_URL) : entry.prompt;
-  const tokens = Math.round(promptText.length / 4);
+  const brief = useBrief("page", entry.slug, entry.prompt, !entry.demo && !entry.youtube);
+  const promptLen = entry.demo && code ? codePrompt(entry, code, SITE_URL).length : briefChars(entry);
+  const tokens = Math.round(promptLen / 4);
 
   const copyPrompt = async () => {
-    if (!entry.demo) await copyText(entry.prompt);
+    if (!entry.demo) await copyText(brief ?? (await loadBrief("page", entry.slug, entry.prompt)));
     else await copyText(codePrompt(entry, code ?? (await loadDemoSource(entry.demo)), SITE_URL));
     setPromptCopied(true);
     track("copy_prompt", { template: entry.slug, from: "sheet" });
@@ -129,7 +130,6 @@ const PageSheet = ({ entry, onClose, onGo }: { entry: PromptEntry; onClose: () =
           {poster && <img src={poster} alt="" />}
         </button>
       )}
-      {toggle}
     </>
   );
 
@@ -138,7 +138,7 @@ const PageSheet = ({ entry, onClose, onGo }: { entry: PromptEntry; onClose: () =
       title: "One-shot prompt",
       body: (
         <>
-          <pre className="isheet-pre">{entry.demo ? codePromptIntro(entry, SITE_URL) : entry.prompt}</pre>
+          <pre className="isheet-pre">{entry.demo ? codePromptIntro(entry, SITE_URL) : brief ?? "Loading the brief…"}</pre>
           {entry.demo && (
             <p className="isheet-p">
               <b>+ The code.</b> The whole of {file}
@@ -201,6 +201,7 @@ const PageSheet = ({ entry, onClose, onGo }: { entry: PromptEntry; onClose: () =
       ]}
       media={media}
       mediaRatio={entry.demo && !entry.youtube ? (view === "phone" ? "4 / 5" : "2 / 1") : "2 / 1"}
+      barStart={entry.demo && !entry.youtube ? toggle : undefined}
       mediaHint={entry.demo && !entry.youtube ? (live ? `Live · ${view} view` : "Tap to try it live") : undefined}
       canFullScreen={live}
       stats={

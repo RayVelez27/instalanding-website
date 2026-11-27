@@ -28,6 +28,8 @@ export interface IconSetEntry {
   tags: string[];
   /** How the icons respond */
   interaction: string;
+  /** How to use one icon file, after "Each icon is its own file" */
+  single: string;
   /** Third-party assets and their licences */
   credits: string[];
   /** The whole set in one file */
@@ -42,6 +44,62 @@ const set = (slug: string, ids: [string, string][]) =>
 
 export const iconSets: IconSetEntry[] = [
   {
+    slug: "healthcare-buttons",
+    title: "Healthcare Buttons",
+    description:
+      "Six animated buttons for a patient portal (find a doctor, schedule, virtual care, refill prescription, online check-in and lab results), teal glass tiles with flat illustrations that pop a pill, bandage or syringe label on hover and act out their task on click",
+    added: "Nov 26, 2026",
+    kind: "Illustrated buttons",
+    tech: "Decoded Rive · Canvas 2D · no libraries",
+    tags: ["healthcare", "medical", "buttons", "hover", "click", "animated", "illustration"],
+    interaction:
+      "Hover a button and its label slides out on a capsule, bandage or syringe. Click it and it acts: the doctor becomes a map pin, the calendar gets a date circled, the laptop opens a video call, the pill bottle pops its cap, the check-in board flips, and the centrifuge lifts out a sample vial.",
+    single:
+      "with the button fitted to its canvas, label included: size the canvas to place it and change the page background to yours.",
+    credits: [
+      "Decoded from a Rive file and redrawn by a small Canvas 2D engine inlined in each file; no Rive runtime.",
+      "Label font: Sofia Sans Extra Condensed, SIL Open Font License.",
+    ],
+    demo: "/icon-sets/healthcare-buttons/index.html",
+    thumbnail: "/icon-sets/healthcare-buttons.jpg",
+    icons: set("healthcare-buttons", [
+      ["doctor", "Find a doctor"],
+      ["schedule", "Schedule an appointment"],
+      ["virtual-care", "Virtual care"],
+      ["refill", "Refill prescription"],
+      ["check-in", "Online check-in"],
+      ["lab-results", "Lab results"],
+    ]),
+  },
+  {
+    slug: "css-software-icons",
+    title: "Pure CSS Software Icons",
+    description:
+      "Nine software icons drawn in nothing but CSS (cloud upload, settings, terminal, code, sun, database, sync, lock and chat), white on near-black with a cyan accent, each idling on its own loop and doing its job when the pointer lands on it",
+    added: "Nov 26, 2026",
+    kind: "Pure CSS",
+    tech: "HTML + CSS · no SVG, no JavaScript",
+    tags: ["css only", "line icons", "hover", "animated", "developer", "app icons"],
+    interaction:
+      "Hover an icon and it performs its action: the cloud uploads, the gears whir, the terminal types a command, the code brackets spring apart, the sun blooms, the database streams data, sync spins double time, the lock opens and the chat bubble pops a reply.",
+    single:
+      "made of plain divs: size it with font-size on .icon, and set color on the page to your background, since the shapes are cut out of it.",
+    credits: ["Hand-built CSS shapes and keyframes; no fonts, images or scripts."],
+    demo: "/icon-sets/css-software-icons/index.html",
+    thumbnail: "/icon-sets/css-software-icons.jpg",
+    icons: set("css-software-icons", [
+      ["cloud", "Cloud upload"],
+      ["settings", "Settings"],
+      ["terminal", "Terminal"],
+      ["code", "Code"],
+      ["sun", "Sun"],
+      ["database", "Database"],
+      ["sync", "Sync"],
+      ["lock", "Lock"],
+      ["chat", "Chat"],
+    ]),
+  },
+  {
     slug: "glassmorphism-material",
     title: "Glassmorphism Material Icons",
     description:
@@ -52,6 +110,7 @@ export const iconSets: IconSetEntry[] = [
     tags: ["glass", "gradient", "hover", "animated", "app icons"],
     interaction:
       "Hover an icon and it lifts on a soft violet halo: a spotlight follows the pointer across the glass, a sheen sweeps over it once and the rim catches the light. Each icon also plays its own state-machine animation.",
+    single: "with a transparent canvas: size the canvas to place it.",
     credits: ["Decoded from a Rive file and redrawn by a small Canvas 2D engine inlined in each file; no Rive runtime."],
     demo: "/icon-sets/glassmorphism-material/index.html",
     thumbnail: "/icon-sets/glassmorphism-material.jpg",

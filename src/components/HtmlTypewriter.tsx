@@ -99,17 +99,21 @@ const HtmlTypewriter = () => {
     let shown = 0;
     let hold = 0;
     let last = performance.now();
+    let since = 0; // ms since the last render: React re-renders ~20 times a second, not 60, so taps stay quick
     const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
     if (box.current) io.observe(box.current);
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      if (visible && !document.hidden) {
+      since += dt;
+      if (visible && !document.hidden && since >= 48) {
+        const step = since;
+        since = 0;
         if (shown < total) {
           // fast through whitespace, a touch slower on real characters
-          shown = Math.min(total, shown + Math.max(1, Math.round(dt / 14)));
+          shown = Math.min(total, shown + Math.max(1, Math.round(step / 14)));
           setN(shown);
-        } else if ((hold += dt) > 3200) {
+        } else if ((hold += step) > 3200) {
           shown = 0;
           hold = 0;
           setN(0);

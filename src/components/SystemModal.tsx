@@ -105,8 +105,23 @@ const SystemModal = ({ system, onClose, prev, next, onGo }: Props) => {
 
   const isHex = (v: string) => /^#[0-9a-f]{6}$/i.test(v.trim());
   const edited = Object.keys(overrides).length > 0;
+  /* The browser bundle ships `conventions` empty (plugins/strip-briefs.mjs); the
+     full instruction is the build's /s/<slug>.txt, fetched as the system opens
+     so COPY FOR AGENT can still write it inside the click. */
+  const [agentDoc, setAgentDoc] = useState<string | null>(null);
+  useEffect(() => {
+    setAgentDoc(null);
+    if (system.conventions.length) return;
+    let live = true;
+    fetch(`/s/${system.slug}.txt`)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
+      .then((t) => live && setAgentDoc(t), () => {});
+    return () => {
+      live = false;
+    };
+  }, [system]);
   const agentText = () =>
-    systemAgentInstruction(system, { siteUrl: SITE_URL, tokensCss: spec?.tokensCss, templates, components: system.components });
+    agentDoc ?? systemAgentInstruction(system, { siteUrl: SITE_URL, tokensCss: spec?.tokensCss, templates, components: system.components });
 
   const controls = spec && (
     <>
@@ -196,7 +211,7 @@ const SystemModal = ({ system, onClose, prev, next, onGo }: Props) => {
           {spec && (
             <>
               <div className="smodal-defs" aria-hidden="true" dangerouslySetInnerHTML={{ __html: spec.defs }} />
-              <SystemBoard system={system} spec={spec} templates={templates} overrides={overrides} flash={flash} onCopy={copy} only={only} />
+              <SystemBoard system={system} spec={spec} templates={templates} overrides={overrides} flash={flash} onCopy={copy} only={only} tapToCopy />
             </>
           )}
         </div>

@@ -13,7 +13,17 @@
     <meta name="description" content="One-shot HTML for humans and agents: landing pages, design systems, motion studies, real-time videos and interactive product concepts, each a single HTML file with no dependencies. Copy it, remix it, ship it. Free and MIT." />
     <meta name="author" content="Ray Velez" />
     <link rel="canonical" href="https://instalanding.ai/" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#ffffff" />
+    <!-- Light by default. A saved dark choice is applied before first paint, so
+         it never flashes light; src/lib/theme.ts keeps it in step afterwards. -->
+    <script>
+      try {
+        if (localStorage.getItem("instalanding.theme") === "dark") {
+          document.documentElement.classList.add("dark", "agent-dark");
+          document.querySelector('meta[name="theme-color"]').setAttribute("content", "#141518");
+        }
+      } catch (e) {}
+    </script>
 
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

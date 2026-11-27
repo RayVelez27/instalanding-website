@@ -88,7 +88,7 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
                 <span className="pmodal-note">
                   {mode === "preview"
                     ? watching
-                      ? "PRESS PLAY IN THE FRAME · SOUND ON"
+                      ? entry.silent ? "PLAYING IN THE FRAME · NO SOUND" : "PRESS PLAY IN THE FRAME · SOUND ON"
                       : "LOADS WHEN YOU PRESS WATCH"
                     : code
                       ? `FULL FILE ${size(code.length)} · BASE64 ASSETS SHOWN AS PLACEHOLDERS`
@@ -136,7 +136,7 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
                         <span className="vplay-chips">
                           <span>{entry.runtime}</span>
                           <span>REAL-TIME</span>
-                          <span>SOUND ON</span>
+                          <span>{entry.silent ? "NO SOUND" : "SOUND ON"}</span>
                         </span>
                       </span>
                       <span className="vplay-cta" aria-hidden="true">PRESS TO WATCH</span>
@@ -311,7 +311,11 @@ const VideoSheet = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
         )
       }
       mediaRatio="16 / 9"
-      mediaHint={watching ? "Press play in the frame · sound on" : `${entry.runtime} · sound on`}
+      mediaHint={
+        entry.silent
+          ? watching ? "Playing · no sound" : `${entry.runtime} · no sound`
+          : watching ? "Press play in the frame · sound on" : `${entry.runtime} · sound on`
+      }
       canFullScreen={watching}
       stats={[
         { value: entry.runtime, label: "Runtime" },

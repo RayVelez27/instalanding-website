@@ -6,6 +6,7 @@ import { Menu, Search, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SignupField from "@/components/SignupField";
 import { GithubIconLink } from "@/components/GithubButton";
+import ThemeToggle from "@/components/ThemeToggle";
 import LibrarySearch from "@/components/LibrarySearch";
 import { AgentModeToggle } from "@/components/AgentMode";
 import { EVERYTHING } from "@/lib/libraryItems";
@@ -24,8 +25,8 @@ const NAV_LINKS: { to: string; label: string; soon?: boolean; isNew?: boolean }[
   { to: "/systems", label: "SYSTEMS" },
   { to: "/motion", label: "MOTION" },
   { to: "/videos", label: "VIDEOS", isNew: true },
-  { to: "/icons", label: "ICONS", isNew: true },
   { to: "/products", label: "PRODUCTS", isNew: true },
+  { to: "/icons", label: "ICONS", isNew: true },
   // E-COMM is hidden, not removed: /ecomm and /ecomm/:slug still resolve. Restore this line to bring it back.
   // { to: "/ecomm", label: "E-COMM", isNew: true },
   // WORLD is hidden, not removed: /world still resolves. Restore this line to bring it back.
@@ -89,6 +90,18 @@ const Sidebar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  // The tab bar's More and the phone home's Search open these from outside
+  useEffect(() => {
+    const menu = () => setMobileMenuOpen(true);
+    const search = () => setSearchOpen(true);
+    window.addEventListener("il:open-menu", menu);
+    window.addEventListener("il:open-search", search);
+    return () => {
+      window.removeEventListener("il:open-menu", menu);
+      window.removeEventListener("il:open-search", search);
+    };
+  }, []);
 
   // The phone search panel closes on navigation and on Escape
   useEffect(() => {
@@ -172,6 +185,7 @@ const Sidebar = () => {
             <Search size={20} />
           </button>
           <GithubIconLink className="sidebar-icon-btn sidebar-icon-btn--gh" />
+          <ThemeToggle className="sidebar-icon-btn sidebar-icon-btn--theme" />
           <button
             type="button"
             className="sidebar-hamburger"

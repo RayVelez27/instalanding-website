@@ -8,6 +8,8 @@ export interface PromptEntry {
   categoryLabel: string;
   description: string;
   prompt: string;
+  /** The brief's length when the browser bundle ships `prompt` empty (plugins/strip-briefs.mjs) */
+  promptChars?: number;
   preview: PreviewKind;
   variant: "square" | "wide" | "tall" | "large";
   added: string;

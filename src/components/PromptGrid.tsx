@@ -1,4 +1,5 @@
 import { Fragment, useMemo, useState } from "react";
+import { loadBrief } from "@/lib/briefs";
 import { ArrowRight, ArrowUp } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { feedPrompts, promptsInCategory, type PromptEntry } from "@/data/prompts";
@@ -35,7 +36,7 @@ const PageCard = ({ entry, agent }: { entry: PromptEntry; agent: boolean }) => {
       ? async () => agentHandoff(entry)
       : entry.demo
         ? () => loadDemoSource(entry.demo!)
-        : async () => entry.prompt;
+        : () => loadBrief("page", entry.slug, entry.prompt);
   return (
     <LibraryCard
       kind="page"
@@ -106,7 +107,7 @@ const PromptGrid = ({ category, views }: { category?: string; views?: { view: Pa
     try {
       if (agent) await copyText(agentHandoff(entry));
       else if (entry.demo) await copyTextLater(loadDemoSource(entry.demo));
-      else await copyText(entry.prompt);
+      else await copyTextLater(loadBrief("page", entry.slug, entry.prompt));
     } catch {
       return;
     }

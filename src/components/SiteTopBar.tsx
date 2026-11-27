@@ -1,11 +1,12 @@
 import GithubButton from "@/components/GithubButton";
+import ThemeToggle from "@/components/ThemeToggle";
 import LibrarySearch from "@/components/LibrarySearch";
 import { AgentModeToggle } from "@/components/AgentMode";
 import { EVERYTHING } from "@/lib/libraryItems";
 
 /**
  * The bar at the top of HOME, PAGES, SYSTEMS and MOTION: search across the
- * whole library (⌘K), Agent Mode and GitHub. Sticky on desktop; on phones it
+ * whole library (⌘K), Agent Mode, GitHub and the light/dark toggle. Sticky on desktop; on phones it
  * scrolls with the page, since the phone header is already pinned.
  */
 const SiteTopBar = () => (
@@ -14,6 +15,7 @@ const SiteTopBar = () => (
     <div className="library-intro-actions">
       <AgentModeToggle />
       <GithubButton />
+      <ThemeToggle />
     </div>
   </div>
 );

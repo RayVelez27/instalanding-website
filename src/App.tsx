@@ -1,34 +1,37 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams, type Location } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import Index from "./pages/Index";
+const Index = lazy(() => import("./pages/Index"));
 import Home from "./pages/Home";
-import Category from "./pages/Category";
-import PromptModal from "@/components/PromptModal";
-import PromptDetail from "./pages/PromptDetail";
-import About from "./pages/About";
-import Builders from "./pages/Builders";
-import Agents from "./pages/Agents";
-import Contact from "./pages/Contact";
-import Contribute from "./pages/Contribute";
-import Sponsor from "./pages/Sponsor";
-import BuilderPage from "./pages/BuilderPage";
+const Category = lazy(() => import("./pages/Category"));
+const PromptModal = lazy(() => import("@/components/PromptModal"));
+const PromptDetail = lazy(() => import("./pages/PromptDetail"));
+const About = lazy(() => import("./pages/About"));
+const Builders = lazy(() => import("./pages/Builders"));
+const Agents = lazy(() => import("./pages/Agents"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Contribute = lazy(() => import("./pages/Contribute"));
+const Sponsor = lazy(() => import("./pages/Sponsor"));
+const BuilderPage = lazy(() => import("./pages/BuilderPage"));
 import { builders } from "@/data/builders";
-import ComingSoon from "./pages/ComingSoon";
-import Systems from "./pages/Systems";
-import Motion from "./pages/Motion";
-import Ecomm from "./pages/Ecomm";
-import Videos from "./pages/Videos";
-import Products from "./pages/Products";
-import Icons from "./pages/Icons";
-import World from "./pages/World";
-import Login from "./pages/Login";
-import ResetPassword from "./pages/ResetPassword";
-import NotFound from "./pages/NotFound";
+const ComingSoon = lazy(() => import("./pages/ComingSoon"));
+const Systems = lazy(() => import("./pages/Systems"));
+const Motion = lazy(() => import("./pages/Motion"));
+const Ecomm = lazy(() => import("./pages/Ecomm"));
+const Videos = lazy(() => import("./pages/Videos"));
+const Products = lazy(() => import("./pages/Products"));
+const Icons = lazy(() => import("./pages/Icons"));
+import { useThemeClasses } from "./hooks/useAgentDark";
+const World = lazy(() => import("./pages/World"));
+const Login = lazy(() => import("./pages/Login"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 import SiteFooter from "@/components/SiteFooter";
+import PhoneTabBar from "@/components/PhoneTabBar";
 import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -55,11 +58,15 @@ const MoviesRedirect = () => {
  */
 const AppRoutes = () => {
   const location = useLocation();
+  // The light/dark choice and Agent Mode's twist, on every page
+  useThemeClasses();
   const background = (location.state as { backgroundLocation?: Location } | null)?.backgroundLocation;
 
   return (
     <>
       <ScrollToTop />
+      {/* Every page but HOME loads its code on first visit; the bundle up front is the home page */}
+      <Suspense fallback={<div className="route-loading" aria-busy="true" />}>
       <Routes location={background ?? location}>
         {/* HOME is the front door to all three layers; the pages feed lives at /pages */}
         <Route path="/" element={<Home />} />
@@ -122,12 +129,16 @@ const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
       <SiteFooter />
+      <PhoneTabBar />
 
       {background && (
-        <Routes>
-          <Route path="/prompt/:slug" element={<PromptModal />} />
-        </Routes>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/prompt/:slug" element={<PromptModal />} />
+          </Routes>
+        </Suspense>
       )}
     </>
   );

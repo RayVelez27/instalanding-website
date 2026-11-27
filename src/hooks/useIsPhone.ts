@@ -1,12 +1,13 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * True at phone widths (the same 720px breakpoint as the phone feed). Read
+ * True wherever the mobile layout shows: phones and tablets, the same query as
+ * useIsCompact and the CSS (up to 1100px, touch screens up to 1400px). Read
  * synchronously, unlike useIsMobile, so the first render is already the right
  * layout: the prompt page must not mount the desktop live preview on a phone
  * and then swap it out.
  */
-const QUERY = "(max-width: 720px)";
+const QUERY = "(max-width: 1100px), (pointer: coarse) and (max-width: 1400px)";
 
 const subscribe = (onChange: () => void) => {
   const mql = window.matchMedia(QUERY);

@@ -25,6 +25,8 @@ interface Props {
   onCopy: (key: string, text: string) => void;
   /** Show only the panels this accepts (the phone sheet's tabs); numbering stays the board's */
   only?: (panel: string) => boolean;
+  /** Phones and tablets: a component preview is one big copy target, not live UI (taps on half-interactive markup read as broken) */
+  tapToCopy?: boolean;
 }
 
 const TYPE_ROWS = 8;
@@ -67,7 +69,7 @@ function EaseCurve({ value }: { value: string }) {
   );
 }
 
-const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy, only }: Props) => {
+const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy, only, tapToCopy }: Props) => {
   const p = system.prefix;
   const byId = useMemo(() => new Map(spec.components.map((c) => [c.id, c])), [spec]);
   const group = (title: string) => spec.groups.find((g) => g.title === title);
@@ -380,7 +382,19 @@ const SystemBoard = ({ system, spec, templates, overrides, flash, onCopy, only }
           actions={<CopyBtn id={`c-${c.id}`} flash={flash} onClick={() => onCopy(`c-${c.id}`, componentSnippet(system, spec, c, SITE_URL))} />}
         >
           <p className="sb-note">{c.note}</p>
-          <div className={`${system.rootClass} sb-demo`} style={demoStyle} dangerouslySetInnerHTML={{ __html: c.html }} />
+          {tapToCopy ? (
+            <button
+              type="button"
+              className={`sb-demo-tap${flash === `c-${c.id}` ? " is-copied" : ""}`}
+              onClick={() => onCopy(`c-${c.id}`, componentSnippet(system, spec, c, SITE_URL))}
+              aria-label={`Copy the ${c.label} component`}
+            >
+              <span className={`${system.rootClass} sb-demo`} style={demoStyle} dangerouslySetInnerHTML={{ __html: c.html }} />
+              <span className="sb-demo-chip" aria-hidden="true">{flash === `c-${c.id}` ? "Copied" : "Tap to copy"}</span>
+            </button>
+          ) : (
+            <div className={`${system.rootClass} sb-demo`} style={demoStyle} dangerouslySetInnerHTML={{ __html: c.html }} />
+          )}
         </Panel>
       );
     }

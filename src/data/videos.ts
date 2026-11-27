@@ -24,9 +24,94 @@ export interface VideoEntry {
   demo: string;
   /** 1200x600 still from the video */
   thumbnail: string;
+  /** No soundtrack and no play button of its own: it starts as soon as the frame loads */
+  silent?: boolean;
 }
 
 export const videos: VideoEntry[] = [
+  {
+    slug: "voxel-pelican-assembly",
+    title: "Voxel Pelican Assembly",
+    description:
+      "A 24-second voxel build-and-ride: a seaside diorama of a pelican on a bicycle assembles itself block by block in an isometric view, then the camera flattens to a side-on shot and the pelican pedals off across a bridge that builds itself just ahead of the wheels",
+    added: "Nov 26, 2026",
+    runtime: "0:24",
+    tech: "three.js · voxels · GSAP timeline",
+    tags: ["voxel", "3d", "isometric", "camera moves"],
+    credits: [],
+    demo: "/video-demos/voxel-pelican-assembly.html",
+    thumbnail: "/video-demos/voxel-pelican-assembly.jpg",
+    silent: true,
+  },
+  {
+    slug: "tube-field-lights",
+    title: "Tube Field Lights",
+    description:
+      "A 14-second WebGL piece on black: pink light balls bounce up and down through a dark grid of rounded-square tubes, then a green ball rises, freezes mid-air, and blooms until its light engulfs the frame before pulling back into a single glowing orb",
+    added: "Nov 26, 2026",
+    runtime: "0:14",
+    tech: "three.js · point lights · GSAP timeline",
+    tags: ["webgl", "lights", "generative", "dark"],
+    credits: [],
+    demo: "/video-demos/tube-field-lights.html",
+    thumbnail: "/video-demos/tube-field-lights.jpg",
+    silent: true,
+  },
+  {
+    slug: "chaotic-time-clock",
+    title: "Chaotic Time Clock",
+    description:
+      "An 8-second shot of a glowing seven-segment clock floating over its own reflection, where time has come loose: the digits whir, surge and stutter as the clock races ahead, the camera drifts and the neon cycles through the spectrum",
+    added: "Nov 26, 2026",
+    runtime: "0:08",
+    tech: "CSS 3D · GSAP timeline",
+    tags: ["clock", "neon", "css 3d", "dark"],
+    credits: [],
+    demo: "/video-demos/chaotic-time-clock.html",
+    thumbnail: "/video-demos/chaotic-time-clock.jpg",
+    silent: true,
+  },
+  {
+    slug: "car-drive-loop",
+    title: "Car Drive Loop",
+    description:
+      "An 11-second flat-illustrated drive: a time-machine sports car cruises through a circular porthole ringed by a glowing tachometer, across a synthwave desert of layered hills, cacti and hot-air balloons, until the porthole opens onto the whole sunset landscape",
+    added: "Nov 26, 2026",
+    runtime: "0:11",
+    tech: "SVG car · Canvas 2D · GSAP timeline",
+    tags: ["synthwave", "illustration", "car", "loop"],
+    credits: [],
+    demo: "/video-demos/car-drive-loop.html",
+    thumbnail: "/video-demos/car-drive-loop.jpg",
+    silent: true,
+  },
+  {
+    slug: "vending-machine-city",
+    title: "Vending Machine City",
+    description:
+      "A 10-second wordless pull-back: a glowing red vending machine on a dark street corner keeps dropping cans, which tumble out and roll across the pavement as the camera climbs away over a night-time isometric city of towers, hotels, parks and lamplit streets, until the machine is a red speck among the rooftops",
+    added: "Nov 26, 2026",
+    runtime: "0:10",
+    tech: "Decoded Rive · Canvas 2D · procedural city",
+    tags: ["isometric", "city", "camera moves", "night"],
+    credits: [],
+    demo: "/video-demos/vending-machine-city.html",
+    thumbnail: "/video-demos/vending-machine-city.jpg",
+    silent: true,
+  },
+  {
+    slug: "medusa-naga",
+    title: "Medusa Naga",
+    description:
+      "A 15-second talking ad for InstaLanding: a 3D snake-tailed Medusa in sunglasses waves, sways and speaks her lines in a synthesized voice, then stays live, watching your cursor, reacting when tapped and spinning when dragged",
+    added: "Nov 26, 2026",
+    runtime: "0:15",
+    tech: "Real-time 3D · Web Audio · speech synthesis",
+    tags: ["character", "3d", "interactive", "voice", "sound", "blackletter"],
+    credits: [],
+    demo: "/video-demos/medusa-naga.html",
+    thumbnail: "/video-demos/medusa-naga.jpg",
+  },
   {
     slug: "brand-identity",
     title: "Brand Identity",

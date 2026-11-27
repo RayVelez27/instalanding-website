@@ -92,9 +92,114 @@ export interface MotionEntry {
   pairsWith: string[];
   credits: { label: string; href: string; note: string }[];
   prompt: string;
+  /** The brief's length when the browser bundle ships `prompt` empty (plugins/strip-briefs.mjs) */
+  promptChars?: number;
 }
 
 export const motions: MotionEntry[] = [
+  {
+    slug: "peekaboo-orange",
+    title: "Peekaboo Orange",
+    kind: "CURSOR-FOLLOW CHARACTER",
+    tagline: "A cartoon orange in a top hat hides in a purple hole under a bobbing INSTALANDING arrow; point at him and the arrow dives in, he pops out and his head and eyes follow you",
+    description:
+      "A glossy 3D-style arrow, purple and gold with INSTALANDING riding on top in chunky extruded letters, bobs over a glowing purple hole on a charcoal stage. Move the pointer onto the stage and the arrow, title and all, dives into the hole; a cartoon orange with a purple top hat, a green curl and a polka-dot bow tie springs up out of it and settles into a gentle idle. From then on his head turns, tilts and leans toward wherever the pointer is, his eyes go with it, and every few seconds he blinks. Leave and he ducks back down while the arrow rises out of the hole and picks up its bob again. On a phone, a tap calls him up, a drag steers his gaze and a second tap sends him home. It is a decoded Rive file (one 500 × 500 artboard, three state-machine layers and a joystick) replayed by a small Canvas 2D runtime; the title is drawn in code and parented to the arrow so it dives with it.",
+    added: "Nov 26, 2026",
+    theme: "dark",
+    demo: "/motion-lab/peekaboo-orange.html",
+    poster: "/motion-lab/peekaboo-orange.jpg",
+    library: { name: "Canvas 2D", version: "decoded .riv", plugins: ["no runtime", "state machine", "joystick"] },
+    life: 4.4,
+    lifeLabel: "ONE VISIT: UP, A LOOK AROUND, BACK DOWN",
+    drawSeconds: 6,
+    elements: 1,
+    status: "IN THE HOLE · HOVER TO CALL HIM UP",
+    stepLabels: ["Send him back down", "Call him up and look around"],
+    reelAutoplay: 4200,
+    tracks: [
+      { prop: "arrow + title · dive", change: "0.33 s: the arrow squashes and drops into the hole, the INSTALANDING title riding it down", start: 0, end: 0.075, ease: "power2.in" },
+      { prop: "orange · jump out", change: "1.33 s: he springs up out of the hole and settles", start: 0, end: 0.3, ease: "power3.out" },
+      { prop: "orange · idle while up", change: "a 2 s loop (frames 60 to 184 of LOOP): a small breathing sway", start: 0.3, end: 0.68, ease: "power1.inOut", yoyo: true },
+      { prop: "head + eyes · follow", change: "a joystick maps the pointer to two animations, Xaxis and Yaxis, scrubbed by position: turn, tilt and lean", start: 0.3, end: 0.68, ease: "none" },
+      { prop: "eyes · blink", change: "a 3 s loop on its own layer, so he blinks up or down", start: 0, end: 1, ease: "none" },
+      { prop: "orange · jump in", change: "0.6 s: he ducks back into the hole when the pointer leaves", start: 0.68, end: 0.82, ease: "power2.in" },
+      { prop: "arrow + title · rise", change: "0.47 s up out of the hole, then a 200 ms blend into the bob", start: 0.82, end: 0.97, ease: "power3.out" },
+      { prop: "arrow · bob", change: "a 2.5 s loop while he is down: the arrow floats up and down over the hole", start: 0.82, end: 1, ease: "power1.inOut", yoyo: true },
+    ],
+    inputs: [
+      { keys: ["HOVER"], does: "The arrow dives into the hole and the orange pops up" },
+      { keys: ["MOVE"], does: "His head turns, tilts and leans toward the pointer, and his eyes follow" },
+      { keys: ["LEAVE"], does: "He jumps back in and the arrow rises out of the hole" },
+      { keys: ["TAP", "DRAG"], does: "On touch: a tap calls him up, a drag steers his gaze, a second tap sends him back" },
+    ],
+    knobs: [
+      {
+        id: "sweep",
+        label: "GAZE SWEEP",
+        min: 1,
+        max: 8,
+        step: 0.5,
+        value: 3,
+        unit: "s",
+        note: "How long the lab's pointer takes to circle him once when it calls him up. Quick laps show how far the joystick lets his head swing; slow ones show the eyes leading the head.",
+      },
+    ],
+    toggles: [
+      { id: "follow", label: "FOLLOW", value: true },
+      { id: "title", label: "TITLE", value: true },
+    ],
+    trick: {
+      title: "A head that follows the pointer without any math in the scene",
+      steps: [
+        "The .riv was decoded into plain data and is replayed by a small runtime with its own state machine, cubic eases, hit-testing and joystick; no Rive code ships.",
+        "An invisible handle node follows the pointer: a pointer-move listener with an align-target action sets its position to the pointer, in its parent's space.",
+        "A joystick reads where that handle sits inside a 500 × 500 box and turns it into two numbers from -1 to 1. Each number scrubs an animation, Xaxis and Yaxis, to that point in its timeline. Those two animations hold every head turn, tilt and eye position, keyed by hand, so the follow looks drawn rather than computed.",
+        "A full-stage hitbox sets one bool, HoverOn, on enter and clears it on exit. Three layers listen to it: up/down (idle in the hole, jump out, the loop while up, jump in), the arrow (bob, dive, rest in the hole, rise) and a blink that never stops.",
+        "INSTALANDING is not in the .riv. It is drawn in code with a subset of Fredoka, reusing the arrow's own paints, and parented to the arrow's node so it bobs, squashes and dives with it.",
+      ],
+    },
+    tags: ["character", "cursor follow", "hover", "rive", "state machine", "playful"],
+    bestFor: ["mascots that greet visitors on a hero", "empty states and 404 pages", "playful brands, food and kids' products", "a hover reward on a download or sign-up CTA"],
+    pairsWith: ["oishi-taiyaki-ice-cream-page", "peelo-ai-sticker-printer-page", "side-quest-adoption-center-page", "sakura-corgi-game-landing-page"],
+    credits: [
+      {
+        label: "Fredoka (Google Fonts)",
+        href: "https://fonts.google.com/specimen/Fredoka",
+        note: "The title's letters, SIL Open Font License, subset to INSTALANDING and inlined",
+      },
+    ],
+    prompt: `Build a peekaboo cursor-follow character as one HTML file: a cartoon orange hides in a hole under a bobbing arrow, pops up when the pointer arrives, follows it with his head and eyes, and ducks back down when it leaves. Charcoal page (#212121), one full-viewport canvas, Canvas 2D, no libraries.
+
+THE STAGE
+- A 500 × 500 artboard, contained and centred, so it fits a phone's width.
+- A glowing purple hole: a flat ellipse with a magenta-to-violet gradient, low in the frame.
+- Over it, a chunky 3D-style down arrow: a gold-to-violet gradient front face, a purple extruded side, a dark purple outline and a soft cream shine sweep.
+- Above the arrow, INSTALANDING in a rounded bold face (Fredoka 700), extruded six steps down-left in purple, gold-to-violet front, the same outline. Parent it to the arrow so it moves with it.
+
+THE CHARACTER (drawn in code)
+- A big glossy orange head with freckles and a curled ear, a purple top hat tipped to one side, a green curl on top, green brows, big cream eyes with dark pupils, a button nose, one tooth and a purple tongue, on a thin stalk neck with a green polka-dot bow tie.
+
+THE STATE MACHINE (one bool: hovered)
+- Up/down layer: idle in the hole → (hovered) jump out, 1.33 s → a loop while up (a small sway, about 2 s) → (not hovered) jump in, 0.6 s → idle.
+- Arrow layer: bob (2.5 s loop) → (hovered) dive into the hole, 0.33 s, squashing as it goes → rest out of sight → (not hovered) rise, 0.47 s, then a 200 ms blend back into the bob.
+- Blink layer: a blink every 3 s, always running.
+
+THE FOLLOW
+- An invisible handle node moves to the pointer on every pointer move.
+- A joystick maps the handle's position inside the 500 × 500 box to x and y from -1 to 1, and scrubs two hand-keyed animations (head turn and lean on x, tilt and eye height on y) to that point. Apply it after the state machine each frame.
+
+THE INPUT
+- A full-stage hitbox: enter sets hovered, leave clears it.
+- Touch: ignore the pointerleave that follows a lifted finger. A tap calls him up, a drag steers his gaze, and a second tap without a drag sends him back.
+
+THINGS THAT BREAK
+- Hit-test and place the handle through the inverse of the view transform, the same one you draw with.
+- Sample cubic eases by solving t from x, not by using progress as t.
+- Cap dt at 0.1 s so a background tab doesn't fire every transition at once.
+
+THE FLOOR
+The canvas has role="img" and an aria-label describing the character; touch-action none so a drag doesn't scroll. Works at 390px wide.`,
+  },
   {
     slug: "redline-gauge",
     title: "Redline Gauge",

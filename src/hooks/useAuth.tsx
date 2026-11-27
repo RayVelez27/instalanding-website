@@ -1,5 +1,4 @@
 import { useState, useEffect, createContext, useContext } from "react";
-import { supabase, supabaseConfigured } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
 interface AuthContextType {
@@ -24,29 +23,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Nothing to talk to, so do not sit in a loading state forever: report
     // "not signed in" and let the rest of the app get on with it.
-    if (!supabaseConfigured) {
-      setLoading(false);
-      return;
-    }
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+    // The Supabase client (and its ~100 KB library) loads after first paint,
+    // not in the bundle every visitor downloads.
+    let unsubscribe = () => {};
+    let live = true;
+    import("@/integrations/supabase/client").then(({ supabase, supabaseConfigured }) => {
+      if (!live) return;
+      if (!supabaseConfigured) {
+        setLoading(false);
+        return;
+      }
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      });
+      unsubscribe = () => subscription.unsubscribe();
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      });
     });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      live = false;
+      unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
+    const { supabase } = await import("@/integrations/supabase/client");
     await supabase.auth.signOut();
   };
 

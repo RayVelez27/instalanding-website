@@ -19,6 +19,7 @@ import PageSheet from "@/components/PageSheet";
 import Index from "@/pages/Index";
 import { useIsCompact } from "@/hooks/useIsCompact";
 import { track } from "@/lib/track";
+import { briefChars, loadBrief, useBrief } from "@/lib/briefs";
 import { codePrompt, codePromptIntro } from "@/lib/codePrompt";
 import { SITE_URL } from "@/lib/agentMode";
 
@@ -39,6 +40,7 @@ const PromptDetail = () => {
   const compact = useIsCompact();
   const navigate = useNavigate();
   const { copy, copied, label: copyLabel, text: copyCaption, source, code } = useCopyCode(entry, phone ? "phone" : "page");
+  const brief = useBrief("page", slug, entry?.prompt, Boolean(entry && !entry.demo && !entry.youtube));
 
   // Called before the not-found redirect below: hooks cannot be conditional.
   useSeo({
@@ -73,9 +75,9 @@ const PromptDetail = () => {
   // The prompt is the code: a short instruction, then the whole HTML file, the
   // same text /p/<slug>.txt and MCP get_prompt give an agent. An entry with no
   // single-file demo has no code, so it keeps its written brief.
-  const promptText = entry.demo && code ? codePrompt(entry, code, SITE_URL) : entry.prompt;
+  const promptLen = entry.demo && code ? codePrompt(entry, code, SITE_URL).length : briefChars(entry);
   const handleCopyPrompt = async () => {
-    if (!entry.demo) await copyText(entry.prompt);
+    if (!entry.demo) await copyText(brief ?? (await loadBrief("page", entry.slug, entry.prompt)));
     else await copyText(codePrompt(entry, code ?? (await loadDemoSource(entry.demo)), SITE_URL));
     setPromptCopied(true);
     track("copy_prompt", { template: entry.slug, from: phone ? "phone" : "page" });
@@ -190,7 +192,7 @@ const PromptDetail = () => {
                   <div><dt>PREVIEW</dt><dd>{entry.demo ? "LIVE DEMO" : entry.preview.replace("-", " ").toUpperCase()}</dd></div>
                 )}
                 <div><dt>ADDED</dt><dd>{entry.added}</dd></div>
-                {!entry.youtube && <div><dt>LENGTH</dt><dd>{promptText.length.toLocaleString()} CHARS</dd></div>}
+                {!entry.youtube && <div><dt>LENGTH</dt><dd>{promptLen.toLocaleString()} CHARS</dd></div>}
                 {entry.demo && <div><dt>DEMO</dt><dd>SINGLE FILE</dd></div>}
                 {entry.repoUrl && <div><dt>SOURCE</dt><dd>GITHUB REPO</dd></div>}
               </dl>
@@ -240,7 +242,7 @@ const PromptDetail = () => {
                   {promptCopied ? "COPIED" : "COPY PROMPT"}
                 </button>
               </div>
-              <pre className="detail-prompt-body">{entry.demo ? codePromptIntro(entry, SITE_URL) : entry.prompt}</pre>
+              <pre className="detail-prompt-body">{entry.demo ? codePromptIntro(entry, SITE_URL) : brief ?? "Loading the brief…"}</pre>
               {entry.demo && (
                 <div className="detail-prompt-ref">
                   <p className="detail-prompt-ref-title">+ THE CODE</p>

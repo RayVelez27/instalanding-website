@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { PAGE_ITEMS } from "@/lib/libraryItems";
@@ -30,21 +30,32 @@ const HeroReel = () => {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const [still] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // Off screen, the reel stops: no timer, no re-render, nothing competing with a tap
+  const box = useRef<HTMLDivElement>(null);
+  const [onScreen, setOnScreen] = useState(true);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
-    if (paused || still) return;
+    if (paused || still || !onScreen) return;
     const t = window.setTimeout(() => {
       if (!document.hidden) setI((n) => (n + 1) % REEL.length);
     }, HOLD);
     return () => window.clearTimeout(t);
-  }, [i, paused, still]);
+  }, [i, paused, still, onScreen]);
 
   if (!REEL.length) return null;
   const cur = REEL[i];
 
   return (
     <div
-      className={`hero-reel${paused || still ? " is-paused" : ""}`}
+      ref={box}
+      className={`hero-reel${paused || still || !onScreen ? " is-paused" : ""}`}
       style={{ "--hold": `${HOLD}ms` } as CSSProperties}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
