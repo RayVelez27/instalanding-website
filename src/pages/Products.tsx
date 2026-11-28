@@ -19,6 +19,13 @@ import { useIsCompact } from "@/hooks/useIsCompact";
 import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
 import { isRecent, shortDate } from "@/lib/sheetDates";
 import ModalDesc from "@/components/ModalDesc";
+import { shuffle } from "@/data/prompts";
+
+/* A new order on every page load, like PAGES and MOTION. Kept for the visit, so closing a
+   dialog (which changes the route) doesn't reshuffle the grid, and the dialog's previous / next
+   and "more" lists follow the grid's order. */
+let dealt: ProductEntry[] | null = null;
+const ordered = () => (dealt ??= shuffle(products));
 
 /**
  * /products and /products/:slug. A product is a device or app concept you can
@@ -69,10 +76,10 @@ const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
   useEffect(() => setMode("preview"), [entry.slug]);
   // The details (controls, credits, more products) slide over the stage on demand, so the product gets the full width
   const [details, setDetails] = useState(false);
-  const index = products.findIndex((p) => p.slug === entry.slug);
-  const prev = index > 0 ? products[index - 1] : null;
-  const next = index < products.length - 1 ? products[index + 1] : null;
-  const others = products.filter((p) => p.slug !== entry.slug);
+  const index = ordered().findIndex((p) => p.slug === entry.slug);
+  const prev = index > 0 ? ordered()[index - 1] : null;
+  const next = index < ordered().length - 1 ? ordered()[index + 1] : null;
+  const others = ordered().filter((p) => p.slug !== entry.slug);
 
   /* Arrow keys walk the products without closing, like PAGES. Keys pressed
      inside the product go to its own frame, so they never reach this. */
@@ -209,7 +216,7 @@ const ProductModal = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
                       <div className="pmodal-body-head">
                         <span>MORE PRODUCTS</span>
                         <span>
-                          {others.length} OF {products.length}
+                          {others.length} OF {ordered().length}
                         </span>
                       </div>
                       <ul className="pmodal-more">
@@ -266,9 +273,9 @@ const ProductSheet = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
   const { copy, copied, code, source } = useCopyCode(page, "product_sheet");
   const [sub, setSub] = useState<null | "controls" | "about" | "code">(null);
   useEffect(() => setSub(null), [entry.slug]);
-  const index = products.findIndex((p) => p.slug === entry.slug);
-  const prev = index > 0 ? products[index - 1] : null;
-  const next = index < products.length - 1 ? products[index + 1] : null;
+  const index = ordered().findIndex((p) => p.slug === entry.slug);
+  const prev = index > 0 ? ordered()[index - 1] : null;
+  const next = index < ordered().length - 1 ? ordered()[index + 1] : null;
   const shown = useMemo(() => (code && sub === "code" ? readableSource(code) : null), [code, sub]);
   const file = entry.demo.split("/").pop() ?? "index.html";
 
@@ -351,7 +358,7 @@ const ProductSheet = ({ entry, onClose, onGo }: { entry: ProductEntry; onClose: 
       </div>
       <SheetCarousel
         title="More products"
-        items={products.filter((o) => o.slug !== entry.slug).map((o) => ({ key: o.slug, title: o.title, sub: o.kind, thumb: o.thumbnail, onClick: () => onGo(o.slug) }))}
+        items={ordered().filter((o) => o.slug !== entry.slug).map((o) => ({ key: o.slug, title: o.title, sub: o.kind, thumb: o.thumbnail, onClick: () => onGo(o.slug) }))}
       />
     </ItemSheet>
   );
@@ -401,7 +408,7 @@ const Products = () => {
 
         <div className="media-grid layer-grid">
           <div className="card-grid">
-            {products.map((p) => (
+            {ordered().map((p) => (
               <ProductTile key={p.slug} entry={p} />
             ))}
           </div>

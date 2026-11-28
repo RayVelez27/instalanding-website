@@ -17,6 +17,13 @@ import { useAgentDark } from "@/hooks/useAgentDark";
 import { useSeo } from "@/hooks/useSeo";
 import { track } from "@/lib/track";
 import ModalDesc from "@/components/ModalDesc";
+import { shuffle } from "@/data/prompts";
+
+/* A new order on every page load, like PAGES and MOTION. Kept for the visit, so closing a
+   dialog (which changes the route) doesn't reshuffle the grid, and the dialog's previous / next
+   and "more" lists follow the grid's order. */
+let dealt: IconSetEntry[] | null = null;
+const ordered = () => (dealt ??= shuffle(iconSets));
 
 /**
  * /icons and /icons/:slug. An icon set is one file with every icon, plus one
@@ -169,9 +176,9 @@ const IconSetModal = ({ set, onClose }: { set: IconSetEntry; onClose: () => void
 
 const IconSetSheet = ({ set, onClose, onGo }: { set: IconSetEntry; onClose: () => void; onGo: (slug: string) => void }) => {
   const { flash, copyIcon, copyAll } = useIconCopy(set);
-  const i = iconSets.findIndex((s) => s.slug === set.slug);
-  const prev = i > 0 ? iconSets[i - 1] : null;
-  const next = i < iconSets.length - 1 ? iconSets[i + 1] : null;
+  const i = ordered().findIndex((s) => s.slug === set.slug);
+  const prev = i > 0 ? ordered()[i - 1] : null;
+  const next = i < ordered().length - 1 ? ordered()[i + 1] : null;
   return (
     <ItemSheet
       kind="icons"
@@ -238,7 +245,7 @@ const Icons = () => {
         <AgentPanel />
         <div className="media-grid layer-grid">
           <div className="card-grid">
-            {iconSets.map((s) => (
+            {ordered().map((s) => (
               <LibraryCard
                 key={s.slug}
                 kind="icons"

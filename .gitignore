@@ -33,3 +33,7 @@ mcp/node_modules
 .env
 .env.local
 .env.*.local
+
+# hero-fonts intermediates (scripts/hero-fonts)
+scripts/hero-fonts/jobs.json
+scripts/hero-fonts/fonts.json

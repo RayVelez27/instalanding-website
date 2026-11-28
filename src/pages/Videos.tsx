@@ -19,6 +19,13 @@ import { useIsCompact } from "@/hooks/useIsCompact";
 import ItemSheet, { SheetCarousel, SheetRow } from "@/components/ItemSheet";
 import { isRecent, shortDate } from "@/lib/sheetDates";
 import ModalDesc from "@/components/ModalDesc";
+import { shuffle } from "@/data/prompts";
+
+/* A new order on every page load, like PAGES and MOTION. Kept for the visit, so closing a
+   dialog (which changes the route) doesn't reshuffle the grid, and the dialog's previous / next
+   and "more" lists follow the grid's order. */
+let dealt: VideoEntry[] | null = null;
+const ordered = () => (dealt ??= shuffle(videos));
 
 /**
  * /videos and /videos/:slug. A video renders live in the browser from one
@@ -39,10 +46,10 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
     setMode("preview");
     setWatching(false);
   }, [entry.slug]);
-  const index = videos.findIndex((m) => m.slug === entry.slug);
-  const prev = index > 0 ? videos[index - 1] : null;
-  const next = index < videos.length - 1 ? videos[index + 1] : null;
-  const others = videos.filter((m) => m.slug !== entry.slug);
+  const index = ordered().findIndex((m) => m.slug === entry.slug);
+  const prev = index > 0 ? ordered()[index - 1] : null;
+  const next = index < ordered().length - 1 ? ordered()[index + 1] : null;
+  const others = ordered().filter((m) => m.slug !== entry.slug);
 
   /* Arrow keys walk the videos without closing, like PAGES */
   useEffect(() => {
@@ -201,7 +208,7 @@ const VideoModal = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
                       <div className="pmodal-body-head">
                         <span>MORE VIDEOS</span>
                         <span>
-                          {others.length} OF {videos.length}
+                          {others.length} OF {ordered().length}
                         </span>
                       </div>
                       <ul className="pmodal-more">
@@ -262,9 +269,9 @@ const VideoSheet = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
     setWatching(false);
     setSub(null);
   }, [entry.slug]);
-  const index = videos.findIndex((m) => m.slug === entry.slug);
-  const prev = index > 0 ? videos[index - 1] : null;
-  const next = index < videos.length - 1 ? videos[index + 1] : null;
+  const index = ordered().findIndex((m) => m.slug === entry.slug);
+  const prev = index > 0 ? ordered()[index - 1] : null;
+  const next = index < ordered().length - 1 ? ordered()[index + 1] : null;
   const shown = useMemo(() => (code && sub === "code" ? readable(code) : null), [code, sub]);
   const file = entry.demo.split("/").pop() ?? "index.html";
   const play = () => {
@@ -342,7 +349,7 @@ const VideoSheet = ({ entry, onClose, onGo }: { entry: VideoEntry; onClose: () =
       </div>
       <SheetCarousel
         title="More videos"
-        items={videos.filter((o) => o.slug !== entry.slug).map((o) => ({ key: o.slug, title: o.title, sub: o.runtime, thumb: o.thumbnail, onClick: () => onGo(o.slug) }))}
+        items={ordered().filter((o) => o.slug !== entry.slug).map((o) => ({ key: o.slug, title: o.title, sub: o.runtime, thumb: o.thumbnail, onClick: () => onGo(o.slug) }))}
       />
     </ItemSheet>
   );
@@ -393,7 +400,7 @@ const Videos = () => {
 
         <div className="media-grid layer-grid">
           <div className="card-grid">
-            {videos.map((m) => (
+            {ordered().map((m) => (
               <VideoTile key={m.slug} entry={m} />
             ))}
           </div>
